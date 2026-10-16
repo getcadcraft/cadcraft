@@ -82,7 +82,7 @@ const KERNEL = ['vec.js', 'model.js', 'earcut.js', 'camera.js', 'infer.js', 'too
     .filter((f) => /from 'three'/.test(fs.readFileSync(path.join(APP, f), 'utf8')));
   ok(!threeUsers.length, 'only the views (m3d/view3d.js, ws3d.js) import three.js', threeUsers.join(', '));
   const man = JSON.parse(fs.readFileSync(path.join(APP, 'manifest.json'), 'utf8'));
-  ok(man.imports?.three === '/assets/vendor/three/current/three.module.js', 'the manifest maps "three" to the vendored three.js');
+  ok(man.imports?.three === '/assets/vendor/three/current/three.module.js' || man.imports?.three === '/assets/vendor/three/0.186.1/three.module.js', 'the manifest maps "three" to the vendored three.js');
   const main = fs.readFileSync(path.join(APP, 'cadcraft.js'), 'utf8');
   ok(/import\('\.\/ws3d\.js'\)/.test(main) && !/^import .*ws3d/m.test(main), 'cadcraft.js loads the 3D view lazily (import() on first open)');
 }

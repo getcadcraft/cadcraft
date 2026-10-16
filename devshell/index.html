@@ -43,6 +43,33 @@
   <button type="button" class="app-bar-btn app-bar-help" data-help-open aria-expanded="false" title="Help (F1)" hidden><i class="bi bi-question-circle" aria-hidden="true"></i><span class="app-bar-btn-label">Help</span></button>
   <button type="button" class="app-bar-btn app-bar-settings" data-settings-open aria-haspopup="dialog" aria-expanded="false" title="Settings (Ctrl+,)" hidden><i class="bi bi-gear" aria-hidden="true"></i><span class="app-bar-btn-label">Settings</span></button>
   <button type="button" class="app-bar-fs" data-fs-cycle aria-pressed="false" hidden><i class="bi bi-fullscreen" aria-hidden="true"></i><span class="app-bar-fs-label">Full screen</span></button>
+  <details class="app-bar-toolbar-menu app-bar-ribbon-menu" data-toolbar-menu data-ribbon-menu>
+    <summary class="app-bar-btn app-bar-toolbar app-bar-ribbon" title="Toolbar display & rows (Ctrl+F1)">
+      <i class="bi bi-layout-sidebar-inset-reverse" aria-hidden="true"></i><span class="app-bar-btn-label">Toolbar</span> <i class="bi bi-chevron-down app-bar-chevron" aria-hidden="true"></i>
+    </summary>
+    <div class="app-bar-menu-list" role="menu">
+      <div class="app-bar-menu-h">Display (Ctrl+F1)</div>
+      <button type="button" role="menuitemradio" data-toolbar-set="full" data-ribbon-set="full" aria-checked="true">
+        <i class="bi bi-grid-3x2-gap" aria-hidden="true"></i><span>Icons + text</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-set="symbols" data-ribbon-set="symbols" aria-checked="false">
+        <i class="bi bi-fonts" aria-hidden="true"></i><span>Just icons</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-set="text" data-ribbon-set="text" aria-checked="false">
+        <i class="bi bi-layout-text-window" aria-hidden="true"></i><span>Just text</span>
+      </button>
+      <div class="app-bar-menu-h">Rows (Shift+Ctrl+F1)</div>
+      <button type="button" role="menuitemradio" data-toolbar-rows-set="auto" data-ribbon-rows-set="auto" aria-checked="true">
+        <i class="bi bi-text-wrap" aria-hidden="true"></i><span>Auto-wrap</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-rows-set="2" data-ribbon-rows-set="2" aria-checked="false">
+        <i class="bi bi-distribute-vertical" aria-hidden="true"></i><span>2 rows</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-rows-set="1" data-ribbon-rows-set="1" aria-checked="false">
+        <i class="bi bi-distribute-horizontal" aria-hidden="true"></i><span>1 row (scrollable)</span>
+      </button>
+    </div>
+  </details>
   <form class="space-toggle" method="get" action="/" role="group" aria-label="Drawing space (theme)">
     <button type="submit" name="space" value="paper" aria-pressed="false" title="Paper space: light theme">Paper</button>
     <button type="submit" name="space" value="model" aria-pressed="false" title="Model space: dark theme">Model</button>
@@ -353,7 +380,7 @@
             </details>
                                       </div>
       </div>
-        <input type="file" class="visually-hidden" accept=".dwg,.dxf,.json,.ccsheets,.pln,.pla,.tpl,.bpn,.las,.laz,.xyz,.pts" tabindex="-1" aria-hidden="true" data-file>
+    <input type="file" class="visually-hidden" accept=".dwg,.dxf,.json,.ccsheets,.pln,.pla,.tpl,.bpn,.las,.laz,.xyz,.pts" tabindex="-1" aria-hidden="true" data-file>
   </div>
 
     <template data-tools-3d>
@@ -521,7 +548,10 @@
       <canvas class="cc-canvas cc-over" data-over aria-label="Drawing. Type commands at the command line below; the mouse picks points and objects."></canvas>
     </div>
     <div class="cc-hint" data-hint>
-      <p class="cc-hint-h">Start drawing</p>
+      <div class="cc-hint-head">
+        <p class="cc-hint-h">Start drawing</p>
+        <button type="button" class="cc-x cc-hint-close" data-hint-close aria-label="Close" title="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
       <ul>
         <li>Type <kbd>L</kbd> and press <kbd>Enter</kbd> for a line. Click points, or type <kbd>@100,0</kbd>; press <kbd>Enter</kbd> to finish.</li>
         <li><kbd>C</kbd> circle, <kbd>REC</kbd> rectangle, <kbd>TR</kbd> trim, <kbd>O</kbd> offset. Type <kbd>HELP</kbd> for every command.</li>
@@ -707,6 +737,24 @@
     <label><input type="radio" name="ccTabs" value="number"> <i class="bi bi-123" aria-hidden="true"></i> Sheet numbers only</label>
   </div>
   <p class="shell-hint-text">With many sheets, show only each sheet&#039;s number on its tab (from the sheet set, or the start of its name, like A-101). Hover a tab for its whole name.</p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend>Toolbar display</legend>
+  <div class="shell-seg" role="radiogroup" aria-label="Toolbar display">
+    <label><input type="radio" name="ccToolbarDisplay" value="full"> <i class="bi bi-grid-3x2-gap" aria-hidden="true"></i> Icons + text</label>
+    <label><input type="radio" name="ccToolbarDisplay" value="symbols"> <i class="bi bi-fonts" aria-hidden="true"></i> Just icons</label>
+    <label><input type="radio" name="ccToolbarDisplay" value="text"> <i class="bi bi-layout-text-window" aria-hidden="true"></i> Just text</label>
+  </div>
+  <p class="shell-hint-text">Display mode for tools: Icons and text, compact icons only, or text labels only (Ctrl+F1).</p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend>Toolbar rows (layers)</legend>
+  <div class="shell-seg" role="radiogroup" aria-label="Toolbar rows">
+    <label><input type="radio" name="ccToolbarRows" value="auto"> <i class="bi bi-text-wrap" aria-hidden="true"></i> Auto-wrap</label>
+    <label><input type="radio" name="ccToolbarRows" value="2"> <i class="bi bi-distribute-vertical" aria-hidden="true"></i> 2 rows</label>
+    <label><input type="radio" name="ccToolbarRows" value="1"> <i class="bi bi-distribute-horizontal" aria-hidden="true"></i> 1 row</label>
+  </div>
+  <p class="shell-hint-text">Control how many rows/layers tools wrap into. Auto-wrap wraps to fit your screen (default); 2 rows balances width; 1 row keeps maximum drawing area with horizontal scrolling.</p>
 </fieldset>
 <fieldset class="shell-set" data-mytools-settings><legend>My tools</legend></fieldset>
 <div data-assistants-settings></div>

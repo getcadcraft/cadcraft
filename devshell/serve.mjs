@@ -61,7 +61,7 @@ export function mapUrl(pathname) {
   if ((m = pathname.match(/^\/assets\/apps\/([a-z0-9-]+)\/dev\/(.*)$/))) {
     return m[1] === SLUG ? { file: inside(APP_DIR, m[2]) } : null;
   }
-  if ((m = pathname.match(/^\/assets\/vendor\/([a-z0-9._-]+)\/([a-z0-9._-]+)\/(.*)$/)) && !['bootstrap-icons'].includes(m[1])) {
+  if ((m = pathname.match(/^\/assets\/vendor\/([a-z0-9._-]+)\/([a-z0-9._-]+)\/(.*)$/))) {
     const ver = m[2] === 'current' ? (META.vendor?.[m[1]] || null) : m[2];
     if (!ver) return null;
     return { file: inside(path.join(VENDOR, m[1], ver), m[3]), vendor: { lib: m[1], ver, rest: m[3] } };

@@ -21,6 +21,7 @@
     "vendor": {
         "laz-perf": "0.0.7",
         "manifold-3d": "3.5.4",
+        "bootstrap-icons": "1.13.2",
         "noble-ciphers": "2.4.0",
         "noble-curves": "2.4.0",
         "noble-hashes": "2.4.0",

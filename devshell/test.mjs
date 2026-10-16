@@ -68,7 +68,7 @@ export function buildMirror() {
     fs.mkdirSync(dir, { recursive: true });
     link(dir, path.join(MIRROR, 'public_html/assets/vendor', lib, v.version));
     const cur = path.join(MIRROR, 'public_html/assets/vendor', lib, 'current');   // current → "<version>", as on the site
-    try { fs.rmSync(cur, { force: true }); } catch {}
+    try { fs.rmSync(cur, { recursive: true, force: true }); } catch {}
     fs.symlinkSync(v.version, cur);
   }
   if (fs.existsSync(path.join(ROOT, 'fixtures'))) link(path.join(ROOT, 'fixtures'), path.join(MIRROR, 'fixtures'));

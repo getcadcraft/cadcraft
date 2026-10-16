@@ -121,6 +121,18 @@ export class Engine {
     const typed = s.trim();
     if (!this.waiting) {
       if (!typed) { if (this.last) return this.run(this.last); return; }
+      const spaceIdx = typed.indexOf(' ');
+      if (spaceIdx > 0 && !lookup(typed)) {
+        const cmdPart = typed.slice(0, spaceIdx);
+        const argPart = typed.slice(spaceIdx + 1).trim();
+        if (lookup(cmdPart)) {
+          const runPromise = this.run(cmdPart);
+          if (argPart) {
+            setTimeout(() => { if (this.waiting) this.text(argPart); }, 0);
+          }
+          return runPromise;
+        }
+      }
       return this.run(typed);
     }
     const w = this.waiting;
@@ -3262,6 +3274,63 @@ def('DXFOUT', [], async (c) => { await c.host.saveFile?.('dxf', false); }, { noR
 def('HELP', ['?'], async (c) => {
   for (const k of commandList()) c.print(k.name + (k.aliases.length ? ' (' + k.aliases.join(', ') + ')' : '') + ' — ' + k.help);
 }, { noRepeat: true, keepSelection: true, help: () => t('cmd.help.list') });
+def('TOOLBAR', ['RIBBON'], async (c) => { (c.host.setToolbar || c.host.setRibbon)?.('full'); }, { noRepeat: true, help: () => 'Show the toolbar (Ctrl+F1)' });
+def('TOOLBARCLOSE', ['RIBBONCLOSE'], async (c) => { (c.host.setToolbar || c.host.setRibbon)?.('hidden'); }, { noRepeat: true, help: () => 'Hide the toolbar (Ctrl+F1)' });
+def('TOOLBARSTATE', ['RIBBONSTATE'], async (c) => {
+  const hidden = (key) => ({ key, label: key, hidden: true });
+  const k = await c.keyword('Enter toolbar display state [Full/Icons/Text/Hidden] <Full>:', {
+    options: [
+      opt('F', 'Full (icons + text)'),
+      opt('I', 'Icons only'),
+      opt('T', 'Text only'),
+      opt('H', 'Hidden'),
+      hidden('FULL'),
+      hidden('ICONS'),
+      hidden('SYMBOLS'),
+      hidden('COMPACT'),
+      hidden('TEXT'),
+      hidden('HIDDEN'),
+      hidden('MIN'),
+    ],
+    default: 'F',
+  });
+  const key = String(typeof k === 'string' ? k : k?.option || '').toUpperCase();
+  let mode = 'full';
+  if (key === 'I' || key === 'ICONS' || key === 'SYMBOLS' || key === 'COMPACT') mode = 'symbols';
+  else if (key === 'T' || key === 'TEXT') mode = 'text';
+  else if (key === 'H' || key === 'HIDDEN' || key === 'MIN') mode = 'hidden';
+  (c.host.setToolbar || c.host.setRibbon)?.(mode);
+  c.print(`Toolbar state: ${mode === 'symbols' ? 'Just icons' : mode === 'text' ? 'Just text' : mode === 'hidden' ? 'Hidden' : 'Icons + text'}`);
+}, { noRepeat: true, keepSelection: true, help: () => 'Set toolbar display mode: Full (icons + text), Icons only, Text only, or Hidden (TOOLBARSTATE)' });
+def('TOOLBARROWS', ['TOOLBARROW', 'RIBBONROWS', 'RIBBONROW'], async (c) => {
+  const cur = (c.host.getToolbarRows || c.host.getRibbonRows)?.() || 'auto';
+  const hidden = (key) => ({ key, label: key, hidden: true });
+  const k = await c.keyword(t('cmd.toolbarrows.prompt', { cur }) || t('cmd.ribbonrows.prompt', { cur }) || `Enter number of toolbar rows [Auto/2/1] <${cur}>:`, {
+    options: [
+      opt('A', 'Auto-wrap'),
+      opt('2', '2 rows'),
+      opt('1', '1 row'),
+      hidden('AUTO'),
+      hidden('WRAP'),
+      hidden('SINGLE'),
+      hidden('DOUBLE'),
+    ],
+    default: cur === 'auto' ? 'A' : cur,
+  });
+  const key = String(typeof k === 'string' ? k : k?.option || '').toUpperCase();
+  let mode = cur;
+  if (key === '1' || key === 'SINGLE') mode = '1';
+  else if (key === '2' || key === 'DOUBLE') mode = '2';
+  else if (key === 'A' || key === 'AUTO' || key === 'WRAP') mode = 'auto';
+  (c.host.setToolbarRows || c.host.setRibbonRows)?.(mode);
+  c.print(
+    mode === '1'
+      ? t('cmd.toolbarrows.set', { n: '1' }) || t('cmd.ribbonrows.set', { n: '1' }) || 'Toolbar rows: 1 (single row, scrollable)'
+      : mode === '2'
+      ? t('cmd.toolbarrows.set', { n: '2' }) || t('cmd.ribbonrows.set', { n: '2' }) || 'Toolbar rows: 2 rows'
+      : t('cmd.toolbarrows.set_auto') || t('cmd.ribbonrows.set_auto') || 'Toolbar rows: Auto-wrap'
+  );
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.toolbarrows.help') || t('cmd.ribbonrows.help') || 'Set toolbar rows: 1 (single row), 2, or Auto (TOOLBARROWS)' });
 
 // ---- parametric: GEOMCONSTRAINT / GC*, DIMCONSTRAINT / DC*, PARAMETERS, CONSTRAINTBAR, DELCONSTRAINT, AUTOCONSTRAIN (pcommands.js)
 // The command registry add-ons use (0.4 part 2 A.3, docs/ADDONS-SPEC.md §5.4; addons/commands-api.js): CadCraft's own feature

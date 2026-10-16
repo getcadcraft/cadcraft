@@ -169,6 +169,33 @@ ob_start();
 <?php endif; ?>
   <button type="button" class="app-bar-btn app-bar-settings" data-settings-open aria-haspopup="dialog" aria-expanded="false" title="Settings (Ctrl+,)" hidden><i class="bi bi-gear" aria-hidden="true"></i><span class="app-bar-btn-label">Settings</span></button>
   <button type="button" class="app-bar-fs" data-fs-cycle aria-pressed="false" hidden><i class="bi bi-fullscreen" aria-hidden="true"></i><span class="app-bar-fs-label">Full screen</span></button>
+  <details class="app-bar-toolbar-menu app-bar-ribbon-menu" data-toolbar-menu data-ribbon-menu>
+    <summary class="app-bar-btn app-bar-toolbar app-bar-ribbon" title="Toolbar display & rows (Ctrl+F1)">
+      <i class="bi bi-layout-sidebar-inset-reverse" aria-hidden="true"></i><span class="app-bar-btn-label">Toolbar</span> <i class="bi bi-chevron-down app-bar-chevron" aria-hidden="true"></i>
+    </summary>
+    <div class="app-bar-menu-list" role="menu">
+      <div class="app-bar-menu-h">Display (Ctrl+F1)</div>
+      <button type="button" role="menuitemradio" data-toolbar-set="full" data-ribbon-set="full" aria-checked="true">
+        <i class="bi bi-grid-3x2-gap" aria-hidden="true"></i><span>Icons + text</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-set="symbols" data-ribbon-set="symbols" aria-checked="false">
+        <i class="bi bi-fonts" aria-hidden="true"></i><span>Just icons</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-set="text" data-ribbon-set="text" aria-checked="false">
+        <i class="bi bi-layout-text-window" aria-hidden="true"></i><span>Just text</span>
+      </button>
+      <div class="app-bar-menu-h">Rows (Shift+Ctrl+F1)</div>
+      <button type="button" role="menuitemradio" data-toolbar-rows-set="auto" data-ribbon-rows-set="auto" aria-checked="true">
+        <i class="bi bi-text-wrap" aria-hidden="true"></i><span>Auto-wrap</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-rows-set="2" data-ribbon-rows-set="2" aria-checked="false">
+        <i class="bi bi-distribute-vertical" aria-hidden="true"></i><span>2 rows</span>
+      </button>
+      <button type="button" role="menuitemradio" data-toolbar-rows-set="1" data-ribbon-rows-set="1" aria-checked="false">
+        <i class="bi bi-distribute-horizontal" aria-hidden="true"></i><span>1 row (scrollable)</span>
+      </button>
+    </div>
+  </details>
   <form class="space-toggle" method="get" action="<?= $edition === null ? '/' : '' ?>" role="group" aria-label="Drawing space (theme)">
     <button type="submit" name="space" value="paper" aria-pressed="false" title="Paper space: light theme">Paper</button>
     <button type="submit" name="space" value="model" aria-pressed="false" title="Model space: dark theme">Model</button>

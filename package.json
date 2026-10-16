@@ -1,5 +1,6 @@
 {
     "name": "cadcraft",
+    "type": "module",
     "private": true,
     "description": "CadCraft — 2D drafting & 3D modeling (the CadCraft family)",
     "scripts": {

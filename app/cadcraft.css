@@ -25,11 +25,221 @@
   background: var(--sheet-2);
   border-bottom: var(--pen-2) solid var(--ink);
   scrollbar-width: thin;
+  position: relative;
 }
 .cc-tool-group { display: flex; flex-direction: column; padding: .25rem .35rem .3rem; border-right: var(--pen-1) solid var(--line); flex: 0 0 auto; }
 .cc-tool-group:last-of-type { border-right: 0; }
 .cc-tool-label { font-size: .75rem; font-weight: 600; color: var(--ink-2); padding: 0 .2rem .15rem; }
 .cc-tool-row { display: flex; gap: .1rem; }
+
+/* ---- App Bar Toolbar Dropdown Menu ---- */
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) {
+  position: relative;
+  display: inline-flex;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) summary::-webkit-details-marker {
+  display: none;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) summary {
+  list-style: none;
+  cursor: pointer;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-chevron {
+  font-size: .65em;
+  margin-left: .15rem;
+  opacity: .8;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu)[open] > summary {
+  background: var(--sheet);
+  border-color: var(--ink);
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list {
+  position: absolute;
+  top: calc(100% + .35rem);
+  right: 0;
+  z-index: 70;
+  min-width: 13.5rem;
+  padding: .3rem 0;
+  background: var(--sheet-2);
+  color: var(--ink);
+  border: var(--pen-2) solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .14);
+}
+.app-bar-menu-h {
+  padding: .45rem .85rem .25rem;
+  font-size: .6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--ink-2);
+  border-top: var(--pen-1) solid var(--line);
+}
+.app-bar-menu-h:first-child {
+  border-top: 0;
+  padding-top: .25rem;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  width: 100%;
+  padding: .35rem .85rem;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button:hover,
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button:focus-visible {
+  background: var(--sheet);
+  outline: none;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button .bi {
+  font-size: 1rem;
+  color: var(--ink-2);
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button:hover .bi {
+  color: var(--ink);
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button[aria-checked="true"] {
+  font-weight: 700;
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button[aria-checked="true"] .bi {
+  color: var(--layer, var(--ink));
+}
+:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu) .app-bar-menu-list button[aria-checked="true"]::after {
+  content: "✓";
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--layer, var(--ink));
+}
+
+/* Toolbar State: Small Symbols / Just icons (applies to CadCraft, Drafting Classic, and Ribbon) */
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-tool {
+  min-width: 2.1rem;
+  padding: .2rem .25rem;
+  gap: 0;
+}
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-tool > span {
+  display: none;
+}
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-tool .bi {
+  font-size: 1.15rem;
+  display: inline-block !important;
+}
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-tool-group {
+  padding: .15rem .25rem .2rem;
+}
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-tool-label {
+  font-size: .65rem;
+  padding: 0 .15rem .05rem;
+}
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-in-tool.cc-in-big {
+  min-width: 2.2rem !important;
+  padding: .2rem .25rem !important;
+  flex-direction: row !important;
+}
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-in-tool > span {
+  display: none !important;
+}
+:is(.cc[data-toolbar-display="symbols"], .cc[data-ribbon="symbols"]) .cc-in-panel {
+  padding: 0 .15rem;
+}
+
+/* Toolbar State: Just Text (labels only, applies to CadCraft, Drafting Classic, and Ribbon) */
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-tool {
+  flex-direction: row;
+  align-items: center;
+  min-width: auto;
+  padding: .25rem .45rem;
+  gap: 0;
+}
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-tool > .bi {
+  display: none !important;
+}
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-tool > span {
+  display: inline-block !important;
+  font-size: .75rem;
+  line-height: 1.2;
+}
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-tool-group {
+  padding: .2rem .35rem .25rem;
+}
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-tool-label {
+  font-size: .7rem;
+  padding: 0 .2rem .1rem;
+}
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-in-tool > i {
+  display: none !important;
+}
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-in-tool.cc-in-big {
+  min-width: auto !important;
+  padding: .25rem .45rem !important;
+  flex-direction: row !important;
+}
+:is(.cc[data-toolbar-display="text"], .cc[data-ribbon="text"]) .cc-in-tool.cc-in-icon span {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* Toolbar State: Minimized / Hidden (tools collapse, canvas maximized) */
+:is(.cc[data-toolbar-display="hidden"], .cc[data-ribbon="hidden"]) .cc-tool-group {
+  display: none !important;
+}
+:is(.cc[data-toolbar-display="hidden"], .cc[data-ribbon="hidden"]) .cc-tools {
+  display: none !important;
+}
+:is(.cc[data-toolbar-display="hidden"], .cc[data-ribbon="hidden"]) .cc-in-rbody {
+  display: none !important;
+}
+
+/* ---- Toolbar Rows Configuration (applies to CadCraft, Drafting Classic, and Ribbon) ---- */
+/* Auto-wrap (default): fluid multi-row wrap without height restriction */
+.cc:not([data-toolbar-rows]):not([data-ribbon-rows]) .cc-tools,
+:is(.cc[data-toolbar-rows="auto"], .cc[data-ribbon-rows="auto"]) .cc-tools,
+:is(.cc[data-toolbar-rows="auto"], .cc[data-ribbon-rows="auto"]) .cc-in-rbody {
+  flex-wrap: wrap !important;
+  overflow: visible;
+  max-height: none;
+}
+
+/* 1 row: single row with horizontal scrollbar */
+:is(.cc[data-toolbar-rows="1"], .cc[data-ribbon-rows="1"]) .cc-tools,
+:is(.cc[data-toolbar-rows="1"], .cc[data-ribbon-rows="1"]) .cc-in-rbody,
+:is(.cc[data-toolbar-rows="1"], .cc[data-ribbon-rows="1"]) .cc-in-rhead {
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-height: none;
+}
+:is(.cc[data-toolbar-rows="1"], .cc[data-ribbon-rows="1"]) .cc-in-panel {
+  flex: 0 0 auto;
+}
+
+/* 2 rows: wraps across 2 rows, fully enveloping all icons cleanly */
+:is(.cc[data-toolbar-rows="2"], .cc[data-ribbon-rows="2"]) .cc-tools,
+:is(.cc[data-toolbar-rows="2"], .cc[data-ribbon-rows="2"]) .cc-in-rbody {
+  flex-wrap: wrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-height: none;
+}
+:is(.cc[data-toolbar-rows="2"], .cc[data-ribbon-rows="2"]):not([data-toolbar-display="symbols"]):not([data-ribbon="symbols"]) .cc-tool {
+  min-width: 2.35rem;
+  padding: .2rem .18rem .18rem;
+}
+:is(.cc[data-toolbar-rows="2"], .cc[data-toolbar-rows="2"]):not([data-toolbar-display="symbols"]):not([data-ribbon="symbols"]) .cc-tool-group {
+  padding: .2rem .25rem .25rem;
+}
+
 .cc-tool {
   display: flex;
   flex-direction: column;
@@ -47,7 +257,7 @@
   cursor: pointer;
   white-space: nowrap;
 }
-.cc-tool .bi { font-size: 1.15rem; line-height: 1; color: var(--layer); }
+.cc-tool .bi { font-size: 1.15rem; line-height: 1; color: var(--layer); display: inline-block !important; }
 .cc-tool:hover { border-color: var(--line); background: var(--sheet); }
 .cc-tool:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
 .cc-tool[aria-pressed="true"] { border-color: var(--ink); background: var(--sheet); }
@@ -243,7 +453,22 @@ body:not([data-shell-tb="labels"]) .cc.cc-fit-compact .cc-tool > span {
   background: var(--sheet-2);
   border: var(--pen-2) solid var(--ink);
   border-radius: var(--radius);
-  pointer-events: none;
+  pointer-events: auto;
+}
+.cc-hint-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: .35rem;
+}
+.cc-hint-head .cc-hint-h {
+  margin: 0;
+}
+.cc-hint-close {
+  padding: .15rem .35rem;
+  font-size: .8125rem;
+  line-height: 1;
 }
 .cc-hint-h { margin: 0 0 .35rem; font-weight: 700; font-stretch: 112%; }
 .cc-dyn {   /* dynamic input (F12) by the crosshair */

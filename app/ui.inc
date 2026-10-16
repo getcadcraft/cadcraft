@@ -370,7 +370,10 @@ $__more = [
       <canvas class="cc-canvas cc-over" data-over aria-label="<?= Lang::e('ui.canvas.aria') ?>"></canvas>
     </div>
     <div class="cc-hint" data-hint>
-      <p class="cc-hint-h"><?= Lang::e('ui.start_drawing') ?></p>
+      <div class="cc-hint-head">
+        <p class="cc-hint-h"><?= Lang::e('ui.start_drawing') ?></p>
+        <button type="button" class="cc-x cc-hint-close" data-hint-close aria-label="<?= Lang::e('ui.close') ?>" title="<?= Lang::e('ui.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
       <ul>
         <li><?= Lang::e('ui.type') ?> <kbd>L</kbd> <?= Lang::e('ui.and_press') ?> <kbd>Enter</kbd> <?= Lang::e('ui.line_click_points_type') ?> <kbd>@100,0</kbd><?= Lang::e('ui.press') ?> <kbd>Enter</kbd> <?= Lang::e('ui.to_finish') ?></li>
         <li><kbd>C</kbd> <?= Lang::e('ui.circle_2') ?> <kbd>REC</kbd> <?= Lang::e('ui.rectangle_2') ?> <kbd>TR</kbd> <?= Lang::e('ui.trim_2') ?> <kbd>O</kbd> <?= Lang::e('ui.offset_type') ?> <kbd>HELP</kbd> <?= Lang::e('ui.every_command') ?></li>

@@ -123,6 +123,180 @@ function init(root) {
   view.lwDisplay = settings.lwt;
   view.cursorSize = settings.cursor;
 
+  // ---- toolbar cycle: full (icons + text) -> symbols (just icons) -> text (just text) ----
+  const TOOLBAR_MODES = ['full', 'symbols', 'text'];
+  const RIBBON_MODES = TOOLBAR_MODES;
+  const TOOLBAR_TITLES = {
+    full: 'Toolbar: Icons + text — Click for Just icons (Ctrl+F1, Shift+Ctrl+F1 for rows)',
+    symbols: 'Toolbar: Just icons — Click for Just text (Ctrl+F1, Shift+Ctrl+F1 for rows)',
+    text: 'Toolbar: Just text — Click for Icons + text (Ctrl+F1, Shift+Ctrl+F1 for rows)',
+    hidden: 'Toolbar: Hidden — Click to Restore full toolbar (Ctrl+F1, Shift+Ctrl+F1 for rows)',
+  };
+  const RIBBON_TITLES = TOOLBAR_TITLES;
+  const TOOLBAR_ICONS = {
+    full: 'bi-grid-3x2-gap',
+    symbols: 'bi-fonts',
+    text: 'bi-layout-text-window',
+    hidden: 'bi-chevron-down',
+  };
+  const RIBBON_ICONS = TOOLBAR_ICONS;
+
+  // One-time cleanup for any stale pre-fix localStorage states
+  try {
+    if (!localStorage.getItem('cadcraft.ribbon_fixed_v2')) {
+      localStorage.removeItem('cadcraft.ribbon_state');
+      localStorage.removeItem('cadcraft.ribbon_rows');
+      localStorage.setItem('cadcraft.ribbon_fixed_v2', '1');
+    }
+  } catch {}
+
+  let ribbonState = (() => {
+    try {
+      const s = localStorage.getItem('cadcraft.toolbar_state') || localStorage.getItem('cadcraft.ribbon_state');
+      return ['full', 'symbols', 'text'].includes(s) ? s : 'full';
+    } catch {
+      return 'full';
+    }
+  })();
+
+  const applyRibbonState = (mode) => {
+    if (!['full', 'symbols', 'text', 'hidden'].includes(mode)) mode = 'full';
+    ribbonState = mode;
+    root.setAttribute('data-toolbar-display', mode);
+    root.setAttribute('data-ribbon', mode);
+    try {
+      localStorage.setItem('cadcraft.toolbar_state', mode);
+      localStorage.setItem('cadcraft.ribbon_state', mode);
+    } catch {}
+
+    // Update toolbar dropdown menu checkmarks
+    document.querySelectorAll('[data-toolbar-set], [data-ribbon-set]').forEach((btn) => {
+      const val = btn.dataset.toolbarSet || btn.dataset.ribbonSet;
+      btn.setAttribute('aria-checked', String(val === mode));
+    });
+
+    // Update Settings radio buttons
+    settingsDlg?.querySelectorAll('input[name="ccToolbarDisplay"], input[name="ccRibbonDisplay"]').forEach((r) => {
+      r.checked = r.value === mode;
+    });
+
+    // Update App Bar summary icon, label, and title
+    const toolbarBtn = document.querySelector('.app-bar-toolbar, .app-bar-ribbon');
+    if (toolbarBtn) {
+      toolbarBtn.title = TOOLBAR_TITLES[mode] || TOOLBAR_TITLES.full;
+      const icon = toolbarBtn.querySelector('.bi:not(.app-bar-chevron)');
+      if (icon) {
+        icon.className = `bi ${TOOLBAR_ICONS[mode] || TOOLBAR_ICONS.full}`;
+      }
+      const label = toolbarBtn.querySelector('.app-bar-btn-label');
+      if (label) {
+        label.textContent = mode === 'symbols' ? 'Toolbar: Icons' : mode === 'text' ? 'Toolbar: Text' : 'Toolbar';
+      }
+    }
+
+    view.resize();
+  };
+
+  const cycleRibbon = () => {
+    const curIdx = TOOLBAR_MODES.indexOf(ribbonState);
+    const nextIdx = curIdx >= 0 ? (curIdx + 1) % TOOLBAR_MODES.length : 0;
+    const nextMode = TOOLBAR_MODES[nextIdx];
+    applyRibbonState(nextMode);
+    const label = nextMode === 'symbols' ? 'Just icons' : nextMode === 'text' ? 'Just text' : 'Icons + text';
+    if (typeof print === 'function') print(`Toolbar: ${label}`);
+  };
+
+  // ---- toolbar rows / layers: auto (fluid wrap), 2 (two rows), 1 (single row) ----
+  const TOOLBAR_ROW_OPTIONS = ['auto', '2', '1'];
+  const RIBBON_ROW_OPTIONS = TOOLBAR_ROW_OPTIONS;
+  let ribbonRowsState = (() => {
+    try {
+      const r = localStorage.getItem('cadcraft.toolbar_rows') || localStorage.getItem('cadcraft.ribbon_rows');
+      return TOOLBAR_ROW_OPTIONS.includes(r) ? r : 'auto';
+    } catch {
+      return 'auto';
+    }
+  })();
+
+  function applyRibbonRows(mode) {
+    if (!TOOLBAR_ROW_OPTIONS.includes(mode)) mode = 'auto';
+    ribbonRowsState = mode;
+    root.setAttribute('data-toolbar-rows', mode);
+    root.setAttribute('data-ribbon-rows', mode);
+    try {
+      localStorage.setItem('cadcraft.toolbar_rows', mode);
+      localStorage.setItem('cadcraft.ribbon_rows', mode);
+    } catch {}
+
+    // Update toolbar dropdown menu checkmarks
+    document.querySelectorAll('[data-toolbar-rows-set], [data-ribbon-rows-set]').forEach((btn) => {
+      const val = btn.dataset.toolbarRowsSet || btn.dataset.ribbonRowsSet;
+      btn.setAttribute('aria-checked', String(val === mode));
+    });
+
+    // Update Settings radio buttons
+    settingsDlg?.querySelectorAll('input[name="ccToolbarRows"], input[name="ccRibbonRows"]').forEach((r) => {
+      r.checked = r.value === mode;
+    });
+    view.resize();
+  }
+
+  function cycleRibbonRows() {
+    const nextIdx = (TOOLBAR_ROW_OPTIONS.indexOf(ribbonRowsState) + 1) % TOOLBAR_ROW_OPTIONS.length;
+    const nextMode = TOOLBAR_ROW_OPTIONS[nextIdx];
+    applyRibbonRows(nextMode);
+    const label = nextMode === 'auto' ? 'Auto-wrap' : nextMode === '2' ? '2 rows' : '1 row (scrollable)';
+    if (typeof print === 'function') print(`Toolbar rows: ${label}`);
+  }
+
+  document.addEventListener('click', (e) => {
+    const setBtn = e.target.closest('[data-toolbar-set], [data-ribbon-set]');
+    if (setBtn) {
+      e.preventDefault();
+      const val = setBtn.dataset.toolbarSet || setBtn.dataset.ribbonSet;
+      applyRibbonState(val);
+      const label = val === 'symbols' ? 'Just icons' : val === 'text' ? 'Just text' : 'Icons + text';
+      if (typeof print === 'function') print(`Toolbar: ${label}`);
+      const d = setBtn.closest('details');
+      if (d) d.open = false;
+      return;
+    }
+    const rowBtn = e.target.closest('[data-toolbar-rows-set], [data-ribbon-rows-set]');
+    if (rowBtn) {
+      e.preventDefault();
+      const val = rowBtn.dataset.toolbarRowsSet || rowBtn.dataset.ribbonRowsSet;
+      applyRibbonRows(val);
+      const label = val === 'auto' ? 'Auto-wrap' : val === '2' ? '2 rows' : '1 row (scrollable)';
+      if (typeof print === 'function') print(`Toolbar rows: ${label}`);
+      const d = rowBtn.closest('details');
+      if (d) d.open = false;
+      return;
+    }
+    // Close toolbar dropdown menu if clicking outside
+    const toolbarMenu = document.querySelector('details:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu)');
+    if (toolbarMenu && toolbarMenu.open && !toolbarMenu.contains(e.target)) {
+      toolbarMenu.open = false;
+    }
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const toolbarMenu = document.querySelector('details:is(.app-bar-toolbar-menu, .app-bar-ribbon-menu)');
+      if (toolbarMenu && toolbarMenu.open) {
+        toolbarMenu.open = false;
+        toolbarMenu.querySelector('summary')?.focus();
+      }
+    }
+    if (e.key === 'F1' && e.ctrlKey && !e.altKey && !e.metaKey) {
+      e.preventDefault();
+      if (e.shiftKey) {
+        cycleRibbonRows();
+      } else {
+        cycleRibbon();
+      }
+    }
+  });
+
   // Cursor size lives in the shared Settings dialog (app-settings.inc includes this build's settings.inc).
   const settingsDlg = document.querySelector('[data-app-settings]');
   const setCursor = (size) => {
@@ -138,14 +312,21 @@ function init(root) {
   if (settingsDlg) {
     settingsDlg.querySelectorAll('input[name="ccCursor"]').forEach((r) => { r.checked = r.value === settings.cursor; });
     for (const [name, key] of Object.entries(RADIO_SETTINGS)) settingsDlg.querySelectorAll('input[name="' + name + '"]').forEach((r) => { r.checked = r.value === settings[key]; });
+    settingsDlg.querySelectorAll('input[name="ccToolbarDisplay"], input[name="ccRibbonDisplay"]').forEach((r) => { r.checked = r.value === ribbonState; });
+    settingsDlg.querySelectorAll('input[name="ccToolbarRows"], input[name="ccRibbonRows"]').forEach((r) => { r.checked = r.value === ribbonRowsState; });
     settingsDlg.addEventListener('change', (e) => {
       if (e.target.name === 'ccCursor') setCursor(e.target.value);
+      else if (e.target.name === 'ccToolbarDisplay' || e.target.name === 'ccRibbonDisplay') applyRibbonState(e.target.value);
+      else if (e.target.name === 'ccToolbarRows' || e.target.name === 'ccRibbonRows') applyRibbonRows(e.target.value);
       else if (RADIO_SETTINGS[e.target.name]) setRadio(e.target.name, e.target.value);
       if (e.target.name === 'ccCorner') applyCorner();
       if (e.target.name === 'ccTabs') renderTabs();
     });
-    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); applyCorner(); renderTabs(); });
+    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); applyCorner(); renderTabs(); applyRibbonState('full'); applyRibbonRows('auto'); });
   }
+
+  applyRibbonState(ribbonState);
+  applyRibbonRows(ribbonRowsState);
 
   // The clipboard: this tab's copy + localStorage, so another tab can paste (storage may be off: memory only).
   let clipStore = null;
@@ -157,6 +338,12 @@ function init(root) {
     cursor: null, selection: new Set(), shift: false,
     clipboard, settings,
     print, prompt: setPrompt,
+    setToolbar: (mode) => applyRibbonState(mode),
+    setRibbon: (mode) => applyRibbonState(mode),
+    setToolbarRows: (mode) => applyRibbonRows(mode),
+    setRibbonRows: (mode) => applyRibbonRows(mode),
+    getToolbarRows: () => ribbonRowsState,
+    getRibbonRows: () => ribbonRowsState,
     setSelection(set) { host.selection = new Set(set); view.state.selection = host.selection; refreshGrips(); scheduleProps(); view.invalidate(); layersForViewport(); },
     pickAt: (p) => cycledAt(p) ?? view.pick(p),   // Tab cycling (cycleTab) wins while the pointer stays put
     pickWindow: (w, crossing) => view.pickWindow(w, crossing),
@@ -570,6 +757,7 @@ function init(root) {
 
   ui.over.addEventListener('contextmenu', (e) => e.preventDefault());
   ui.over.addEventListener('pointerdown', (e) => {
+    if (ui.hint && !ui.hint.hidden) hideHint();
     if (e.pointerType === 'touch' && touchDown(e)) return;   // a second finger: pinch and pan (S.8)
     try { ui.over.setPointerCapture(e.pointerId); } catch { /* a synthetic or already-lifted pointer: nothing to capture */ }
     if (paneFromEvent(e) && e.button === 0) { down = null; return; }   // the first click into another pane only makes it active (as AutoCAD)
@@ -903,6 +1091,7 @@ function init(root) {
   /** Esc: the typed text, then the command, then a grip move or box, then the selection (the key row's Esc too). */
   function escapeKey() {
     ui.input.value = ''; suggest();
+    if (ui.hint && !ui.hint.hidden) { hideHint(); return; }
     if (engine.escape()) return;
     if (cancelLocal()) return;
     if (host.selection.size) host.setSelection(new Set());
@@ -1120,7 +1309,22 @@ function init(root) {
     layersForViewport();
   });
 
-  function hideHint() { ui.hint.hidden = true; }
+  function hideHint() { if (ui.hint) ui.hint.hidden = true; }
+  const hintClose = ui.hint?.querySelector('[data-hint-close]');
+  if (hintClose) {
+    hintClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hideHint();
+      focusCommandLine();
+    });
+  }
+  if (ui.stage) {
+    ui.stage.addEventListener('pointerdown', (e) => {
+      if (ui.hint && !ui.hint.hidden && !ui.hint.contains(e.target)) {
+        hideHint();
+      }
+    });
+  }
 
   /**
    * Back to the command line after a dialog. Closing a modal with the mouse leaves Chromium's
