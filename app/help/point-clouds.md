@@ -1,9 +1,9 @@
 ---
 title: Trace as-built lines over a point cloud
-summary: Attach a laser scan (LAS, LAZ, XYZ or PTS) under the drawing, cut a plan slice through it, and draw walls, doors and columns with object snap on its points.
+summary: Attach a laser scan (LAS, LAZ, E57, PLY, PCD, PTX, PTS or XYZ) under the drawing, cut a plan slice through it, and draw walls, doors and columns with object snap on its points.
 section: tasks
 order: 88
-keywords: point cloud, pointcloudattach, pcattach, pointcloud, pc, laser scan, scan, lidar, las, laz, xyz, pts, as-built, as built, survey, slice, plan cut, node, snap, trace, existing conditions
+keywords: point cloud, pointcloudattach, pcattach, pointcloud, pc, laser scan, scan, lidar, las, laz, e57, ply, pcd, ptx, xyz, pts, as-built, as built, survey, slice, plan cut, node, snap, trace, existing conditions
 ---
 
 ## What you will make
@@ -13,7 +13,7 @@ An as-built floor plan: the walls of a scanned building drawn as lines and polyl
 ## Attach the cloud
 
 1. Set the drawing's units first if it has none (the {{ui:Units}} box in {{ui:Properties}}, or {{cmd:UNITS}}): CadCraft converts the cloud from its own units to the drawing's.
-2. Type {{cmd:POINTCLOUDATTACH}} (or `PCATTACH`) and press {{key:Enter}}. Pick a `.las`, `.laz`, `.xyz` or `.pts` file. You can also open the file with {{ui:Open}}, drop it on the page, or send it from the BIM viewer's {{ui:Trace in CadCraft}}.
+2. Type {{cmd:POINTCLOUDATTACH}} (or `PCATTACH`) and press {{key:Enter}}. Pick a `.las`, `.laz`, `.e57`, `.ply`, `.pcd`, `.ptx`, `.pts` or `.xyz` file (the topic on point cloud formats says what each one brings, and what to export from a scanner's own software). You can also open the file with {{ui:Open}}, drop it on the page, or send it from the BIM viewer's {{ui:Trace in CadCraft}}.
 3. `Lower-left corner of the cloud`: press {{key:Enter}} to keep the file's own coordinates (a scan registered to the project lines up with the drawing), or click where its lower-left corner goes.
 4. The command line says how many points show. The view zooms to the cloud; it lies under the linework, every point seen from above.
 
@@ -31,5 +31,5 @@ In {{cmd:POINTCLOUD}}: `C` colors the points by the file's colors, height, inten
 The 3D tab shows the cloud too, its lowest point on the ground, with the same slice.
 
 :::note
-The cloud is not part of the drawing: it is not saved in the DWG or DXF, undo does not change it, and it is not plotted. Attach it again when you open the drawing later. Files are read on this computer; nothing is uploaded. Very large scans are thinned evenly to 2 million points.
+The cloud is not part of the drawing: it is not saved in the DWG or DXF, undo does not change it, and it is not plotted. Attach it again when you open the drawing later. Files are read on this computer; nothing is uploaded. Very large scans are thinned evenly to 2 million points. E57 files open up to 6 million points and 512 MB for now: export larger scans as LAS or LAZ.
 :::

@@ -3,7 +3,7 @@ title: Coordinate and distance entry
 summary: Every way to type a point, a distance, an angle or a number at the CadCraft command line, with examples.
 section: reference
 order: 30
-keywords: dynamic input, dyn, f12, tab, coordinates, absolute, relative, polar, @, direct distance, angle, degrees, last point, lastpoint, typing points, input
+keywords: dynamic input, dyn, f12, tab, coordinates, absolute, relative, polar, @, direct distance, angle, degrees, last point, lastpoint, typing points, input, arithmetic, calculation, calculator, cal, plus, fraction, expression
 ---
 
 ## Points
@@ -67,6 +67,29 @@ Where a distance is asked for (radius, offset, text height, scale factor):
 - click two points when there is no base point: the prompt changes to `Specify second point`.
 
 "Requires a positive number or two points." means the value was not a number, or was negative.
+
+## Arithmetic in a typed value
+
+Anywhere a length, a coordinate, an angle or a number is typed (the command line, dynamic input, Properties boxes and
+dialogs), you can type a calculation with `+`, `-`, `*`, `/` and brackets instead of working it out first:
+
+| Type | Gives |
+|---|---|
+| `4+7/16` | 4.4375 |
+| `12'6"+3/4"` | 12'-6 3/4" (in a feet-and-inch drawing) |
+| `(24'-0")/3` | 8'-0" |
+| `2*450mm` | 900 mm, in the drawing's units (when its units are set) |
+| `@4+7/16,0` | a point 4.4375 to the right of the last one |
+| `360/7` | an angle of 51.43 degrees |
+
+- A dash written into a length is still part of it: `4-7/16` is 4 7/16 and `24'-6"` is 24 feet 6 inches. To subtract after
+  a foot mark, finish the length first, `24'-0"-6"`, or put the calculation in brackets with spaces round the dash,
+  `(24' - 6")` (inside brackets a space is a space; elsewhere it presses {{key:Enter}}).
+- A plain number added to a length is in drawing units; multiplying or dividing by one scales the length. Two lengths
+  multiplied make an area, so `2'*3'` is refused.
+- `abs`, `round`, `ceil` and `floor` work too: `round(10/3)`.
+- A calculation that cannot be read is refused with where it went wrong, for example "The calculation ends too soon
+  (character 3): a value is missing." Nothing is ever read as 0. {{cmd:CAL}} prints a calculation's value.
 
 ## Dynamic input
 

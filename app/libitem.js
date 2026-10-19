@@ -113,6 +113,9 @@ export const MESSAGES = {
   'libitem.v.body_type': 'must be box or mesh (or body null)',
   'libitem.v.attr_name': 'a name is longer than 255 characters',
   'libitem.v.license': 'is not an allowed license',
+  'libitem.v.locale': 'is not a language tag (like es or es-MX)',
+  'libitem.v.locales': 'has more than 40 languages',
+  'libitem.v.label_key': 'is not a parameter key',
   'libitem.elec.direct': 'direct connection',
   'libitem.elec.plug': 'cord and plug',
   'libitem.elec.plug_nema': 'cord and plug {nema}',
@@ -217,7 +220,7 @@ const ENTITY_KEYS = {
   ellipse: ['cx', 'cy', 'mx', 'my', 'ratio', 't0', 't1'], text: ['x', 'y', 'h', 'rot', 'value'], point: ['x', 'y'], hatch: ['loops', 'solid'],
 };
 const TOP_KEYS = ['format', 'format_version', 'uuid', 'version', 'name', 'kind', 'category', 'description', 'maker', 'model', 'ifc',
-  'plan', 'body', 'clearances', 'params', 'source_attrs', 'license', 'provenance'];
+  'plan', 'body', 'clearances', 'params', 'source_attrs', 'license', 'provenance', 'i18n'];
 
 export function validateItem(obj, { partial = false } = {}) {
   const errors = [];
@@ -364,6 +367,25 @@ export function validateItem(obj, { partial = false } = {}) {
     keys('license', obj.license, ['id', 'holder', 'attribution', 'url']);
     if (!LICENSES.includes(obj.license.id)) err('license.id', msg('libitem.v.license'));
     for (const k of ['holder', 'attribution', 'url']) if (k in obj.license) str('license.' + k, obj.license[k]);
+  }
+  // 0.6 WL.7: the item in other languages — { "<tag>": { name, description, type, params: { "<param key>": label } } }
+  if ('i18n' in obj && obj_('i18n', obj.i18n)) {
+    const tags = Object.keys(obj.i18n);
+    if (tags.length > I18N_MAX) err('i18n', msg('libitem.v.locales'));
+    for (const tag of tags.slice(0, I18N_MAX)) {
+      const p = 'i18n.' + tag.slice(0, 20);
+      if (!LOCALE_RE.test(tag)) { err(p, msg('libitem.v.locale')); continue; }
+      const t = obj.i18n[tag];
+      if (!obj_(p, t)) continue;
+      keys(p, t, ['name', 'description', 'type', 'params']);
+      for (const k of ['name', 'description', 'type']) if (k in t) str(p + '.' + k, t[k]);
+      if ('params' in t && obj_(p + '.params', t.params)) {
+        for (const [k, v] of Object.entries(t.params)) {
+          if (!LABEL_KEY_RE.test(k)) { err(p + '.params', msg('libitem.v.label_key')); continue; }
+          str(p + '.params.' + k, v);
+        }
+      }
+    }
   }
   if ('provenance' in obj && obj_('provenance', obj.provenance)) {
     const pv = obj.provenance;
@@ -1495,6 +1517,55 @@ export function previewSvg(item) {
 }
 
 /** Strip working fields (a leading underscore) before an item is written or hashed. */
+// ---------------------------------------------------------------------------
+// Other languages (0.6 WL.7)
+
+const LOCALE_RE = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-([A-Z]{2}|[0-9]{3}))?$/;   // es, es-MX, pt-BR, zh-Hant-TW, es-419
+const LABEL_KEY_RE = /^[A-Za-z0-9_.:-]{1,80}$/;   // width, elec.volts, attr:KCL-MFR (a source attribute's own name)
+const I18N_MAX = 40;
+export const I18N_LIMITS = { locales: I18N_MAX };
+
+/** The tags to try for a locale, most specific first: 'zh-Hant-TW' → ['zh-Hant-TW', 'zh-Hant', 'zh']. */
+export function localeChain(locale) {
+  const parts = String(locale || '').split('-').filter(Boolean);
+  const out = [];
+  for (let n = parts.length; n > 0; n--) out.push(parts.slice(0, n).join('-'));
+  return out;
+}
+
+/**
+ * An item's words in a language, each falling back on its own: the exact tag, then the shorter ones, then the item's own text.
+ * → { locale (the tag that answered, or null), name, description, type (null when none), label(key, fallback) }
+ */
+export function localized(item, locale) {
+  const i18n = item && typeof item.i18n === 'object' && item.i18n && !Array.isArray(item.i18n) ? item.i18n : {};
+  const chain = localeChain(locale).filter((t) => i18n[t] && typeof i18n[t] === 'object');
+  const pick = (k) => { for (const t of chain) { const v = i18n[t][k]; if (typeof v === 'string' && v.trim()) return v; } return null; };
+  const name = pick('name'), description = pick('description'), type = pick('type');
+  return {
+    locale: chain[0] || null,
+    name: name ?? item?.name ?? '',
+    description: description ?? item?.description ?? '',
+    type,
+    translated: !!(name || description || type),
+    label(key, fallback = key) {
+      for (const t of chain) { const v = i18n[t].params?.[key]; if (typeof v === 'string' && v.trim()) return v; }
+      return fallback;
+    },
+  };
+}
+
+/**
+ * The item to place in a language: name and description in that language where the item has them (so the placement's name,
+ * its schedule rows and the drawing's attributes read in it); everything else, i18n included, unchanged. Same object when
+ * nothing is translated. Identity stays with uuid, version and provenance, never the name.
+ */
+export function localizedItem(item, locale) {
+  const l = localized(item, locale);
+  if (!l.translated) return item;
+  return { ...item, name: l.name, description: l.description };
+}
+
 export function cleanItem(item) {
   const out = {};
   for (const [k, v] of Object.entries(item)) if (!k.startsWith('_')) out[k] = v;

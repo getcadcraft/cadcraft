@@ -6,7 +6,8 @@
  *
  * Commands: PIECE NOTCH GRAIN DRILL BUTTON BUTTONHOLE FOLDLINE INTLINE (AP.2) · SEAM (AP.3) · GRADE (AP.4) ·
  * SEAMLENGTH WALK PIECETABLE (AP.6) · PATTERNPRINT (AP.8) · AAMAOUT AAMAIN (AP.7) · GRADERULE (AP.5) ·
- * MARKER MARKERADD MARKEROUT (AP.9).
+ * MARKER MARKERADD MARKEROUT (AP.9) · MARKERNEST (0.6 LC.17: the shared nesting engine, lib/nest/ — a copy of the repo's
+ * lib/nest, written only by tools/nest/sync.mjs).
  * The modules in lib/ are DOM-free and tested in Node (test/test.mjs).
  */
 
@@ -21,6 +22,7 @@ import { writeAama, readAama } from './lib/aama.js';
 import { cleanLibrary, addEntry, entryFrom, ruleFor, toJson, fromJson, fromRul, toRul } from './lib/rules.js';
 import { placedFrom, drawPlaced, drawMarker, worldPoly, grainProblem, inMarker, overlaps, stats, parseQuantities } from './lib/marker.js';
 import { cutLine } from './lib/seam.js';
+import { nest } from './lib/nest/nest.js';
 import { Doc } from '../../doc.js';
 import { displayList, toPdfPages } from '../../plot.js';
 import { insertMatrix, mApply, mInverse } from '../../geom.js';
@@ -857,6 +859,47 @@ export function activate(api) {
     c.print(t('done.marker.add', { n, name: m.name }));
   }, { noRepeat: true });
 
+  // automatic nesting (0.6 LC.17): the marker's own pieces laid on the fabric by the shared engine (lib/nest/nest.js), with
+  // the fabric's rules — grain along its length within the tolerance, turned round only on fabric that may be turned, the
+  // mirrored half of a pair kept mirrored. Rest = pieces already on the fabric stay where they are; All = start over.
+  cmd('MARKERNEST', ['MNEST'], async (c) => {
+    const doc = c.doc;
+    const mk = await pickKind(c, isMarker, t('ask.marker.pick'), t('err.notmarker'));
+    if (!mk) return;
+    const m = api.objects.dataOf(mk);
+    const own = doc.all().filter((x) => isPlaced(x) && api.objects.dataOf(x)?.mk === m.name);
+    if (!own.length) { c.print(t('marker.nest.none', { name: m.name })); return; }
+    const k = yes(await c.keyword(t('ask.marker.nest'), { options: [opt('R', t('opt.nest.rest')), opt('A', t('opt.nest.all'))], default: 'R' }));
+    if (!k) return;
+    const gap = await c.distance(t('ask.marker.gap'), { default: 0 });
+    if (gap == null || !(Number(gap) >= 0)) return;
+    const loc = toMarker(mk);
+    const isOn = (x) => inMarker(worldPoly(api.objects.dataOf(x), x), mk, m) === 'in';
+    const move = k === 'A' ? own : own.filter((x) => !isOn(x));
+    if (!move.length) { c.print(t('marker.nest.all_on', { name: m.name })); return; }
+    const moving = new Set(move.map((x) => x.id));
+    // everything else on the fabric stays, as an obstacle (the marker's own frame)
+    const obstacles = doc.all().filter((x) => isPlaced(x) && !moving.has(x.id) && isOn(x)).map((x) => [worldPoly(api.objects.dataOf(x), x).map(loc)]);
+    const parts = move.map((x) => {
+      const p = api.objects.dataOf(x);
+      return { id: x.id, name: (p.name + ' ' + (p.size || '')).trim(), loops: [p.cut.map(([px, py]) => ({ x: px, y: py }))], qty: 1, grain: p.grain, turn: m.nap !== 'oneway', mirrored: (x.sx ?? 1) * (x.sy ?? 1) < 0 };
+    });
+    c.print(t('marker.nest.busy', { n: parts.length }));
+    const r = nest(parts, { h: m.w, obstacles }, { spacing: Number(gap), grainTol: m.tol || 0, step: 0, res: m.w / 750, timeLimit: 3000 });
+    const cr = Math.cos(mk.rot || 0), sr = Math.sin(mk.rot || 0);
+    doc.change('MARKERNEST', () => {
+      for (const pl of r.placed) {
+        const x = doc.get(pl.id);
+        if (!x) continue;
+        doc.update(x.id, { ...x, rot: (mk.rot || 0) + pl.rot, sx: pl.mirror ? -1 : 1, sy: 1, x: mk.x + cr * pl.x - sr * pl.y, y: mk.y + sr * pl.x + cr * pl.y });
+      }
+    });
+    for (const u of r.unplaced) c.print(t('marker.nest.big', { name: u.name }));
+    const m2 = api.objects.dataOf(doc.get(mk.id)) || m;
+    const len = m.u === 'in' ? (+(m2.len || 0).toFixed(2)) + ' in' : (+((m2.len || 0) / 1000).toFixed(3)) + ' m';
+    c.print(t('done.marker.nest', { n: r.placed.length, name: m.name, len, eff: ((m2.eff || 0) * 100).toFixed(1) }));
+  }, { noRepeat: true });
+
   async function pickKind(c, test, prompt, bad) {
     const sel = api.selection().map((id) => c.doc.get(id)).filter(test);
     if (sel.length === 1) return sel[0];
@@ -924,7 +967,7 @@ export function activate(api) {
 
   // ---------------------------------------------------------------------------------------------- toolbar, panel, settings
   const ACTIONS = [['PIECE', 'ui.piece', 'bi-bounding-box'], ['NOTCH', 'ui.notch', 'bi-caret-down'], ['GRAIN', 'ui.grain', 'bi-arrow-down-up'], ['DRILL', 'ui.drill', 'bi-plus-circle'],
-    ['SEAM', 'ui.seam'], ['GRADE', 'ui.grade'], ['GRADERULE', 'ui.lib'], ['WALK', 'ui.walk'], ['SEAMLENGTH', 'ui.len'], ['PIECETABLE', 'ui.table'], ['PATTERNPRINT', 'ui.print'], ['AAMAOUT', 'ui.aamaout'], ['AAMAIN', 'ui.aamain'], ['MARKER', 'ui.marker'], ['MARKERADD', 'ui.markeradd'], ['MARKEROUT', 'ui.markerout'], ['BUTTON', 'ui.button'], ['BUTTONHOLE', 'ui.hole'], ['FOLDLINE', 'ui.fold'], ['INTLINE', 'ui.line']];
+    ['SEAM', 'ui.seam'], ['GRADE', 'ui.grade'], ['GRADERULE', 'ui.lib'], ['WALK', 'ui.walk'], ['SEAMLENGTH', 'ui.len'], ['PIECETABLE', 'ui.table'], ['PATTERNPRINT', 'ui.print'], ['AAMAOUT', 'ui.aamaout'], ['AAMAIN', 'ui.aamain'], ['MARKER', 'ui.marker'], ['MARKERADD', 'ui.markeradd'], ['MARKERNEST', 'ui.markernest'], ['MARKEROUT', 'ui.markerout'], ['BUTTON', 'ui.button'], ['BUTTONHOLE', 'ui.hole'], ['FOLDLINE', 'ui.fold'], ['INTLINE', 'ui.line']];
   let bar = null;
   function showToolbar(on) {
     if (bar) { for (const n of bar) n?.remove?.(); bar = null; }

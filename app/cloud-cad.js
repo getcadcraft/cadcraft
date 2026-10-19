@@ -3,13 +3,16 @@
  * cloud-cad.js — a point cloud under the drawing (0.5 SG.1, suggestion #600 "as-built drawings"; #507). Commands are
  * registered through commands.js's registry when this module is imported (cadcraft.js; Node tests too):
  *
- *   POINTCLOUDATTACH (PCATTACH)  pick a LAS / LAZ / XYZ / PTS file (host.pickCloud), then where: Enter = the file's own
+ *   POINTCLOUDATTACH (PCATTACH)  pick a LAS / LAZ / XYZ / PTS / PLY / PCD / PTX file (host.pickCloud), then where: Enter = the file's own
  *                                coordinates (a scan registered to the project lines up with the drawing), or a point
  *                                for the cloud's lower-left corner
  *   POINTCLOUD (PC)              Slice (a plan cut to trace from: on / off; on at attach for a building-size scan) · Height (of the cut, above the cloud's lowest
  *                                point) · Thickness · Color (file / height / intensity / class / one) · Size · Visible ·
  *                                Zoom (to the cloud) · Detach — Enter ends
- * Opening a cloud file (OPEN, drop, BimCraft's "Trace in CadCraft") attaches it at its own coordinates.
+ * Opening a cloud file (OPEN, drop, BimCraft's "Trace in CadCraft") attaches it at its own coordinates. A scanner maker's
+ * own format (RCP, RCS, FLS, LGS, TZF, ZFS; 0.6 PF.3) is never read: the command line says what it is and how to export
+ * E57 or LAS, and names help point-cloud-formats. cloud-types.js (re-exported here: CLOUD_ACCEPT, isCloudFile) says which
+ * files are clouds, so cadcraft.js needs no list of its own.
  *
  * The cloud is not part of the drawing: it is not saved in the DWG / DXF and undo does not touch it; it stays under
  * whichever drawing tab shows (one cloud per window). The Model tab draws it under the linework — every point seen from
@@ -26,6 +29,8 @@
 import { t } from './i18n.js';
 import { commandRegistry } from './commands.js';
 import { mPerUnit } from './model3d.js';
+import { nativeCloud } from './cloud-types.js';
+export { CLOUD_ACCEPT, CLOUD_READ, CLOUD_NATIVE, isCloudFile } from './cloud-types.js';
 
 // pointcloud.js (and the LAS reader, its coordinate systems and laz-perf behind it) loads with the first cloud
 let P = null;
@@ -187,6 +192,15 @@ export class CloudAttach {
 export async function attachFile(c, file, insert = null, { ask = false } = {}) {
   const pc = c.host.cloud;
   if (!pc) { c.print(t('pc.nobrowser')); return false; }
+  const native = nativeCloud(file.name, new Uint8Array(await file.slice(0, 16).arrayBuffer()));
+  if (native) {   // 0.6 PF.3: the card, as command-line lines
+    const w = (await lib()).nativeCard(file.name, native);
+    c.print(w.title);
+    c.print('  ' + w.body);
+    c.print('  ' + w.how);
+    c.print('  ' + t('pc.native.helpcmd'));
+    return false;
+  }
   c.print(t('pc.reading', { file: file.name }));
   const { readCloudInfo, loadCloud, cloudSummary } = await lib();
   const info = await readCloudInfo(file);

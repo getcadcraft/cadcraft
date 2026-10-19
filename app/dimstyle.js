@@ -35,9 +35,20 @@
  *                             'text'. Unmarked parts are left alone, so this is safe on older geometry.
  *   ARROWS, arrowParts(kind, tip, ang, size)   the arrowheads (closed filled, closed blank, closed, open, open 30°, dot,
  *                             small dot, architectural tick, oblique, origin, right angle, none)
+ *
+ * Units in the text (0.6 DC.72): a dimension measures in drawing units and can write its value in mm, cm, m or km. That is
+ * DIMLFAC (lfac = one drawing unit in the chosen unit) + a DIMPOST suffix (" mm") + the decimal format, so DWG and DXF keep
+ * it as those variables and other programs show the same text. mmPerUnit = millimetres in one drawing unit (units.js
+ * mmPerDrawingUnit; textUnitMm() takes a unitless drawing as millimetres).
+ *   TEXT_UNITS                         { mm: 1, cm: 10, m: 1000, km: 1e6 } (millimetres in each)
+ *   textUnitOf(st, mmPerUnit)          → '' (as drawn: DIMLFAC 1, no unit suffix) | 'mm' | 'cm' | 'm' | 'km' | 'custom'
+ *   withTextUnit(st, unit, mmPerUnit)  → a copy of st writing in that unit ('' = as drawn)
+ *   textUnitMm(meta, layout)           → { mm, assumed } for a drawing's meta, or a sheet's paper (assumed = unitless,
+ *                                        read as millimetres)
+ *   refitTextUnits(ents, oldMm, newMm) → [entity, …] dimensions writing in mm…km, refitted after the drawing units changed
  */
 
-import { formatLength, lunitCode } from './units.js';
+import { formatLength, lunitCode, mmPerDrawingUnit } from './units.js';
 import { textCorners } from './geom.js';
 
 export const DIM_EXTRA = Object.freeze({
@@ -52,6 +63,45 @@ export const TOL_MODES = ['none', 'sym', 'dev', 'lim', 'basic'];
 export const ARROWS = ['', 'CLOSEDBLANK', 'CLOSED', 'OPEN', 'OPEN30', 'DOT', 'DOTSMALL', 'ARCHTICK', 'OBLIQUE', 'ORIGIN', 'OPEN90', 'NONE'];
 
 const D2R = Math.PI / 180;
+
+export const TEXT_UNITS = Object.freeze({ mm: 1, cm: 10, m: 1000, km: 1e6 });
+const unitSuffix = (st) => { const u = String(st?.suf ?? '').trim(); return Object.hasOwn(TEXT_UNITS, u) ? u : null; };
+
+export function textUnitOf(st = {}, mmPerUnit = 1) {
+  const lfac = Number.isFinite(st.lfac) && st.lfac !== 0 ? Math.abs(st.lfac) : 1;
+  const decimal = (st.lunit || 2) === 2;
+  const u = unitSuffix(st);
+  if (u && decimal && mmPerUnit > 0 && Math.abs(lfac - mmPerUnit / TEXT_UNITS[u]) <= 1e-9 * Math.max(1, lfac)) return u;
+  if (!u && !st.suf && Math.abs(lfac - 1) < 1e-12) return '';
+  return 'custom';
+}
+
+export function withTextUnit(st = {}, unit = '', mmPerUnit = 1) {
+  const n = { ...st };
+  if (!unit) { n.lfac = 1; if (unitSuffix(st)) n.suf = ''; return n; }
+  if (!Object.hasOwn(TEXT_UNITS, unit) || !(mmPerUnit > 0)) return n;
+  n.lfac = mmPerUnit / TEXT_UNITS[unit];
+  n.suf = ' ' + unit;
+  n.lunit = 2;
+  return n;
+}
+
+export function refitTextUnits(ents, oldMm, newMm) {
+  const out = [];
+  if (!(oldMm > 0) || !(newMm > 0) || Math.abs(oldMm - newMm) < 1e-12) return out;
+  for (const e of ents) {
+    if (e?.type !== 'dim' || !e.kind || e.kind === 'angular') continue;
+    const u = textUnitOf(e.st || {}, oldMm);
+    if (u && u !== 'custom') { const n = { ...e, st: withTextUnit(e.st || {}, u, newMm) }; delete n.block; out.push(n); }
+  }
+  return out;
+}
+
+export function textUnitMm(meta = {}, layout = null) {
+  if (layout?.paper) return { mm: layout.paper.unit === 'in' ? 25.4 : 1, assumed: false };   // a sheet: its paper's unit
+  const mm = mmPerDrawingUnit(meta.lunits, meta.units);
+  return mm ? { mm, assumed: false } : { mm: 1, assumed: true };
+}
 
 /** Zero handling for a decimal number written with `dec` places. bits: 4 (or 1 for angles) no leading zero, 8 (2) no trailing. */
 function decimal(v, dec, { lead = false, trail = false, sep = '.' } = {}) {

@@ -9,6 +9,7 @@
     "manifold-3d": "/assets/vendor/manifold-3d/current/manifold.js",
     "proj4": "/assets/vendor/proj4/current/proj4.esm.min.js",
     "laz-perf": "/assets/vendor/laz-perf/current/laz-perf.js",
+    "web-e57/": "/assets/vendor/web-e57/current/",
     "@noble/curves/": "/assets/vendor/noble-curves/current/",
     "@noble/hashes/": "/assets/vendor/noble-hashes/current/",
     "@noble/ciphers/": "/assets/vendor/noble-ciphers/current/"

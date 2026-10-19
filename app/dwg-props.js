@@ -220,7 +220,7 @@ export function dstyleItems(st, { r12 = false } = {}) {
     put(code, kind === 'real' ? 'real' : 'int', v[name]);
   }
   put(73, 'int', v.DIMTIH); put(74, 'int', v.DIMTOH); put(71, 'int', v.DIMTOL); put(72, 'int', v.DIMLIM); put(173, 'int', v.DIMSAH);
-  if (v.DIMPOST) put(3, 'str', v.DIMPOST);
+  put(3, 'str', v.DIMPOST || '<>');   // "<>" = no prefix or suffix: never the drawing style's DIMPOST (" m", 0.6 DC.72)
   if (v.DIMAPOST) put(4, 'str', v.DIMAPOST);
   if (r12 && st?.lunit && st.lunit !== 2) put(270, 'int', st.lunit === 4 ? 6 : st.lunit === 5 ? 7 : st.lunit | 0);   // R12's DIMUNIT: unstacked architectural / fractional
   items.push([1002, '}']);

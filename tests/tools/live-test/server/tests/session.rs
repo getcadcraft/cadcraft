@@ -816,3 +816,68 @@ fn snapshot_carries_key_versions() {
     let (n, outs) = r.edit("B", "redefine", Value::Array(vec![map(vec![("k", "block:7".into()), ("m", "s".into()), ("r", 1.into())])]));
     assert_eq!(r.outcome("B", n, &outs), Ok(2));
 }
+
+#[test]
+fn people_limit_is_soft_the_host_decides_and_it_carries_over_a_handoff() {
+    // DEC-2-5 (owner, 2026-10-17): above the limit a knock still reaches the host, marked `over`; nobody is turned away
+    // unless the host says so. A limit of 2 here stands for the default 20.
+    let mut r = Rig::new(Config { max_clients: 2, ..cfg(true, false) });
+    let w = sent_to(&r.join("H"), r.conn["H"]).into_iter().find(|e| e.t == "welcome").unwrap().clone();
+    let lim = get(&w.b, "limit").expect("the host's welcome carries the limit");
+    assert_eq!((get_u64(lim, "max"), get_u64(lim, "default")), (Some(2), Some(2)));
+    let knock = |r: &mut Rig, name: &str| -> (u64, Option<(u64, u64)>) {
+        let outs = r.join(name);
+        assert!(sent_to(&outs, r.conn[name]).iter().any(|e| e.t == "waiting"), "{name} waits for the host");
+        let j = sent_to(&outs, r.conn["H"]).into_iter().find(|e| e.t == "join").expect("the host is asked");
+        let over = get(&j.b, "over").map(|o| (get_u64(o, "limit").unwrap(), get_u64(o, "people").unwrap()));
+        (get_u64(&j.b, "c").unwrap(), over)
+    };
+    let approve = |r: &mut Rig, c: u64, name: &str| {
+        let outs = r.send("H", Envelope::new("approve").body(map(vec![("c", c.into()), ("role", "editor".into())])));
+        assert!(sent_to(&outs, r.conn[name]).iter().any(|e| e.t == "welcome"), "{name} is in");
+        r.note_welcome(name, &outs);
+    };
+    for name in ["A", "B"] {
+        let (c, over) = knock(&mut r, name);
+        assert_eq!(over, None, "{name} is within the limit");
+        approve(&mut r, c, name);
+    }
+    // the third guest: asked, marked over (limit 2, would make 3); the host keeps it small → `deny full`
+    let (c, over) = knock(&mut r, "C");
+    assert_eq!(over, Some((2, 3)));
+    let outs = r.send("H", Envelope::new("deny").body(map(vec![("c", c.into()), ("reason", "full".into())])));
+    assert!(sent_to(&outs, r.conn["C"]).iter().any(|e| e.t == "deny" && get_str(&e.b, "reason") == Some("full")));
+    // a plain deny still says "host"
+    let (c, _) = knock(&mut r, "C2");
+    let outs = r.send("H", Envelope::new("deny").body(map(vec![("c", c.into()), ("reason", "nonsense".into())])));
+    assert!(sent_to(&outs, r.conn["C2"]).iter().any(|e| e.t == "deny" && get_str(&e.b, "reason") == Some("host")));
+    // another knock over the limit; the host allows more (0 = no limit): the host hears it, then lets them in
+    let (d, over) = knock(&mut r, "D");
+    assert!(over.is_some());
+    let outs = r.send("H", Envelope::new("limit").body(map(vec![("max", 0.into())])));
+    let l = sent_to(&outs, r.conn["H"]).into_iter().find(|e| e.t == "limit").expect("the host hears the new limit");
+    assert_eq!((get_u64(&l.b, "max"), get_u64(&l.b, "default")), (Some(0), Some(2)));
+    approve(&mut r, d, "D");
+    let (e, over) = knock(&mut r, "E");
+    assert_eq!(over, None, "no limit any more in this session");
+    approve(&mut r, e, "E");
+    assert_eq!(r.s.people_limit(), 0);
+    // only the host sets it
+    r.send("A", Envelope::new("limit").body(map(vec![("max", 1.into())])));
+    assert_eq!(r.s.people_limit(), 0);
+    // the choice is the session's: it goes with a handoff
+    let state = r.s.export();
+    let s2 = Session::import(Config { max_clients: 2, ..cfg(true, false) }, &state, 5000).expect("import");
+    assert_eq!(s2.people_limit(), 0);
+    // set back to the default: over again
+    r.send("H", Envelope::new("limit").body(map(vec![("max", 2.into())])));
+    let (_, over) = knock(&mut r, "F");
+    assert_eq!(over, Some((2, 5)));
+    // a session with nobody to ask (test servers' auto-approve) still refuses above the limit
+    let mut a = Rig::new(Config { max_clients: 1, ..cfg(true, true) });
+    a.join("H");
+    let outs = a.join("A");
+    assert!(sent_to(&outs, a.conn["A"]).iter().any(|e| e.t == "welcome"));
+    let outs = a.join("B");
+    assert!(sent_to(&outs, a.conn["B"]).iter().any(|e| e.t == "deny" && get_str(&e.b, "reason") == Some("full")));
+}

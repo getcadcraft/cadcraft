@@ -3,7 +3,7 @@ title: Dimension a plan
 summary: Add linear, aligned, angular, radius and diameter dimensions, chain them with Continue and Baseline, and override the text.
 section: tasks
 order: 90
-keywords: dimension, dim, dimlinear, dli, dimaligned, dimangular, dimradius, dimdiameter, dimcontinue, dimbaseline, chain, string, annotate
+keywords: dimension, dim, dimlinear, dli, dimaligned, dimangular, dimradius, dimdiameter, dimcontinue, dimbaseline, chain, string, annotate, dimension tool, where, find, toolbar, measure, mm, cm, m, km, units
 ---
 
 ## What you will make
@@ -11,6 +11,16 @@ keywords: dimension, dim, dimlinear, dli, dimaligned, dimangular, dimradius, dim
 A dimensioned room: overall width and height, a string of dimensions along one wall, an angled wall, a curved corner and an angle.
 
 Before you start, read [Set dimension sizes](topic:dimension-settings) if your drawing is large: dimension text is 2.5 drawing units tall by default, which is tiny in a drawing measured in millimeters. For the steps below, type `DIMSCALE`, press {{key:Enter}}, type `50` and press {{key:Enter}} first.
+
+## Where the dimension tools are
+
+With the CadCraft menu style (the one CadCraft starts with), the dimension tools are in the toolbar above the drawing, in the {{ui:Annotate}} group: {{ui:Linear}}, {{ui:Aligned}}, {{ui:Angle}}, {{ui:Radius}} and {{ui:Diameter}}. The group's {{ui:More}} menu has {{ui:Continue dimension}} and {{ui:Baseline dimension}}. Hold the pointer over a button to see what it does.
+
+- With the {{ui:Drafting classic}} or {{ui:Ribbon}} menu style, open the {{ui:Annotate}} tab: the tools are in its {{ui:Dimensions}} panel. {{ui:Drafting classic}} also has {{ui:Linear}} on the {{ui:Home}} tab, under {{ui:Annotation}}. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+- Or type the command at the command line under the drawing and press {{key:Enter}}: `DLI` (linear), `DAL` (aligned), `DAN` (angular), `DRA` (radius), `DDI` (diameter), `DCO` (continue), `DBA` (baseline).
+- On a narrow screen the toolbar is one row: swipe it sideways to reach {{ui:Annotate}}.
+
+To show the lengths in millimetres, centimetres, metres or kilometres, see [Dimensions in mm, cm, m or km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).
 
 ## Draw something to dimension
 
@@ -124,4 +134,5 @@ A dimension remembers its points. Drag one of its grips, or move, rotate or scal
 - **"Pick a point inside the angle you want to measure."** The point you clicked for an angular dimension sits on one of the legs. Move it into the angle.
 - **Continue started from the wrong dimension.** It always continues from the last linear or aligned dimension made in this session. Make (or remake) the one to continue from first.
 - **The dimension came out vertical.** You placed it to the side. Type `H` before placing it.
-- **Feet and inches.** Dimensions show decimal numbers in drawing units. Architectural (feet-inch) display is not built yet.
+- **Feet and inches.** Set the drawing's length format to {{ui:Architectural}} first, or a dimension's {{ui:Format}} in {{ui:Properties}}: see [Feet and inches in dimensions](topic:dimension-settings#feet-and-inches-in-dimensions).
+- **The numbers are not in the unit you want.** Choose {{ui:Units in the text}}: see [Dimensions in mm, cm, m or km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).

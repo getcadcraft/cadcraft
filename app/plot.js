@@ -5,7 +5,9 @@
  *
  *   layoutSheet(doc, layout)                      a layout at 1:1 — its viewports show the model
  *   modelSheet(doc, { area, paper, portrait, n }) the model on a paper size, at 1:n or fitted (n = null)
- *   displayList(doc, sheet, { mono })             what to draw, in millimetres on the sheet
+ *   displayList(doc, sheet, { mono, style })      what to draw, in millimetres on the sheet; `style` = a plot style table
+ *                                                 (plotstyle.js: each colour's pen sets the printed colour and lineweight),
+ *                                                 else `mono` picks the built-in 'monochrome' (default) or 'colour'
  *   await toPdf(list, { pen, title })             → { bytes: Uint8Array, report }
  *   drawPreview(ctx, list, { pxPerMm, pen })      the same on a canvas
  *
@@ -21,6 +23,7 @@ import { findPicture, pdfImage } from './pictures.js';
 import { textLayout, textCorners, viewportCorners, viewportMatrix, mMul, mApply, FONT_EM, emptyBounds, growPt, validBounds, primBounds, clipInfinite } from './geom.js';
 import { UNIT_MM, makePaper, sOf, nOf, scaleLabel } from './sheets.js';
 import { CP1252, SUBST, charAdvance } from './font.js';
+import { applyPen, builtinTable } from './plotstyle.js';
 
 export const PEN_WIDTHS = [0.13, 0.18, 0.25, 0.35, 0.5, 0.7];
 const MARGIN = 5;   // mm round a model plot (most printers cannot print to the edge)
@@ -63,8 +66,12 @@ export function modelSheet(doc, { area, paper = 'iso-a3', portrait = false, n = 
 // ---------------------------------------------------------------------------
 // Display list: per view, fills, then strokes grouped by colour, then points and text
 
-export function displayList(doc, sheet, { mono = true } = {}) {
-  const ink = (c) => (mono || c === 'ink' ? '#000000' : c);
+export function displayList(doc, sheet, { mono = true, style } = {}) {
+  const table = style || builtinTable(mono ? 'monochrome' : 'colour');
+  const pens = new Map();   // colour|lineweight → what it prints as (0.6 DC.14)
+  const pen = (c, lw = -3) => { const k = c + '|' + lw; let p = pens.get(k); if (!p) pens.set(k, (p = applyPen(table, c, lw))); return p; };
+  const ink = (c) => pen(c).color;
+  const black = table.name === 'monochrome' && table.builtin;
   const files = new Map();   // picture file → its stored record (pictures.js)
   const views = sheet.views.map((v) => {
     const fills = [], strokes = new Map(), points = [], texts = [], pictures = [], masks = [];
@@ -76,23 +83,25 @@ export function displayList(doc, sheet, { mono = true } = {}) {
     const strokeList = (color, lw, a) => { const k = color + '|' + (lw >= 0 ? lw : -3) + '|' + a; let l = strokes.get(k); if (!l) strokes.set(k, (l = [])); return l; };
     walk(doc, v.entities, {
       // grouped by colour, lineweight (0.4 C8: mm on paper, -3 = the plot's pen width) and alpha
-      stroke(color, ps, lw = -3, o) { strokeList(ink(color), lw, alphaOf(o)).push(...ps); },
+      stroke(color, ps, lw = -3, o) { const p = pen(color, lw); strokeList(p.color, p.lw, alphaOf(o)).push(...ps); },
       fill(color, loops, solid, o) {
         const a = alphaOf(o);
         if (solid) fills.push({ color: o?.wipe ? '#ffffff' : ink(color), loops, alpha: o?.wipe ? 1 : a });
         else {   // a patterned hatch plots as a light tone of its colour, with its outline
           fills.push({ color: mix(ink(color), '#ffffff', 0.82), loops, alpha: a });
-          const l2 = strokeList(ink(color), -3, a);
+          const p = pen(color);
+          const l2 = strokeList(p.color, p.lw, a);
           for (const l of loops) for (let i = 0; i + 3 < l.length; i += 2) l2.push({ k: 'L', x1: l[i], y1: l[i + 1], x2: l[i + 2], y2: l[i + 3] });
         }
       },
       text(color, e, o) { texts.push({ color: ink(color), e, alpha: alphaOf(o) }); },
       // a text's background mask (0.5 WL.8): the paper's white, or its own colour on a colour plot
-      mask(color, loop, o) { masks.push({ color: o?.wipe || mono ? '#ffffff' : ink(color), loop }); },
+      mask(color, loop, o) { masks.push({ color: o?.wipe || black ? '#ffffff' : ink(color), loop }); },
       point(color, x, y) { points.push({ color: ink(color), x, y }); },
       infinite(color, e, lw = -3, o) {
         const tt = area && clipInfinite({ x: e.x, y: e.y }, { x: e.dx, y: e.dy }, area, e.type === 'ray');
-        if (tt && tt[1] > tt[0]) strokeList(ink(color), lw, alphaOf(o)).push({ k: 'L', x1: e.x + e.dx * tt[0], y1: e.y + e.dy * tt[0], x2: e.x + e.dx * tt[1], y2: e.y + e.dy * tt[1] });
+        const p = pen(color, lw);
+        if (tt && tt[1] > tt[0]) strokeList(p.color, p.lw, alphaOf(o)).push({ k: 'L', x1: e.x + e.dx * tt[0], y1: e.y + e.dy * tt[0], x2: e.x + e.dx * tt[1], y2: e.y + e.dy * tt[1] });
       },
       picture(p) { const rec = findPicture(doc, p.file); if (rec) { pictures.push(p); files.set(p.file, rec); } },   // 0.5 WL.13/14: only pictures whose file CadCraft has
     }, { m: v.m, plot: true, frozen: v.frozen || null });

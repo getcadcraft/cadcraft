@@ -13,6 +13,8 @@ You draw at full size, in drawing units. What one unit stands for is the drawing
 1. Press {{key:Esc}} so nothing is selected, on the {{ui:Model}} tab.
 2. In {{ui:Current settings}}, choose {{ui:Units}}: {{ui:Unitless}}, {{ui:Millimetres}}, {{ui:Centimetres}}, {{ui:Metres}}, {{ui:Inches}} or {{ui:Feet}}.
 
+Dimensions can write their lengths in millimetres, centimetres, metres or kilometres whatever the drawing unit: see [Dimensions in mm, cm, m or km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).
+
 Changing the units resizes nothing. It changes how scales are read on sheets and in plots, and which scales are offered. A drawing opened from a DWG or DXF keeps the units stored in the file; the {{ui:Drawing}} section of the left panel shows them.
 
 A {{ui:Unitless}} drawing is treated as being in the paper's unit: millimeters on ISO paper, inches on US paper.

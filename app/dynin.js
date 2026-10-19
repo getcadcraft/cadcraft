@@ -14,6 +14,8 @@
  *   d.live(cur, base) → [value 0, value 1] for the fields (numbers; locked fields give their text)
  *   d.commit(typed, cur, base, { last, parseLen }) → the text to send for Enter, or null (send the typed text as it is)
  *   d.ucs = { x, y, ang } | null   the UCS in force (0.5 DR.8): the fields show and take UCS values; points stay world
+ *   d.parseAngle = (text) → degrees | NaN   how an angle field is read (cadcraft.js: units.js readNumber, so 360/7 works,
+ *                  0.6 DF.3); plain numbers only by default
  */
 
 import { toUcs, toWorld } from './ucs.js';
@@ -22,7 +24,7 @@ const num = (v) => String(Number(v.toFixed(10)));
 const ANGLE = /^[-+]?(?:\d+\.?\d*|\.\d+)$/;
 
 export class DynInput {
-  constructor() { this.ucs = null; this.reset(null); }
+  constructor() { this.ucs = null; this.parseAngle = (s) => (ANGLE.test(String(s).trim()) ? +s : NaN); this.reset(null); }
 
   reset(mode) { this.mode = mode; this.locked = [null, null]; this.active = 0; }
 
@@ -35,7 +37,7 @@ export class DynInput {
     const s = String(typed ?? '').trim();
     if (s) {
       const angleField = this.mode === 'polar' && this.active === 1;
-      if (angleField ? !ANGLE.test(s) : !isLength(s)) return false;
+      if (angleField ? !Number.isFinite(this.parseAngle(s)) : !isLength(s)) return false;
       this.locked[this.active] = s;
     }
     this.active = (this.active + 1) % 2;
@@ -51,7 +53,7 @@ export class DynInput {
     }
     const s = String(typed ?? '').trim();
     if (s && this.locked[this.active] === null) {   // what is being typed counts as if it were locked
-      const ok = this.mode === 'polar' && this.active === 1 ? ANGLE.test(s) : Number.isFinite(parseLen(s));
+      const ok = this.mode === 'polar' && this.active === 1 ? Number.isFinite(this.parseAngle(s)) : Number.isFinite(parseLen(s));
       if (ok) { const keep = this.locked; this.locked = keep.slice(); this.locked[this.active] = s; try { return this.apply(cur, base, parseLen); } finally { this.locked = keep; } }
     }
     if (!this.any) return cur;
@@ -60,7 +62,7 @@ export class DynInput {
     }
     if (!base) return cur;
     const d = this.locked[0] !== null ? parseLen(this.locked[0]) : Math.hypot(cur.x - base.x, cur.y - base.y);
-    const a = this.locked[1] !== null ? +this.locked[1] * Math.PI / 180 : Math.atan2(cur.y - base.y, cur.x - base.x);
+    const a = this.locked[1] !== null ? this.parseAngle(this.locked[1]) * Math.PI / 180 : Math.atan2(cur.y - base.y, cur.x - base.x);
     return { x: base.x + Math.cos(a) * d, y: base.y + Math.sin(a) * d };
   }
 
@@ -84,7 +86,7 @@ export class DynInput {
     if (this.mode === 'xy') return vals[0] + ',' + vals[1];
     // @ counts from the last point given; when the base is another point, send where it lands instead
     if (last && Math.abs(last.x - base.x) < 1e-12 && Math.abs(last.y - base.y) < 1e-12) return '@' + vals[0] + '<' + vals[1];
-    const d = parseLen(vals[0]), a = +vals[1] * Math.PI / 180, b = toUcs(this.ucs, base);
+    const d = parseLen(vals[0]), a = this.parseAngle(vals[1]) * Math.PI / 180, b = toUcs(this.ucs, base);
     if (!Number.isFinite(d) || !Number.isFinite(a)) return null;
     return '#' + num(b.x + Math.cos(a) * d) + ',' + num(b.y + Math.sin(a) * d);
   }

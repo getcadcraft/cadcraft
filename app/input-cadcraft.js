@@ -37,6 +37,7 @@ export const COMMANDS = [
   C('file.save', 'file', 'bi-download', T('File', 'SAVE'), { defKeys: ['Ctrl+S'] }),
   C('file.saveas', 'file', 'bi-file-earmark-arrow-down', T('File', 'SAVEAS'), { defKeys: ['Ctrl+Shift+S'] }),
   C('file.plot', 'file', 'bi-printer', T('File', 'PLOT'), { defKeys: ['Ctrl+P'] }),
+  C('file.samples', 'file', 'bi-journal-richtext', '.cc-sec-head [data-cmd="SAMPLES"]'),   // 0.6 DF.9: the Drawing section's link (the File group has no room for a More menu at 1440 px)
 
   C('draw.line', 'draw', 'bi-slash-lg', T('Draw', 'LINE'), tab),
   C('draw.pline', 'draw', 'bi-vector-pen', T('Draw', 'PLINE'), tab),
@@ -72,6 +73,8 @@ export const COMMANDS = [
   C('modify.matchprop', 'modify', 'bi-brush', T('Modify', 'MATCHPROP'), tab),
   C('modify.break', 'modify', 'bi-scissors', T('Modify', 'BREAK'), tab),
   C('modify.lengthen', 'modify', 'bi-arrows', T('Modify', 'LENGTHEN'), tab),
+  C('modify.align', 'modify', 'bi-align-start', T('Modify', 'ALIGN'), tab),   // 0.6 DF.2
+  C('modify.alignpanel', 'modify', 'bi-distribute-horizontal', T('Modify', 'ALIGNPANEL'), tab),
 
   C('annotate.dimlinear', 'annotate', 'bi-arrow-left-right', T('Annotate', 'DIMLINEAR'), tab),
   C('annotate.dimaligned', 'annotate', 'bi-arrows-angle-contract', T('Annotate', 'DIMALIGNED'), tab),
@@ -119,6 +122,10 @@ export const COMMANDS = [
   C('blocks.xattach', 'blocks', 'bi-paperclip', T('Blocks', 'XATTACH'), tab),
   C('blocks.xref', 'blocks', 'bi-link-45deg', T('Blocks', 'XREF'), tab),
   C('blocks.delblocks', 'blocks', 'bi-trash', T('Blocks', 'DELBLOCKS'), tab),
+  C('blocks.eattedit', 'blocks', 'bi-input-cursor-text', T('Blocks', 'EATTEDIT'), tab),   // 0.6 DF.5
+  C('blocks.battman', 'blocks', 'bi-list-ol', T('Blocks', 'BATTMAN'), tab),
+  C('blocks.refedit', 'blocks', 'bi-pencil-square', T('Blocks', 'REFEDIT'), tab),
+  C('blocks.exportpoints', 'blocks', 'bi-geo-alt', T('Blocks', 'EXPORTPOINTS'), tab),   // 0.6 DF.7
 
   // the Layers panel's Tools menu (left panel)
   C('layers.iso', 'layers', 'bi-layers', '[data-layer-menu] [data-cmd="LAYISO"]', tab),
@@ -141,6 +148,7 @@ export const COMMANDS = [
   C('edit.paste', 'edit', 'bi-clipboard-plus', T('Edit', 'PASTECLIP'), { defKeys: ['Ctrl+V'] }),
   C('edit.cut', 'edit', 'bi-scissors', '[data-edit-menu] [data-cmd="CUTCLIP"]', { defKeys: ['Ctrl+X'] }),
   C('edit.paste-in-place', 'edit', 'bi-clipboard-check', '[data-edit-menu] [data-cmd="PASTEORIG"]', { defKeys: ['Ctrl+Shift+V'] }),
+  C('edit.paste-picture', 'edit', 'bi-image', '[data-edit-menu] [data-paste-picture]'),   // 0.6 DF.6   // i18n-ignore (a selector)
   C('edit.duplicate', 'edit', 'bi-files', '[data-edit-menu] [data-cmd="DUPLICATE"]', { defKeys: ['Ctrl+D'] }),
   C('edit.delete', 'edit', 'bi-trash', '[data-edit-menu] [data-cmd="ERASE"]', { defKeys: ['Delete'], fixed: true }),
   C('edit.select-all', 'edit', 'bi-check2-all', '[data-edit-menu] [data-cmd="SELECTALL"]', { defKeys: ['Ctrl+A'] }),
@@ -231,7 +239,7 @@ const DEFAULT_KEYS = Object.fromEntries(COMMANDS.filter((c) => c.defKeys.length 
 const m = (label, items) => ({ label: 'input.m.' + label, items });
 const rtab = (label, panels) => ({ label: 'input.m.' + label, panels: panels.map(([l, items]) => ({ label: 'input.m.' + l, items })) });
 
-const FILE_MENU = ['file.new', 'file.open', '-', 'file.save', 'file.saveas', '-', 'file.plot', '-', 'app.settings', 'app.palette', 'app.help'];
+const FILE_MENU = ['file.new', 'file.open', 'file.samples', '-', 'file.save', 'file.saveas', '-', 'file.plot', '-', 'app.settings', 'app.palette', 'app.help'];
 const LAYERS = ['layers.iso', 'layers.uniso', 'layers.off', 'layers.frz', 'layers.mcur', 'layers.on', 'layers.thw', 'layers.mrg', 'layers.del', 'layers.rename'];
 const GEOM = ['param.horizontal', 'param.vertical', 'param.parallel', 'param.perpendicular', 'param.coincident', 'param.tangent', 'param.equal', 'param.fix', 'param.collinear', 'param.concentric', 'param.symmetric'];
 const DCONS = ['param.dclinear', 'param.dcaligned', 'param.dcangular', 'param.dcradius', 'param.dcdiameter', 'param.dcconvert'];
@@ -258,15 +266,15 @@ export const STYLES = {
     tabs: [
       rtab('home', [
         ['draw', ['draw.line', 'draw.pline', 'draw.circle', 'draw.arc', 'draw.rectang', 'draw.polygon', 'draw.ellipse', 'draw.hatch', 'draw.point', 'draw.circle-ttr', 'draw.circle-ttt', 'draw.xline', 'draw.ray']],
-        ['modify', ['modify.move', 'modify.rotate', 'modify.trim', 'modify.extend', 'modify.erase', 'modify.copy', 'modify.mirror', 'modify.fillet', 'modify.chamfer', 'modify.explode', 'modify.stretch', 'modify.scale', 'modify.array', 'modify.offset', 'modify.join', 'modify.break', 'modify.lengthen']],
+        ['modify', ['modify.move', 'modify.rotate', 'modify.trim', 'modify.extend', 'modify.erase', 'modify.copy', 'modify.mirror', 'modify.fillet', 'modify.chamfer', 'modify.explode', 'modify.stretch', 'modify.scale', 'modify.array', 'modify.offset', 'modify.join', 'modify.break', 'modify.lengthen', 'modify.align', 'modify.alignpanel']],
         ['annotation', ['draw.mtext', 'annotate.dimlinear', 'annotate.mleader']],
         ['layers', LAYERS],
         ['block', ['blocks.insert', 'blocks.make']],
         ['properties', ['modify.matchprop']],
         ['utilities', ['tools.dist', 'tools.area', 'tools.measuregeom', 'edit.qselect', 'edit.select-all', 'edit.similar', 'edit.select-none']],
-        ['clipboard', ['edit.paste', 'edit.copy', 'edit.cut', 'edit.paste-in-place', 'edit.duplicate', 'edit.delete']],
+        ['clipboard', ['edit.paste', 'edit.copy', 'edit.cut', 'edit.paste-in-place', 'edit.paste-picture', 'edit.duplicate', 'edit.delete']],
       ]),
-      rtab('insert', [['block', ['blocks.bedit', 'blocks.attdef']], ['reference', ['blocks.xattach', 'blocks.xref']], ['library', ['blocks.library']], ['pointcloud', ['view.pcattach', 'view.pointcloud']], ['data', ['blocks.count', 'blocks.delblocks']], ['map', ['view.maplayers']]]),
+      rtab('insert', [['block', ['blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit']], ['reference', ['blocks.xattach', 'blocks.xref']], ['library', ['blocks.library']], ['pointcloud', ['view.pcattach', 'view.pointcloud']], ['data', ['blocks.count', 'blocks.delblocks', 'blocks.exportpoints']], ['map', ['view.maplayers']]]),
       rtab('annotate', [['text', ['draw.text', 'edit.find']], ['dimensions', ['annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline']], ['markup', ['annotate.revcloud']]]),
       rtab('parametric', [['geometric', ['param.auto', 'param.geom', ...GEOM, 'param.bars-show', 'param.bars-hide']], ['dimensional', ['param.dim', ...DCONS, 'param.dcdisplay']], ['manage', ['param.delete', 'param.parameters', 'param.swbout']]]),
       rtab('view', [['navigate', ['view.extents', 'view.window', 'view.previous']], ['viewports', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews']], ['coordinates', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['model', ['view.model', 'view.3d', 'view.open3d']], ['aids', AIDS]]),
@@ -286,14 +294,14 @@ export const STYLES = {
     tabs: [
       rtab('draw', [['lines', ['draw.line', 'draw.pline', 'draw.xline', 'draw.ray', 'draw.point']], ['shapes', ['draw.circle', 'draw.circle-ttr', 'draw.circle-ttt', 'draw.arc', 'draw.rectang', 'draw.polygon', 'draw.ellipse']], ['text', ['draw.text', 'draw.mtext']], ['fill', ['draw.hatch']]]),
       rtab('modify', [
-        ['clipboard', ['edit.cut', 'edit.copy', 'edit.paste', 'edit.paste-in-place', 'edit.duplicate', 'edit.delete']],
-        ['arrange', ['modify.move', 'modify.copy', 'modify.rotate', 'modify.scale', 'modify.mirror', 'modify.stretch', 'modify.array']],
+        ['clipboard', ['edit.cut', 'edit.copy', 'edit.paste', 'edit.paste-in-place', 'edit.paste-picture', 'edit.duplicate', 'edit.delete']],
+        ['arrange', ['modify.move', 'modify.copy', 'modify.rotate', 'modify.scale', 'modify.mirror', 'modify.stretch', 'modify.array', 'modify.align', 'modify.alignpanel']],
         ['shape', ['modify.offset', 'modify.trim', 'modify.extend', 'modify.fillet', 'modify.chamfer', 'modify.break', 'modify.lengthen', 'modify.join', 'modify.explode', 'modify.erase', 'modify.matchprop']],
         ['select', ['edit.select-all', 'edit.select-none', 'edit.qselect', 'edit.similar', 'edit.find']],
       ]),
       rtab('annotate', [['dimensions', ['annotate.dimlinear', 'annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline']], ['notes', ['annotate.mleader', 'annotate.revcloud']]]),
       rtab('parametric', [['constraints', ['param.auto', 'param.geom', 'param.dim', 'param.parameters']], ['geometric', GEOM], ['dimensional', [...DCONS, 'param.dcdisplay']], ['manage', ['param.delete', 'param.bars-show', 'param.bars-hide', 'param.swbout']]]),
-      rtab('blocks', [['blocks', ['blocks.make', 'blocks.insert', 'blocks.bedit', 'blocks.attdef', 'blocks.count', 'blocks.delblocks']], ['links', ['blocks.xattach', 'blocks.xref', 'blocks.library']], ['layers', LAYERS]]),
+      rtab('blocks', [['blocks', ['blocks.make', 'blocks.insert', 'blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit', 'blocks.count', 'blocks.delblocks', 'blocks.exportpoints']], ['links', ['blocks.xattach', 'blocks.xref', 'blocks.library']], ['layers', LAYERS]]),
       rtab('sheets', [['sheets', ['sheets.layout', 'sheets.mview']], ['plot', ['file.plot']]]),
       rtab('view', [['zoom', ['view.extents', 'view.window', 'view.previous']], ['panes', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews']], ['turn', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['show', ['view.model', 'view.3d', 'view.open3d', 'view.maplayers', 'view.pcattach', 'view.pointcloud']], ['aids', AIDS]]),
       TAB_3D(['3d', 'modeling', 'solidedit', 'modify', 'views', 'visual', 'export']),

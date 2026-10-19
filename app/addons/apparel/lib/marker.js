@@ -9,7 +9,8 @@
  *   { name, style, size, u, cut: [[x, y]] (the cut line, counter-clockwise, in the piece's own frame), grain (the grain line's
  *     angle in that frame, radians), area, pair (this copy is the mirrored one of a pair) }
  *
- *   placedFrom(data, size, cut) → placed data · drawPlaced(p, t) · drawMarker(m, t) → CadCraft entities
+ *   placedFrom(data, size, cut) → placed data (a long cut line thinned to fit, 0.6 LC.17: thinRing) · drawPlaced(p, t) ·
+ *   drawMarker(m, t) → CadCraft entities
  *   worldPoly(p, ins) → [{x, y}] · grainAngle(p, ins) → radians in the drawing (mirror taken into account)
  *   grainProblem(p, ins, marker) → null | 'turned' (180° on one-way fabric) | 'mirrored' | 'grain' (off by more than tol)
  *   inMarker(poly, mIns, m) → 'out' | 'in' | 'edge' (partly off the fabric) · overlaps(a, b) → bool
@@ -18,12 +19,52 @@
 
 const TAU = Math.PI * 2;
 
+/** An add-on object holds at most 12000 characters of JSON (CadCraft's objects.js); a placed piece keeps under this. */
+export const PLACED_LIMIT = 11000;
+
+/** Douglas–Peucker on a closed ring of {x, y}: points within tol of the simplified line go (0.6 LC.17). */
+export function thinRing(pts, tol) {
+  const n = pts.length;
+  if (n <= 4 || !(tol > 0)) return pts.slice();
+  // split at point 0 and the point farthest from it
+  let far = 0, fd = -1;
+  for (let i = 1; i < n; i++) { const d = Math.hypot(pts[i].x - pts[0].x, pts[i].y - pts[0].y); if (d > fd) { fd = d; far = i; } }
+  const keep = new Uint8Array(n);
+  keep[0] = keep[far] = 1;
+  const seg = (i0, i1) => {   // indices along the ring, i1 > i0 (mod n handled by the caller's unrolled range)
+    const stack = [[i0, i1]];
+    while (stack.length) {
+      const [a, b] = stack.pop();
+      if (b - a < 2) continue;
+      const A = pts[a % n], B = pts[b % n], dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy);
+      let best = -1, bd = -1;
+      for (let i = a + 1; i < b; i++) {
+        const P = pts[i % n];
+        const d = L > 1e-12 ? Math.abs(dy * (P.x - A.x) - dx * (P.y - A.y)) / L : Math.hypot(P.x - A.x, P.y - A.y);
+        if (d > bd) { bd = d; best = i; }
+      }
+      if (bd > tol) { keep[best % n] = 1; stack.push([a, best], [best, b]); }
+    }
+  };
+  seg(0, far); seg(far, n);
+  return pts.filter((_, i) => keep[i]);
+}
+
 export function placedFrom(data, size, cut) {
-  const pts = cut.map((q) => [+q.x.toFixed(4), +q.y.toFixed(4)]);
-  let a = 0;
-  for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; }
-  const grain = data.grain ? Math.atan2(data.grain.b[1] - data.grain.a[1], data.grain.b[0] - data.grain.a[0]) : Math.PI / 2;
-  return { name: data.name || '', style: data.style || '', size: size || data.size || '', u: data.u === 'in' ? 'in' : 'mm', cut: pts, grain, area: +Math.abs(a / 2).toFixed(4), pair: false };
+  const inch = data.u === 'in';
+  const dp = inch ? 4 : 2;
+  // a long cut line is thinned to within a hair (0.02 mm, 0.001 in), more only if it still would not fit in the object
+  const tol0 = inch ? 0.001 : 0.02;
+  let out = null;
+  for (let k = 0; k < 12; k++) {
+    const pts = thinRing(cut, k ? tol0 * 2 ** (k - 1) : 0).map((q) => [+q.x.toFixed(dp), +q.y.toFixed(dp)]);
+    let a = 0;
+    for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; }
+    const grain = data.grain ? Math.atan2(data.grain.b[1] - data.grain.a[1], data.grain.b[0] - data.grain.a[0]) : Math.PI / 2;
+    out = { name: data.name || '', style: data.style || '', size: size || data.size || '', u: inch ? 'in' : 'mm', cut: pts, grain, area: +Math.abs(a / 2).toFixed(4), pair: false };
+    if (JSON.stringify(out).length <= PLACED_LIMIT - 200) break;
+  }
+  return out;
 }
 
 const bboxOf = (pts) => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; for (const p of pts) { const x = p.x ?? p[0], y = p.y ?? p[1]; if (x < x0) x0 = x; if (y < y0) y0 = y; if (x > x1) x1 = x; if (y > y1) y1 = y; } return { x0, y0, x1, y1 }; };

@@ -3,7 +3,7 @@ title: Block attributes
 summary: See and change the values a block reference carries, such as an item number or a maker, and keep them when you save a copy.
 section: tasks
 order: 115
-keywords: attdef, define attribute, bedit, block editor, bclose, attribute, attributes, attdef, attrib, tag, item number, value, invisible, constant, block, properties, list, equipment tag
+keywords: eattedit, attedit, ddatte, battman, attsync, refedit, refclose, title block, edit in place, attribute editor, attdef, define attribute, bedit, block editor, bclose, attribute, attributes, attdef, attrib, tag, item number, value, invisible, constant, block, properties, list, equipment tag
 ---
 
 ## What attributes are
@@ -35,6 +35,23 @@ A selected attribute definition shows {{ui:Tag}}, {{ui:Prompt}}, {{ui:Default}} 
 
 {{ui:Blocks}} › {{ui:More}} › {{ui:Edit block}} ({{cmd:BEDIT}}, `BE`) opens a block on its own: type its name (or select a reference first). A bar at the top says which block you are editing. Draw, erase and change its objects with the usual commands, and add or change attribute definitions. Then click {{ui:Save block}} (or type {{cmd:BCLOSE}} and `S`): every reference shows the change, and one {{key:Mod+Z}} undoes it all. {{ui:Discard changes}} (`BCLOSE`, `D`) leaves the block as it was.
 
+When you added, removed or changed attribute definitions, saving also brings every reference in line: values you typed are
+kept, a new attribute gets its default, a removed one goes, and each attribute goes back to where the definition puts it.
+The history says how many references were updated.
+
+## Edit a title block where it is (REFEDIT)
+
+A title block on a sheet often sits inside a block. To change its lines or texts without leaving the sheet:
+
+1. Select the title block, then {{ui:Blocks}} › {{ui:More}} › {{ui:Edit in place}} (or type {{cmd:REFEDIT}}).
+2. Its contents become ordinary objects where they are; everything else is faded and cannot be changed.
+3. Change, erase or draw: new objects become part of the block.
+4. Click {{ui:Save the block}} in the bar at the top (or type {{cmd:REFCLOSE}} and `S`). Every reference shows the change,
+   and one {{key:Mod+Z}} undoes the whole edit. {{ui:Discard}} leaves the block as it was.
+
+A linked drawing, a dynamic block, or a reference scaled differently across and up cannot be edited in place: use
+{{cmd:BEDIT}} (or open the linked drawing).
+
 :::note
 Save or discard in the block editor before you save the drawing: a file saved while the editor is open has the block as it was before.
 :::
@@ -54,6 +71,23 @@ Values the block marks as preset, and constant ones, are not asked for. They tak
 3. Click a value, type the new one and press {{key:Enter}}.
 
 The drawing shows the new value at once. Each change is one step: {{key:Mod+Z}} undoes it.
+
+**The attribute editor.** Double-click a reference with attributes (or {{cmd:EATTEDIT}}): the {{ui:Edit attributes}} dialog
+lists every tag with its prompt and value. Type new values; click a row to change that attribute's {{ui:Height}},
+{{ui:Rotation}}, {{ui:Width factor}}, {{ui:Justify}}, {{ui:Layer}}, {{ui:Color}} and {{ui:Invisible}} for this reference only.
+{{ui:Apply}} keeps the dialog open; {{ui:OK}} applies and closes. Each {{ui:Apply}} or {{ui:OK}} is one undo step.
+
+**On the command line**, {{cmd:ATTEDIT}} asks each value in turn: type a new one, or press {{key:Enter}} to keep it.
+
+## Change the attribute definitions (BATTMAN, ATTSYNC)
+
+{{ui:Blocks}} › {{ui:More}} › {{ui:Attribute manager}} ({{cmd:BATTMAN}}) lists a block's attributes: change a tag, prompt or
+default, tick {{ui:Invisible}}, {{ui:Constant}} or {{ui:Preset}}, and move them up or down (the order values are asked in). With
+{{ui:Update the references (values kept)}} ticked, {{ui:Apply}} also brings every reference in line; a renamed tag keeps its
+values. Each {{ui:Apply}} is one undo step.
+
+{{cmd:ATTSYNC}} brings references in line with their block's definitions by hand: `S` picks a reference, `N` names a block,
+`A` does every block. Values are kept.
 
 The values of a library item's own fields (its id, version, license and attribution) are shown but not editable, so that checking for updates keeps working. Its item number and quantity are yours to change.
 

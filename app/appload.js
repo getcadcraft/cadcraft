@@ -22,6 +22,7 @@ import { dclDialogs } from './lisp/dcl-ui.js';
 import { decodeSource, balanced } from './lisp/reader.js';
 import { applyAliases, exportPgp, parseAliases, STORE_KEY as ALIAS_KEY, TEMPLATE } from './aliases.js';
 import { t } from './i18n.js';
+import { readLength, readNumber } from './units.js';
 
 const STARTUP_KEY = 'cadcraft.lisp.startup';
 const HISTORY_KEY = 'cadcraft.lisp.history';
@@ -238,12 +239,15 @@ export function installLispUi({ root, engine, host, print, ask, focusCommandLine
   // ---- the command line: (… and !symbol ----
   let pending = '';
   /** Is a LISP expression being typed (so a space is part of it, not Enter)? */
-  host.lispTyping = (text) => !!pending || /^\s*\(/.test(String(text));
+  host.lispTyping = (text) => !!pending || /^\s*\(/.test(String(text));   // also lets a bracketed calculation have spaces (0.6 DF.3)
   host.lispLine = (text) => {
     const s = String(text);
     if (!pending && !/^\s*[(!]/.test(s)) return false;
     if (engine.waiting) {
       if (pending || !/^\s*\(/.test(s) || session.busy) return false;
+      // a calculation in brackets, (24'-0")/3, is the command line's (units.js, 0.6 DF.3), not LISP: (+ 1 2) never reads as one
+      const m = engine.doc.meta;
+      if (readLength(s, m.lunits, m.units).ok || readNumber(s).ok) return false;
       // a value typed into a prompt: (* 2 3.5) at "Specify radius:" answers 7.0
       const w = engine.waiting;
       session.start().then(() => session.runner.eval(s)).then((res) => {

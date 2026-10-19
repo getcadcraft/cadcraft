@@ -165,9 +165,33 @@ Aliases: `MI`.
 - `Specify first point of mirror line`, `Specify second point of mirror line`
 - `Erase source objects? [Yes/No] <N>`
 
+### ALIGN
+
+Aliases: `AL`; or {{ui:Modify}} › {{ui:More}} › {{ui:Align}}.
+
+- `Select objects`
+- `Specify first source point`, `Specify first destination point`
+- `Specify second source point (Enter to continue)`, `Specify second destination point`
+- `Specify third source point (Enter to continue)`, `Specify third destination point`
+- With two pairs: `Scale objects based on alignment points? [Yes/No] <N>`
+
+See [Align objects](topic:modify-objects#align-objects).
+
+### ALIGNTO
+
+- `Select objects` (or the selection), `Align [Left/Center/Right/Top/Middle/Bottom] <Left>`, `To [Selection/First/Last/Point] <Selection>`; `P` asks for the point. The selection stays.
+
+### DISTRIBUTE
+
+- `Select objects` (three at least), `Distribute [Horizontally/Vertically] <Horizontally>`, `Space evenly [Centers/Gaps] <Gaps>`. The outer two stay; the selection stays.
+
+### ALIGNPANEL
+
+Aliases: `ALP`; or {{ui:Modify}} › {{ui:More}} › {{ui:Align and distribute}}. Opens the panel that runs ALIGNTO and DISTRIBUTE by clicks.
+
 ### STRETCH
 
-Aliases: `S`; or {{ui:Stretch}}. `Select objects to stretch`: drag crossing windows (or type `C`) over the ends to move. `Specify base point [Displacement]`, `Specify second point`. Points inside the windows move: line ends, polyline vertices (arc segments keep their height), dimension points; circles, ellipses, text, points and blocks move whole when their center or insertion point is inside. Without a window, the objects move whole.
+Aliases: `S`; or {{ui:Stretch}}. `Select objects to stretch`: drag crossing windows (or type `C`) over the ends to move. `Specify base point [Displacement]`, `Specify second point`. Points inside the windows move: line ends, polyline vertices (arc segments keep their height), dimension points; circles, ellipses, text, points and blocks move whole when their center or insertion point is inside. A selection made before the command keeps the crossing windows (and lassos) that made it, so they stretch the same way. Without a window, the objects move whole.
 
 ### ARRAY, ARRAYRECT, ARRAYPOLAR
 
@@ -184,9 +208,13 @@ Aliases: `O`. Lines, arcs, circles and polylines.
 - `Specify offset distance [Through] <last distance, or Through>`
 - `Select object to offset`, then `Specify point on side to offset` (or, with Through, `Specify through point`), repeated until Enter.
 
+### TRIMEXTENDMODE
+
+- `Enter new value for TRIMEXTENDMODE (1 Quick, 0 Standard)`: how {{cmd:TRIM}} and {{cmd:EXTEND}} start. `1` Quick: every object is a cutting edge or boundary. `0` Standard: they ask for the edges first. Also `(setvar "TRIMEXTENDMODE" 0)` in LISP.
+
 ### TRIM
 
-Aliases: `TR`. Prints `Current settings: Quick mode, edges: No extend` first. In Quick mode every visible object is a cutting edge, and an object nothing crosses is erased; in Standard mode it asks `Select cutting edges (Enter = every object)` first and cuts only at those.
+Aliases: `TR`. Prints `Current settings: Quick mode (TRIMEXTENDMODE 1), edges: No extend, dragging draws a path` first. In Quick mode every visible object is a cutting edge, and an object nothing crosses is erased; in Standard mode it asks `Select cutting edges (Enter = every object)` first and cuts only at those.
 
 - `Select object to trim or shift-select to extend [cuTting edges/Fence/Crossing/mOde/Edge/eRase/Undo]`, repeated: click the piece to remove (it shows grey and dashed while the pointer rests on it), drag a path through several pieces (all go in one step), or click two empty spots for a fence between them. {{key:Shift}} extends instead. `T` chooses cutting edges (Standard mode), `F` asks fence points, `C` two window corners (pieces partly inside go), `O` asks `Enter a trim mode option [Quick/Standard]`, `E` asks `Enter an implied edge extension mode [Extend/No extend]` (EDGEMODE), `R` erases objects you select, `U` undoes the last pick or drag. Enter ends. See [Trim and extend](topic:trim-and-extend).
 
@@ -362,6 +390,10 @@ No aliases. Each asks `Enter new value for … <current>` and sets that size for
 
 Dimension setting: the format of new dimensions only (1 scientific, 2 decimal, 3 engineering, 4 architectural, 5 fractional).
 
+### DIMTEXTUNIT
+
+Aliases: `DTU`. `Units in the text of new dimensions [Drawing units/mm/cm/m/km]`, or with dimensions selected `Units in the text of the selected dimensions`. Writes the measured length in that unit with the unit after it (DIMLFAC and a DIMPOST suffix); `D` goes back to drawing units. See [Dimensions in mm, cm, m or km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).
+
 ### REVCLOUD
 
 Aliases: `RC`. Prints `Arc length: … Type: …`, then `Specify first point [Arc length/Object/Rectangular/Polygonal/Freehand]`. Rectangular asks `Specify opposite corner`; Polygonal `Specify next point (Enter closes the cloud) [Undo]`; Freehand follows the pointer until a click or {{key:Enter}}; `O` asks `Select object` and `Reverse direction? [Yes/No] <N>` and turns the object into the cloud. `A` asks `Specify the length of each arc`. `R`, `P` and `F` choose the type for the next cloud. The result is a closed polyline of arcs.
@@ -421,6 +453,22 @@ Aliases: `B`, `BMAKE`.
 ### ATTDEF
 
 Aliases: `ATT`, `DDATTDEF`, `-ATTDEF`; or {{ui:Blocks}} › {{ui:More}} › {{ui:Define attribute}}. Prints the modes, then `Enter an option to change (Enter when done) [Invisible/Constant/Preset]`, `Enter attribute tag name`, `Enter attribute prompt`, `Enter default attribute value` (`Enter attribute value` when constant), `Specify start point of text`, `Specify text height`, `Specify rotation angle of text`. {{cmd:BLOCK}} takes attribute definitions into the block.
+
+### EATTEDIT and ATTEDIT
+
+`EATTEDIT` (`DDATTE`, or double-click a reference with attributes; {{ui:Blocks}} › {{ui:More}} › {{ui:Edit attributes}}): `Select a block reference with attributes`, then the {{ui:Edit attributes}} dialog. `ATTEDIT` (`ATE`, `-ATTEDIT`): the same reference, then `<prompt> (<TAG>) <value>` for each attribute; {{key:Enter}} keeps a value. See [Attributes](topic:attributes#see-and-change-the-values).
+
+### ATTSYNC
+
+`Update the attributes of which block's references [Name/Select/All] <Select>`. Values kept; new attributes get their default, removed ones go, placements reset.
+
+### BATTMAN
+
+{{ui:Blocks}} › {{ui:More}} › {{ui:Attribute manager}}. The dialog: block, attributes (tag, prompt, default, modes, order), {{ui:Update the references (values kept)}}, {{ui:Apply}}.
+
+### REFEDIT and REFCLOSE
+
+{{ui:Blocks}} › {{ui:More}} › {{ui:Edit in place}}. `REFEDIT`: `Select the block reference to edit in place` (or the selection). `REFCLOSE`: `Save the changes to "…" [Save/Discard] <Save>`; the bar's {{ui:Save the block}} and {{ui:Discard}} do the same. The whole edit is one undo step. See [Attributes](topic:attributes#edit-a-title-block-where-it-is-refedit).
 
 ### BEDIT and BCLOSE
 
@@ -524,7 +572,17 @@ Aliases: `PS`; or double-click outside the viewport, or click a tab under the dr
 
 Aliases: `PRINT`, `PUBLISH`, `EXPORTPDF`; or {{key:Mod+P}}. Opens the {{ui:Plot to PDF}} dialog. See [Plot to PDF](topic:plot-pdf).
 
+### PLOTSTYLES
+
+Aliases: `STYLESMANAGER`, `PSTABLES`; or {{ui:Edit tables…}} in the {{ui:Plot to PDF}} dialog. Opens {{ui:Plot style tables}}: what each color prints as (color, gray, ink, lineweight), kept with the drawing. See [Plot style tables](topic:plot-pdf#plot-style-tables).
+
 ## Inquiry
+
+### CAL
+
+Prints the value of a calculation, as it would be read anywhere a length is typed.
+
+- `Expression`: type it, for example `12'6"+3/4"` or `(24'-0")/3`, and press {{key:Enter}}. CadCraft prints `= 12'-6 3/4"   (150.75 drawing units)`. See [Arithmetic in a typed value](topic:coordinate-entry#arithmetic-in-a-typed-value).
 
 ### DIST
 

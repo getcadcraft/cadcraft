@@ -116,5 +116,6 @@ Select objects, then press {{key:Delete}} (or {{key:Backspace}} when the command
 
 - **The window took too little.** You dragged left to right, which only takes what is fully inside. Drag right to left for a crossing.
 - **A click on empty space started a box.** One click on empty space starts a window; the second click finishes it. Press {{key:Esc}} or right-click to drop it.
+- **A click on empty space let go of the selection.** It does, unless you hold {{key:Shift}}. To keep the selection on such a click and clear it with {{key:Esc}} only, set {{ui:Clicking an empty spot}} to {{ui:Keeps the selection}} in [CadCraft settings](topic:settings#clicking-an-empty-spot).
 - **The command used objects you did not mean.** Something was still selected when you started it. Press {{key:Esc}} before a command to start with nothing selected.
 - **Nothing is selected after a command.** That is on purpose: a finished command clears the selection.

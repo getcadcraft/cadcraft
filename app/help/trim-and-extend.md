@@ -3,7 +3,7 @@ title: Trim and extend
 summary: Cut lines back where others cross them and lengthen them to meet others, one piece at a time or many at once by dragging a path through them.
 section: tasks
 order: 52
-keywords: trim, extend, tr, ex, quick trim, drag, freehand, path, fence, crossing, shift, cutting edges, boundary edges, edgemode, mode, standard, quick, erase, preview, walls, cleanup
+keywords: trimextendmode, window drag, trim, extend, tr, ex, quick trim, drag, freehand, path, fence, crossing, shift, cutting edges, boundary edges, edgemode, mode, standard, quick, erase, preview, walls, cleanup
 ---
 
 ## What you will learn
@@ -53,6 +53,11 @@ All five now run to the vertical line. {{key:Shift}} works the other way round i
 
 Every piece that lies at least partly inside the window is trimmed.
 
+To get a window just by dragging, without typing `C`: {{ui:Settings}} › {{ui:CadCraft}} › {{ui:Dragging to trim and extend}} ›
+{{ui:A window}}. Then pressing on an empty spot and dragging draws a box, and every piece it touches is trimmed (or extended,
+in {{cmd:EXTEND}}, or with {{key:Shift}}). {{ui:A path}} (the start) brings the freehand path back. The settings line at the
+start of TRIM says which one is on.
+
 ## Choose the cutting edges (Standard mode)
 
 Sometimes only one line should cut, such as a wall face with many other lines crossing it.
@@ -62,7 +67,7 @@ Sometimes only one line should cut, such as a wall face with many other lines cr
 3. At `Select cutting edges`, click the edge lines (or drag a window), then press {{key:Enter}}. Pressing {{key:Enter}} with nothing selected makes every object an edge.
 4. Click or drag through the pieces to remove.
 
-Only the chosen edges cut, and an object no edge crosses is left alone. The mode is kept until you close the page; type `O`, then `Q` to go back to Quick. `T` (cuTting edges) chooses new edges at any time; in {{cmd:EXTEND}} it is `B` (Boundary edges).
+Only the chosen edges cut, and an object no edge crosses is left alone. The mode is kept until you close the page; type `O`, then `Q` to go back to Quick. {{cmd:TRIMEXTENDMODE}} sets it before you start, as the variable of that name does elsewhere: `0` Standard, `1` Quick. `T` (cuTting edges) chooses new edges at any time; in {{cmd:EXTEND}} it is `B` (Boundary edges).
 
 ## Edges that would reach
 

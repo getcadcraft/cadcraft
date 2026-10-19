@@ -14,6 +14,7 @@
 import { describe as describeEntity } from './commands.js';
 import { prims, primLength, entityArea, entityBounds } from './geom.js';
 import { extentsOf, layoutSheet, modelSheet, displayList, toPdf } from './plot.js';
+import { findTable, styleNameFor } from './plotstyle.js';
 import { scaleLabel, scaleList, paperByKey, PAPERS } from './sheets.js';
 import { unitsOf, LUNITS } from './units.js';
 import { getHost, toolResult } from "./host.js";
@@ -300,11 +301,20 @@ export function parseScale(doc, s) {
   throw new Error('Unknown scale "' + str + '". Use 1:n, an architectural scale such as 1/4" = 1\'-0", or fit.');
 }
 
+/**
+ * displayList options for a plot (0.6 DC.14): the plot style table the sheet (or, with no sheet, the model) names, when the
+ * drawing has it, as the Plot dialog starts with; else monochrome or the drawing's colours by `mono`.
+ */
+export function plotStyleOptions(doc, layout = null, mono = true) {
+  const own = findTable(doc, styleNameFor(doc, layout));
+  return own ? { style: own } : { mono: mono !== false };
+}
+
 /** A PDF of a sheet or of the model: {bytes, sheet: {w, h, scale, fits}, missing}. */
 export async function plotPdf(doc, { layout = null, area = 'extents', paper = 'iso-a3', portrait = false, scale = null, mono = true, pen = 0.25 } = {}) {
-  let sheet;
+  let sheet, lay = null;
   if (layout) {
-    const lay = (doc.layouts || []).find((l) => l.name.toLowerCase() === String(layout).toLowerCase());
+    lay = (doc.layouts || []).find((l) => l.name.toLowerCase() === String(layout).toLowerCase());
     if (!lay) throw new Error('There is no sheet "' + layout + '". Sheets: ' + ((doc.layouts || []).map((l) => l.name).join(', ') || 'none') + '.');
     sheet = layoutSheet(doc, lay);
   } else {
@@ -314,7 +324,7 @@ export async function plotPdf(doc, { layout = null, area = 'extents', paper = 'i
     if (!box) throw new Error('There is nothing to plot.');
     sheet = modelSheet(doc, { area: box, paper, portrait: !!portrait, n: parseScale(doc, scale) });
   }
-  const list = displayList(doc, sheet, { mono: mono !== false });
+  const list = displayList(doc, sheet, plotStyleOptions(doc, lay, mono));
   const { bytes, report } = await toPdf(list, { pen: +pen || 0.25, title: (doc.meta.name || 'Drawing1') + (layout ? ' – ' + layout : '') });
   return { bytes, sheet: { w: num(list.w), h: num(list.h), scale: sheet.scale?.label || null, fits: sheet.scale ? sheet.scale.fits !== false : true }, missing: report?.missing || 0 };
 }

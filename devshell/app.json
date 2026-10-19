@@ -25,11 +25,12 @@
         "noble-curves": "2.4.0",
         "noble-hashes": "2.4.0",
         "proj4": "2.22.0",
-        "three": "0.186.1"
+        "three": "0.186.1",
+        "web-e57": "1.2.0"
     },
     "origin": "https://getcadcraft.com",
     "packed": {
-        "at": "2026-10-15T13:48:04Z",
+        "at": "2026-10-19T00:34:28Z",
         "build": "dev"
     }
 }

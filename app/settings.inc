@@ -7,9 +7,13 @@
  *   pasteBase  where a pasted copy hangs from the cursor (PASTECLIP, Ctrl+V): lower-left corner (default) / center
  *   pick       what a click on an object does with no command running: adds to the selection (default; Shift+click
  *              removes) / replaces the selection (Shift+click adds or removes; a window replaces, Shift+window adds)
+ *   emptyClick a click on an empty spot with no command running: clears the selection (default; Shift keeps it) / keeps it
+ *              (Esc clears it), as the other drafting programs do (0.6 DC.67)
  *   lasso      press and drag on an empty spot: a freehand lasso (default; lasso.js) / a rectangle — LASSOMODE 1 / 0
  *   corner     corner indicator: automatic (default: the axis icon on the Model tab, the view cube on the 3D tab) /
  *              axis icon (the X/Y icon on the Model tab, an X/Y/Z triad on the 3D tab) / view cube (m3d/viewcube.js: at Top on the Model tab, where a click opens the 3D tab looking from there) / none
+ *   trimDrag   TRIM / EXTEND, a drag on an empty spot: a freehand path (default) / a window, crossing (0.6 DF.13)
+ *   selTotals  the selection's length and area in the status bar: on (default) / off (0.6 DF.4)
  *   tabs       sheet tabs: full names (default) / sheet numbers only (WL.9; the number from the open sheet set, else the
  *              name's first word when it reads like one; the tooltip keeps the whole name)
  *   My tools   buttons of your own (mytools-ui.js; localStorage cadcraft.mytools): list, add / edit / delete, export and
@@ -42,12 +46,36 @@
   <p class="shell-hint-text"><?= Lang::e('set.no_command_running_adds') ?></p>
 </fieldset>
 <fieldset class="shell-set">
+  <legend><?= Lang::e('set.emptyclick') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.emptyclick') ?>">
+    <label><input type="radio" name="ccEmptyClick" value="clear"> <i class="bi bi-x-circle" aria-hidden="true"></i> <?= Lang::e('set.emptyclick.clear') ?></label>
+    <label><input type="radio" name="ccEmptyClick" value="keep"> <i class="bi bi-check2-circle" aria-hidden="true"></i> <?= Lang::e('set.emptyclick.keep') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.emptyclick.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
   <legend><?= Lang::e('set.lasso') ?></legend>
   <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.lasso') ?>">
     <label><input type="radio" name="ccLasso" value="lasso"> <i class="bi bi-lasso" aria-hidden="true"></i> <?= Lang::e('set.lasso.lasso') ?></label>
     <label><input type="radio" name="ccLasso" value="box"> <i class="bi bi-bounding-box" aria-hidden="true"></i> <?= Lang::e('set.lasso.box') ?></label>
   </div>
   <p class="shell-hint-text"><?= Lang::e('set.lasso.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend><?= Lang::e('set.trimdrag') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.trimdrag') ?>">
+    <label><input type="radio" name="ccTrimDrag" value="path"> <i class="bi bi-pencil" aria-hidden="true"></i> <?= Lang::e('set.trimdrag.path') ?></label>
+    <label><input type="radio" name="ccTrimDrag" value="window"> <i class="bi bi-bounding-box-circles" aria-hidden="true"></i> <?= Lang::e('set.trimdrag.window') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.trimdrag.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend><?= Lang::e('set.seltotals') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.seltotals') ?>">
+    <label><input type="radio" name="ccSelTotals" value="on"> <i class="bi bi-rulers" aria-hidden="true"></i> <?= Lang::e('set.seltotals.on') ?></label>
+    <label><input type="radio" name="ccSelTotals" value="off"> <i class="bi bi-eye-slash" aria-hidden="true"></i> <?= Lang::e('set.seltotals.off') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.seltotals.hint') ?></p>
 </fieldset>
 <fieldset class="shell-set">
   <legend><?= Lang::e('set.corner_indicator') ?></legend>

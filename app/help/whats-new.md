@@ -1,113 +1,103 @@
 ---
-title: What's new in 0.5
-summary: Drawing together live in CadCraft Studio, working inside viewports with layers frozen per viewport, construction lines, a UCS and a turned view, tangent circles, buttons, keys and menu styles of your own, dynamic blocks that stay dynamic, pictures, clipping, point clouds, map layers, steel sections and standard parts, three new add-ons, and a layout for phones.
+title: What's new in 0.6
+summary: Align and distribute, arithmetic wherever you type a length, title blocks and attributes that are easy to keep up, selection totals, window trim, pasted pictures, points for the field and as-built checks, sample drawings, more point-cloud formats, plot style tables, dimension units, the map location saved in the drawing, and pen and touch.
 section: start
 order: 5
-keywords: whats new, what's new, release notes, changelog, changes, 0.5, version, new features, live, studio, viewport, vplayer, freeze in viewport, xline, ray, ucs, turned view, tangent, my tools, shortcuts, menu style, ribbon, drafting classic, dynamic blocks, pictures, xclip, text mask, point cloud, map layers, steel, standard parts, apparel, hvac, piping, phone, fold phone, desktop, signing
+keywords: whats new, what's new, release notes, changelog, changes, 0.6, version, new features, align, distribute, calculation, arithmetic, cal, attributes, title block, battman, attsync, refedit, totals, length, area, trim, extend, window trim, paste picture, screenshot, exportpoints, asbuilt, survey, samples, point cloud, e57, ply, pcd, ptx, apparel, marker, markernest, plot style, dimension units, coordinate system, geographic location, empty click, stretch, pen, touch, indonesian
 ---
 
-This is what changed in CadCraft 0.5, compared with 0.4. The list is grouped by area, with the most important first.
+This is what changed in CadCraft 0.6, compared with 0.5. Most of it was asked for on Discord. The list is grouped by area, with the most important first.
 
 ## New
 
-### Drawing together, live
+### Lining up and measuring
 
-- **Several people in one drawing.** In a CadCraft Studio live session everyone's edits show at once. When two people change different properties of one object, both changes are kept; when they change the same one, the later change wins. See [Work on one drawing together, live](topic:work-live).
-- **See who is where.** Other people's cursors show with their names and the command they are running, their selections are outlined in their color, and an object someone holds reads "Ana is editing".
-- **Your own undo.** {{key:Mod+Z}} undoes your own last command and leaves everyone else's work alone.
-- **Locks and holds.** The host can lock objects or a whole layer ({{cmd:LIVELOCK}}, {{cmd:LIVEUNLOCK}}). Anyone in the session can hold a layer or an area while they work there ({{cmd:LIVEHOLD}}: `L` a layer, `A` two corners, `R` releases): other people's edits there are taken back and they are told who is working there.
-- **Join with the same file.** If you have the very file the host opened, join from your own CadCraft window in Studio with {{ui:Join here}}: only the changes made since it was opened travel, so a large drawing is ready at once.
-- **Assistants as their own participants.** In Studio, an AI assistant connected to your window joins the session as "Assistant (via your name)", let in by the host, with its own undo.
-- **Join from a browser** on the same network by scanning the picture under the host's code. CadCraft asks for your name and opens the host's drawing.
+- **ALIGN and Align and distribute.** {{cmd:ALIGN}} (`AL`) moves and turns objects by one, two or three pairs of points, and can scale them to fit. The new {{ui:Align and distribute}} panel ({{ui:Modify}} › {{ui:More}}) lines up the selection's left, center, right, top, middle or bottom edges and spaces objects evenly by their gaps or their centers; each click is one undo step. See [Align objects](topic:modify-objects#align-objects).
+- **Type a calculation** wherever a length, coordinate, angle or number is asked for: `4+7/16`, `12'6"+3/4"`, `(24'-0")/3`, `2*450mm`, on the command line, in dynamic input, in Properties and in dialogs. A calculation that can't be read says where it went wrong, and {{cmd:CAL}} prints a calculation's value. On the command line a space is Enter, so put brackets round a subtraction with spaces: `(24' - 6")`. See [Arithmetic in a typed value](topic:coordinate-entry#arithmetic-in-a-typed-value).
+- **Totals for a selection.** With several objects selected, Properties shows how many of each kind, their total length and the total area of the closed ones, and the status bar shows the length and area too ({{ui:Settings}} › {{ui:CadCraft}} can hide it). See [Totals of a selection](topic:properties-panel#totals-of-a-selection).
 
-### Sheets and viewports
+### Title blocks and attributes
 
-- **Work inside a viewport.** Double-click inside a viewport ({{cmd:MSPACE}}, `MS`) to edit the model through it; double-click outside it ({{cmd:PSPACE}}, `PS`) to go back to the sheet. Pan and zoom change the viewport's view unless it is locked. See [Set up a sheet with a title block and viewports](topic:sheets-and-viewports).
-- **Freeze a layer in one viewport.** With a viewport selected or entered, the Layers panel freezes a layer in that viewport only. {{cmd:VPLAYER}} does several layers and viewports at once. Layers a DWG freezes in one viewport are left out of that viewport on screen and in plots, and kept when you save.
-- **Viewport layer overrides** from a DWG (a layer's color, linetype, lineweight and transparency in one viewport) are drawn, plotted and saved back in DWG.
-- **View labels** that follow a viewport's view name ({{cmd:VIEWLABEL}}, `VL`), and {{cmd:VPVIEW}} sets a viewport from a named view.
-- **Sheet numbers.** Sheet tabs can show numbers only ({{ui:Settings}} › {{ui:CadCraft}} › {{ui:Sheet tabs}}), and a sheet set can number its sheets from fields with a rule such as `{DISCIPLINE}-{LEVEL}{SEQ:2}`. See [Sheet sets](topic:sheet-sets).
+- **Edit attributes in a dialog.** Double-click a block reference to change its attribute values, and each one's height, rotation, width, justification, layer and color. {{cmd:ATTEDIT}} asks the values on the command line.
+- **Change a block's attributes everywhere.** The block attribute manager ({{cmd:BATTMAN}}) reorders, renames and changes the prompts, defaults and modes of a block's attributes, and {{cmd:ATTSYNC}} (or saving the block editor) brings every reference in line while keeping the values. See [Change the attribute definitions](topic:attributes#change-the-attribute-definitions-battman-attsync).
+- **Edit a title block where it sits.** {{cmd:REFEDIT}} edits a block in place on the sheet, with the rest of the drawing faded. All of it is kept in DWG and DXF. See [Edit a title block where it is](topic:attributes#edit-a-title-block-where-it-is-refedit).
 
-### Drawing tools
+### Editing
 
-- **Construction lines and rays.** {{cmd:XLINE}} (through points, horizontal, vertical, at an angle, bisecting or offset) and {{cmd:RAY}}. They cross the whole view, snap, trim into rays and lines, and stay out of Zoom Extents. They open from and save to DWG and DXF. See [Construction lines and rays](topic:construction-lines).
-- **A UCS and a turned view.** {{cmd:UCS}} and {{cmd:PLAN}}; {{ui:View}} › {{ui:More}} turns the view a quarter turn left or right and back, without moving anything in the drawing. Typed points, ortho, polar tracking, the grid, new text and linear dimensions follow the UCS. The UCS, named UCSs, the view's turn and turned sheet viewports open and save in DWG and DXF. See [Turn the view and use your own coordinates (UCS)](topic:ucs-and-turned-view).
-- **Tangent circles.** {{cmd:CIRCLE}} `T` (Tan, Tan, Radius), and {{ui:Draw}} › {{ui:More}} › Circle: Tan, Tan, Tan. See [Command reference](topic:commands).
-- **Tangent object snap** in {{cmd:LINE}}, {{cmd:ARC}} and two- and three-point circles: a line from tangent to tangent touches both circles. See [Snap to points on objects](topic:object-snaps).
-- **Compare settings** ({{cmd:COMPARESETTINGS}}, `CMPSET`): two dimension styles, text styles, layers, sheets or unit settings side by side, in one drawing or across two, with the differences marked and a value copied across in one click. See [Compare settings](topic:compare-settings).
+- **Trim and extend with a window.** {{cmd:TRIMEXTENDMODE}} (1 Quick, 0 Standard) sets how {{cmd:TRIM}} and {{cmd:EXTEND}} start, and {{ui:Settings}} › {{ui:CadCraft}} › {{ui:Dragging to trim and extend}} can make a drag draw a window that trims every piece it touches, instead of a freehand path. See [Trim inside a window](topic:trim-and-extend#trim-inside-a-window).
+- **Paste a picture.** Press {{key:Mod+V}} with a screenshot or a copied picture on the clipboard and it lands on the drawing as a picture. Saving writes the picture file beside the DWG so it shows when the drawing is opened again. See [Paste a screenshot or a copied picture](topic:pictures#paste-a-screenshot-or-a-copied-picture).
+- **Clicking an empty spot.** {{ui:Settings}} › {{ui:CadCraft}} › {{ui:Clicking an empty spot}} can keep the selection when you click where there is no object ({{key:Esc}} clears it), as other drafting programs do. CadCraft still starts the way it did: the click clears, and {{key:Shift}} keeps. See [Clicking an empty spot](topic:settings#clicking-an-empty-spot).
 
-### Your own buttons, keys and menu styles
+### Points for the field
 
-- **My tools.** {{ui:Settings}} › {{ui:CadCraft}} › {{ui:My tools}} makes toolbar buttons that run macros in the classic drafting macro syntax (`^C^C`, `;`, `\` to wait for a click), each with an icon and a key. Export and import them, or import the toolbars, panels and keys of a `.cuix` menu file; commands CadCraft lacks are listed, never guessed. See [Buttons of your own (My tools)](topic:my-tools).
-- **Keys for any command.** {{cmd:SHORTCUTS}} ({{ui:View}} › {{ui:More}} › {{ui:Keyboard shortcuts…}}) gives a key a whole command line, such as `ZOOM E`. Keys CadCraft already uses are refused.
-- **Menu styles.** {{ui:Settings}} › {{ui:CadCraft}} › {{ui:Menus, keys and mouse}} offers three styles: {{ui:CadCraft}} (the toolbar you know), {{ui:Drafting classic}} (a ribbon over CadCraft's own command line and aliases; the middle button pans and a right-click is Enter) and {{ui:Ribbon}} (plain task tabs). Keys you made in 0.4 are carried once into your own style, "My CadCraft keys", and work as before. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+- **Export points.** {{cmd:EXPORTPOINTS}} writes points, and blocks' insertion points with one of their attributes as the description, to a CSV or TXT file (PNEZD, PENZD or XYZ; drawing units, meters or feet; world or UCS coordinates) for BIM and survey programs. The file opens in CivilCraft too. See [Points for BIM programs](topic:points-for-bim).
+- **Check as-built points.** {{cmd:ASBUILT}} reads the points a crew measured and compares them with the points you exported: marked in the drawing on the layer AS-BUILT, with a CSV report. See [Check as-built points](topic:as-built-points).
 
-### Dynamic blocks
+### Sample drawings
 
-- Dynamic blocks from a DWG **open under their own names**, not as `*U8` and the like.
-- **Switch a visibility state** in Properties › {{ui:Custom}} or with the block's visibility grip, in one undo step. Their other values show read only.
-- **Edit visibility states in the block editor** ({{cmd:BVSTATE}}, {{cmd:BVHIDE}}, {{cmd:BVSHOW}}) on blocks that already have a visibility parameter.
-- **They stay dynamic** when you save as DWG in the drawing's own version. In a DXF from another program, each block shows only its current state. See [Dynamic blocks](topic:dynamic-blocks).
+- **Two samples to learn from,** free to use for anything: a small house in feet and inches (plan, elevation, section, detail, four sheets with an editable title block) and a metric as-built traced from a scan. Open them from the left panel's {{ui:Drawing}} section, or type {{cmd:SAMPLES}}. See [Learn from a sample drawing](topic:learn-from-a-sample).
+- **New help** on [changing dimension text size](topic:change-dimension-text-size) and on [opening a CadCraft DWG in other programs](topic:dwg-in-other-programs).
 
-### Pictures, text masks, clipping and links
+### Sheets, plotting and dimensions
 
-- **Pictures.** Place PNG and JPEG pictures ({{cmd:IMAGEATTACH}}, `IAT`), clip them ({{cmd:IMAGECLIP}}), and give a DWG's pictures their files ({{cmd:IMAGE}}). They are drawn on screen, saved as pictures in DWG, and printed in PDFs at their own resolution. See [Pictures in a drawing](topic:pictures).
-- **A background mask behind text** ({{cmd:TEXTMASK}}) hides the lines under a label on screen and in PDFs. See [Add text and labels](topic:text).
-- **Clip blocks and linked drawings** ({{cmd:XCLIP}}) to a rectangle or a polygon, on screen, in plots and in DWG and DXF 2000. Binding a link can keep only its clipped part.
-- **Linked drawings keep their layer settings** through reload, a DWG save and nesting, and their layers keep names such as `Plan|Walls`. See [Files: what opens, what saves](topic:files).
+- **Plot style tables.** The Plot dialog's {{ui:Plot style}} prints in color, in black, in gray, or with a table of your own that sets each drawing color's printed color, gray, ink strength and lineweight ({{ui:Edit tables…}}, or {{cmd:PLOTSTYLES}}). Each sheet keeps its table, saved with the drawing in DWG and DXF, and tables export and import between drawings. See [Plot style tables](topic:plot-pdf#plot-style-tables).
+- **Dimensions in mm, cm, m or km.** Choose {{ui:Units}} under {{ui:New dimensions}} (or for selected dimensions in Properties), or type {{cmd:DIMTEXTUNIT}}. It is saved in DWG and DXF, so other programs show the same text. See [Dimensions in mm, cm, m or km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).
+- [Dimension a plan](topic:dimensions#where-the-dimension-tools-are) now starts with where the dimension tools are, in each menu style.
 
-### Point clouds and map layers
+### Maps and point clouds
 
-- **Point clouds** ({{cmd:POINTCLOUDATTACH}}): LAS, LAZ, XYZ or PTS under the drawing. A building-size scan starts as a plan slice to trace as-built walls, with Node snap on the points; the cloud shows on the 3D tab too. See [Trace as-built lines over a point cloud](topic:point-clouds).
-- **Map layers under model space** ({{cmd:MAPLAYERS}}, `ML`): street maps, aerial tiles, web map services or a picture with a world file, placed by the drawing's coordinate system. Nothing is fetched until you switch the internet on. See [Map layers under the drawing](topic:map-layers).
+- **The coordinate system and map layers are saved with the drawing.** Set them in {{cmd:MAPLAYERS}} and they are in the DWG or DXF you save, and back when you open it on any computer; each change is one undo step. The internet switch stays with your browser, so a drawing someone sends you asks no map server for anything until you turn it on. See [Saved with the drawing](topic:map-layers#saved-with-the-drawing).
+- **Other programs can read where the drawing is.** Saved as DWG 2010 or newer, or DXF 2000, the drawing carries its geographic location the standard way; older versions keep it for CadCraft only, and the save says so. A drawing from another program with a geographic location opens on its system when it names an EPSG code; otherwise the location is kept and saved back as it was. See [Drawings from other programs](topic:map-layers#drawings-from-other-programs).
+- **More point-cloud formats.** PLY, PCD and Leica PTX open beside the drawing with their colors and intensity, and so do E57 scans: every scan in the file, each in its place, read in the background, up to 6 million points and 512 MB per file. A scanner maker's own file (RCP, RCS, FLS, LGS, TZF, ZFS) says what it is and how to export E57 or LAS from the maker's software. See [Point cloud formats](topic:point-cloud-formats).
 
-### The library's Standard tab
+### Files and the library
 
-- **Steel sections** (US W, S, C, L, HSS and pipe shapes; European IPE, HEA, HEB and UPN) placed as a section, an elevation or a 3D member ({{cmd:STEELMEMBER}}).
-- **Standard parts** (ISO and ASME bolts, nuts, washers, pins, bearings, keys and gears) placed as blocks with size, standard and material as attributes, and a parts list to draw or download ({{cmd:PARTSLIST}}). See [Place steel sections and standard parts](topic:steel-and-standard-parts).
+- **Archicad project files** (`.pln`, `.pla`) are recognized for certain by how they start, and CadCraft says when a file with that name doesn't start like one (renamed, damaged, or older than version 17). See [Archicad projects](topic:files#archicad-projects).
+- **Library items in your language.** An item's name, description and type show in your language when the item carries them, and it is placed under that name. See [Items in your language](topic:insert-from-file-and-library#items-in-your-language).
+
+### Live sessions
+
+- **Who changed what.** In a CadCraft Studio live session, select an object and the command line says who changed it last; Studio's Live panel lists the recent edits. It lasts only as long as the session and is never saved. See [Other people on your drawing](topic:work-live#other-people-on-your-drawing).
 
 ### Add-ons
 
-- **Three new add-ons, switched off at first:** Apparel (pattern pieces, seam allowance, sizes and grading, tiled printing, DXF-AAMA), HVAC (duct runs, sizing and a duct schedule) and Piping (pipe runs, fittings, valves, slope for drains and a pipe schedule). Switch them on in {{ui:Settings}} › {{ui:General}} › {{ui:Add-ons}}; each has its own help topics. Duct and pipe schedules can go to TakeoffCraft.
-- **Electrical** saves part of a schematic as a design block to place again with new tags and wire numbers ({{cmd:ELSAVEBLOCK}}, {{cmd:ELDESIGNBLOCK}}), and uses another symbol library's blocks as Electrical symbols ({{cmd:ELIMPORTSYM}}).
+- **Automatic markers in the Apparel add-on.** {{cmd:MARKERNEST}} lays a marker's pieces on the fabric for you: grain within the fabric's tolerance, pieces turned round only on fabric that may be turned, mirrored pairs kept, and the gap between pieces you choose. Keep the pieces you placed by hand and let it place the rest, or start over; one Undo takes it back. Styles with long cut lines now go on a marker too. The add-on stays switched off until you turn it on in {{ui:Settings}} › {{ui:General}} › {{ui:Add-ons}}.
 
 ## Changed
 
-- **The 3D tab** carries ModelCraft's newer modeling core: {{cmd:PRESSPULL}} can land level with a parallel face you point at, and the camera fits small parts. See [Model in 3D](topic:3d-solids).
-- **Short windows.** When the drawing would get too short, the toolbar drops its labels, then becomes one row that scrolls sideways, so the drawing and its sheet tabs stay in view. Long sheet names are cut short on their tabs; rest the pointer on a tab for the whole name.
-- **Phones.** The drawing keeps about two thirds of the screen, and the command line and the touch key row stay above the on-screen keyboard.
-- Messages about damaged or unsupported DWG and DXF files appear in your language.
+- **Old DWG files say what they are.** A DWG from AutoCAD Release 12 or earlier now says so plainly and how to get a file CadCraft reads (a DXF or a newer DWG), instead of opening an empty drawing. These files still don't open. See [Troubleshooting](topic:troubleshooting).
+- **Phones.** On a phone the drawing now gets about two thirds of the screen's height.
+- **Languages.** Spanish (Mexico) has drafts for every new string. In Indonesian, the top toolbar takes three rows on a wide screen (two in English).
+- A few English messages read better.
 
 ## Fixed
 
-- Viewports on sheets showed every layer. Layers frozen in one viewport now stay frozen there, on screen, in plots and in saved files.
-- The sheet tabs sat under the toolbar and could not be clicked on short laptop windows. Every tab is reachable now.
-- Construction lines in an opened DWG disappeared without a word. They now open, draw and save.
-- Turned sheet viewports were shown square to the sheet. They are drawn turned now.
-- Pictures showed only as a frame with the file name. They are drawn now.
-- Linked drawings' layers were renamed `Plan$0$Walls` when saved. They stay `Plan|Walls` while the link is a link.
-- {{key:Mod+S}} right after {{ui:Save as}} could still save in the old format.
-- Screen readers now read each Properties field with its label.
+- Drawings from other programs come in the way they were drawn: block references and hatches that were mirrored or drawn from below are no longer turned upside down or left unmirrored, and objects drawn in a tilted plane are shown as seen from above instead of landing far from the drawing.
+- Dimensions read from a DWG keep their angle and value when you edit them; before, some jumped to another angle and measured the wrong distance once CadCraft redrew them. A DWG's dimension length factor is honored.
+- {{cmd:STRETCH}} takes a selection you made before it: drag a crossing window (or a crossing lasso) over the ends first, then STRETCH, and the ends inside move. See [Stretch a room wider](topic:modify-objects#stretch-a-room-wider).
+- The Map layers dialog showed internal names where it should show words (Layers, Add a layer, From, Opacity). It shows words again.
 
 ## In every app
 
-- **CadCraft Studio is the desktop app.** From 0.5 the desktop download is CadCraft Studio: all eight apps in one install. The separate installer for each app stops. CadCraft still runs in the browser, and as a browser edition you can download.
-- **Installers are not signed yet.** Code signing comes with 0.6. On Windows, if SmartScreen stops the installer, choose {{ui:More info}}, then {{ui:Run anyway}}. The macOS disk image (Apple silicon and Intel, macOS 13 or later) is not signed or notarized: the first time, right-click the app and choose {{ui:Open}}. iPad, Android and iPhone come with 0.6.
-- **Work together live.** In CadCraft Studio, {{ui:Live}} shares the file you have open: teammates on the same network join with a short code and edit with you, each with their own undo. Sessions on your own network are free, for everyone. Invite links over the internet aren't open yet. See [Work together live](common:work-together-live) and [Work on one drawing together, live](topic:work-live).
-- **Menus, keys and mouse.** In {{ui:Settings}} › {{ui:CadCraft}} › {{ui:Menus, keys and mouse}}, pick {{ui:CadCraft}}, {{ui:Drafting classic}} or {{ui:Ribbon}}, give any command your own key, move commands between menus, set the wheel and the mouse buttons, and export or import a style as a `.ccinput.json` file. {{ui:Use this style in every app}} opens every app in its matching style. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
-- **A wider Settings dialog,** in two columns, so more fits without scrolling. See [CadCraft settings](topic:settings).
-- **Floating and bottom panels fit the window.** A floating panel stays above the command line and the status bar and shrinks with a small window; on a short window a panel docked at the bottom leaves the drawing room. See [Arrange the panels and use a second monitor](common:arrange-panels).
-- **Phones and fold phones.** On a screen up to 760 px wide, or a phone held sideways, the drawing keeps the screen: panels open as sheets from a bar at the bottom, and the toolbar is one row that scrolls sideways. {{ui:Tools}} hides the toolbar and {{ui:Move}} puts it at the bottom. Turning the phone, or opening and closing a fold phone, keeps your work, the selection and an open dialog. The app bar's {{ui:More}} menu holds the version, Find and the links. Phones work, but CadCraft is made for larger screens.
-- **Touch tablets.** On a touch screen each toolbar is one row that scrolls sideways instead of wrapping onto several lines.
-- **Spanish** stays a machine-made draft that has not been reviewed yet. Help topics are in English.
+- **The toolbar can't get lost.** While full screen hides the bars, a small {{ui:Show bars}} tab stays at the top of the window. {{ui:Settings}} › {{ui:General}} › {{ui:Reset the layout}} puts the toolbar, panels, screen mode and menu style back to how the app starts (your interface size and panel text size stay). In CadCraft Studio, its own {{ui:Settings}} has {{ui:Reset the layout in every app}}. See [Where did my toolbar go?](common:lost-toolbar).
+- **A menu on the toolbar.** Right-click the toolbar, or press and hold it, to arrange it, lock it so nothing moves by accident, or reset it. Ribbon menu styles collapse to their tab names: a tab opens its tools for one command; double-click a tab or use the pin to keep the ribbon open. See [The toolbar's own menu](common:lost-toolbar#the-toolbars-own-menu).
+- **Interface size.** {{ui:Settings}} › {{ui:General}} › {{ui:Interface size}} makes the bars, toolbars, panels and dialogs 80 % to 140 % of normal, for this app only, so two apps side by side on one monitor both fit. The drawing keeps its own zoom. See [Everything is too big or too small](common:lost-toolbar#everything-is-too-big-or-too-small).
+- **Pen and touch.** On a tablet or a touch-screen laptop with a pen, your palm is ignored while you draw, fingers can be left to moving the view, a two-finger tap undoes and a three-finger tap redoes, and the pen's side button and eraser end can undo or redo. {{ui:Settings}} › {{ui:General}} › {{ui:Pen and touch}}. See [Draw with a pen on a tablet](common:pen-and-touch).
+- **Live sessions can grow past 20 people.** In CadCraft Studio, when more people knock than the usual 20, Studio tells you what to expect and you choose {{ui:Allow anyway}} for this session or {{ui:Keep it at 20}}. {{ui:Recent edits}} in the Live panel shows who changed what. See [Work together live](common:work-together-live#when-many-people-join).
+- **Bahasa Indonesia** is new in {{ui:Settings}} › {{ui:General}} › {{ui:Language}}: a machine-made draft of every word, not yet reviewed by a native speaker. **Spanish (Mexico)** is still a draft too. Help topics are in English.
+- **Installers are still not signed** (signing comes next, in 0.7), and CadCraft Studio is not in an app store yet. Check the SHA-256 beside each file on getcadcraft.com/download. On Windows, if SmartScreen stops the installer, choose {{ui:More info}}, then {{ui:Run anyway}}. On a Mac, the first time, right-click CadCraft Studio and choose {{ui:Open}}. There is no iPad or iPhone build yet.
+- **Fixed:** with the bars hidden, {{ui:Arrange the toolbar…}} in Settings was grayed out, and from the keyboard it lost its place after the first move.
 
 ## Not in this version yet
 
-- Changing a dynamic block's distances, angles or flips, and making a new visibility parameter. A dynamic block stays dynamic only when saved as DWG in its own version.
-- View labels save as plain text, and a viewport's view name is not written to files yet.
-- Clipped references are still picked and zoomed by their whole size; no inverted clips.
-- Viewport layer overrides are not kept in DXF, and pictures in DXF save as their frames.
-- Point clouds: no E57, and a cloud is not saved with the drawing or plotted. Map layers are kept in this browser and are not plotted.
-- Properties shows world coordinates, not UCS ones.
-- From 0.4, still: hatches that follow their boundary, gradients, fonts and formatting inside text, splines (they open as polylines), and path or associative arrays.
-- [Not built yet](topic:not-built-yet)
+- DWG files from Release 12 and earlier still don't open; only the message is new.
+- {{cmd:CAL}} inside another command (`'CAL`) isn't built; CAL runs on its own.
+- Reading plot style tables (CTB or STB files) from other programs, and page setups, aren't built yet.
+- E57: up to 6 million points and 512 MB per file (export bigger scans as LAS or LAZ); pictures stored in the file are left out; intensity is read only when the scan has no colors. Compressed binary PCD files are refused.
+- Point clouds are still not saved in the drawing or plotted. Map layers are saved with the drawing but still draw on screen only, and pictures added from files are not saved.
+- A geographic location is written for other programs only in DWG 2010 or newer and DXF 2000. A mesh, scale or sea-level setting from another program is kept, not applied.
+- There is no NEST command: nest CadCraft outlines on sheets in PartCraft through DXF. A big marker takes a few seconds, and the page waits meanwhile.
+- From earlier versions, still: dynamic block distances, angles and flips are read only; no hatches that follow their boundary, gradients, fonts or formatting inside text, or splines.
+- CadCraft's saved DWG files have not been checked in AutoCAD itself yet.
+
+Everything else is in [Not built yet](topic:not-built-yet).

@@ -26,6 +26,8 @@ import { patternOf } from './linetypes.js';
 import { isXrefRoot } from './xref.js';
 import { extrasFrom, EXTRA_TYPES, maskOf } from './dwg-import.js';
 import { forFile, parametricText, refKeyIn, isParamBlock, PARAM_BLOCK } from './gcons.js';
+import { isStyleBlock, payloadFrom, payloadStrings, STYLE_BLOCK } from './plotstyle.js';
+import { isGeoBlock, geoFromPayload, geoPayload, GEO_BLOCK, fromDxfGroup, readGeo } from './geodwg.js';   // 0.6 GEO-DWG
 import { attdef, resolveAttribs, worldAttribs } from './attrs.js';
 import { nearestAci } from './doc.js';
 import { dimGeometry, dimTextPoint, angularFromLines, DIM_DEFAULTS } from './dims.js';
@@ -35,6 +37,7 @@ import { vportRecords, vportsFrom } from './dwg-vports.js';
 import { trFrom, trWord, propsFromXdata, propsXdata, stFromCodes, stFromVars, ccDimFrom, dstyleItems, ccDimItems, dimstylePairs } from './dwg-props.js';
 import { pictureRefs } from './pictures.js';
 import { clipFromFilter } from './xclip.js';
+import { planMatrix, toPlan, isFlipped } from './ocs.js';   // 0.6 DF.1: objects in their own coordinate system
 
 const UNITS = { 0: '', 1: 'inches', 2: 'feet', 3: 'miles', 4: 'millimeters', 5: 'centimeters', 6: 'meters', 7: 'kilometers', 8: 'microinches', 9: 'mils', 10: 'yards' };
 const UNIT_CODES = Object.fromEntries(Object.entries(UNITS).filter(([, v]) => v).map(([k, v]) => [v, +k]));
@@ -66,6 +69,7 @@ export function readDxf(text) {
   const noPlot = new Set();               // layer names (upper case) CadCraft wrote as not plotting
   const layerByH = new Map();             // layer handle (upper case) → name, for viewports' frozen layers (VP.1, group 331)
   const dictByH = new Map(), filterByH = new Map();   // DICTIONARY entries and SPATIAL_FILTERs by handle (XCLIP, WL.16)
+  let geoOwn = null, geodata = null;      // CadCraft's block CADCRAFT_GEO; the model space's GEODATA (0.6 GEO-DWG, geodwg.js)
   const ctx = { dimStyles, out };
   let i = 0;
   const at = () => pairs[i] || [0, 'EOF'];
@@ -93,10 +97,17 @@ export function readDxf(text) {
   if (header.$INSBASE) out.meta.insbase = { x: +header.$INSBASE[10] || 0, y: +header.$INSBASE[20] || 0 };
   if (out.meta.lunits && header.$LUPREC && +header.$LUPREC[70] >= 0 && +header.$LUPREC[70] <= 8) out.meta.luprec = +header.$LUPREC[70];
   // attributes: values and positions relative to their block, now that every block is known
+  // references drawn in a tilted plane (0.6 DF.1, ocs.js): mapped now that every block is known (a shear makes an unnamed block)
+  placeOcs([out.entities, paperRaw, ...paperBlocks.values(), ...out.blocks.map((b) => b.entities), ...out.layouts.map((l) => l.entities)], out.blocks);
   const blockMap = new Map(out.blocks.map((b) => [b.name, b]));
   resolveAttribs([out.entities, paperRaw, ...paperBlocks.values(), ...out.blocks.map((b) => b.entities), ...out.layouts.map((l) => l.entities)], blockMap);
   resolveClips();
   buildLayouts();
+  if (geoOwn || geodata) {
+    const g = readGeo({ payload: geoOwn, geodata: geodata?.fields, units: out.meta.units || '' });
+    if (g.geo) out.geo = g.geo;
+    if (g.why) out.report.notes.push(t('geo.read.' + g.why, { name: g.label || '?' }));
+  }
   if (out._vports) { const v = vportsFrom(out._vports); const tw = out._vports[0]?.tw; delete out._vports; if (v) out.vports = v; else if (Number.isFinite(tw) && Math.abs(tw) > 1e-12) out.viewTwist = tw; }
   if (header.$UCSORG && header.$UCSXDIR) {   // the current UCS (DR.8)
     const x = +header.$UCSXDIR[10] || 0, y = +header.$UCSXDIR[20] || 0, ox = +header.$UCSORG[10] || 0, oy = +header.$UCSORG[20] || 0;
@@ -223,6 +234,8 @@ export function readDxf(text) {
         const attdefs = all.filter((e) => e.type === 'attdef').map((e) => e.def);
         if (at()[1].trim() === 'ENDBLK') { i++; group(); }
         if (isParamBlock(name)) { out.parametric = parametricText(ents); continue; }   // CadCraft's constraints (gcons.js)
+        if (isStyleBlock(name)) { const ps = payloadFrom(ents); if (ps) out.plotStyles = ps; continue; }   // plot style tables (0.6 DC.14)
+        if (isGeoBlock(name)) { geoOwn = geoFromPayload(ents); continue; }   // the coordinate system and map layers (0.6 GEO-DWG)
         if (isM3dBlock(name)) { const t = read3dText(ents); if (t) out.model3d = t; const v = read3dView(ents); if (v) out.view3d = v; continue; }   // CadCraft's 3D model and its view (model3d.js)
         if (/^\*paper_space\d+$/i.test(name)) { paperBlocks.set(name.toUpperCase(), ents); continue; }
         if (/^\*(model|paper)_space/i.test(name) || /^\$(model|paper)_space/i.test(name)) continue;   // layout records
@@ -247,7 +260,12 @@ export function readDxf(text) {
           name: val(lg, 1) || 'Layout', tab: parseInt(val(lg, 71) ?? '0', 10), record: (val(lg, 330) || '').toUpperCase(),
           min: { x: num(lg, 10), y: num(lg, 20) }, max: { x: num(lg, 11), y: num(lg, 21) },
           paperMm: { w: num(pg, 44), h: num(pg, 45) }, units: parseInt(val(pg, 72) ?? '-1', 10), rot: parseInt(val(pg, 73) ?? '0', 10),
+          styleSheet: String(val(pg, 7) || '').trim().slice(0, 64),
         });
+      } else if (at()[0] === 0 && at()[1].trim() === 'GEODATA') {   // a drawing's geographic location (0.6 GEO-DWG)
+        i++;
+        const got = fromDxfGroup(group(), decodeText);
+        if (got && (!geodata || /^\*model_space$/i.test(blockRecords.get(got.host) || ''))) geodata = got;
       } else if (at()[0] === 0 && (at()[1].trim() === 'DICTIONARY' || at()[1].trim() === 'SPATIAL_FILTER')) {
         const type = at()[1].trim();
         i++;
@@ -339,6 +357,8 @@ export function readDxf(text) {
       return { name: cc?.name || name, paper, entities };
     };
     const own = out.layouts.splice(0);   // CCLAYOUT_n blocks, placed after the first
+    const modelSs = layoutObjs.find((l) => /^model$/i.test(l.name))?.styleSheet;   // the Model page setup's plot style table (0.6 DC.14)
+    if (modelSs && !out.plotStyles) out.plotStyles = { tables: [], model: modelSs };
     if (layoutObjs.length) {
       const paperLayouts = layoutObjs.filter((l) => !/^model$/i.test(l.name)).sort((a, b) => a.tab - b.tab);
       for (const l of paperLayouts) {
@@ -347,7 +367,9 @@ export function readDxf(text) {
         const unit = l.units === 0 ? 'in' : l.units === 1 ? 'mm' : guessUnit();
         let lim = l.max.x > l.min.x && l.max.y > l.min.y ? l : null;
         if (!lim && l.paperMm.w > 0) { const k = unit === 'in' ? 25.4 : 1, [w, h] = l.rot % 2 ? [l.paperMm.h, l.paperMm.w] : [l.paperMm.w, l.paperMm.h]; lim = { min: { x: 0, y: 0 }, max: { x: w / k, y: h / k } }; }
-        out.layouts.push(fromList(l.name, list, lim, unit));
+        const lay = fromList(l.name, list, lim, unit);
+        if (l.styleSheet) lay.plotStyle = l.styleSheet;   // its page setup's plot style table (0.6 DC.14)
+        out.layouts.push(lay);
       }
     } else if (paperRaw.length) {
       const mn = header.$PLIMMIN, mx = header.$PLIMMAX;
@@ -484,8 +506,38 @@ function styleOf(g) {
   return o;
 }
 
-/** Is the entity's extrusion (0,0,-1)? Then its OCS x runs the other way. */
-const flipped = (g) => num(g, 230, 1) < 0;
+/** The entity's extrusion direction (210/220/230; absent = +Z). */
+const extrusion = (g) => ({ x: num(g, 210, 0), y: num(g, 220, 0), z: num(g, 230, 1) });
+/** The DXF types whose points are in their OCS (the DXF reference); text and attributes are mapped where they are made. */
+const OCS_DXF = new Set(['CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'INSERT', 'HATCH', 'SOLID', 'TRACE', 'TEXT', 'ATTRIB', 'ATTDEF']);
+const OCS_LATER = new Set(['CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'INSERT', 'HATCH', 'SOLID', 'TRACE']);
+
+/**
+ * 0.6 DF.1: an object kept in its own coordinate system (an extrusion other than +Z: drawn from below, mirrored in another
+ * program, or in a tilted plane) → the plan (ocs.js). Block references wait for placeOcs (a shear needs the block).
+ */
+function inPlan(made, type, g, rep) {
+  if (!made || !OCS_LATER.has(type)) return made;
+  if (type === 'POLYLINE' && (parseInt(val(g, 70) ?? '0', 10) & 8)) return made;   // a 3D polyline is in world coordinates
+  const m = planMatrix(extrusion(g), num(g, type === 'LWPOLYLINE' ? 38 : 30));
+  if (!m) return made;
+  rep.ocs = (rep.ocs || 0) + 1;
+  const list = [].concat(made).map((x) => (x.type === 'insert' ? Object.assign(x, { _ocs: m }) : toPlan(x, m))).flat().filter(Boolean);
+  return Array.isArray(made) ? list : list[0];
+}
+/** The block references inPlan left: through ocs.js toPlan, with the blocks known. */
+function placeOcs(lists, blocks) {
+  const byName = new Map(blocks.map((b) => [b.name, b]));
+  let n = 0;
+  const makeBlock = (ents) => { let name; do name = '*T' + (++n); while (byName.has(name)); const b = { name, base: { x: 0, y: 0 }, entities: ents }; blocks.push(b); byName.set(name, b); return name; };
+  for (const list of lists) for (let i = 0; i < (list?.length || 0); i++) {
+    const x = list[i];
+    if (!x || !x._ocs) continue;
+    const m = x._ocs; delete x._ocs;
+    const y = toPlan(x, m, { blocks: byName, makeBlock });
+    list[i] = Array.isArray(y) ? y[0] : y;
+  }
+}
 
 const TH_TYPES = new Set(['line', 'circle', 'arc', 'poly', 'point', 'text']);
 const ISLAND = { 1: 'outer', 2: 'ignore' };
@@ -494,7 +546,7 @@ const ISLAND = { 1: 'outer', 2: 'ignore' };
 function entityFrom(type, g, follow, rep, ctx) {
   // group 60 = 1: an object the file hides (a dynamic block's other visibility states) is not drawn, as in the DWG reader
   if (val(g, 60) === '1' && type !== 'ATTDEF' && type !== 'VIEWPORT') { rep.hidden = (rep.hidden || 0) + 1; return null; }
-  const made = entityFrom0(type, g, follow, rep, ctx);
+  const made = inPlan(entityFrom0(type, g, follow, rep, ctx), type, g, rep);
   if (!made) return made;
   const list = [].concat(made);
   const one = list[0];
@@ -502,7 +554,8 @@ function entityFrom(type, g, follow, rep, ctx) {
   const add = g.some(([c]) => c === 1001) ? propsFromXdata(xdata(g)) : {};
   if (one.type !== 'hatch') { delete add.bg; delete add.ox; delete add.oy; delete add.assoc; }
   const z = { LINE: 0, CIRCLE: 30, ARC: 30, POINT: 30, ELLIPSE: 30, INSERT: 30, MTEXT: 30, TEXT: 30, ATTRIB: 30, LWPOLYLINE: 38, POLYLINE: 30, HATCH: 30 }[type];
-  if (z && num(g, z)) add.z = num(g, z);
+  if (z && num(g, z)) add.z = OCS_DXF.has(type) && planMatrix(extrusion(g)) ? (isFlipped(extrusion(g)) ? -num(g, z) : 0) : num(g, z);   // a tilted plane's elevation is no height
+  if (!add.z) delete add.z;
   if (type === 'TEXT' || type === 'ATTRIB' || type === 'MTEXT') {
     const st = val(g, 7);
     if (st && !/^standard$/i.test(st)) add.style = st;
@@ -542,8 +595,7 @@ function entityFrom(type, g, follow, rep, ctx) {
 
 function entityFrom0(type, g, follow, rep, ctx) {
   const base = common(g);
-  const f = flipped(g);
-  const X = (x) => (f ? -x : x);
+  // OCS types come out in their own coordinates; inPlan() maps them to the plan (ocs.js; text and attributes here)
   const xd = g.some(([c]) => c === 1001) ? xdata(g) : {};
   const cc = xd.CADCRAFT ? xd.CADCRAFT.map(([, v]) => v) : null;
   const pt = (c) => ({ x: num(g, c), y: num(g, c + 10) });
@@ -557,19 +609,15 @@ function entityFrom0(type, g, follow, rep, ctx) {
     }
     // the 3D tab's faces (model3d.js split3d takes them out of the 2D drawing)
     case '3DFACE': return { type: 'face3d', ...base, pts: [0, 1, 2, 3].map((k) => [num(g, 10 + k), num(g, 20 + k), num(g, 30 + k)]) };
-    case 'CIRCLE': return { type: 'circle', ...base, cx: X(num(g, 10)), cy: num(g, 20), r: num(g, 40) };
-    case 'ARC': {
-      let a0 = rad(num(g, 50)), a1 = rad(num(g, 51));
-      if (f) [a0, a1] = [Math.PI - a1, Math.PI - a0];
-      return { type: 'arc', ...base, cx: X(num(g, 10)), cy: num(g, 20), r: num(g, 40), a0: normAngle(a0), a1: normAngle(a1) };
-    }
+    case 'CIRCLE': return { type: 'circle', ...base, cx: num(g, 10), cy: num(g, 20), r: num(g, 40) };
+    case 'ARC': return { type: 'arc', ...base, cx: num(g, 10), cy: num(g, 20), r: num(g, 40), a0: normAngle(rad(num(g, 50))), a1: normAngle(rad(num(g, 51))) };
     case 'LWPOLYLINE': {
       const pts = [];
       let wide = false;
       for (const [c, v] of g) {
-        if (c === 10) pts.push({ x: X(parseFloat(v)), y: 0, b: 0 });
+        if (c === 10) pts.push({ x: parseFloat(v), y: 0, b: 0 });
         else if (c === 20 && pts.length) pts[pts.length - 1].y = parseFloat(v);
-        else if (c === 42 && pts.length) pts[pts.length - 1].b = (f ? -1 : 1) * parseFloat(v);
+        else if (c === 42 && pts.length) pts[pts.length - 1].b = parseFloat(v);
         else if ((c === 40 || c === 41) && pts.length) { const x = parseFloat(v); if (x > 0) wide = true; pts[pts.length - 1][c === 40 ? 'sw' : 'ew'] = x > 0 ? x : 0; }
       }
       if (!wide) for (const p of pts) { delete p.sw; delete p.ew; }
@@ -581,7 +629,7 @@ function entityFrom0(type, g, follow, rep, ctx) {
       if (flags & (16 | 64)) { skip(rep, 'POLYLINE (mesh)'); return null; }
       const dsw = num(g, 40), dew = num(g, 41);   // the polyline's default widths; a vertex may have its own
       const pts = (follow || []).filter((s) => s.type === 'VERTEX' && !(parseInt(val(s.g, 70) ?? '0', 10) & 16))
-        .map((s) => ({ x: X(num(s.g, 10)), y: num(s.g, 20), b: (f ? -1 : 1) * num(s.g, 42), sw: num(s.g, 40, dsw), ew: num(s.g, 41, dew) }));
+        .map((s) => ({ x: num(s.g, 10), y: num(s.g, 20), b: num(s.g, 42), sw: num(s.g, 40, dsw), ew: num(s.g, 41, dew) }));
       const wide = pts.some((p) => p.sw > 0 || p.ew > 0), one = wide && pts.every((p) => p.sw === pts[0].sw && p.ew === pts[0].sw);
       for (const p of pts) { if (!wide || one) { delete p.sw; delete p.ew; } }
       return pts.length >= 2 ? { type: 'poly', ...base, pts, closed: (flags & 1) === 1, ...(one ? { w: dsw || num(follow.find((s) => s.type === 'VERTEX')?.g || [], 40) } : {}), ...(cc ? { cc } : {}) } : null;
@@ -593,7 +641,10 @@ function entityFrom0(type, g, follow, rep, ctx) {
       const va = h72 === 4 || v73 === 2 ? 'middle' : v73 === 3 ? 'top' : v73 === 1 ? 'bottom' : 'baseline';
       const usesSecond = aligned && h72 !== 3 && h72 !== 5;
       const s = decodeText(val(g, 1) ?? '');
-      const t = { type: 'text', ...base, x: X(num(g, usesSecond ? 11 : 10)), y: num(g, usesSecond ? 21 : 20), h: num(g, 40, 2.5) || 2.5, rot: normAngle(rad(num(g, 50))), wf: num(g, 41, 1) || 1, s, ha, va };
+      const t0 = { type: 'text', ...base, x: num(g, usesSecond ? 11 : 10), y: num(g, usesSecond ? 21 : 20), h: num(g, 40, 2.5) || 2.5, rot: normAngle(rad(num(g, 50))), wf: num(g, 41, 1) || 1, s, ha, va };
+      const om = planMatrix(extrusion(g), num(g, 30));
+      const t = om ? toPlan(t0, om) : t0;
+      if (om) rep.ocs = (rep.ocs || 0) + 1;
       if (type !== 'TEXT') {
         // attributes: flags 1 invisible, 2 constant, 8 preset (not asked for when placed)
         const fl = parseInt(val(g, 70) ?? '0', 10), tag = val(g, 2) || '';
@@ -633,7 +684,7 @@ function entityFrom0(type, g, follow, rep, ctx) {
       return { type: 'poly', ...base, pts: pts.map((p) => ({ ...p, b: 0 })), closed: false };
     }
     case 'SOLID': case 'TRACE': {
-      const c = [[10, 20], [11, 21], [13, 23], [12, 22]].map(([a, b]) => [X(num(g, a)), num(g, b)]);
+      const c = [[10, 20], [11, 21], [13, 23], [12, 22]].map(([a, b]) => [num(g, a), num(g, b)]);
       return { type: 'hatch', ...base, solid: true, loops: [[...c.flat(), ...c[0]]] };
     }
     case 'HATCH': {
@@ -646,9 +697,7 @@ function entityFrom0(type, g, follow, rep, ctx) {
     case 'INSERT': {
       const name = val(g, 2);
       if (!name) return null;
-      let rot = rad(num(g, 50)), sx = num(g, 41, 1), x = num(g, 10);
-      if (f) { x = -x; rot = Math.PI - rot; sx = -sx; }
-      const ins = { type: 'insert', ...base, block: name, x, y: num(g, 20), sx, sy: num(g, 42, 1), rot: normAngle(rot) };
+      const ins = { type: 'insert', ...base, block: name, x: num(g, 10), y: num(g, 20), sx: num(g, 41, 1), sy: num(g, 42, 1), rot: normAngle(rad(num(g, 50))) };
       const cols = Math.max(1, parseInt(val(g, 70) ?? '1', 10)), rows = Math.max(1, parseInt(val(g, 71) ?? '1', 10));
       const out = [];
       if (cols * rows > 1) {
@@ -895,6 +944,10 @@ export function writeDxf(doc) {
   const extraLayouts = doc.layouts.slice(1).map((l, k) => ({ l, name: 'CCLAYOUT_' + (k + 2) }));
   for (const x of extraLayouts) used.add(x.name);
   if (pf) used.add(PARAM_BLOCK);
+  const psPts = payloadStrings(doc);   // plot style tables (0.6 DC.14): block CADCRAFT_PLOTSTYLES
+  if (psPts) used.add(STYLE_BLOCK);
+  const geoPts = geoPayload(doc);   // the coordinate system and map layers (0.6 GEO-DWG): block CADCRAFT_GEO (R12 has no GEODATA)
+  if (geoPts) used.add(GEO_BLOCK);
   const m3 = forFile3d(doc);   // the 3D model (model3d.js): 3DFACEs on layer CC-3D + its exact copy in block CADCRAFT_3D
   if (m3) { used.add(M3D_BLOCK); if (!doc.layers.has(m3.layer)) layerName(m3.layer); }
   const noPlot = [...doc.layers.values()].filter((l) => l.plot === false).map((l) => layerName(l.name));
@@ -1057,6 +1110,12 @@ export function writeDxf(doc) {
   for (const d of dimBlocks) block(d.name, { x: 0, y: 0 }, d.entities);
   if (pf) block(PARAM_BLOCK, { x: 0, y: 0 }, [], () => {
     for (const strs of pf.points) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }
+  });
+  if (geoPts) block(GEO_BLOCK, { x: 0, y: 0 }, [], () => {
+    for (const strs of geoPts) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }
+  });
+  if (psPts) block(STYLE_BLOCK, { x: 0, y: 0 }, [], () => {
+    for (const strs of psPts) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }
   });
   if (m3) block(M3D_BLOCK, { x: 0, y: 0 }, [], () => {
     for (const strs of m3.points) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }

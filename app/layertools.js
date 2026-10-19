@@ -26,6 +26,7 @@ import { countBlocks, countsCsv, attributesCsv } from './count.js';
 import { attachXref, detachXref, bindXref, xrefs, isXrefRoot } from './xref.js';
 import { installFlatView } from './flatview.js';
 import { clipPoly, clipEntities } from './xclip.js';
+import { findTable, styleNameFor, builtinTable } from './plotstyle.js';
 
 /** The layer an object you picked counts as on (a block reference: its own layer, as AutoCAD without the nested option). */
 const layerOf = (doc, id) => doc.get(id)?.layer ?? null;
@@ -379,7 +380,9 @@ export function installLayerTools(def, opt) {
     if (!c.host.saveBlob) { c.print(t('count.nodownload')); return; }
     const prefs = c.host.plotPrefs?.() || { ink: 'mono', pen: 0.25 };
     const Pl = await import('./plot.js');
-    const lists = pick.map((L) => Pl.displayList(c.doc, Pl.layoutSheet(c.doc, L), { mono: prefs.ink !== 'color' }));
+    // each sheet with its own plot style table (0.6 DC.14), else the one last chosen in the Plot dialog
+    const styleOf = (L) => findTable(c.doc, styleNameFor(c.doc, L)) || findTable(c.doc, prefs.style) || builtinTable(prefs.ink === 'color' ? 'colour' : 'monochrome');
+    const lists = pick.map((L) => Pl.displayList(c.doc, Pl.layoutSheet(c.doc, L), { style: styleOf(L) }));
     const name = c.doc.meta.name || 'Drawing1';
     const { bytes, report } = await Pl.toPdfPages(lists, { pen: prefs.pen, title: name, names: pick.map((l) => l.name) });
     c.host.saveBlob(name + '.pdf', bytes, 'application/pdf');

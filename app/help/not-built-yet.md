@@ -3,7 +3,7 @@ title: Not built yet
 summary: What this build of the CadCraft drafting app does not do yet, and what to do instead today.
 section: trouble
 order: 20
-keywords: missing, limitations, properties, ucs, annotative, dynamic block, spline, roadmap, not supported, dwg save, hatch, stretch, array, join, matchprop, break, lengthen, linetype, lineweight, xref, cloud, 3d, solids, booleans, multileader, wipeout
+keywords: missing, limitations, ctb, stb, plot style, properties, ucs, annotative, dynamic block, spline, roadmap, not supported, dwg save, hatch, stretch, array, join, matchprop, break, lengthen, linetype, lineweight, xref, cloud, 3d, solids, booleans, multileader, wipeout
 ---
 
 CadCraft is in development. This page lists what the current build does not do, so you do not hunt for it. Each item says what to do instead today.
@@ -77,7 +77,8 @@ CadCraft is in development. This page lists what the current build does not do, 
 | Named dimension styles | Settings for new dimensions plus each dimension's own sizes. See [Set dimension sizes](topic:dimension-settings). |
 | Ordinate dimensions, and editable two-line angular dimensions from opened files | They are shown as drawn in the file. |
 | Annotative scaling | Set sizes for one plot scale with {{cmd:DIMSCALE}} and text heights. |
-| Plot style tables and page setups | Choose ink and pen width in the {{ui:Plot to PDF}} dialog. |
+| Reading CTB files, named plot styles (STB), and linetype, end, join and fill settings in a plot style | Make the table in {{ui:Plot style tables}} (color, gray, ink and lineweight per color): see [Plot style tables](topic:plot-pdf#plot-style-tables). |
+| Page setups | Choose paper, scale and plot style in the {{ui:Plot to PDF}} dialog; a sheet keeps its plot style. |
 | Characters outside the Western European set in PDFs | They print as "?". |
 
 ## Constraints and parameters
@@ -103,8 +104,8 @@ CadCraft is in development. This page lists what the current build does not do, 
 | Copy and paste of solids | On the 3D tab, use {{cmd:COPY}}. The clipboard holds 2D objects only. |
 | Sections, views that follow later changes to the solids, and shaded solids on plotted sheets | {{cmd:VIEWBASE}} places flat views (a snapshot); run it again after changing the solids. |
 | Materials, textures and lighting settings | The visual styles: shaded, edges, hidden line, wireframe, X-ray. |
-| Map layers saved in the DWG or DXF, or plotted; map layers on sheets' viewports and the 3D tab | Map layers show under the model space on screen: see [Map layers under the drawing](topic:map-layers) |
-| E57 point clouds, a point cloud saved with the drawing or plotted, snapping to a cloud on the 3D tab, upright (section) slices on the Model tab | Attach LAS, LAZ, XYZ or PTS each time you open the drawing; trace from a plan slice on the Model tab: see [Trace as-built lines over a point cloud](topic:point-clouds) |
+| Map layers plotted, on sheets' viewports and in the 3D tab; pictures from files saved with the drawing; a drawing's location written for other programs in DWG 2000–2007 and DXF R12 | Map layers show under the model space on screen; the system and the layer list are saved with the drawing: see [Map layers under the drawing](topic:map-layers) |
+| E57 scans over 6 million points or 512 MB, scanner makers' own files (RCP, RCS, FLS, LGS, TZF, ZFS), a point cloud saved with the drawing or plotted, snapping to a cloud on the 3D tab, upright (section) slices on the Model tab | Export big or makers' own scans as LAS or LAZ ([Point cloud formats](topic:point-cloud-formats)); attach the cloud each time you open the drawing; trace from a plan slice on the Model tab: see [Trace as-built lines over a point cloud](topic:point-clouds) |
 
 ## Routines and customizing
 

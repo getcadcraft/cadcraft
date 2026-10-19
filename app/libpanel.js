@@ -25,7 +25,7 @@ import * as Li from './libitem.js';
 import { FAMILIES as STD_FAMILIES, familyOf, standardCards, cardDefaults, cardItem, partsList, partsCsv, installStandard } from './stdlib.js';
 import { commandRegistry } from './commands.js';
 
-import { t } from './i18n.js';
+import { t, locale } from './i18n.js';
 /** 'foodservice/sinks' → 'Foodservice: Sinks', as the website shows it; unknown keys as they are. */
 const catLabel = (k) => Li.CATEGORIES[k] ? k.split('/')[0].replace(/^./, (c) => c.toUpperCase()) + ': ' + Li.CATEGORIES[k] : k;
 
@@ -235,7 +235,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
         const why = await problemOf(it);
         if (why) notes.push((it?.name ? '"' + String(it.name).slice(0, 80) + '": ' : '') + why); else good.push(it);
       }
-      cards = good.map((it, k) => ({ key: 'file-' + k, uuid: isUuid(it.uuid) ? it.uuid : '', name: String(it.name || 'Item ' + (k + 1)), maker: String(it.maker || ''), model: String(it.model || ''), license: String(it.license?.id || ''), version: Number.isInteger(it.version) ? it.version : 1, category: String(it.category || ''), item: it, from: 'files', fileName: f.name }));
+      cards = good.map((it, k) => ({ key: 'file-' + k, uuid: isUuid(it.uuid) ? it.uuid : '', name: String(Li.localized(it, locale()).name || 'Item ' + (k + 1)), maker: String(it.maker || ''), model: String(it.model || ''), license: String(it.license?.id || ''), version: Number.isInteger(it.version) ? it.version : 1, category: String(it.category || ''), item: it, from: 'files', fileName: f.name }));
       fillCategories(cards.map((c) => c.category));
       say([cards.length ? t('lib.panel.items_in', { n: cards.length, file: f.name }) : t('lib.panel.no_items_in', { file: f.name }), ...notes.slice(0, 3), notes.length > 3 ? t('lib.panel.more_notes', { n: notes.length - 3 }) : ''].filter(Boolean).join(' '));
     } catch (err) { cards = []; say(err.message); }
@@ -297,7 +297,8 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
       const k = await ask({ title: t('lib.panel.withdrawn_item'), text: t('lib.panel.withdrawn_ask', { name: card.name, why: card.withdrawn }), buttons: [['cancel', t('opt.cancel'), 'btn-line'], ['go', t('lib.panel.place_anyway'), 'btn-plot']] });
       if (k !== 'go') return;
     }
-    pending = { item, slug };
+    // 0.6 WL.7: name and description in the page's language; the block keeps a name from the item's own (one block per item)
+    pending = { item: Li.localizedItem(item, locale()), slug: slug || String(item.name || '') };
     if (pickResolve) { $.dlg.close(); return; }       // INSERT is waiting: hand it over
     $.dlg.close();
     const p = pending; pending = null;

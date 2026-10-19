@@ -14,12 +14,15 @@ keywords: problem, error, not working, message, cannot open, unknown command, no
 | "This is a binary DXF. Save it as ASCII DXF (or open the DWG) and try again." | Binary DXF is not read. | Ask for a text (ASCII) DXF, or the DWG. |
 | "This file is not a readable DXF (bad group code on line …)." | The DXF is damaged or not really a DXF. | Ask for the file again, or for a DWG. |
 | "This drawing could not be read. It may be damaged, or saved in a version the reader does not handle yet (…)." | The DWG reader could not read it. | Ask for the DWG saved in an older version, or a DXF. |
+| "This drawing is from AutoCAD R11 / R12 (DWG AC1009), older than CadCraft reads …" | DWG files from Release 12 and earlier use a format CadCraft does not read. | In the program that made it, save it as DXF (any version) or as a newer DWG, and open that. CadCraft's own Save as offers DXF R12 for programs that want that old format. |
 | "Could not open …" followed by a network message, on the first DWG | The DWG reader could not be downloaded: you are offline and CadCraft is not saved for offline use, or the connection dropped. | Go online and try again, or open a DXF. Click {{ui:Save for offline}} and wait for "Offline ready" so DWG files open offline next time. See [Working offline](common:offline). |
 | The offline button says "Could not save" | Some files did not download. | Check the connection and click the button to try again. |
 | The offline button says "Offline not available" | Private windows and some managed computers cannot keep an offline copy. | Use a normal window, or stay online. |
 | CadCraft does not open with no connection | It was not saved for offline use in this browser, or the browser cleared it. | Next time you are online, click {{ui:Save for offline}} and wait for "Offline ready". |
 | The drawing opens but parts are missing | Objects CadCraft cannot draw yet, or layers that are off or frozen in the file. | Read "About this file" in the left panel. Check the {{ui:Layers}} panel. |
 | Text wraps onto two lines | CadCraft draws text in a Helvetica-style font, wider than some CAD fonts. | Shorten the text in Properties, or live with the extra line. |
+| A circle shows as an ellipse, or mirrored text reads the right way round | The object was drawn in a tilted plane, or seen from below, in the program that made the file. CadCraft shows it as seen from above, the way the plan view of that program does; text is kept readable. | Nothing to fix. To see it the other program's way, ask for the drawing flattened, or with the objects drawn from above. |
+| A block, circle or dimension sits somewhere other than in the program that made the file | A drawing case CadCraft reads wrong. | Tell us on Discord, with the file if you can share it. |
 
 ## The command line
 

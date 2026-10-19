@@ -542,7 +542,7 @@ section('TRIM and EXTEND: drag, fence, crossing, modes, Shift, preview (0.4 part
     const h = harness();
     await h.type('L', '0,0', '30,0', '', 'L', '10,-5', '10,5', '', 'L', '20,-5', '20,5', '', 'L', '0,50', '10,50', '');
     await h.type('TR');
-    ok(h.log.includes(EN('cmd.trim.settings', { mode: EN('opt.quick'), edge: EN('opt.noextend') })), 'TRIM says its settings (Quick, no extend)');
+    ok(h.log.includes(EN('cmd.trim.settings2', { mode: EN('opt.quick'), var: 1, edge: EN('opt.noextend'), drag: EN('cmd.trim.drag.path') })), 'TRIM says its settings (Quick, TRIMEXTENDMODE 1, no extend, a path)');
     await h.click(5, 50);
     ok(h.doc.count() === 3 && h.log.includes(EN('cmd.trim.erased', { n: 1 })), 'Quick mode: a line nothing crosses is erased, and says so');
     await h.type('U', 'O', 'S');
@@ -566,7 +566,7 @@ section('TRIM and EXTEND: drag, fence, crossing, modes, Shift, preview (0.4 part
     const g = harness();
     await g.type('L', '0,0', '30,0', '', 'L', '10,1', '10,5', '');
     await g.type('TR', 'E', 'E');
-    ok(g.log.includes(EN('cmd.trim.settings', { mode: EN('opt.quick'), edge: EN('opt.extend') })), 'Edge Extend is said');
+    ok(g.log.includes(EN('cmd.trim.settings2', { mode: EN('opt.quick'), var: 1, edge: EN('opt.extend'), drag: EN('cmd.trim.drag.path') })), 'Edge Extend is said');
     await g.click(5, 0);
     const left = g.doc.all().find((e) => e.y1 === 0 && e.y2 === 0);
     ok(left && near(Math.min(left.x1, left.x2), 10) && near(Math.max(left.x1, left.x2), 30), 'with Edge Extend a short line cuts where it would reach', JSON.stringify(left));
@@ -915,6 +915,690 @@ section('Units: feet and inches, fractions (UNITS, units.js)');
 }
 
 // ---------------------------------------------------------------------------
+section('Arithmetic wherever a length or number is typed (0.6 DF.3; lencalc.js, units.js readLength / readNumber)');
+{
+  const LC = await load('lencalc.js');
+  const RL = (s, l = 4, units = '') => U.readLength(s, l, units);
+  // Jame's report, and the examples of the item
+  const reads = [['4+7/16', 2, '', 4.4375], ['4-7/16', 2, '', 4.4375], ['4 7/16', 2, '', 4.4375], ['12\'6" + 3/4"', 4, '', 150.75], ['12\'6"+3/4"', 4, '', 150.75],
+    ['(24\'-0")/3', 4, '', 96], ['2*450mm', 2, 'millimeters', 900], ['2*450mm', 2, 'meters', 0.9], ['2*450mm', 4, '', 900 / 25.4], ['24\' - 6"', 4, '', 282], ['24\'-6"', 4, '', 294],
+    ['24\'-0"-6"', 4, '', 282], ['-5', 2, '', -5], ['-(3+2)*2', 2, '', -10], ['1.5e-3+1', 2, '', 1.0015], ['10-3', 2, '', 7], ['10-3/4', 2, '', 10.75], ['2.5/2', 2, '', 1.25],
+    ['abs(-3)', 2, '', 3], ['ROUND(2.5)', 2, '', 3], ['2×3', 2, '', 6], ['6÷4', 2, '', 1.5], ['6−4', 2, '', 2], ['12\' 6 1/2"', 4, '', 150.5], ['3.5m', 2, 'millimeters', 3500],
+    ['12\'6" + 3', 4, '', 153], ['((((1))))', 2, '', 1]];
+  for (const [s, l, u, want] of reads) { const r = RL(s, l, u); ok(r.ok && near(r.value, want, 1e-9), `readLength "${s}" (${U.LUNITS[l]}${u ? ', ' + u : ''}) = ${want}`, JSON.stringify(r)); }
+  // refusals say what and where; never 0
+  const refuse = [['4+', 'end', 2], ['(3', 'paren', 2], ['3)', 'extra', 1], ['2\'*3\'', 'area', 2], ['3/(2\')', 'ratio', 1], ['1/0', 'divide', 1], ['4*/2', 'char', 2],
+    ['foo(2)', 'function', 0], ['constructor(1)', 'function', 0], ['__proto__(1)', 'function', 0], ['toString(1)', 'function', 0], ['2+abc', 'length', 2], ['450mm', 'length', 0],
+    ['(' .repeat(60) + '1' + ')'.repeat(60), 'deep', 50], ['1+'.repeat(300) + '1', 'long', 500]];
+  for (const [s, code, pos] of refuse) { const r = RL(s, s === '450mm' ? 2 : 4); ok(!r.ok && r.code === code && r.pos === pos, `refused "${s.length > 20 ? s.slice(0, 20) + '…' : s}": ${code} at ${pos}`, JSON.stringify(r)); }
+  ok(U.calcMessage(RL('4+')) === EN('calc.err.end', { pos: 3, text: '' }) && U.calcMessage(RL('2+abc', 2)) === EN('calc.err.length', { pos: 3, text: 'abc' }), 'the refusal in words, with the place counted from 1');
+  ok(U.parseLength('4+7/16') === 4.4375 && U.parseLength('4+') === null, 'parseLength reads arithmetic too, null when it cannot');
+  ok(U.readNumber('360/7').ok && near(U.readNumber('360/7').value, 360 / 7) && !U.readNumber('3\'').ok && !U.readNumber('2+x').ok, 'readNumber: plain numbers with arithmetic, no lengths');
+  ok(LC.hasArithmetic('4+7/16') && !LC.hasArithmetic('4-7/16') && !LC.hasArithmetic('-5') && !LC.hasArithmetic('12\'-6"') && LC.hasArithmetic('(5)'), 'hasArithmetic: a length\'s own dashes and a leading sign are not arithmetic');
+  const src = fs.readFileSync(path.join(APP, 'lencalc.js'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+  ok(!/\beval\b|\bFunction\s*\(|new Function|import\s*\(|^import /m.test(src), 'lencalc.js: no eval, no Function, no imports');
+  // the command line: distances, points, polar, numbers, angles; refusals print where they went wrong
+  const { doc, type, log, host, eng, tick } = harness();
+  doc.meta.lunits = 4;
+  await type('L', '0,0', '@4+7/16,0', '');
+  ok(near(doc.all()[0].x2, 4.4375), 'LINE @4+7/16,0 (Jame: instead of 4.4375)', doc.all()[0].x2);
+  await type('L', '0,0', '@(24\'-0")/3<45*2', '');
+  ok(nearPt({ x: doc.all()[1].x2, y: doc.all()[1].y2 }, 0, 96, 1e-9), 'polar @(24\'-0")/3<45*2: 8\' at 90°');
+  await type('C', '0,0', '12\'6"+3/4"');
+  ok(near(doc.all()[2].r, 150.75), 'CIRCLE radius 12\'6"+3/4"');
+  host.cursor = { x: 100, y: 10 };
+  await type('L', '0,10', '2*6', '');
+  ok(nearPt({ x: doc.all()[3].x2, y: doc.all()[3].y2 }, 12, 10), 'direct distance 2*6 toward the cursor');
+  await type('POLYGON', '2+4', '0,0', 'I', '10');
+  ok(doc.all()[4]?.pts?.length === 6, 'POLYGON 2+4 sides', doc.all()[4]?.pts?.length);
+  await type('C', '0,0', '4+');
+  ok(log.includes(EN('calc.err.end', { pos: 3, text: '' })) && /radius/i.test(host.lastPrompt || ''), 'a broken calculation is refused with where, and asked again', log.slice(-2).join(' | '));
+  await type('3');
+  ok(near(doc.all()[5]?.r, 3), '…and the next answer is taken');
+  await type('L', '0,0', '@2+abc,0');
+  ok(log.includes(EN('calc.err.length', { pos: 3, text: 'abc' })), 'a point with a bad coordinate says which part and where', log[log.length - 1]);
+  eng.escape(); await tick();
+  ok(near(U.parseLength('4-7/16', 4), 4.4375) && near(U.parseLength('12\'-6-1/2"', 4), 150.5), 'the dashes of a length keep their meaning');
+  await type('CAL', '12\'6"+3/4"');
+  ok(log.includes(EN('cmd.cal.result', { value: U.formatLength(150.75, U.unitsOf(doc.meta)), raw: '150.75' })), 'CAL prints the value in the drawing\'s format and as a number', log[log.length - 1]);
+  await type('CAL', '2*(3');
+  ok(log.includes(EN('calc.err.paren', { pos: 5, text: '' })), 'CAL says where a calculation went wrong', log[log.length - 1]);
+  // dynamic input: the angle field reads arithmetic when cadcraft.js gives it units.js readNumber
+  const d = new DynInput(); d.parseAngle = (x) => { const r = U.readNumber(x); return r.ok ? r.value : NaN; };
+  d.reset('polar'); d.tab('5+5', (x) => U.parseLength(x) !== null); d.tab('180/2', () => true);
+  ok(d.commit('', { x: 1, y: 1 }, { x: 0, y: 0 }, { last: { x: 0, y: 0 }, parseLen: (x) => U.parseLength(x) }) === '@5+5<180/2', 'dynamic input keeps the typed calculations', d.commit('', { x: 1, y: 1 }, { x: 0, y: 0 }, { last: { x: 0, y: 0 }, parseLen: (x) => U.parseLength(x) }));
+  ok(nearPt(d.apply({ x: 3, y: 3 }, { x: 0, y: 0 }, (x) => U.parseLength(x)), 0, 10, 1e-9), '…and places the point by them (10 at 90°)');
+}
+
+section('Align: ALIGN, ALIGNTO, DISTRIBUTE (0.6 DF.2; align.js)');
+{
+  const A = await load('align.js');
+  // alignMatrix: one pair moves; two pairs move + turn (+ scale); three pairs can mirror
+  const m1 = A.alignMatrix([{ s: { x: 1, y: 1 }, d: { x: 4, y: 5 } }]);
+  ok(nearPt(G.mApply(m1, { x: 2, y: 2 }), 5, 6), 'one pair: a move');
+  const m2 = A.alignMatrix([{ s: { x: 0, y: 0 }, d: { x: 10, y: 10 } }, { s: { x: 2, y: 0 }, d: { x: 10, y: 14 } }]);
+  ok(nearPt(G.mApply(m2, { x: 2, y: 0 }), 10, 12) && nearPt(G.mApply(m2, { x: 0, y: 1 }), 9, 10), 'two pairs: moved and turned 90°, not scaled');
+  const m2s = A.alignMatrix([{ s: { x: 0, y: 0 }, d: { x: 10, y: 10 } }, { s: { x: 2, y: 0 }, d: { x: 10, y: 14 } }], { scale: true });
+  ok(nearPt(G.mApply(m2s, { x: 2, y: 0 }), 10, 14), 'two pairs, scaled: the second source point lands on the second destination');
+  const m3 = A.alignMatrix([{ s: { x: 0, y: 0 }, d: { x: 0, y: 0 } }, { s: { x: 1, y: 0 }, d: { x: 1, y: 0 } }, { s: { x: 0, y: 1 }, d: { x: 0, y: -1 } }]);
+  ok(nearPt(G.mApply(m3, { x: 3, y: 2 }), 3, -2), 'three pairs with the third across the line: mirrored');
+  ok(A.alignMatrix([{ s: { x: 0, y: 0 }, d: { x: 1, y: 1 } }, { s: { x: 0, y: 0 }, d: { x: 2, y: 2 } }]) === null, 'the same source point twice: refused');
+  // ALIGN on the command line: one undo step, the scale question
+  {
+    const { doc, type, log } = harness();
+    await type('REC', '0,0', '2,1');
+    await type('ALIGN', 'ALL', '', '0,0', '10,10', '2,0', '10,14', '', 'Y');
+    const r = doc.all()[0];
+    ok(r.pts.some((p) => nearPt(p, 10, 14)) && r.pts.some((p) => nearPt(p, 8, 10)) && doc.undoStack.length === 2, 'ALIGN 2 pairs + scale: the rectangle lands turned and twice the size, one undo step', JSON.stringify(r.pts));
+    ok(log.includes(EN('cmd.align.done', { objects: EN('cmd.n.objects', { n: 1 }) })), 'ALIGN says what it did');
+    doc.undo();
+    ok(nearPt(doc.all()[0].pts[1], 2, 0), 'one undo puts it back');
+    await type('ALIGN', 'ALL', '', '0,0', '5,5', '');
+    ok(nearPt(doc.all()[0].pts[0], 5, 5) && nearPt(doc.all()[0].pts[1], 7, 5), 'ALIGN with one pair (Enter at the second source point): a move');
+  }
+  // ALIGNTO and DISTRIBUTE: boxes, first/last picked, a point, the UCS; one undo step each
+  {
+    const { doc, type, host } = harness();
+    await type('C', '0,0', '1'); await type('C', '10,3', '2'); await type('C', '4,-5', '1.5');
+    const [a, b, c] = doc.all().map((e) => e.id);
+    const cx = (id) => doc.get(id).cx, cy = (id) => doc.get(id).cy, bx = (id) => G.entityBounds(doc.get(id), doc.blocks);
+    host.setSelection(new Set([a, b, c]));
+    await type('ALIGNTO', 'L', 'S');
+    ok([a, b, c].every((id) => near(bx(id).minX, -1)), 'ALIGNTO Left to the selection: every left edge at the selection\'s left');
+    const steps = doc.undoStack.length;
+    host.setSelection(new Set([b, a, c]));
+    await type('ALIGNTO', 'T', 'F');
+    ok([a, b, c].every((id) => near(bx(id).maxY, 5)) && doc.undoStack.length === steps + 1, 'ALIGNTO Top to the first picked (the 2nd circle): one undo step');
+    host.setSelection(new Set([a, b, c]));
+    await type('ALIGNTO', 'M', 'L');
+    ok([a, b, c].every((id) => near(cy(id), cy(c))), 'ALIGNTO Middle to the last picked');
+    host.setSelection(new Set([a, b, c]));
+    await type('ALIGNTO', 'C', 'P', '50,0');
+    ok([a, b, c].every((id) => near(cx(id), 50)), 'ALIGNTO Center to a point');
+    // distribute: gaps and centres, the outer two stay
+    doc.change('t', () => { doc.update(a, { ...doc.get(a), cx: 0, cy: 0 }); doc.update(b, { ...doc.get(b), cx: 3, cy: 0 }); doc.update(c, { ...doc.get(c), cx: 20, cy: 0 }); });
+    host.setSelection(new Set([a, b, c]));
+    await type('DISTRIBUTE', 'H', 'G');
+    const gap1 = bx(b).minX - bx(a).maxX, gap2 = bx(c).minX - bx(b).maxX;
+    ok(near(gap1, gap2) && near(cx(a), 0) && near(cx(c), 20), 'DISTRIBUTE across, equal gaps; the outer two stay', JSON.stringify({ gap1, gap2 }));
+    host.setSelection(new Set([a, b, c]));
+    await type('DISTRIBUTE', 'H', 'C');
+    ok(near(cx(b), 10), 'DISTRIBUTE across, equal centres');
+    await type('DISTRIBUTE', 'V', 'G');
+    ok(host.selection.size === 3, 'the selection stays for the next click');
+    host.setSelection(new Set([a, b]));
+    const log0 = doc.undoStack.length;
+    await type('DISTRIBUTE');
+    ok(doc.undoStack.length === log0, 'DISTRIBUTE needs three objects');
+    // in a turned UCS (DR.8) the boxes are the UCS's: aligning "left" lines them up along the UCS's Y axis
+    doc.ucs = { x: 0, y: 0, ang: Math.PI / 2 };
+    host.setSelection(new Set([a, b, c]));
+    await type('ALIGNTO', 'L', 'S');
+    const ys = [a, b, c].map((id) => G.entityBounds(doc.get(id), doc.blocks).minY);
+    ok(ys.every((y) => near(y, ys[0])) && !near(bx(a).minX, bx(b).minX), 'in a UCS turned 90°, Left lines up the boxes\' UCS left edges (world bottom)', JSON.stringify(ys));
+  }
+}
+
+section('Units in the dimension text (0.6 DC.72; dimstyle.js textUnitOf / withTextUnit, DIMTEXTUNIT)');
+{
+  const Ds = await load('dimstyle.js');
+  const { saveDwg } = await load('dwg-save.js');
+  const { readDwg } = await load('dwg/read.js');
+  const { writeDxf2000 } = await load('dxf2000.js');
+  const dim = (p2x, st = {}) => ({ type: 'dim', kind: 'aligned', p1: { x: 0, y: 0 }, p2: { x: p2x, y: 0 }, loc: { x: p2x / 2, y: 500 }, rot: 0, text: '', st: { ...Dm.DIM_DEFAULTS, ...st } });
+  ok(Ds.textUnitOf({}, 1) === '' && Ds.textUnitOf(Ds.withTextUnit({}, 'm', 1), 1) === 'm' && Ds.textUnitOf({ lfac: 2 }, 1) === 'custom' && Ds.textUnitOf({ suf: ' mm' }, 10) === 'custom', 'textUnitOf: as drawn, a unit, or set by hand');
+  const texts = ['mm', 'cm', 'm', 'km'].map((u) => Dm.dimText(dim(1250, Ds.withTextUnit({ dec: 5 }, u, 1))));
+  ok(texts.join('|') === '1250 mm|125 cm|1.25 m|0.00125 km', 'a 1250 mm length written in mm, cm, m and km', texts.join('|'));
+  ok(Dm.dimText(dim(1234, Ds.withTextUnit({ dec: 1 }, 'm', 1))) === '1.2 m' && Dm.dimText(dim(125, Ds.withTextUnit({ dec: 2 }, 'm', 10))) === '1.25 m', 'DIMDEC still sets the decimals; a centimetre drawing reads right in metres');
+  ok(Dm.dimText(dim(1250, Ds.withTextUnit(Ds.withTextUnit({}, 'm', 1), '', 1))) === '1250', 'back to the drawing units: no scale, no suffix');
+  ok(Ds.textUnitMm({ units: 'centimeters' }).mm === 10 && Ds.textUnitMm({}).assumed && Ds.textUnitMm({}, { paper: { unit: 'in' } }).mm === 25.4, 'textUnitMm: the drawing units, a unitless drawing read as mm, a sheet in its paper unit');
+  const rf = Ds.refitTextUnits([dim(125, Ds.withTextUnit({}, 'm', 1)), dim(125, { lfac: 3 })], 1, 10);
+  ok(rf.length === 1 && Dm.dimText(rf[0]) === '1.25 m', 'refitTextUnits: after the drawing changes from mm to cm a dimension in m still says the right length; one set by hand is left alone', JSON.stringify(rf.map((e) => Dm.dimText(e))));
+
+  // DIMTEXTUNIT: new dimensions, then the selected ones (one undo step)
+  const h = harness();
+  h.doc.meta.units = 'millimeters';
+  await h.type('DTU', 'CM');
+  ok(h.log.includes(EN('cmd.dimtextunit.set', { unit: 'cm' })), 'DIMTEXTUNIT with nothing selected sets it for new dimensions');
+  await h.type('DIMALIGNED', '0,0', '1250,0', '600,500');
+  const d1 = h.doc.all().find((e) => e.type === 'dim');
+  ok(d1 && Dm.dimText(d1) === '125 cm', 'the next dimension reads 125 cm', d1 && Dm.dimText(d1));
+  h.host.selection = new Set([d1.id]);
+  const steps = h.doc.undoStack.length;
+  await h.type('DTU', 'M');
+  const d2 = h.doc.get(d1.id);
+  ok(Dm.dimText(d2) === '1.25 m' && h.doc.undoStack.length === steps + 1 && h.doc.undoStack[h.doc.undoStack.length - 1].label === 'DIMTEXTUNIT', 'the selected dimension changes to 1.25 m in one undo step', Dm.dimText(d2));
+  await h.type('DIMDEC', '3');
+  await h.type('DTU', 'KM');
+  await h.type('DIMALIGNED', '0,1000', '1250,1000', '600,1500');
+  const d3 = h.doc.all().filter((e) => e.type === 'dim').pop();
+  ok(Dm.dimText(d3) === '0.001 km', 'DIMDEC and the unit together (0.001 km)', Dm.dimText(d3));
+  const u0 = harness();
+  await u0.type('DTU', 'M');
+  ok(u0.log.includes(EN('cmd.dimtextunit.assumed')), 'a unitless drawing: says one unit is read as a millimetre');
+
+  // saved and read back: DWG 2000–2018, DXF R12 and DXF 2000 (DIMLFAC + DIMPOST, DIMLUNIT / DIMDEC kept)
+  const doc = h.doc;
+  doc.change('t', () => doc.add(dim(3000, { lunit: 4, dec: 4 })));
+  const files = [['DXF R12', () => readDxf(writeDxf(doc).text)], ['DXF 2000', () => readDxf(writeDxf2000(doc).text)],
+    ...['2000', '2004', '2007', '2010', '2013', '2018'].map((v) => ['DWG ' + v, () => importDwg(readDwg(saveDwg(doc, { version: v }).bytes), { versionTag: 'x' })])];
+  for (const [label, read] of files) {
+    const b = new Doc(); b.load(read());
+    const ds = [...b.model.values()].filter((e) => e.type === 'dim');
+    const mm = Ds.textUnitMm(b.meta).mm;
+    const got = ds.map((e) => Dm.dimText(e)).sort().join('|'), units = ds.map((e) => Ds.textUnitOf(e.st || {}, mm)).sort().join('|');
+    ok(got === '0.001 km|1.25 m|250\'-0"', `${label}: the texts come back (1.25 m, 0.001 km, and an architectural one without the drawing's " km")`, got);
+    ok(units === '|km|m', `${label}: and read as metres and kilometres again; the other stays in drawing units`, units);
+  }
+}
+
+section('Plot style tables (0.6 DC.14; plotstyle.js)');
+{
+  const Ps = await load('plotstyle.js');
+  const { saveDwg } = await load('dwg-save.js');
+  const { readDwg } = await load('dwg/read.js');
+  const { writeDxf2000 } = await load('dxf2000.js');
+  const mono = Ps.builtinTable('monochrome'), gray = Ps.builtinTable('grayscale'), col = Ps.builtinTable('colour');
+  ok(Ps.applyPen(mono, '#ff0000').color === '#000000' && Ps.applyPen(col, '#ff0000').color === '#ff0000' && Ps.applyPen(col, 'ink').color === '#000000', 'built-ins: monochrome prints black, colour as drawn (ACI 7 black)');
+  ok(Ps.applyPen(gray, '#ff0000').color === '#4c4c4c' && Ps.applyPen(gray, '#0000ff').color === '#1d1d1d', 'grayscale: red and blue as their grays');
+  ok(Ps.aciOf('#ff0000') === 1 && Ps.aciOf('ink') === 7 && Ps.aciOf('#c0c0c0') === 9 && Ps.aciOf('#fe0101') === 1, 'aciOf: the standard colours exactly, a true colour by the nearest');
+  let office = { name: 'office', description: 'Our pens', pens: {} };
+  office = Ps.setPens(office, [1], { color: '#0000ff', screen: 50, lw: 0.5 });
+  office = Ps.setPens(office, [3, 4], { gray: true, lw: 0.13 });
+  office = Ps.setPens(office, [4], { gray: false, lw: null });
+  const p1 = Ps.applyPen(office, '#ff0000', -3), p2 = Ps.applyPen(office, '#00ff00', 0.35), p3 = Ps.applyPen(office, '#ffff00', 0.35);
+  ok(p1.color === '#8080ff' && p1.lw === 0.5 && p2.color === '#969696' && p2.lw === 0.13 && p3.color === '#ffff00' && p3.lw === 0.35, 'a table of our own: colour + screening 50 % + 0.5 mm; grayscale + 0.13 mm; other colours as drawn with their own lineweight', JSON.stringify([p1, p2, p3]));
+  ok(!office.pens[4] && Object.keys(office.pens).sort().join() === '1,3', 'a pen set back to the defaults is not kept');
+  // the display list follows the table: colour and lineweight per pen
+  {
+    const d = new Doc();
+    d.change('t', () => { d.add({ type: 'line', x1: 0, y1: 0, x2: 100, y2: 0, color: 1 }); d.add({ type: 'line', x1: 0, y1: 10, x2: 100, y2: 10, color: 3, lw: 0.7 }); d.add({ type: 'line', x1: 0, y1: 20, x2: 100, y2: 20, color: 5 }); });
+    const sh = () => Pl.modelSheet(d, { area: { minX: 0, minY: 0, maxX: 100, maxY: 20 }, paper: 'iso-a4', n: 1 });   // a sheet's entities are read once
+    const st = (l) => l.views[0].strokes.map((x) => x.color + '/' + x.lw).sort().join(' ');
+    ok(st(Pl.displayList(d, sh())) === '#000000/-3 #000000/0.7' && st(Pl.displayList(d, sh(), { mono: false })) === '#0000ff/-3 #00ff00/0.7 #ff0000/-3', 'without a table: mono (default) and colour as before', st(Pl.displayList(d, sh())));
+    ok(st(Pl.displayList(d, sh(), { style: office })) === '#0000ff/-3 #8080ff/0.5 #969696/0.13', 'with the table: each colour prints with its pen', st(Pl.displayList(d, sh(), { style: office })));
+    const pdf = await Pl.toPdf(Pl.displayList(d, sh(), { style: office }), { pen: 0.25 });
+    ok(pdf.bytes.length > 300, 'and makes a PDF');
+    // the scripted and assistant plot (agents.js plotPdf, the CLI's plot) starts from the table the model or sheet names, as the dialog does
+    const Ag = await import(pathToFileURL(path.join(APP, 'agents.js')).href);
+    const plain = st(Pl.displayList(d, sh(), Ag.plotStyleOptions(d, null)));
+    d.change('t', () => d.setMeta({ plotStyles: { tables: [office], model: office.name } }));
+    const named = st(Pl.displayList(d, sh(), Ag.plotStyleOptions(d, null)));
+    d.change('t', () => d.setMeta({ plotStyles: { tables: [office], model: 'not-here' } }));
+    const unknown = st(Pl.displayList(d, sh(), Ag.plotStyleOptions(d, null, false)));
+    d.change('t', () => d.setMeta({ plotStyles: null }));
+    ok(plain === '#000000/-3 #000000/0.7' && named === '#0000ff/-3 #8080ff/0.5 #969696/0.13' && unknown === '#0000ff/-3 #00ff00/0.7 #ff0000/-3',
+      'a scripted plot uses the model\'s own table; without one, or with a name the drawing lacks, mono as asked', JSON.stringify([plain, named, unknown]));
+  }
+  // untrusted tables
+  ok(Ps.cleanTable({ name: 'Monochrome.ctb' }).error === 'reserved' && Ps.cleanTable({ name: 'a/b' }).error === 'name' && Ps.cleanTable([]).error === 'shape', 'a built-in name, a bad name or a non-object is refused');
+  const dirty = Ps.cleanTable({ name: 'x', pens: { 0: { lw: 1 }, 256: { lw: 1 }, 2: { color: 'red', lw: 9, screen: 400, gray: 'yes' }, 5: { lw: 0.25, evil: '<script>' } }, extra: 1 });
+  ok(dirty.ok && JSON.stringify(dirty.table.pens) === '{"5":{"color":null,"gray":false,"screen":100,"lw":0.25}}', 'pens out of range, bad values and unknown keys are dropped', JSON.stringify(dirty.table?.pens));
+  ok(Ps.readTableFile('nope').error === 'json' && Ps.readTableFile('{"format":"x"}').error === 'format' && Ps.readTableFile('{"format":"cadcraft-plotstyle","version":2}').error === 'version', 'readTableFile refuses other files');
+  const back = Ps.readTableFile(Ps.exportTable(office));
+  ok(back.ok && JSON.stringify(back.table) === JSON.stringify(Ps.cleanTable(office).table), 'export → import gives the same table');
+
+  // kept with the drawing: DWG 2000–2018, DXF R12, DXF 2000
+  {
+    const d = new Doc();
+    d.change('t', () => {
+      d.add({ type: 'line', x1: 0, y1: 0, x2: 100, y2: 0, color: 1 });
+      d.setLayouts([{ name: 'A-101', paper: { w: 420, h: 297, unit: 'mm', x0: 0, y0: 0, key: 'iso-a3' }, entities: new Map(), plotStyle: 'office' }, { name: 'A-102', paper: { w: 420, h: 297, unit: 'mm', x0: 0, y0: 0, key: 'iso-a3' }, entities: new Map(), plotStyle: 'monochrome' }]);
+      d.setMeta({ plotStyles: { tables: [office], model: 'grayscale' } });
+    });
+    const files = [['DXF R12', () => readDxf(writeDxf(d).text)], ['DXF 2000', () => readDxf(writeDxf2000(d).text)],
+      ...['2000', '2004', '2007', '2010', '2013', '2018'].map((v) => ['DWG ' + v, () => importDwg(readDwg(saveDwg(d, { version: v }).bytes), { versionTag: 'x' })])];
+    for (const [label, read] of files) {
+      const b = new Doc(); b.load(read());
+      const tb = Ps.findTable(b, 'office');
+      ok(tb && JSON.stringify(tb.pens) === JSON.stringify(office.pens) && tb.description === 'Our pens' && Ps.styleNameFor(b) === 'grayscale' && b.layouts.map((l) => l.plotStyle).join() === 'office,monochrome' && ![...b.blocks.keys()].some(Ps.isStyleBlock),
+        `${label}: the table, the model's and each sheet's choice come back (and no block shows)`, JSON.stringify([tb?.pens, Ps.styleNameFor(b), b.layouts.map((l) => l.plotStyle)]));
+    }
+    const m = readDwg(saveDwg(d, { version: '2018' }).bytes);
+    ok(m.layouts.find((l) => l.name === 'A-101')?.paper?.styleSheet === 'office.ctb' && m.layouts.find((l) => /^model$/i.test(l.name))?.paper?.styleSheet === 'grayscale.ctb', 'the DWG\'s page setups name the tables ("office.ctb"), as other programs read them');
+    // another program's drawing: only the page setup's name, no table of ours
+    const t2 = writeDxf2000(d).text.replace(/CADCRAFT_PLOTSTYLES/g, 'XX_IGNORED_BLOCK');
+    const b2 = new Doc(); b2.load(readDxf(t2));
+    ok(b2.layouts[0].plotStyle === 'office' && Ps.findTable(b2, b2.layouts[1].plotStyle)?.builtin && Ps.styleNameFor(b2) === 'grayscale' && !Ps.findTable(b2, 'office'), 'a drawing that only names "x.ctb": the name is kept, a standard name finds the built-in, an unknown one has no table yet');
+  }
+}
+
+section('The coordinate system and map layers in the file (0.6 GEO-DWG; geodwg.js)');
+{
+  const Gd = await load('geodwg.js');
+  const { saveDwg } = await load('dwg-save.js');
+  const { readDwg } = await load('dwg/read.js');
+  const { writeDwg } = await load('dwg/write.js');
+  const { writeDxf2000 } = await load('dxf2000.js');
+  const B = await load('basemap.js');
+  const place = { x: 10, y: 20, e: 500000, n: 3300000, rot: 30 };
+  const geo = { crs: { code: 32614, name: 'WGS 84 / UTM zone 14N', unit: 'm', place }, layers: [{ id: 'm1', name: 'Tiles', kind: 'xyz', template: 'https://tile.example.org/{z}/{x}/{y}.png', opacity: 0.8, visible: true }, { id: 'm2', name: 'Plan', kind: 'image', image: 'img1' }] };
+  const want = Gd.cleanGeo(geo);
+  ok(want.layers.length === 1 && want.src === null && want.crs.place.e === 500000, 'cleanGeo: a picture layer is not kept (pictures stay in the page)');
+  const drawing = (g) => { const d = new Doc(); d.change('t', () => { d.add({ type: 'line', x1: 0, y1: 0, x2: 100, y2: 50 }); d.setMeta({ units: 'meters', ...(g ? { geo: g } : {}) }); }); return d; };
+  const d = drawing(geo);
+  const files = [['DXF R12', () => readDxf(writeDxf(d).text)], ['DXF 2000', () => readDxf(writeDxf2000(d).text)],
+    ...['2000', '2004', '2007', '2010', '2013', '2018'].map((v) => ['DWG ' + v, () => importDwg(readDwg(saveDwg(d, { version: v }).bytes), { versionTag: 'x' })])];
+  for (const [label, read] of files) {
+    const b = new Doc(); b.load(read());
+    ok(JSON.stringify(b.meta.geo) === JSON.stringify(want) && ![...b.blocks.keys()].some(Gd.isGeoBlock), `${label}: the system, the placement and the layer list come back (no block shows)`, JSON.stringify(b.meta.geo));
+  }
+  // what other programs read: GEODATA on the model space, DWG 2010 and later
+  for (const v of ['2000', '2007', '2010', '2018']) {
+    const s = saveDwg(d, { version: v }), m = readDwg(s.bytes);
+    const ms = m.tables.blockRecords.find((r) => /^\*model_space$/i.test(r.name));
+    const xd = m.objects.find((o) => o.handle === ms.extDict), g = m.objects.find((o) => o.type === 'GEODATA');
+    if (Number(v) >= 2010) {
+      ok(g && xd?.entries?.ACAD_GEOGRAPHICDATA === g.handle && g.host === ms.handle && g.objectVersion === 3 && g.coordType === 2 && g.unitsH === 6
+        && near(g.designPoint.x, 10) && near(g.referencePoint.y, 3300000) && near(g.north.x, 0.5) && near(g.north.y, Math.sqrt(3) / 2) && Gd.epsgOf(g.csDef) === 32614 && m.classes.some((c) => c.dxfName === 'GEODATA'),
+      `DWG ${v}: GEODATA in the model space's dictionary (ACAD_GEOGRAPHICDATA): projected grid, the drawing point, its grid point, north 30°, metres, EPSG:32614`, JSON.stringify(g && { dp: g.designPoint, rp: g.referencePoint, n: g.north, u: g.unitsH }));
+      ok(!s.report.notes.includes(EN('dwg.save.geo.old', { v: EN('dwg.version', { v }) })), `DWG ${v}: no note`);
+    } else ok(!g && !ms.extDict && !m.classes.some((c) => c.dxfName === 'GEODATA') && s.report.notes.includes(EN('dwg.save.geo.old', { v: EN('dwg.version', { v }) })), `DWG ${v}: no GEODATA (2010 format only), and the save says other programs will not see the location`);
+  }
+  const t2 = writeDxf2000(d).text;
+  ok(/\n\s*0\r\nCLASS\r\n\s*1\r\nGEODATA\r\n/.test(t2) && /ACAD_GEOGRAPHICDATA/.test(t2) && /\n\s*0\r\nGEODATA\r\n/.test(t2), 'DXF 2000: the GEODATA class, the model space dictionary and the object');
+  { const r12 = writeDxf(d).text; ok(/CADCRAFT_GEO/.test(r12) && !/\n\s*0\r?\nGEODATA\r?\n/.test(r12), 'DXF R12: CadCraft\'s block only (R12 has no objects)'); }
+  // nothing geographic: nothing new in the file
+  {
+    const plain = drawing(null), t0 = new Date('2026-01-01T00:00:00Z');
+    const cryptoWas = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    Object.defineProperty(globalThis, 'crypto', { value: { getRandomValues: (r) => r.fill(7) }, configurable: true });   // the header's two GUIDs, fixed
+    for (const v of ['2000', '2018']) {
+      const m = readDwg(saveDwg(plain, { version: v, created: t0 }).bytes);
+      const ms = m.tables.blockRecords.find((r) => /^\*model_space$/i.test(r.name));
+      ok(!ms.extDict && !m.objects.some((o) => o.type === 'GEODATA') && !m.classes.some((c) => c.dxfName === 'GEODATA') && !m.blocks.some((b) => Gd.isGeoBlock(b.name)), `DWG ${v} without a system or layers: no dictionary, object, class or block for them`);
+      plain.meta.geo = null;
+      const a = saveDwg(plain, { version: v, created: t0 }).bytes; delete plain.meta.geo;
+      const b2 = saveDwg(plain, { version: v, created: t0 }).bytes;
+      ok(a.length === b2.length && a.every((x, i) => x === b2[i]), `DWG ${v}: a drawing whose system was removed saves byte for byte like one that never had one`);
+    }
+    if (cryptoWas) Object.defineProperty(globalThis, 'crypto', cryptoWas); else delete globalThis.crypto;
+    ok(!/GEODATA|CADCRAFT_GEO/.test(writeDxf2000(plain).text) && !/CADCRAFT_GEO/.test(writeDxf(plain).text), 'DXF 2000 and R12 without them: nothing about them');
+  }
+  // the definition: EPSG codes found, nothing made up
+  ok(Gd.epsgOf(Gd.csXml(2277, 'ftUS')) === 2277 && /uom="FOOT"/.test(Gd.csXml(2277, 'ftUS')) && /uom="IFOOT"/.test(Gd.csXml(2229, 'ft')), 'csXml: the EPSG alias and the axis unit (CS-MAP names: FOOT = US survey foot, IFOOT)');
+  ok(Gd.epsgOf('<Dictionary><ProjectedCoordinateSystem id="EPSG:3857"/></Dictionary>') === 3857 && Gd.epsgOf('<x><ObjectId>EPSG:27700</ObjectId></x>') === 27700, 'epsgOf: an "EPSG:n" id');
+  ok(Gd.epsgOf('PROJCS["NAD83 / Texas Central (ftUS)",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],AUTHORITY["EPSG","6269"]],AUTHORITY["EPSG","4269"]],UNIT["US survey foot",0.3048006096012192],AUTHORITY["EPSG","2277"]]') === 2277, 'epsgOf: a WKT (the 2009 format) by its own, last, authority');
+  ok(Gd.epsgOf('<Dictionary><Alias id="5" type="Datum"><Namespace>EPSG Code</Namespace></Alias><ProjectedCoordinateSystem id="UTM83-10"/></Dictionary>') === null && Gd.csLabel('<ProjectedCoordinateSystem id="UTM83-10"/>') === 'UTM83-10' && Gd.epsgOf('junk') === null, 'a datum alias or a program\'s own system name is no code (its name is kept for the message)');
+  // untrusted records
+  {
+    const bad = Gd.cleanGeo({ crs: { code: -3, place }, layers: [{ id: 'x', kind: 'xyz', __proto__: { evil: 1 }, template: { a: 1 }, n: Infinity }, ...Array.from({ length: 150 }, (_, i) => ({ id: 'm' + i, kind: 'xyz' }))] });
+    ok(bad.crs === null && bad.layers.length === 100 && !('template' in bad.layers[0]) && !('n' in bad.layers[0]) && !('evil' in bad.layers[0]), 'a bad code, objects inside a layer, non-finite numbers and more than 100 layers are dropped');
+    ok(Gd.cleanGeo({ crs: { code: 2277, place: { x: 1e12, y: 0 } } }) === null && Gd.cleanGeo('x') === null && Gd.cleanGeo({ crs: { code: 2277, place: { x: 0, y: 0, lon: 200, lat: 0 } } }) === null, 'coordinates out of range are refused');
+    ok(B.readMaps([{ id: 'm1', name: 'x', kind: 'xyz', template: 'javascript:alert(1)/{z}/{x}/{y}' }], [], null).length === 0, 'a layer from a file is checked again before it is drawn (basemap.js: http(s) only)');
+    const junk = new Doc(); junk.load(readDxf(writeDxf2000(d).text.replace(/CCGEO:1:\{/, 'CCGEO:1:{x')));
+    ok(!junk.meta.geo?.layers?.length && junk.meta.geo?.crs?.code === 32614, 'a damaged CADCRAFT_GEO block is left out; the location still comes from GEODATA');
+  }
+  // another program's drawing: its GEODATA only
+  const foreign = (fields, units = 6) => {
+    const model = { header: { INSUNITS: units }, tables: { blockRecords: [{ handle: 'A1', name: '*Model_Space', extDict: 'A2' }] },
+      blocks: [{ name: '*Model_Space', record: 'A1', entities: [{ type: 'LINE', layer: '0', start: { x: 0, y: 0, z: 0 }, end: { x: 9, y: 9, z: 0 } }] }],
+      objects: [{ handle: 'A2', type: 'DICTIONARY', owner: 'A1', reactors: ['A1'], entries: { ACAD_GEOGRAPHICDATA: 'A3' }, hardOwner: 1, cloning: 1 },
+        { handle: 'A3', type: 'GEODATA', owner: 'A2', reactors: ['A2'], host: 'A1', up: { x: 0, y: 0, z: 1 }, unitScaleH: 1, unitScaleV: 1, unitsH: units, unitsV: units, scaleMethod: 1, userScale: 1, projRadius: 6378137, geoRss: '', obsFrom: '', obsTo: '', obsCoverage: '', meshPoints: [], meshFaces: [], ...fields }] };
+    const r = importDwg(readDwg(writeDwg(model, { version: '2018' }).bytes), { versionTag: 'x' });
+    const b = new Doc(); b.load(r); return { b, notes: r.report.notes };
+  };
+  const theirXml = '<?xml version="1.0" encoding="UTF-16" standalone="no" ?><Dictionary version="1.0" xmlns="http://www.osgeo.org/mapguide/coordinatesystem"><Alias id="2277" type="CoordinateSystem"><ObjectId>TX83-CF</ObjectId><Namespace>EPSG Code</Namespace></Alias><ProjectedCoordinateSystem id="TX83-CF"><Name>TX83-CF</Name></ProjectedCoordinateSystem></Dictionary>';
+  {
+    const { b, notes } = foreign({ coordType: 2, designPoint: { x: 1, y: 2, z: 0 }, referencePoint: { x: 2300000, y: 13900000, z: 0 }, north: { x: 0, y: 1 }, csDef: theirXml }, 2);
+    ok(b.meta.geo?.crs?.code === 2277 && b.meta.geo.crs.place.e === 2300000 && b.meta.geo.crs.place.rot === 0 && b.meta.geo.crs.name === 'TX83-CF' && !notes.some((n) => /does not know/.test(n)), 'a projected location naming an EPSG code: the system and the placement', JSON.stringify(b.meta.geo?.crs));
+    const m = readDwg(saveDwg(b, { version: '2018' }).bytes), g = m.objects.find((o) => o.type === 'GEODATA');
+    ok(g?.csDef === theirXml && g.unitsH === 2 && g.referencePoint.y === 13900000, 'saved again unchanged: their own definition goes back as it was');
+    b.change('t', () => b.setMeta({ geo: Gd.cleanGeo({ ...b.meta.geo, crs: { code: 2277, name: 'NAD83 / Texas Central (ftUS)', unit: 'ftUS', place: { x: 0, y: 0, e: 0, n: 0, rot: 0 } }, src: null }) }));
+    const g2 = readDwg(saveDwg(b, { version: '2018' }).bytes).objects.find((o) => o.type === 'GEODATA');
+    ok(g2 && /EPSG:2277/.test(g2.csDef) && !/TX83-CF/.test(g2.csDef) && g2.referencePoint.x === 0, 'a system chosen in CadCraft replaces it');
+  }
+  {
+    const { b } = foreign({ coordType: 3, designPoint: { x: 0, y: 0, z: 0 }, referencePoint: { x: -97.74, y: 30.27, z: 0 }, north: { x: Math.sin(-Math.PI / 12), y: Math.cos(-Math.PI / 12) }, csDef: theirXml });
+    const p = b.meta.geo?.crs?.place;
+    ok(p && p.lon === -97.74 && p.lat === 30.27 && p.e === undefined && near(p.rot, -15, 1e-6), 'a location given as longitude / latitude: kept as such (the map layers put it on the grid with crs.js)', JSON.stringify(p));
+  }
+  {
+    const csmap = '<?xml version="1.0" encoding="UTF-16" standalone="no" ?><Dictionary version="1.0" xmlns="http://www.osgeo.org/mapguide/coordinatesystem"><ProjectedCoordinateSystem id="UTM83-14"><Name>UTM83-14</Name></ProjectedCoordinateSystem></Dictionary>';
+    const { b, notes } = foreign({ coordType: 2, designPoint: { x: 0, y: 0, z: 0 }, referencePoint: { x: 1, y: 2, z: 0 }, north: { x: 0, y: 1 }, csDef: csmap, meshPoints: [{ source: { x: 0, y: 0 }, dest: { x: 1, y: 1 } }, { source: { x: 1, y: 0 }, dest: { x: 2, y: 1 } }, { source: { x: 0, y: 1 }, dest: { x: 1, y: 2 } }], meshFaces: [[0, 1, 2]] });
+    ok(b.meta.geo?.crs === null && b.meta.geo.src?.fields?.csDef === csmap && notes.includes(EN('geo.read.code', { name: 'UTM83-14' })), 'a system CadCraft does not know: not placed, kept, and said plainly', notes.join(' | '));
+    const g = readDwg(saveDwg(b, { version: '2013' }).bytes).objects.find((o) => o.type === 'GEODATA');
+    ok(g?.csDef === csmap && g.meshPoints.length === 3 && g.meshFaces[0].join() === '0,1,2', 'saved back as it was (with its mesh)');
+    const { b: b3, notes: n3 } = foreign({ coordType: 2, unitScaleH: 0.9996, designPoint: { x: 0, y: 0, z: 0 }, referencePoint: { x: 1, y: 2, z: 0 }, north: { x: 0, y: 1 }, csDef: theirXml });
+    ok(b3.meta.geo?.crs === null && n3.includes(EN('geo.read.scale', { name: 'TX83-CF' })), 'a scale factor other than 1: kept, not used, said');
+  }
+  // the location moved in another program after CadCraft saved: its GEODATA wins, the layers stay
+  {
+    const m = readDwg(saveDwg(d, { version: '2018' }).bytes);
+    const g = m.objects.find((o) => o.type === 'GEODATA');
+    g.referencePoint = { x: 600000, y: 3400000, z: 0 };
+    const b = new Doc(); b.load(importDwg(m, { versionTag: 'x' }));
+    ok(b.meta.geo.crs.place.e === 600000 && b.meta.geo.layers.length === 1, 'GEODATA changed since CadCraft wrote it: the location from GEODATA, the layers from CadCraft\'s copy');
+  }
+  // undo and a browser that kept the layers before 0.6 (maps-cad.js; the dialog itself: tools/cadcraft-test/browser-geo_PART_2.mjs)
+  {
+    const u = drawing(null);
+    u.change('ml', () => u.setMeta({ geo: want }));
+    u.undo();
+    ok(!u.meta.geo && (u.redo(), JSON.stringify(u.meta.geo) === JSON.stringify(want)), 'a change to the system or layers is one undo step');
+    const store = new Map([['cadcraft.maps', JSON.stringify({ crs: { code: 32614, place }, layers: geo.layers, internet: true })]]);
+    globalThis.localStorage = { getItem: (k) => store.get(k) ?? null, setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) };
+    const { installMaps } = await load('maps-cad.js');
+    const said = [], fresh = new Doc();
+    installMaps({ root: null, attrib: null, view: { invalidate() {}, fit() {} }, doc: fresh, say: (s) => said.push(s), busy() {}, ask() {}, refocus() {} });
+    ok(fresh.meta.geo?.crs?.code === 32614 && fresh.meta.geo.layers.length === 1 && JSON.parse(store.get('cadcraft.maps')).internet === true && !('layers' in JSON.parse(store.get('cadcraft.maps'))) && said.includes(EN('ml.moved')) && !fresh.dirty,
+      'a 0.5 browser\'s layers and system move into the open drawing (said once); the browser keeps only the internet switch', store.get('cadcraft.maps'));
+    delete globalThis.localStorage;
+    // a location read as longitude / latitude goes onto the system's grid (crs.js with proj4, as bin/test-maplayers.mjs loads it)
+    const { registerHooks } = await import('node:module');
+    const manifest = JSON.parse(fs.readFileSync(path.join(APP, 'manifest.json'), 'utf8'));
+    registerHooks({ resolve(spec, ctx, next) { const m = spec === 'proj4' && manifest.imports?.[spec]; return m ? { url: pathToFileURL(path.join(ROOT, 'public_html', m)).href, shortCircuit: true } : next(spec, ctx); } });
+    const hadDoc = 'document' in globalThis;
+    if (!hadDoc) globalThis.document = { createElement: () => ({ dataset: {}, setAttribute() {}, append() {}, addEventListener() {} }) };   // the attribution line is made, never shown here
+    const C = await load('crs.js');
+    if (!C.catalogLoaded()) C.setCatalog(JSON.parse(fs.readFileSync(path.join(APP, 'crs-db.json'), 'utf8')));
+    const ll = new Doc();
+    ll.load({ meta: { units: 'meters' }, geo: { crs: { code: 32614, name: 'x', unit: 'm', place: { x: 5, y: 7, lon: -99, lat: 30, rot: 0 } } } });
+    const mp = installMaps({ root: null, attrib: null, view: { invalidate() {}, fit() {} }, doc: ll, say() {}, busy() {}, ask() {}, refocus() {} });
+    await mp.ensure();
+    const c = mp.crs(), at = C.frame(C.crsFromEntry(C.byCode(32614))).fromLonLat(-99, 30), g = c && C.frame(c).toGrid(5, 7);
+    ok(g && near(g[0], at[0], 1e-6) && near(g[1], at[1], 1e-6) && near(g[0], 500000, 1e-6), 'longitude −99°, latitude 30° in UTM 14N: the drawing point lands on the central meridian (E 500 000)', JSON.stringify([g, at]));
+    if (!hadDoc) delete globalThis.document;
+  }
+}
+
+section('Clicking an empty spot (0.6 DC.67; settings.inc, cadcraft.js)');
+{
+  const inc = fs.readFileSync(path.join(APP, 'settings.inc'), 'utf8'), js = fs.readFileSync(path.join(APP, 'cadcraft.js'), 'utf8');
+  ok(/name="ccEmptyClick" value="clear"/.test(inc) && /name="ccEmptyClick" value="keep"/.test(inc), 'Settings › CadCraft has Clears / Keeps the selection');
+  ok(/ccEmptyClick: 'emptyClick'/.test(js) && /setRadio\('ccEmptyClick', 'clear'\)/.test(js) && /settings\.emptyClick !== 'keep'\) \{ host\.setSelection\(new Set\(\)\)/.test(js), 'stored, reset to Clears, and read by the empty click (the browser test drives it)');
+}
+
+section('Totals for a selection (0.6 DF.4; seltotals.js)');
+{
+  const ST = await load('seltotals.js');
+  const ents = [
+    { type: 'line', x1: 0, y1: 0, x2: 3, y2: 4 },                                                   // 5
+    { type: 'arc', cx: 0, cy: 0, r: 2, a0: 0, a1: Math.PI / 2 },                                      // π
+    { type: 'poly', closed: true, pts: [{ x: 0, y: 0, b: 0 }, { x: 10, y: 0, b: 0 }, { x: 10, y: 5, b: 0 }, { x: 0, y: 5, b: 0 }] },   // 30, area 50
+    { type: 'poly', closed: false, pts: [{ x: 0, y: 0, b: 0 }, { x: 4, y: 0, b: 0 }] },               // 4, no area
+    { type: 'circle', cx: 0, cy: 0, r: 1 },                                                            // area π (no length counted)
+    { type: 'ellipse', cx: 0, cy: 0, mx: 2, my: 0, ratio: 0.5, t0: 0, t1: Math.PI },                  // an elliptical arc: neither
+    { type: 'hatch', solid: true, loops: [[0, 0, 2, 0, 2, 2, 0, 2, 0, 0]] },                          // area 4
+    { type: 'text', x: 0, y: 0, h: 1, s: 'A' },
+  ];
+  const T = ST.selectionTotals(ents);
+  ok(T.n === 8 && near(T.length, 5 + Math.PI + 30 + 4) && T.lengthN === 4, 'total length of the lines, arcs and polylines', JSON.stringify(T));
+  ok(near(T.area, 50 + Math.PI + 4) && T.areaN === 3, 'total area of the closed ones (closed polyline, circle, hatch; not an elliptical arc)');
+  ok(T.byType[0][0] === 'poly' && T.byType[0][1] === 2, 'count by type, most first');
+  ok(U.formatLength(T.length, { lunits: 4, prec: 4 }) === '3\'-6 1/8"' && U.formatArea(T.area, { lunits: 4, prec: 4 }).includes('sq'), 'shown in the drawing\'s length format (architectural here)', U.formatLength(T.length, { lunits: 4, prec: 4 }));
+}
+
+section('TRIMEXTENDMODE and trimming by a dragged window (0.6 DF.13)');
+{
+  const comb = async (h) => {
+    await h.type('L', '-5,0', '100,0', '');
+    for (let i = 0; i < 20; i++) await h.type('L', (i * 5) + ',-10', (i * 5) + ',10', '');
+  };
+  const h = harness();
+  h.host.settings = { trimDrag: 'window' };
+  await comb(h);
+  const ups = () => h.doc.all().filter((e) => e.type === 'line' && e.x1 === e.x2);
+  await h.type('TRIMEXTENDMODE', '0');
+  ok(h.eng.trimMode === 'standard' && h.log.includes(EN('cmd.trimextendmode.set', { n: 0, mode: EN('opt.standard') })), 'TRIMEXTENDMODE 0: TRIM starts in Standard mode');
+  await h.type('TR');
+  ok(h.log.includes(EN('cmd.trim.settings2', { mode: EN('opt.standard'), var: 0, edge: EN('opt.noextend'), drag: EN('cmd.trim.drag.window') })) && h.host.lastPrompt.startsWith(EN('cmd.trim.edges')), 'the settings line names TRIMEXTENDMODE 0 and the window drag; Standard asks for the cutting edges', h.log.slice(-3).join(' | '));
+  await h.type('');   // every object is an edge
+  const steps0 = h.doc.undoStack.length;
+  ok(h.eng.trimWindow({ minX: 3, minY: 2, maxX: 27, maxY: 8 }), 'a dragged window is taken where TRIM asks for a piece');
+  await h.tick();
+  const cut = ups().filter((e) => near(Math.max(e.y1, e.y2), 0));
+  ok(cut.length === 5 && cut.every((e) => e.x1 >= 5 && e.x1 <= 25) && h.doc.undoStack.length === steps0 + 1, 'the window trims every top piece it touches (5), one undo step', cut.length);
+  h.eng.escape(); await h.tick();
+  await h.type('TRIMEXTENDMODE', '1');
+  ok(h.eng.trimMode === 'quick', 'TRIMEXTENDMODE 1: back to Quick');
+  await h.type('TRIMEXTENDMODE', '2');
+  ok(h.log.includes(EN('cmd.trimextendmode.range')) && h.eng.trimMode === 'quick', 'other values refused');
+  ok(!h.eng.trimWindow({ minX: 0, minY: 0, maxX: 1, maxY: 1 }), 'a window outside TRIM / EXTEND is ignored');
+  // LISP sees the same variable
+  const { CadHost } = await load('lisp/host-cad.js');
+  const lh = new CadHost({ doc: h.doc, engine: h.eng });
+  ok(+lh.getvar('TRIMEXTENDMODE').i === 1 && lh.setvar('TRIMEXTENDMODE', { i: 0 }) === true && h.eng.trimMode === 'standard', '(getvar / setvar "TRIMEXTENDMODE") read and set it', JSON.stringify(lh.getvar('TRIMEXTENDMODE')));
+}
+
+section('Title blocks: EATTEDIT, ATTEDIT, ATTSYNC, BATTMAN, REFEDIT (0.6 DF.5; attedit.js)');
+{
+  const AE = await load('attedit.js');
+  const { closeRefEdit } = await load('commands.js');
+  // a title block: a frame and three attributes (one invisible), two references (one in a sheet-like spot)
+  const mk = async () => {
+    const h = harness();
+    await h.type('REC', '0,0', '100,40');
+    await h.type('ATTDEF', '', 'title', 'Drawing title', 'PLAN', '5,30', '4', '0');
+    await h.type('ATTDEF', '', 'sheet', 'Sheet number', 'A-101', '5,20', '3', '0');
+    await h.type('ATTDEF', 'I', '', 'drawn', 'Drawn by', 'XX', '5,10', '2', '0');
+    await h.type('BLOCK', 'TB', '0,0', 'ALL', '');
+    await h.type('INSERT', 'TB', '200,0', 'ELEVATIONS', 'A-201', 'JD');
+    return h;
+  };
+  {
+    const h = await mk();
+    const [r1, r2] = h.doc.all().filter((e) => e.type === 'insert');
+    const blk = h.doc.blocks.get('TB');
+    // placementOf / editedRef: a value, then text options and properties for one reference only
+    let x = AE.editedRef(r1, blk, 'TITLE', { value: 'GROUND FLOOR' });
+    ok(x.attrs.TITLE === 'GROUND FLOOR' && !x.attloc, 'a value goes to attrs only');
+    x = AE.editedRef(x, blk, 'TITLE', { h: 6, rot: Math.PI / 2, wf: 0.8, ha: 'center', va: 'middle', layer: 'TITLES', color: 1 });
+    const pl = AE.placementOf(x, blk, 'TITLE');
+    ok(near(pl.h, 6) && near(pl.rot, Math.PI / 2) && near(pl.wf, 0.8) && pl.ha === 'center' && pl.va === 'middle' && pl.layer === 'TITLES' && pl.color === 1 && near(pl.x, 5) && near(pl.y, 30), 'text options and properties held for this reference (attloc), its place kept', JSON.stringify(pl));
+    const back = AE.editedRef(x, blk, 'TITLE', { h: 4, rot: 0, wf: 1, ha: 'left', va: 'baseline', layer: '0', color: null });
+    ok(!back.attloc, 'set back to the definition: the override goes away');
+    // ATTEDIT on the command line: Enter keeps, a typed value changes; one undo step
+    const steps = h.doc.undoStack.length;
+    h.host.setSelection(new Set([r2.id]));
+    await h.type('ATTEDIT', '', 'A-202', '');
+    ok(h.doc.get(r2.id).attrs.SHEET === 'A-202' && h.doc.get(r2.id).attrs.TITLE === 'ELEVATIONS' && h.doc.undoStack.length === steps + 1 && h.log.includes(EN('cmd.attedit.done', { n: 1 })), 'ATTEDIT asks each value in turn: Enter keeps, one changed, one undo step');
+    // EATTEDIT without the dialog falls back to the same questions
+    h.host.setSelection(new Set([r1.id]));
+    await h.type('EATTEDIT', 'SITE PLAN', '', '');
+    ok(h.doc.get(r1.id).attrs.TITLE === 'SITE PLAN', 'EATTEDIT (no page): the typed questions');
+  }
+  {
+    // BEDIT changes the definitions → BCLOSE brings the references along, values kept (one undo step)
+    const h = await mk();
+    const refs = () => h.doc.all().filter((e) => e.type === 'insert');
+    h.doc.change('t', () => { const r = refs()[0]; h.doc.update(r.id, AE.editedRef(r, h.doc.blocks.get('TB'), 'SHEET', { h: 5 })); });
+    const before = h.doc.undoStack.length;
+    await h.type('BEDIT', 'TB');
+    const drawn = h.doc.all().find((e) => e.attdef?.tag === 'DRAWN');
+    h.doc.change('del', () => h.doc.remove(drawn.id));
+    await h.type('ATTDEF', '', 'date', 'Date', '2026-10-16', '60,10', '2', '0');
+    await h.type('BCLOSE', 'S');
+    const [a, b] = refs();
+    ok(a.attrs.TITLE === 'PLAN' && b.attrs.TITLE === 'ELEVATIONS' && b.attrs.SHEET === 'A-201' && !('DRAWN' in b.attrs) && b.attrs.DATE === '2026-10-16' && !a.attloc,
+      'BCLOSE after the definitions changed: values kept, the removed tag gone, the new one with its default, placements reset', JSON.stringify([a.attrs, b.attrs, a.attloc]));
+    ok(h.log.includes(EN('cmd.attsync.done', { name: 'TB', n: 2 })) && h.doc.undoStack.length === before + 1, 'it says so, and the whole edit is one undo step');
+    // ATTSYNC by hand: a reference given an old attribute is brought back in line
+    h.doc.change('t', () => h.doc.update(a.id, { ...a, attrs: { ...a.attrs, OLD: 'x' }, attloc: { TITLE: { x: 0, y: 0, h: 9, rot: 0 } } }));
+    h.host.setSelection(new Set([a.id]));
+    await h.type('ATTSYNC', 'S');
+    const a2 = h.doc.get(a.id);
+    ok(!('OLD' in a2.attrs) && !a2.attloc && a2.attrs.TITLE === 'PLAN' && h.log.includes(EN('cmd.attsync.done', { name: 'TB', n: 1 })), 'ATTSYNC Select: that block\'s references follow the definitions');
+    await h.type('ATTSYNC', 'A');
+    ok(h.log.includes(EN('cmd.attsync.nothing')), 'ATTSYNC All with nothing to do says so');
+  }
+  {
+    // BATTMAN's work (applyAttdefs): order, prompt, default, modes, a renamed tag keeps its values; nested references too
+    const h = await mk();
+    h.doc.change('nest', () => { const r = h.doc.all().find((e) => e.type === 'insert'); h.doc.defineBlock({ name: 'SHEETSET', base: { x: 0, y: 0 }, entities: [{ ...r, id: undefined }] }); });
+    const blk = h.doc.blocks.get('TB');
+    const defs = [blk.attdefs[1], { ...blk.attdefs[0], tag: 'NAME', prompt: 'Drawing name', def: 'UNTITLED' }, { ...blk.attdefs[2], invisible: false, preset: true }];
+    let res;
+    h.doc.change('BATTMAN', () => { res = AE.applyAttdefs(h.doc, 'TB', defs, { renames: new Map([['TITLE', 'NAME']]) }); });
+    const b2 = h.doc.blocks.get('TB'), [r1, r2] = h.doc.all().filter((e) => e.type === 'insert'), nested = h.doc.blocks.get('SHEETSET').entities[0];
+    ok(b2.attdefs.map((d) => d.tag).join() === 'SHEET,NAME,DRAWN' && b2.attdefs[1].prompt === 'Drawing name' && b2.attdefs[1].def === 'UNTITLED' && !b2.attdefs[2].invisible && b2.attdefs[2].preset, 'order, tag, prompt, default and modes changed', JSON.stringify(b2.attdefs.map((d) => [d.tag, d.prompt, d.def, !!d.invisible, !!d.preset])));
+    ok(r1.attrs.NAME === 'PLAN' && r2.attrs.NAME === 'ELEVATIONS' && !('TITLE' in r2.attrs) && nested.attrs.NAME === 'PLAN' && res.refs >= 2, 'the renamed tag keeps every value, also on a reference inside another block', JSON.stringify([r1.attrs, r2.attrs, nested.attrs]));
+    ok(AE.cleanAttdef({ tag: '' }).error && AE.cleanAttdef({ tag: 'A/B' }).error && AE.cleanAttdef({ tag: 'room no', def: 'a\nb' }).tag === 'ROOM_NO', 'cleanAttdef refuses empty and bad tags, makes them upper case');
+    // values and definitions survive saving: DWG in all six versions, DXF R12 and DXF 2000
+    const { saveDwg } = await load('dwg-save.js');
+    const { readDwg } = await load('dwg/read.js');
+    const { writeDxf2000 } = await load('dxf2000.js');
+    h.doc.change('t', () => { const r = h.doc.get(r2.id); h.doc.update(r2.id, AE.editedRef(r, b2, 'SHEET', { value: 'A-301', h: 5, layer: '0' })); });
+    const want = h.doc.get(r2.id);
+    const files = [['DXF R12', () => readDxf(writeDxf(h.doc).text)], ['DXF 2000', () => readDxf(writeDxf2000(h.doc).text)],
+      ...['2000', '2004', '2007', '2010', '2013', '2018'].map((v) => ['DWG ' + v, () => importDwg(readDwg(saveDwg(h.doc, { version: v }).bytes), { versionTag: 'x' })])];
+    for (const [label, read] of files) {
+      const d = new Doc(); d.load(read());
+      const B = d.blocks.get('TB'), R = [...d.model.values()].filter((e) => e.type === 'insert').find((e) => near(e.x, want.x) && near(e.y, want.y));
+      const pl2 = R && AE.placementOf(R, B, 'SHEET');
+      ok(B && B.attdefs.map((d2) => d2.tag).join() === 'SHEET,NAME,DRAWN' && B.attdefs[1].prompt === 'Drawing name' && B.attdefs[1].def === 'UNTITLED' && B.attdefs[2].preset && !B.attdefs[2].invisible
+        && R && R.attrs.SHEET === 'A-301' && R.attrs.NAME === 'ELEVATIONS' && near(pl2.h, 5), `${label}: the definitions (order, prompt, default, modes) and the edited values and text come back`, JSON.stringify(B?.attdefs?.map((d2) => d2.tag)) + JSON.stringify(R?.attrs) + JSON.stringify(pl2));
+    }
+  }
+  {
+    // REFEDIT: in place, the rest faded and locked, new objects join, REFCLOSE saves (one undo step) or discards
+    const h = await mk();
+    await h.type('C', '500,500', '5');
+    const [r1, r2] = h.doc.all().filter((e) => e.type === 'insert');
+    const circle = h.doc.all().find((e) => e.type === 'circle');
+    h.doc.change('turn', () => h.doc.update(r2.id, { ...h.doc.get(r2.id), rot: Math.PI / 2, sx: 2, sy: 2 }));
+    const before = h.doc.undoStack.length;
+    h.host.setSelection(new Set([r2.id]));
+    await h.type('REFEDIT');
+    const re = h.doc.refEdit;
+    const work = [...re.ids].map((id) => h.doc.get(id));
+    const frame = work.find((e) => e.type === 'poly');
+    ok(re && re.name === 'TB' && work.length === 4 && frame && frame.pts.some((p) => nearPt(p, 200 - 80, 200, 1e-9)), 'REFEDIT: the frame and the three attribute definitions, where the turned ×2 reference shows them', JSON.stringify(frame?.pts));
+    ok(!h.doc.visible(h.doc.get(r2.id)) && !h.doc.editable(circle) && !h.doc.editable(h.doc.get(r1.id)) && h.doc.editable(frame), 'the edited reference is hidden; the rest cannot be changed');
+    const strokes = [];
+    walkFn(h.doc, [...h.doc.model.values()], { stroke: (c, p, lw, o) => strokes.push(o?.alpha ?? 1), fill() {}, text() {}, point() {} });
+    ok(strokes.some((a) => near(a, 0.3)) && strokes.some((a) => a === 1), 'drawn: the working set as usual, everything else faded', JSON.stringify([...new Set(strokes)]));
+    await h.type('L', '200,200', '180,200', '');   // drawn while editing: joins the block (world (200, 200) is block (100, 0))
+    await h.type('REFCLOSE', 'S');
+    const tb = h.doc.blocks.get('TB');
+    const added = tb.entities.find((e) => e.type === 'line');
+    ok(!h.doc.refEdit && tb.entities.length === 2 && added && nearPt({ x: added.x1, y: added.y1 }, 100, 0, 1e-9) && nearPt({ x: added.x2, y: added.y2 }, 100, 10, 1e-9) && tb.attdefs.length === 3, 'REFCLOSE Save: the new line in the block, in block coordinates', JSON.stringify(added));
+    ok(h.doc.all().filter((e) => e.type === 'insert').length === 2 && h.doc.all().length === 3 && h.doc.undoStack.length === before + 1 && h.doc.editable(circle), 'the temporary objects are gone, the rest editable again, one undo step');
+    h.doc.undo();
+    ok(h.doc.blocks.get('TB').entities.length === 1, 'undo puts the block back');
+    await h.type('REFEDIT');   // nothing selected: asks
+    h.eng.click({ x: 50, y: 0 }); await h.tick();
+    ok(h.doc.refEdit?.ref === r1.id, 'REFEDIT asks for a reference when none is selected');
+    await h.type('ERASE', 'ALL', '', 'REFCLOSE', 'D');
+    ok(!h.doc.refEdit && h.doc.blocks.get('TB').entities.length === 1 && h.doc.all().length === 3 && h.doc.circle !== null, 'REFCLOSE Discard: nothing changes (the erase hit only the working set)');
+    // refused: a linked drawing, a dynamic block, a non-uniform reference
+    h.doc.change('t', () => h.doc.update(r1.id, { ...h.doc.get(r1.id), sx: 2, sy: 1 }));
+    h.host.setSelection(new Set([r1.id]));
+    await h.type('REFEDIT');
+    ok(!h.doc.refEdit && h.log.includes(EN('cmd.refedit.nonuniform', { name: 'TB' })), 'a reference scaled differently across and up is refused (BEDIT instead)');
+    ok(closeRefEdit(h.doc, true) === null, 'REFCLOSE with nothing open does nothing');
+  }
+}
+
+section('A picture pasted from the clipboard (0.6 DF.6; pastepic.js)');
+{
+  const PP = await load('pastepic.js');
+  const { saveDwg } = await load('dwg-save.js');
+  const { readDwg } = await load('dwg/read.js');
+  // a real 3 × 2 PNG (zlib-compressed RGB scanlines), made here
+  const zlib = await import('node:zlib');
+  const crc = (buf) => { let c, crcT = []; for (let n = 0; n < 256; n++) { c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; crcT[n] = c >>> 0; } c = 0xffffffff; for (const b of buf) c = crcT[(c ^ b) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const chunk = (type, data) => { const len = Buffer.alloc(4); len.writeUInt32BE(data.length); const td = Buffer.concat([Buffer.from(type), data]); const c = Buffer.alloc(4); c.writeUInt32BE(crc(td)); return Buffer.concat([len, td, c]); };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(3, 0); ihdr.writeUInt32BE(2, 4); ihdr[8] = 8; ihdr[9] = 2;
+  const raw = Buffer.from([0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90]);
+  const png = new Uint8Array(Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]));
+  const d = new Doc();
+  d.meta.name = 'Site plan';
+  const steps = d.undoStack.length;
+  const r = PP.placePastedPicture(d, png, { at: { x: 10, y: 20 }, width: 30 });
+  const ref = d.all().find((e) => e.type === 'insert'), blk = d.blocks.get(ref?.block);
+  const fr = blk?.entities.find((e) => e.pic);
+  ok(r.ok && r.name === 'Site plan-picture-1.png' && r.w === 3 && r.h === 2 && nearPt(ref, 10, 20) && near(fr.pic.ux * fr.pic.w, 30) && d.undoStack.length === steps + 1, 'pasted: a picture named after the drawing, 30 wide at the point, one undo step', JSON.stringify(r));
+  ok(d.pictures.get('site plan-picture-1.png')?.bytes === png || d.pictures.get('site plan-picture-1.png')?.bytes?.length === png.length, 'its bytes are kept with the drawing');
+  const r2 = PP.placePastedPicture(d, png, { at: { x: 0, y: 0 } });
+  ok(r2.name === 'Site plan-picture-2.png' && near(r2.width, 3), 'a second paste gets the next number; without a width it is its pixels wide');
+  ok(PP.placePastedPicture(d, new Uint8Array([1, 2, 3])).error === 'pic.paste.notpicture', 'something that is not a PNG or JPEG is refused');
+  // saving: each used pasted picture once per file; an erased one is not written
+  d.change('erase', () => d.remove(d.all().find((e) => e.type === 'insert' && d.blocks.get(e.block).entities.find((x) => x.pic)?.pic.file === 'Site plan-picture-2.png').id));
+  const out1 = PP.picturesToSave(d, 'Site plan.dwg'), out2 = PP.picturesToSave(d, 'Site plan.dwg'), out3 = PP.picturesToSave(d, 'Site plan.dxf');
+  ok(out1.length === 1 && out1[0].name === 'Site plan-picture-1.png' && out1[0].mime === 'image/png' && !out2.length && out3.length === 1, 'saving writes each used picture beside the drawing once per file; an erased one not at all');
+  const m = readDwg(saveDwg(d, { version: '2018' }).bytes);
+  ok((m.objects || []).some((o) => o.type === 'IMAGEDEF' && o.fileName === 'Site plan-picture-1.png'), 'the DWG names the file written beside it');
+}
+
+section('EXPORTPOINTS: points for BIM and survey programs (0.6 DF.7; ptexport.js)');
+{
+  const PX = await load('ptexport.js');
+  const CP = await import(pathToFileURL(path.join(ROOT, 'public_html/assets/apps/civilcraft/dev/points.js')).href);   // CivilCraft's own reader
+  const h = harness();
+  const files = [];
+  h.host.saveBlob = (name, data, mime) => files.push({ name, data, mime });
+  h.doc.meta.units = 'millimeters';
+  h.doc.change('setup', () => {
+    h.doc.add({ type: 'point', layer: '0', x: 1000, y: 2000 });
+    h.doc.add({ type: 'point', layer: '0', x: 3500.5, y: -250, z: 120 });
+    h.doc.defineBlock({ name: 'TAG', base: { x: 0, y: 0 }, entities: [{ type: 'circle', layer: '0', cx: 0, cy: 0, r: 50 }],
+      attdefs: [{ tag: 'DESC', prompt: 'Description', def: 'TREE, OAK', x: 0, y: 0, h: 100, rot: 0, ha: 'left', va: 'baseline', wf: 1, layer: '0', color: null }] });
+    h.doc.add({ type: 'insert', layer: '0', block: 'TAG', x: 5000, y: 6000, sx: 1, sy: 1, rot: 0, attrs: { DESC: 'MANHOLE "A"' } });
+  });
+  // every point (Enter at the selection), PNEZD, metres, CSV
+  await h.type('EXPORTPOINTS', '', 'PNEZD', 'M', 'C', '101');
+  const f1 = files.pop();
+  const back = CP.parsePoints(f1.data, { format: 'PNEZD' });
+  ok(f1.name === 'Drawing1-points.csv' && back.points.length === 2 && back.points[0].n === '101' && near(back.points[0].x, 1) && near(back.points[0].y, 2) && near(back.points[1].x, 3.5005, 6e-4) && near(back.points[1].z, 0.12) && /\r\n$/.test(f1.data),
+    'Enter = every POINT: PNEZD in metres, numbered from 101, read back by CivilCraft\'s point reader', f1.data);
+  // a selection with a block: its insertion point, the attribute as the description (quoted: it holds a comma / quotes)
+  h.host.setSelection(new Set(h.doc.all().filter((e) => e.type === 'point' || e.type === 'insert').map((e) => e.id)));
+  await h.type('EXPORTPOINTS', 'DESC', 'PENZD', 'D', 'C', '1');
+  const f2 = files.pop(), b2 = CP.parsePoints(f2.data, { format: 'PENZD' });
+  const blk = b2.points.find((p) => p.n === '3');
+  ok(b2.points.length === 3 && blk && near(blk.x, 5000) && near(blk.y, 6000) && blk.d === 'MANHOLE "A"' && f2.data.includes('"MANHOLE ""A"""'), 'a block\'s insertion point with its attribute as the description, PENZD, drawing units', f2.data);
+  ok(h.log.includes(EN('cmd.exportpoints.done', { n: 3, blocks: 1, file: 'Drawing1-points.csv', format: 'PENZD', units: EN('cmd.exportpoints.u.drawing'), coords: EN('cmd.exportpoints.c.world') })), 'it says what it wrote');
+  // XYZ, tab-separated TXT, in a UCS turned 90°
+  h.doc.ucs = { x: 1000, y: 2000, ang: Math.PI / 2 };
+  h.host.setSelection(new Set(h.doc.all().filter((e) => e.type === 'point').map((e) => e.id)));
+  await h.type('EXPORTPOINTS', 'XYZ', 'F', 'U', 'T');
+  const f3 = files.pop(), rows = f3.data.trim().split('\r\n').map((l) => l.split('\t').map(Number));
+  ok(f3.name.endsWith('.txt') && rows.length === 2 && rows[0].every((v) => near(v, 0, 1e-9)) && near(rows[1][0], -2250 / 304.8, 1e-3) && near(rows[1][1], -2500.5 / 304.8, 1e-3), 'XYZ in feet, in the UCS (its origin is 0,0), tab-separated TXT', f3.data);
+  ok(PX.formatPoints([{ n: '1', x: 1, y: 2, z: null, d: '' }], { format: 'PNEZD' }) === '1,2.000,1.000,,\r\n' && PX.UNIT_FACTOR(null, 'metres') === null, 'an empty Z stays empty; no unit factor without the drawing\'s units');
+  const h2 = harness();
+  h2.host.saveBlob = () => {};
+  await h2.type('EXPORTPOINTS', '');
+  ok(h2.log.includes(EN('cmd.exportpoints.none')), 'no points: says so');
+}
+
+section('The sample drawings (0.6 DF.9; samples/, made once by tools/cadcraft-test/make-samples.mjs)');
+{
+  const dir = path.join(APP, 'samples');
+  const idx = JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8'));
+  const en = JSON.parse(fs.readFileSync(path.join(APP, 'lang/en.json'), 'utf8'));
+  ok(idx.format === 'cadcraft-samples' && idx.license === 'CC0-1.0' && idx.samples.length === 2 && idx.samples.every((s) => en[s.title] && en[s.about] && fs.statSync(path.join(dir, s.file)).size === s.bytes), 'index.json: two CC0 samples, their words in en.json, sizes as listed');
+  const { readDwg } = await load('dwg/read.js');
+  for (const s of idx.samples) {
+    for (const f of [s.file, s.dxf]) {
+      const bytes = fs.readFileSync(path.join(dir, f));
+      const d = new Doc(); d.load(f.endsWith('.dwg') ? importDwg(readDwg(new Uint8Array(bytes)), { versionTag: 'x' }) : readDxf(bytes.toString('latin1')));
+      const tbs = d.layouts.flatMap((l) => [...l.entities.values()].filter((e) => e.type === 'insert'));
+      const vps = d.layouts.flatMap((l) => [...l.entities.values()].filter((e) => e.type === 'viewport'));
+      if (s.file === 'sample-house.dwg') {
+        ok(d.layouts.map((l) => l.name).join() === 'A-101 FLOOR PLAN,A-201 ELEVATIONS,A-301 SECTIONS,A-501 DETAILS' && d.meta.lunits === 4 && vps.length === 4 && tbs.every((e) => e.attrs?.SHEET && e.attrs.PROJECT === 'SAMPLE HOUSE')
+          && [...d.model.values()].some((e) => e.type === 'dim') && d.blocks.get('TB-ARCH-D')?.attdefs?.length === 6, `${f}: four sheets with a viewport and the title block's values, feet and inches, dimensions`);
+      } else {
+        const pts = [...d.model.values()].filter((e) => e.type === 'point').length, dims = [...d.model.values()].filter((e) => e.type === 'dim');
+        ok(pts > 500 && dims.some((x) => x.st?.lunit === 4) && dims.some((x) => x.st?.lunit !== 4) && [...d.model.values()].some((e) => e.layer === 'REV-1' && e.type === 'poly' && e.pts.some((p) => p.b)) && tbs[0]?.attrs?.SHEET === 'AB-101',
+          `${f}: the scan slice, revision clouds, dimensions in millimetres and in feet and inches, the sheet`, JSON.stringify({ pts, dims: dims.length }));
+      }
+    }
+    for (const ext of ['dwg', 'dxf']) {
+      const show = path.join(ROOT, 'fixtures/showcase/cadcraft-' + s.file.replace(/\.dwg$/, '.' + ext));
+      ok(fs.existsSync(show) && Buffer.compare(fs.readFileSync(show), fs.readFileSync(path.join(dir, ext === 'dwg' ? s.file : s.dxf))) === 0, `${path.basename(show)}: the showcase copy is the sample, byte for byte`);
+    }
+  }
+}
+
+section('DWG from R12 and earlier: a plain refusal (0.6 DF.11)');
+{
+  const { preR13 } = await load('dwg-import.js');
+  ok(preR13('AC1009') === 'R11 / R12' && preR13('AC1006') === 'R10' && preR13('AC2.10') === '2.1' && preR13('MC0.0\0') === '1.0' && preR13('AC1012') === null && preR13('AC1032') === null && preR13('') === null,
+    'R12 and earlier are recognised by their first six bytes; R13 and later are not');
+  ok(/R11 \/ R12/.test(EN('app.open.pre_r13', { release: 'R11 / R12', version: 'AC1009' })) && /DXF/.test(EN('app.open.pre_r13', { release: 'x', version: 'y' })), 'the message names the release and says to save as DXF or a newer DWG');
+}
+
 section('Paragraph text (MTEXT, TEXTEDIT)');
 {
   const { doc, type, log } = harness();
@@ -1069,6 +1753,26 @@ section('STRETCH and ARRAY');
   ok(doc.undoStack[doc.undoStack.length - 1].label === 'STRETCH', 'one undo step');
   await type('S', 'C', '14,-1', '16,11', '', 'D', '-5,0');
   ok(near(doc.all()[0].pts[1].x, 10), 'C (crossing) typed and Displacement');
+}
+{
+  // 0.6 DC.68: a selection made before STRETCH keeps the windows that made it (cadcraft.js puts them on host.selection)
+  const { doc, host, type, log } = harness();
+  await type('REC', '0,0', '10,10');
+  await type('L', '10,5', '20,5', '');
+  const win = { minX: 8, minY: -1, maxX: 12, maxY: 11 };
+  const pre = new Set(host.pickWindow(win, true)); pre.windows = [win];
+  host.setSelection(pre); host.selection.windows = pre.windows;
+  await type('S', '0,0', '5,0');
+  const [r, l] = doc.all();
+  ok(near(r.pts[1].x, 15) && near(r.pts[0].x, 0) && near(l.x1, 15) && near(l.x2, 20) && !log.includes(EN('cmd.stretch.nowindow')), 'STRETCH after a crossing-window pre-selection stretches like its own window (DC.68)', JSON.stringify([r.pts, l]));
+  const pre2 = new Set([r.id]); pre2.windows = [{ poly: [{ x: 14, y: -1 }, { x: 16, y: -1 }, { x: 16, y: 11 }, { x: 14, y: 11 }] }];
+  host.selection = pre2;
+  await type('S', '0,0', '-5,0');
+  ok(near(doc.all()[0].pts[1].x, 10) && near(doc.all()[0].pts[0].x, 0), 'a crossing lasso made before STRETCH counts too (DC.68)', JSON.stringify(doc.all()[0].pts));
+  host.selection = new Set([doc.all()[1].id]);
+  log.length = 0;
+  await type('S', '0,0', '0,3');
+  ok(near(doc.all()[1].y1, 8) && near(doc.all()[1].y2, 8) && log.includes(EN('cmd.stretch.nowindow')), 'a pre-selection made by clicking (no window) still moves whole and says so');
 }
 {
   const { doc, type, log } = harness();
@@ -3908,6 +4612,79 @@ section('UCS and turned views in files (0.5 DR.8 file side)');
   const plain = new Doc(); plain.change('x', () => plain.add({ type: 'line', layer: '0', color: null, x1: 0, y1: 0, x2: 1, y2: 0 }));
   const pb = readDwg(saveDwg(plain, { version: '2018' }).bytes);
   ok(!pb.tables.ucs?.length && pb.tables.vports.filter((x) => /^\*active$/i.test(x.name)).every((x) => !x.twist), 'a drawing in the world UCS with a level view writes no UCS and no twist');
+}
+
+section('Objects in their own coordinate system, blocks as placed (0.6 DF.1; ocs.js, fixtures/dwg/df1-ocs-blocks.*)');
+{
+  const O = await load('ocs.js');
+  // the Arbitrary Axis Algorithm (DXF reference): (0,0,-1) → x runs the other way; +Z → nothing to map
+  ok(O.planMatrix({ x: 0, y: 0, z: 1 }) === null && O.planMatrix(null) === null, 'extrusion +Z (or none): no mapping');
+  const fm = O.planMatrix({ x: 0, y: 0, z: -1 }, 5);
+  ok(fm && near(fm[0], -1) && near(fm[3], 1) && near(fm[1], 0) && near(fm[2], 0) && near(fm[4], 0) && near(fm[5], 0) && O.isFlipped({ x: 0, y: 0, z: -1 }), 'extrusion (0,0,-1): the plan is the OCS mirrored in x');
+  const tm = O.planMatrix({ x: 0, y: -Math.SQRT1_2, z: Math.SQRT1_2 }, 10);
+  ok(tm && near(tm[0], 1) && near(tm[3], Math.SQRT1_2) && near(tm[5], -10 * Math.SQRT1_2), 'a tilted plane foreshortens y and its elevation moves it');
+  // a reference with extrusion (0,0,-1): the same as the block mirrored left-right (x scale -1), never turned upside down
+  const ins = O.toPlan({ type: 'insert', block: 'B', x: 10, y: 0, sx: 1, sy: 1, rot: Math.PI / 6 }, fm);
+  const M = G.insertMatrix(ins, { base: { x: 0, y: 0 } }), up = G.mApply(M, { x: 0, y: 1 }), ex = G.mApply(M, { x: 1, y: 0 });
+  // OCS axes x (cos 30°, sin 30°) and y (−sin 30°, cos 30°) → world (−cos 30°, sin 30°) and (sin 30°, cos 30°), at (−10, 0)
+  ok(nearPt(ex, -10 - Math.cos(Math.PI / 6), Math.sin(Math.PI / 6), 1e-9) && nearPt(up, -10 + Math.sin(Math.PI / 6), Math.cos(Math.PI / 6), 1e-9) && ins.sx < 0,
+    'flipped reference: block x mirrored, block y still up (x scale −1, as AutoCAD keeps a mirror)', JSON.stringify({ ins, up, ex }));
+  // circles through any affine: a circle stays one under a mirror, an ellipse in a tilted plane; arcs keep their points
+  const cA = O.toPlan({ type: 'arc', layer: '0', cx: 0, cy: 0, r: 2, a0: 0.2, a1: 1.3 }, fm);
+  const pA = G.primPoint(G.prims(cA)[0], 0), pB = G.primPoint(G.prims(cA)[0], 1);
+  ok(cA.type === 'arc' && near(cA.r, 2) && [pA, pB].every((p) => [0.2, 1.3].some((a) => nearPt(p, -2 * Math.cos(a), 2 * Math.sin(a), 1e-9))), 'arc mirrored: same end points');
+  const eT = O.toPlan({ type: 'circle', layer: 'L', cx: 0, cy: 0, r: 3 }, tm);
+  ok(eT.type === 'ellipse' && eT.layer === 'L' && near(Math.hypot(eT.mx, eT.my), 3) && near(eT.ratio, Math.SQRT1_2), 'circle in a tilted plane: an ellipse 3 × 2.12');
+  const sheared = [1, 0.3, 0.2, 0.8, 0, 0], aS = O.toPlan({ type: 'arc', layer: '0', cx: 1, cy: 1, r: 1, a0: 0, a1: Math.PI / 2 }, sheared);
+  const ends = [G.mApply(sheared, { x: 2, y: 1 }), G.mApply(sheared, { x: 1, y: 2 })], pts = G.ellipsePoints(aS, 720);
+  ok(aS.type === 'ellipse' && ends.every((q) => pts.some((p) => G.dist(p, q) < 1e-6)), 'arc under a shear: an elliptical arc through the mapped ends');
+  const pl = O.toPlan({ type: 'poly', layer: '0', closed: false, pts: [{ x: 0, y: 0, b: 1 }, { x: 2, y: 0, b: 0 }] }, sheared);
+  ok(pl.pts.length > 4 && pl.pts.every((p) => p.b === 0), 'bulged polyline under a shear: points along the arc');
+  // eddy_87's report (snap markers huge until zoomed in): every marker is the same size in screen pixels at any zoom, on
+  // a sheet too, and before the first zoom (a View without canvases, its overlay drawn into a recording context)
+  {
+    const { View } = await load('view.js');
+    const rec = () => { const xs = [], ys = []; const add = (x, y) => { xs.push(x); ys.push(y); };
+      return { xs, ys, ctx: { beginPath() {}, closePath() {}, stroke() {}, fill() {}, fillRect() {}, fillText() {}, measureText: () => ({ width: 30 }), set font(v) {}, set fillStyle(v) {}, set strokeStyle(v) {}, set lineWidth(v) {},
+        moveTo: add, lineTo: add, rect: (x, y, w, h) => { add(x, y); add(x + w, y + h); }, arc: (x, y, r) => { add(x - r, y - r); add(x + r, y + r); } } }; };
+    const d = new Doc();
+    const v = Object.assign(Object.create(View.prototype), { doc: d, cx: 0, cy: 0, zoom: 1, w: 800, h: 600, x0: 0, y0: 0, tw: 0, views: new WeakMap(), state: { selection: new Set() }, colors: { snap: '#a84a00', font: 'sans-serif' }, dark: false, invalidate() {} });
+    const sizes = [];
+    for (const zoom of [1e-6, 1e-3, 1, 1e3, 1e6]) for (const kind of ['end', 'mid', 'cen', 'int', 'quad', 'node', 'ins', 'tan', 'perp', 'near']) {
+      v.zoom = zoom; const r = rec();
+      v.drawSnap(r.ctx, { kind, x: 5 / zoom, y: 3 / zoom, label: '' });
+      sizes.push(Math.max(Math.max(...r.xs) - Math.min(...r.xs), Math.max(...r.ys) - Math.min(...r.ys)));
+    }
+    ok(sizes.every((s) => s > 0 && s <= 12.0001), 'every snap marker is at most 12 px across, from 1:1,000,000 to 1,000,000:1', JSON.stringify([...new Set(sizes)]));
+  }
+  // CadCraft's reading of the fixture (made by ezdxf; DWGs by the ODA File Converter) against ezdxf's plan extents
+  const { check } = await import(pathToFileURL(path.join(ROOT, 'tools/cadcraft-test/df1-check.mjs')).href);
+  const res = await check(load);
+  for (const r of res) ok(r.ok, `${r.file} ${r.case} as ezdxf draws it`, r.got ? `got ${r.got.min.map((v) => v.toFixed(3))} – ${r.got.max.map((v) => v.toFixed(3))}, want ${r.want.min.map((v) => v.toFixed(3))} – ${r.want.max.map((v) => v.toFixed(3))}` : 'nothing drawn');
+  // Haven's report: furniture placed as blocks must not come out as rings of circles at one spot — each chair's back
+  // (block point (0, 16)) lands where ezdxf puts it
+  const truth = JSON.parse(fs.readFileSync(path.join(ROOT, 'fixtures/dwg/df1-ocs-blocks.truth.json'), 'utf8'));
+  for (const f of ['df1-ocs-blocks.dxf', 'df1-ocs-blocks.dwg']) {
+    const bytes = fs.readFileSync(path.join(ROOT, 'fixtures/dwg', f));
+    const { readDwg } = await load('dwg/read.js');
+    const d = new Doc(); d.load(f.endsWith('.dxf') ? readDxf(bytes.toString('latin1')) : importDwg(readDwg(new Uint8Array(bytes)), { versionTag: 'x' }));
+    const chairs = [...d.model.values()].filter((e) => e.layer === 'CASE_CHAIRS');
+    const backs = chairs.map((e) => G.mApply(G.insertMatrix(e, d.blocks.get(e.block)), { x: 0, y: 16 }));
+    ok(chairs.length === 8 && truth.chairs.every((w) => backs.some((p) => nearPt(p, w[0], w[1], 1e-6))), `${f}: all 8 chairs face the way ezdxf places them`, JSON.stringify(backs));
+    // KhuongKid's report (dimension lines off the drawing): an imported dimension says what the file's own drawing of it
+    // says (DIMLFAC 2 included), and once edited (its block dropped, CadCraft draws it) it stays where it was. The DWG's
+    // definition point sits on the first extension line and its measurement is -1 (not worked out): the angle is the recorded one.
+    for (const L of ['DIMROT', 'DIMLFAC', 'DIMUCS']) {
+      const e = [...d.model.values()].find((x) => x.layer === 'CASE_' + L);
+      const fileText = d.blocks.get(e?.block)?.entities.find((x) => x.type === 'text')?.s;
+      const own = { ...e }; delete own.block;
+      const bb = G.emptyBounds(), ob = G.emptyBounds();
+      for (const p of G.prims(e, d.blocks)) if (!p.box) G.primBounds(p, bb);
+      for (const p of G.prims(own, d.blocks)) if (!p.box) G.primBounds(p, ob);
+      const off = Math.max(Math.abs(bb.minX - ob.minX), Math.abs(bb.minY - ob.minY), Math.abs(bb.maxX - ob.maxX), Math.abs(bb.maxY - ob.maxY));
+      ok(e?.type === 'dim' && fileText && Dm.dimText(e) === fileText && off < 1.5, `${f} ${L}: reads "${fileText}" as the file draws it, and redrawn in place`, JSON.stringify({ ours: e && Dm.dimText(e), off }));
+    }
+  }
 }
 
 section('Plot to PDF');

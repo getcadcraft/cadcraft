@@ -1,0 +1,21 @@
+{
+  "format": "cadcraft-samples",
+  "version": 1,
+  "license": "CC0-1.0",
+  "samples": [
+    {
+      "file": "sample-house.dwg",
+      "dxf": "sample-house.dxf",
+      "title": "samples.house.title",
+      "about": "samples.house.about",
+      "bytes": 12844
+    },
+    {
+      "file": "sample-asbuilt.dwg",
+      "dxf": "sample-asbuilt.dxf",
+      "title": "samples.asbuilt.title",
+      "about": "samples.asbuilt.about",
+      "bytes": 24268
+    }
+  ]
+}

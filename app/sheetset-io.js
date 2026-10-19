@@ -27,6 +27,7 @@ import { importDwg } from './dwg-import.js';
 import { saveDwg, dwgVersionKey } from './dwg-save.js';
 import { writeDxf2000 } from './dxf2000.js';
 import { layoutSheet, displayList, toPdfPages } from './plot.js';
+import { findTable, styleNameFor, builtinTable } from './plotstyle.js';
 import { allSheets, fieldValues, fillTitleBlocks, layoutNameFor, sheetLabel, updateSheet, refreshSheetList, placeSheetList } from './sheetset.js';
 import { t } from './i18n.js';
 
@@ -83,7 +84,7 @@ export async function publishSet(set, folder, { subset = null, ids = null, pen =
     const lay = got.doc.layouts.find((l) => l.name === sheet.layout);
     if (!lay) { missing.push(label); notes.push(t('sheetset.io.nolayout', { sheet: label, layout: sheet.layout, file: sheet.file })); continue; }
     if (fields) { fillTitleBlocks(got.doc, lay.name, fieldValues(set, sheet)); refreshSheetList(got.doc, set); }
-    const list = displayList(got.doc, layoutSheet(got.doc, lay), { mono });
+    const list = displayList(got.doc, layoutSheet(got.doc, lay), { style: findTable(got.doc, styleNameFor(got.doc, lay)) || builtinTable(mono ? 'monochrome' : 'colour') });   // the sheet's own plot style table (0.6 DC.14)
     list.name = label;
     lists.push(list); names.push(label);
   }

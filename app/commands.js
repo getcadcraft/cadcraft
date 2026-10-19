@@ -32,10 +32,11 @@
 import {
   TAU, dist, angleOf, polar, normAngle, deg, rad, mTranslate, mRotate, mScale, mAbout, mMirror, mMul, mApply, normTag,
   txEntity, offsetEntity, extendEntity, trimSplit, pieceAt, pieceEntity, trimResult, pathCrossings, extensionPart, inWindow, fenceHits, stretchEntity, joinEntities, breakEntity, lengthenEntity, curveLength, paramOn, pathOf, revcloud, entityArea, polygonMeasure, intersect, cornerTarget, filletPair, chamferPair, polyCorners, explodeEntity, entityBounds, validBounds, prims, primPoint, bulgeArc,
-  unitDir, distToPrim, UNBOUNDED, resolveTangent,
+  unitDir, distToPrim, UNBOUNDED, resolveTangent, insertMatrix, mInverse,
 } from './geom.js';
 import { TYPE_NAMES, typeName, Doc } from './doc.js';
 import { formatMeasure, angularFromLines, DIM_KINDS } from './dims.js';
+import { textUnitOf, withTextUnit, textUnitMm } from './dimstyle.js';
 import { sheetContents, defaultPaper, makePaper, aimViewport, modelExtents, scaleLabel } from './sheets.js';
 import { defaultAttrs, attrRows, nextNumber, oneLine } from './attrs.js';
 import { planCopy, applyCopy } from './blockcopy.js';
@@ -49,7 +50,7 @@ import { findMatches, applyMatches } from './findtext.js';
 import { leaderGeometry } from './leader.js';
 import { mirrorConstraints, resignAmong, trimConstraints } from './ckeep.js';
 import { PATTERNS, patternNames, boundaryAt, loopsOf, hatchLines, hatchIsMetric } from './hatch.js';
-import { formatLength, formatArea, parseLength, unitsOf, LUNITS, isImperialFormat, lunitCode } from './units.js';
+import { formatLength, formatArea, parseLength, readLength, readNumber, isArithmetic, calcMessage, unitsOf, LUNITS, isImperialFormat, lunitCode, mmPerDrawingUnit } from './units.js';
 import { install3d } from './commands3d.js';
 import { installLayerTools } from './layertools.js';
 import { installProps } from './propcmds.js';
@@ -60,6 +61,9 @@ import { curveAt, circleTTR, circleTTT } from './tancircle.js';
 import { setVisibility } from './dyn-blocks.js';
 import { openVis, closeVis, switchState, hideIds, showFi, hiddenParts, newState, renameState, deleteState, syncCurrent } from './visedit.js';
 import { activeUcs, toWorld as ucsToWorld, toUcs, vecToWorld, setUcs, threePoint, fromObject, cleanUcs, ucsData, UCS_NAME_RE } from './ucs.js';
+import { alignMatrix, alignMoves, distributeMoves } from './align.js';   // 0.6 DF.2
+import { placementOf, editedRef, syncBlock, attdefsDiffer, applyAttdefs, hasAttributes, refsOf } from './attedit.js';   // 0.6 DF.5
+import { collectPoints, formatPoints, blockTags, UNIT_FACTOR, POINT_FORMATS } from './ptexport.js';   // 0.6 DF.7
 
 export class Cancel extends Error { constructor() { super('Cancel'); } }
 
@@ -136,22 +140,33 @@ export class Engine {
       case 'point': {
         const p = this.parsePoint(typed);
         if (p) return this.resolve(p);
+        const why = this.pointRefusal(typed);   // arithmetic in a coordinate that went wrong (0.6 DF.3): say where
+        if (why) return this.refuse(why);
         break;
       }
       case 'distance': {
-        const n = parseLength(typed, this.doc.meta.lunits);   // feet and inches too, in an architectural or engineering drawing
-        if (n !== null && n >= 0) return this.resolve(n);
+        // feet and inches too, in an architectural or engineering drawing; arithmetic over lengths (0.6 DF.3: 4+7/16)
+        const r = readLength(typed, this.doc.meta.lunits, this.doc.meta.units);
+        if (r.ok && r.value >= 0) return this.resolve(r.value);
+        if (!r.ok && isArithmetic(typed)) return this.refuse(r);
         break;
       }
       case 'number': {
-        if (w.opts.length) { const n = parseLength(typed, this.doc.meta.lunits); if (n !== null) return this.resolve(n); break; }   // a signed length
-        const n = parseFloat(typed);
-        if (/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(typed)) return this.resolve(n);
+        if (w.opts.length) {   // a signed length
+          const r = readLength(typed, this.doc.meta.lunits, this.doc.meta.units);
+          if (r.ok) return this.resolve(r.value);
+          if (isArithmetic(typed)) return this.refuse(r);
+          break;
+        }
+        const r = readNumber(typed);
+        if (r.ok) return this.resolve(r.value);
+        if (isArithmetic(typed)) return this.refuse(r);
         break;
       }
       case 'angle': {
-        const n = parseFloat(typed);
-        if (/^[-+]?(\d+\.?\d*|\.\d+)$/.test(typed)) return this.resolve(rad(n) + (w.opts.ucs ? activeUcs(this.doc)?.ang || 0 : 0));   // an absolute angle: from the UCS X axis (DR.8)
+        const r = readNumber(typed);   // degrees, with arithmetic (360/7)
+        if (r.ok) return this.resolve(rad(r.value) + (w.opts.ucs ? activeUcs(this.doc)?.ang || 0 : 0));   // an absolute angle: from the UCS X axis (DR.8)
+        if (isArithmetic(typed)) return this.refuse(r);
         break;
       }
       case 'select': {
@@ -210,6 +225,14 @@ export class Engine {
     this.host.print(w.opts.remove ? t('sel.removed', { n: ids.length }) : ids.length + ' found');
   }
 
+  /** A window dragged where the prompt takes a path (TRIM / EXTEND with the Window drag, 0.6 DF.13) → { window, shift }. */
+  trimWindow(rect) {
+    const w = this.waiting;
+    if (!w || w.kind !== 'entity' || !w.opts.path || !rect || !(rect.maxX > rect.minX || rect.maxY > rect.minY)) return false;
+    this.resolve({ window: { minX: rect.minX, minY: rect.minY, maxX: rect.maxX, maxY: rect.maxY }, shift: !!this.host.shift });
+    return true;
+  }
+
   /** A freehand path dragged where the prompt takes one (TRIM / EXTEND: c.entity(…, { path: true })) → { path, shift }. */
   path(pts) {
     const w = this.waiting;
@@ -245,23 +268,41 @@ export class Engine {
   /** Rubber-band entities for the cursor (the host calls it on every move). */
   preview(cursor) { try { return this.previewFn ? this.previewFn(cursor) || [] : []; } catch { return []; } }
 
-  /** Typed point → {x, y} | null. Lengths in the drawing's format (units.js parseLength: 12'6", 6-1/2); angles in degrees. */
+  /** A refusal from units.js readLength / readNumber, printed with where it went wrong; the prompt is asked again. */
+  refuse(r) {
+    this.host.print(calcMessage(r));
+    this.host.prompt(this.promptText());
+  }
+
+  /** Why a typed point with arithmetic was refused (the first part that is wrong), or null when it has none. */
+  pointRefusal(t) {
+    if (!/[-+*/×÷()]/.test(String(t).replace(/^\s*[@#]?\*?/, '').replace(/^\s*[-+]/, ''))) return null;
+    const parts = String(t).trim().replace(/^([@#]?)\*/, '$1').replace(/^[@#]/, '').split(/[,<]/);
+    for (const [i, part] of parts.entries()) {
+      if (!isArithmetic(part)) continue;
+      const r = i === 1 && /</.test(t) ? readNumber(part) : readLength(part, this.doc.meta.lunits, this.doc.meta.units);
+      if (!r.ok) return r;
+    }
+    return null;
+  }
+
+  /** Typed point → {x, y} | null. Lengths in the drawing's format (units.js parseLength: 12'6", 6-1/2, 4+7/16); angles in degrees. */
   parsePoint(t) {
-    let s = t.trim().replace(/\s*([,<@#*])\s*/g, '$1');
+    let s = t.trim().replace(/\s*([,<@#])\s*/g, '$1');
     // in the UCS (DR.8: x,y from its origin along its axes, d<a from its X axis); a * after @ / # or first = world coordinates
     let world = false;
-    s = s.replace(/^([@#]?)\*/, (_m, at) => { world = true; return at; });
+    s = s.replace(/^([@#]?)\s*\*/, (_m, at) => { world = true; return at; });
     const u = world ? null : activeUcs(this.doc);
-    const L = (x) => parseLength(x, this.doc.meta.lunits);
-    const ang = (x) => (/^[-+]?(?:\d+\.?\d*|\.\d+)$/.test(x) ? +x : null);
+    const L = (x) => parseLength(x, this.doc.meta.lunits, this.doc.meta.units);
+    const ang = (x) => { const r = readNumber(x); return r.ok ? r.value : null; };   // degrees, arithmetic allowed (0.6 DF.3)
     let m;
-    if ((m = s.match(/^([@#])?([^,<@#*]+),([^,<@#*]+)$/))) {
+    if ((m = s.match(/^([@#])?([^,<@#]+),([^,<@#]+)$/))) {
       const x = L(m[2]), y = L(m[3]);
       if (x === null || y === null) return null;
       if (m[1] === '@') { const b = this.lastPoint || { x: 0, y: 0 }, d = vecToWorld(u, { x, y }); return { x: b.x + d.x, y: b.y + d.y }; }
       return ucsToWorld(u, { x, y });
     }
-    if ((m = s.match(/^(@)?([^,<@#*]+)<([^,<@#*]+)$/))) {
+    if ((m = s.match(/^(@)?([^,<@#]+)<([^,<@#]+)$/))) {
       const d = L(m[2]), a = ang(m[3]);
       if (d === null || a === null) return null;
       const from = m[1] ? (this.lastPoint || { x: 0, y: 0 }) : ucsToWorld(u, { x: 0, y: 0 });
@@ -365,7 +406,12 @@ export class Engine {
        */
       select: async (prompt = t('cmd.sim.select'), opts = {}) => {
         const pre = [...this.host.selection].filter((id) => this.doc.get(id) && this.doc.editable(this.doc.get(id)));
-        if (pre.length && !opts.fresh) { this.host.print(pre.length + ' found'); this.prevSelection = new Set(pre); return new Set(pre); }
+        if (pre.length && !opts.fresh) {
+          this.host.print(pre.length + ' found'); this.prevSelection = new Set(pre);
+          const s = new Set(pre);
+          if (this.host.selection.windows?.length) s.windows = [...this.host.selection.windows];   // the windows that made it: STRETCH (0.6 DC.68)
+          return s;
+        }
         this.host.setSelection(new Set());
         const set = new Set();
         let remove = false;
@@ -1041,6 +1087,107 @@ async function moveLike(c, copy) {
 }
 def('MOVE', ['M'], (c) => moveLike(c, false), { help: () => t('cmd.move.move_objects_base_point') });
 def('COPY', ['CO', 'CP'], (c) => moveLike(c, true), { help: () => t('cmd.copy.copy_objects_many_times') });
+
+// ---- ALIGN and Align and distribute (0.6 DF.2, align.js) ----
+
+/** A keyword's answer: the option typed, or the default given back on Enter. */
+const kw = (k, d) => (k && k.option) || (typeof k === 'string' ? k : d);
+
+def('ALIGN', ['AL'], async (c) => {
+  const ids = await c.select();
+  if (!ids.size) return;
+  const src = [...ids].map((id) => c.doc.get(id)).filter(Boolean);
+  const pairs = [];
+  for (let i = 0; i < 3; i++) {
+    const s = await c.point(t('cmd.align.source.' + (i + 1)), i ? { none: true, base: pairs[i - 1].s } : {});
+    if (!s) break;
+    c.preview(() => []);
+    const d = await c.point(t('cmd.align.dest.' + (i + 1)), { base: s });
+    pairs.push({ s: { x: s.x, y: s.y }, d: { x: d.x, y: d.y } });
+    // the objects follow what is known so far
+    c.preview((cur) => { const m = alignMatrix(pairs); return m ? src.map((e) => txEntity(e, m)) : []; });
+  }
+  if (!pairs.length) return;
+  let scale = false;
+  if (pairs.length === 2) {
+    scale = kw(await c.keyword(t('cmd.align.scale'), { options: [opt('Y', 'Yes'), opt('N', 'No')], default: 'N' }), 'N') === 'Y';
+  }
+  const m = alignMatrix(pairs, { scale });
+  if (!m) { c.print(t('cmd.align.same')); return; }
+  apply(c, src, m, false);
+  c.print(t('cmd.align.done', { objects: t('cmd.n.objects', { n: src.length }) }));
+}, { help: () => t('cmd.align.help') });
+
+/** Move each object by its vector (one undo step: the command's). */
+function moveBy(c, moves, label) {
+  if (!moves.size) return 0;
+  c.doc.change(label, () => { for (const [id, v] of moves) { const e = c.doc.get(id); if (e && c.doc.editable(e)) c.doc.update(id, txEntity(e, mTranslate(v.x, v.y))); } });
+  return moves.size;
+}
+
+const ALIGN_SIDES = { L: 'left', C: 'center', R: 'right', T: 'top', M: 'middle', B: 'bottom' };
+const ALIGN_TO = { S: 'selection', F: 'first', L: 'last', P: 'point' };
+def('ALIGNTO', [], async (c) => {
+  const ids = await c.select();
+  if (!ids.size) return;
+  const side = kw(await c.keyword(t('cmd.alignto.side'), { options: [opt('L', 'Left'), opt('C', 'Center'), opt('R', 'Right'), opt('T', 'Top'), opt('M', 'Middle'), opt('B', 'Bottom')], default: c.engine.alignSide || 'L' }), 'L');
+  const to = kw(await c.keyword(t('cmd.alignto.to'), { options: [opt('S', 'Selection'), opt('F', 'First'), opt('L', 'Last'), opt('P', 'Point')], default: c.engine.alignTo || 'S' }), 'S');
+  c.engine.alignSide = side; c.engine.alignTo = to;
+  const point = to === 'P' ? await c.point(t('cmd.alignto.point')) : null;
+  const n = moveBy(c, alignMoves(c.doc, ids, { side: ALIGN_SIDES[side], to: ALIGN_TO[to], point, ucs: activeUcs(c.doc) }), 'ALIGNTO');
+  c.print(n ? t('cmd.alignto.done', { objects: t('cmd.n.objects', { n }) }) : t('cmd.alignto.nothing'));
+}, { keepSelection: true, help: () => t('cmd.alignto.help') });
+
+def('DISTRIBUTE', [], async (c) => {
+  const ids = await c.select();
+  if (!ids.size) return;
+  if (ids.size < 3) { c.print(t('cmd.distribute.three')); return; }
+  const axis = kw(await c.keyword(t('cmd.distribute.axis'), { options: [opt('H', 'Horizontally'), opt('V', 'Vertically')], default: c.engine.distAxis || 'H' }), 'H');
+  const mode = kw(await c.keyword(t('cmd.distribute.mode'), { options: [opt('C', 'Centers'), opt('G', 'Gaps')], default: c.engine.distMode || 'G' }), 'G');
+  c.engine.distAxis = axis; c.engine.distMode = mode;
+  const n = moveBy(c, distributeMoves(c.doc, ids, { axis: axis === 'H' ? 'h' : 'v', mode: mode === 'C' ? 'centers' : 'gaps', ucs: activeUcs(c.doc) }), 'DISTRIBUTE');
+  c.print(n ? t('cmd.distribute.done', { objects: t('cmd.n.objects', { n }) }) : t('cmd.distribute.nothing'));
+}, { keepSelection: true, help: () => t('cmd.distribute.help') });
+
+// ---- EXPORTPOINTS (0.6 DF.7; ptexport.js): points and block insertion points to a CSV / TXT for BIM and survey programs ----
+def('EXPORTPOINTS', ['EXPPTS'], async (c) => {
+  const doc = c.doc;
+  const ids = await c.select(t('cmd.exportpoints.select'));
+  const picked = [...ids].filter((id) => ['point', 'insert'].includes(doc.get(id)?.type));
+  if (ids.size && !picked.length) { c.print(t('cmd.exportpoints.nothing')); return; }
+  if (!picked.length && ![...doc.entities.values()].some((e) => e.type === 'point')) { c.print(t('cmd.exportpoints.none')); return; }
+  let tag = null;
+  const hasBlocks = picked.some((id) => doc.get(id).type === 'insert');
+  if (hasBlocks) {
+    const tags = blockTags(doc, picked);
+    if (tags.length) {
+      c.print(t('cmd.exportpoints.tags', { list: tags.join(', ') }));
+      const v = String(await c.string(t('cmd.exportpoints.tag'), { default: c.engine.ptTag && tags.includes(c.engine.ptTag) ? c.engine.ptTag : tags[0] }) || '').trim().toUpperCase();
+      tag = tags.includes(v) ? v : null;   // anything else: the block's name
+      c.engine.ptTag = tag || c.engine.ptTag;
+    }
+  }
+  const fmt = kw(await c.keyword(t('cmd.exportpoints.format'), { options: [opt('PNEZD', 'PNEZD'), opt('PENZD', 'PENZD'), opt('XYZ', 'XYZ')], default: c.engine.ptFormat || 'PNEZD' }), 'PNEZD');
+  const per = mmPerDrawingUnit(doc.meta.lunits, doc.meta.units);
+  const unitOpts = [opt('D', 'Drawing'), ...(per ? [opt('M', 'Metres'), opt('F', 'Feet')] : [])];
+  const un = kw(await c.keyword(t(per ? 'cmd.exportpoints.units' : 'cmd.exportpoints.units.none'), { options: unitOpts, default: 'D' }), 'D');
+  const factor = UNIT_FACTOR(per, un === 'M' ? 'metres' : un === 'F' ? 'feet' : 'drawing') ?? 1;
+  const u = activeUcs(doc);
+  const inUcs = u ? kw(await c.keyword(t('cmd.exportpoints.ucs'), { options: [opt('W', 'World'), opt('U', 'Ucs')], default: 'W' }), 'W') === 'U' : false;
+  const ft = kw(await c.keyword(t('cmd.exportpoints.file'), { options: [opt('C', 'Csv'), opt('T', 'Txt')], default: c.engine.ptFile || 'C' }), 'C');
+  const start = POINT_FORMATS[fmt].includes('P') ? await c.number(t('cmd.exportpoints.start'), { default: 1 }) : 1;
+  c.engine.ptFormat = fmt; c.engine.ptFile = ft;
+  const pts = collectPoints(doc, picked.length ? new Set(picked) : new Set(), { tag, ucs: inUcs ? u : null, factor, start: Number.isFinite(start) ? start : 1 });
+  if (!pts.length) { c.print(t('cmd.exportpoints.none')); return; }
+  const text = formatPoints(pts, { format: fmt, delimiter: ft === 'T' ? '\t' : ',' });
+  const name = (doc.meta.name || 'Drawing1') + '-points.' + (ft === 'T' ? 'txt' : 'csv');
+  if (!c.host.saveBlob) { c.print(text); return; }
+  c.host.saveBlob(name, text, ft === 'T' ? 'text/plain' : 'text/csv');
+  const nb = pts.filter((p) => p.from === 'block').length;
+  c.print(t('cmd.exportpoints.done', { n: pts.length, blocks: nb, file: name, format: fmt, units: t(un === 'M' ? 'cmd.exportpoints.u.m' : un === 'F' ? 'cmd.exportpoints.u.ft' : 'cmd.exportpoints.u.drawing'), coords: t(inUcs ? 'cmd.exportpoints.c.ucs' : 'cmd.exportpoints.c.world') }));
+}, { help: () => t('cmd.exportpoints.help') });
+
+def('ALIGNPANEL', ['ALP'], (c) => { if (c.engine.host.alignPanel) c.engine.host.alignPanel(); else c.print(t('cmd.alignpanel.none')); }, { keepSelection: true, noRepeat: true, help: () => t('cmd.alignpanel.help') });
 
 // ---- clipboard (COPYCLIP / CUTCLIP / COPYBASE / PASTECLIP / PASTEORIG) and DUPLICATE ----
 
@@ -1732,7 +1879,10 @@ async function trimOrExtend(c, isTrim) {
     c.host.setSelection(new Set());
     c.print(edges ? t('cmd.trim.edges.n', { n: edges.size }) : t('cmd.trim.edges.all'));
   };
-  const settingsLine = () => c.print(t('cmd.trim.settings', { mode: t(s.trimMode === 'standard' ? 'opt.standard' : 'opt.quick'), edge: t(s.edgeMode === 1 ? 'opt.extend' : 'opt.noextend') }));
+  // TRIMEXTENDMODE (0.6 DF.13) and how a drag on an empty spot picks (Settings › CadCraft: a path, or a window)
+  const dragMode = () => (c.host.settings?.trimDrag === 'window' ? 'window' : 'path');
+  const settingsLine = () => c.print(t('cmd.trim.settings2', { mode: t(s.trimMode === 'standard' ? 'opt.standard' : 'opt.quick'), var: s.trimMode === 'standard' ? 0 : 1,
+    edge: t(s.edgeMode === 1 ? 'opt.extend' : 'opt.noextend'), drag: t(dragMode() === 'window' ? 'cmd.trim.drag.window' : 'cmd.trim.drag.path') }));
   settingsLine();
   if (s.trimMode === 'standard') await chooseEdges(); else c.host.setSelection(new Set());
   const run = (how, doTrim) => {
@@ -1811,6 +1961,7 @@ async function trimOrExtend(c, isTrim) {
       continue;
     }
     if (r.path) { run({ path: r.path }, flips(r.shift)); continue; }
+    if (r.window) { run({ window: r.window }, flips(r.shift)); continue; }   // a dragged window (Settings › CadCraft › Dragging to trim and extend: Window)
     if (r.empty) {
       // two clicks on empty spots: a fence between them
       const a = r.empty;
@@ -1824,6 +1975,14 @@ async function trimOrExtend(c, isTrim) {
 }
 
 def('TRIM', ['TR'], (c) => trimOrExtend(c, true), { help: () => t('cmd.trim.help') });
+// 0.6 DF.13: AutoCAD's variable: 1 Quick (every object is a cutting edge), 0 Standard (choose the edges first)
+def('TRIMEXTENDMODE', [], async (c) => {
+  const s = trimState(c);
+  const n = await c.number(t('cmd.trimextendmode.ask'), { default: s.trimMode === 'standard' ? 0 : 1 });
+  if (n !== 0 && n !== 1) { c.print(t('cmd.trimextendmode.range')); return; }
+  s.trimMode = n === 0 ? 'standard' : 'quick';
+  c.print(t('cmd.trimextendmode.set', { n, mode: t(n === 0 ? 'opt.standard' : 'opt.quick') }));
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.trimextendmode.help') });
 def('EXTEND', ['EX'], (c) => trimOrExtend(c, false), { help: () => t('cmd.extend.help') });
 
 /** Where a trimmed piece lies along the original line or arc: { t0, t1 } (0…1). */
@@ -2200,6 +2359,37 @@ def('DIMLUNIT', [], async (c) => {
   c.print(t('cmd.dimlunit.set', { v: lunitCode(v), format: lengthFormatName(v) }));
 }, { noRepeat: true, keepSelection: true, help: () => t('cmd.dimlunit.help') });
 
+/**
+ * DIMTEXTUNIT (0.6 DC.72): the units dimension text is written in — mm, cm, m, km, or the drawing's own (dimstyle.js
+ * withTextUnit: DIMLFAC + a DIMPOST suffix, so DWG / DXF keep it). Selected dimensions change (one undo step); with none
+ * selected, new dimensions use it.
+ */
+def('DIMTEXTUNIT', ['DTU'], async (c) => {
+  const { mm, assumed } = textUnitMm(c.doc.meta, c.doc.layout);
+  const dims = [...c.host.selection].map((id) => c.doc.get(id)).filter((e) => e?.type === 'dim' && e.kind && e.kind !== 'angular' && c.doc.editable(e));
+  const cur = textUnitOf(dims[0]?.st || c.doc.current.dim, mm);
+  const keys = { D: '', MM: 'mm', CM: 'cm', M: 'm', KM: 'km' };
+  const def0 = Object.keys(keys).find((k) => keys[k] === cur) || 'D';
+  const k = kw(await c.keyword(t(dims.length ? 'cmd.dimtextunit.ask.sel' : 'cmd.dimtextunit.ask', { n: dims.length }), { options: [opt('D', t('cmd.dimtextunit.drawing')), opt('MM', 'mm'), opt('CM', 'cm'), opt('M', 'm'), opt('KM', 'km')], default: def0 }), def0);   // i18n-ignore: unit symbols (SI), the same in every language
+  if (!Object.hasOwn(keys, k)) return;
+  const unit = keys[k], name = unit || t('cmd.dimtextunit.drawing');
+  if (assumed && unit) c.print(t('cmd.dimtextunit.assumed'));
+  if (dims.length) {
+    c.doc.change('DIMTEXTUNIT', () => { for (const e of dims) { const n = { ...e, st: withTextUnit(e.st || {}, unit, mm) }; delete n.block; c.doc.update(e.id, n); } });
+    c.print(t('cmd.dimtextunit.done', { n: dims.length, unit: name }));
+  } else {
+    c.doc.current.dim = withTextUnit(c.doc.current.dim, unit, mm);
+    c.print(t('cmd.dimtextunit.set', { unit: name }));
+  }
+}, { noRepeat: true, help: () => t('cmd.dimtextunit.help') });
+
+/** PLOTSTYLES (0.6 DC.14): the plot style table editor (plotstyle-ui.js); the tables are kept with the drawing. */
+def('PLOTSTYLES', ['STYLESMANAGER', 'PSTABLES'], async (c) => {
+  if (!c.host.plotStyles) { c.print(t('plotstyle.cmd.browser')); return; }
+  const name = await c.host.plotStyles(c.doc.layout?.plotStyle || c.doc.meta.plotStyles?.model || '');
+  if (name) c.print(t('plotstyle.cmd.done'));
+}, { noRepeat: true, keepSelection: true, help: () => t('plotstyle.cmd.help') });
+
 def('POLARANG', [], async (c) => {
   const st = c.host.settings;
   if (!st) { c.print(t('cmd.polarang.browser')); return; }
@@ -2404,7 +2594,7 @@ def('BEDIT', ['BE'], async (c) => {
   if (vis) delete vis.entities;
   const from = doc.layout ? doc.layout.name : null;
   c.host.setSelection(new Set());
-  doc.blockEdit = { name, map, base: { ...blk.base }, mark: doc.mark(), from, ...(vis ? { vis } : {}) };
+  doc.blockEdit = { name, map, base: { ...blk.base }, mark: doc.mark(), from, attdefs0: (blk.attdefs || []).map((d) => ({ ...d })), ...(vis ? { vis } : {}) };
   if (vis) c.print(t('cmd.bvstate.open', { state: vis.cur, n: vis.states.length }));
   doc.setSpace({ entities: map });
   c.host.onBlockEdit?.(doc.blockEdit);
@@ -2428,6 +2618,8 @@ export function closeBlockEdit(doc, save) {
       doc.change('BEDIT', () => doc.defineBlock({ name: be.name, base: be.base, entities, attdefs }));
       if (vr?.plain) be.note = 'cmd.bvstate.plain';
     }
+    // 0.6 DF.5: attribute definitions changed → the references follow (values kept), in the same undo step
+    if (attdefsDiffer(be.attdefs0 || [], attdefs)) doc.change('BEDIT', () => { be.synced = syncBlock(doc, be.name); });
     doc.squash(be.mark, 'BEDIT');
   } else {
     while (doc.undoStack.length > be.mark) doc.undo();
@@ -2545,8 +2737,148 @@ def('BCLOSE', [], async (c) => {
   closeBlockEdit(c.doc, save);
   c.host.onBlockEdit?.(null);
   c.print(t(save ? 'cmd.bclose.saved' : 'cmd.bclose.discarded', { name: be.name, n: c.doc.blockUses(be.name) }));
+  if (be.synced) c.print(t('cmd.attsync.done', { name: be.name, n: be.synced }));
   if (be.note) c.print(t(be.note, { name: be.name }));
 }, { noRepeat: true, help: () => t('cmd.bclose.help') });
+
+// ---- attribute editing (0.6 DF.5; attedit.js): EATTEDIT, ATTEDIT, ATTSYNC, BATTMAN; REFEDIT / REFCLOSE ----
+
+/** A block reference with attributes, picked (noun-verb: the selection's first one). */
+async function attRef(c, prompt) {
+  const pre = [...c.host.selection].map((id) => c.doc.get(id)).find((e) => e && hasAttributes(e, c.doc.blocks.get(e.block)));
+  if (pre) return pre;
+  for (;;) {
+    const r = await c.entity(prompt, { none: true });
+    if (!r) return null;
+    const e = c.doc.get(r.id ?? r);
+    if (e && hasAttributes(e, c.doc.blocks.get(e.block)) && c.doc.editable(e)) return e;
+    c.print(t('cmd.eattedit.noattrs'));
+  }
+}
+
+def('EATTEDIT', ['DDATTE'], async (c) => {
+  const e = await attRef(c, t('cmd.eattedit.select'));
+  if (!e) return;
+  if (c.host.attEditor) { await c.host.attEditor(e.id); return; }   // the dialog (attedit-ui.js)
+  await typedAttEdit(c, e);
+}, { help: () => t('cmd.eattedit.help') });
+
+/** Each editable attribute's value asked in turn; Enter keeps it (ATTEDIT, and EATTEDIT without the dialog). */
+async function typedAttEdit(c, e) {
+  const blk = c.doc.blocks.get(e.block);
+  const rows = attrRows(e, blk).filter((r) => !r.constant);
+  if (!rows.length) { c.print(t('cmd.eattedit.noattrs')); return; }
+  let cur = e, n = 0;
+  for (const r of rows) {
+    const v = await c.string(t('cmd.attedit.value', { tag: r.tag, prompt: r.prompt || r.tag }), { raw: true, default: r.value });
+    const val = v === undefined || v === null || v === '' ? r.value : String(v);   // Enter keeps the value
+    if (val === r.value) continue;
+    cur = editedRef(cur, blk, r.tag, { value: val });
+    n++;
+  }
+  if (n) c.doc.change('ATTEDIT', () => c.doc.update(e.id, cur));
+  c.print(n ? t('cmd.attedit.done', { n }) : t('cmd.attedit.none'));
+}
+def('ATTEDIT', ['ATE', '-ATTEDIT'], async (c) => {
+  const e = await attRef(c, t('cmd.eattedit.select'));
+  if (e) await typedAttEdit(c, e);
+}, { help: () => t('cmd.attedit.help') });
+
+def('ATTSYNC', [], async (c) => {
+  const names = namedBlocks(c.doc).filter((n) => (c.doc.blocks.get(n).attdefs || []).length || refsOf(c.doc, n).some((r) => r.e.attrs));
+  if (!names.length) { c.print(t('cmd.attsync.none')); return; }
+  const k = await c.keyword(t('cmd.attsync.ask'), { options: [opt('N', 'Name'), opt('S', 'Select'), opt('A', 'All')], default: 'S' });
+  const o = kw(k, 'S');
+  let list;
+  if (o === 'A') list = names;
+  else if (o === 'N') {
+    const v = String(await c.string(t('cmd.attsync.name')) || '').trim();
+    const n = names.find((x) => x.toLowerCase() === v.toLowerCase());
+    if (!n) { c.print(t('cmd.attsync.unknown', { name: v })); return; }
+    list = [n];
+  } else {
+    const e = await attRef(c, t('cmd.attsync.select'));
+    if (!e) return;
+    list = [e.block];
+  }
+  let total = 0;
+  c.doc.change('ATTSYNC', () => { for (const n of list) { const k2 = syncBlock(c.doc, n); total += k2; if (k2) c.print(t('cmd.attsync.done', { name: n, n: k2 })); } });
+  if (!total) c.print(t('cmd.attsync.nothing'));
+}, { help: () => t('cmd.attsync.help') });
+
+def('BATTMAN', [], async (c) => {
+  const names = namedBlocks(c.doc).filter((n) => (c.doc.blocks.get(n).attdefs || []).length);
+  if (!names.length) { c.print(t('cmd.battman.none')); return; }
+  if (!c.host.attManager) { c.print(t('cmd.battman.browser')); return; }
+  const sel = [...c.host.selection].map((id) => c.doc.get(id)).find((e) => e?.type === 'insert' && names.includes(e.block));
+  await c.host.attManager(sel?.block || c.engine.lastBlock || names[0]);
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.battman.help') });
+
+/** REFEDIT: the block's contents put where the reference shows them, as editable objects; the rest is faded. */
+export function openRefEdit(doc, refId) {
+  if (doc.refEdit) return { error: 'cmd.refedit.already' };
+  if (doc.blockEdit) return { error: 'cmd.refedit.bedit' };
+  const e = doc.get(refId), blk = e?.type === 'insert' ? doc.blocks.get(e.block) : null;
+  if (!blk) return { error: 'cmd.refedit.noref' };
+  if (blk.xref || linkOf(doc, e.block)) return { error: 'cmd.refedit.xref' };
+  if (blk.dyn || e.dyn) return { error: 'cmd.refedit.dynamic' };
+  if (Math.abs(Math.abs(e.sx ?? 1) - Math.abs(e.sy ?? 1)) > 1e-9 * Math.max(Math.abs(e.sx ?? 1), Math.abs(e.sy ?? 1))) return { error: 'cmd.refedit.nonuniform' };
+  const m = insertMatrix(e, blk), mark = doc.mark(), ids = new Set(), map = doc.space;
+  doc.refEdit = { ref: e.id, name: e.block, map, ids, m, mark, attdefs0: (blk.attdefs || []).map((d) => ({ ...d })) };
+  doc.change('REFEDIT', () => {
+    for (const x of [...blk.entities, ...(blk.attdefs || []).map(attdefText)]) doc.add(txEntity({ color: null, ...x }, m), map);   // doc.add puts each in the working set
+  });
+  return { ok: true, n: ids.size };
+}
+/** REFCLOSE: save the working set back into the block (one undo step with the whole edit) or throw it away. */
+export function closeRefEdit(doc, save) {
+  const re = doc.refEdit;
+  if (!re) return null;
+  doc.refEdit = null;
+  if (save) {
+    const inv = mInverse(re.m);
+    const work = [...re.ids].map((id) => re.map.get(id)).filter(Boolean);
+    const { entities, attdefs } = splitAttdefs(work.map((x) => txEntity(x, inv)));
+    doc.change('REFEDIT', () => {
+      for (const id of re.ids) if (re.map.has(id)) doc.remove(id, re.map);
+      doc.defineBlock({ ...doc.blocks.get(re.name), entities, attdefs });
+      if (attdefsDiffer(re.attdefs0, attdefs)) re.synced = syncBlock(doc, re.name);
+    });
+    doc.squash(re.mark, 'REFEDIT');
+  } else {
+    while (doc.undoStack.length > re.mark) doc.undo();
+    doc.redoStack.length = 0;
+  }
+  return re;
+}
+
+def('REFEDIT', [], async (c) => {
+  if (c.doc.refEdit) { c.print(t('cmd.refedit.already')); return; }
+  const pre = [...c.host.selection].map((id) => c.doc.get(id)).find((e) => e?.type === 'insert');
+  let e = pre;
+  while (!e) {
+    const r = await c.entity(t('cmd.refedit.select'), { none: true });
+    if (!r) return;
+    const x = c.doc.get(r.id ?? r);
+    if (x?.type === 'insert') e = x; else c.print(t('cmd.refedit.noref'));
+  }
+  c.host.setSelection(new Set());
+  const r = openRefEdit(c.doc, e.id);
+  if (r.error) { c.print(t(r.error, { name: e.block })); return; }
+  c.host.onRefEdit?.(c.doc.refEdit);
+  c.print(t('cmd.refedit.open', { name: e.block, n: r.n }));
+}, { noRepeat: true, help: () => t('cmd.refedit.help') });
+
+def('REFCLOSE', [], async (c) => {
+  const re = c.doc.refEdit;
+  if (!re) { c.print(t('cmd.refclose.none')); return; }
+  const k = await c.keyword(t('cmd.refclose.ask', { name: re.name }), { options: [opt('S', t('opt.save')), opt('D', t('opt.discard'))], default: 'S' });
+  const save = kw(k, 'S') !== 'D';
+  closeRefEdit(c.doc, save);
+  c.host.onRefEdit?.(null);
+  c.print(t(save ? 'cmd.refclose.saved' : 'cmd.refclose.discarded', { name: re.name, n: c.doc.blockUses(re.name) }));
+  if (re.synced) c.print(t('cmd.attsync.done', { name: re.name, n: re.synced }));
+}, { noRepeat: true, help: () => t('cmd.refclose.help') });
 
 function nests(doc, inner, name, depth = 0) {
   const b = doc.blocks.get(inner);
@@ -3150,6 +3482,15 @@ def('ID', [], async (c) => {
   c.print(t('cmd.id.result', { x: fmtLen(c, q.x), y: fmtLen(c, q.y) }));
 }, { help: () => t('cmd.id.coordinates_point') });
 
+// 0.6 DF.3: a calculation on the command line, as units.js reads typed lengths: 12'6"+3/4", (24'-0")/3, 2*450mm
+def('CAL', [], async (c) => {
+  const s = (await c.string(t('cmd.cal.expression'), { raw: true })).trim();
+  if (!s) return;
+  const r = readLength(s, c.doc.meta.lunits, c.doc.meta.units);
+  if (!r.ok) { c.print(calcMessage(r)); return; }
+  c.print(t('cmd.cal.result', { value: fmtLen(c, r.value), raw: String(Number(r.value.toPrecision(12))) }));
+}, { help: () => t('cmd.cal.help') });
+
 def('LIST', ['LI', 'LS'], async (c) => {
   const ids = await c.select();
   for (const id of ids) {
@@ -3256,6 +3597,7 @@ def('REDO', [], async (c) => { const l = c.doc.redo(); c.print(l ? 'Redid ' + l 
 def('LAYER', ['LA'], async (c) => { c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, help: () => t('cmd.layer.show_layers_panel') });
 def('NEW', [], async (c) => { await c.host.newDrawing?.(); }, { noRepeat: true, help: () => t('cmd.new.start_new_drawing') });
 def('OPEN', [], async (c) => { await c.host.openFile?.(); }, { noRepeat: true, help: () => t('cmd.open.open_dwg_dxf_computer') });
+def('SAMPLES', ['SAMPLE'], async (c) => { if (c.host.openSamples) await c.host.openSamples(); else c.print(t('cmd.samples.browser')); }, { noRepeat: true, help: () => t('cmd.samples.help') });   // 0.6 DF.9
 def('SAVE', ['QSAVE'], async (c) => { await c.host.saveFile?.(); }, { noRepeat: true, help: () => t('cmd.save.download_drawing_format_dwg') });
 def('SAVEAS', [], async (c) => { await c.host.saveAs?.(); }, { noRepeat: true, help: () => t('cmd.saveas.download_drawing_dwg_dxf') });
 def('DXFOUT', [], async (c) => { await c.host.saveFile?.('dxf', false); }, { noRepeat: true, help: () => t('cmd.dxfout.download_drawing_dxf_r12') });

@@ -16,6 +16,7 @@ import { saveDwg } from './dwg-save.js';
 import { t } from './i18n.js';
 import { dimstylePairs, stFromVars } from './dwg-props.js';
 import { pictureRefs } from './pictures.js';
+import { geodataFields, writeDxfGeodata } from './geodwg.js';   // 0.6 GEO-DWG
 
 const deg = (r) => (r * 180) / Math.PI;
 const f = (n) => (Number.isFinite(n) ? (Math.abs(n) < 1e-12 ? '0.0' : Number(n.toPrecision(15)).toString()) : '0.0');
@@ -44,10 +45,13 @@ export function writeDxf2000(doc) {
   // layouts: Model + one per sheet; each sheet's paper space by its record key
   const paperLayouts = (model.layouts || []).filter((l) => !/^model$/i.test(l.name));
   const spaceOf = new Map(spaces.map((b) => [b.record, b]));
-  const layouts = [{ name: 'Model', tab: 0, space: ms, src: {} }];
+  const layouts = [{ name: 'Model', tab: 0, space: ms, src: (model.layouts || []).find((l) => /^model$/i.test(l.name)) || {} }];   // its page setup (plot style table, 0.6 DC.14)
   paperLayouts.forEach((l, i) => layouts.push({ name: l.name, tab: i + 1, space: spaceOf.get(l.block) || spaces[i] || spaces[0], src: l }));
   if (layouts.length === 1) layouts.push({ name: 'Layout1', tab: 1, space: spaces[0], src: {} });
   for (const L of layouts) { L.h = h(); rec.get(L.space.name).layout = L.h; }
+  // the drawing's location (0.6 GEO-DWG): GEODATA in the model space's extension dictionary (CADCRAFT_GEO, CadCraft's copy, is a block)
+  const geoF = geodataFields(doc.meta.geo, doc.meta.units || '');
+  const geo = geoF ? { xd: h(), g: h() } : null;
 
   // ---- names: tables are matched by name, without case
   const layerNames = new Map((model.tables.layers || []).map((l) => [l.name, l.name.replace(/\|/g, '$0$')]));
@@ -77,7 +81,9 @@ export function writeDxf2000(doc) {
   w(9, '$CLAYER'); w(8, '0');
   w(9, '$TILEMODE'); w(70, 1);
   w(0, 'ENDSEC');
-  w(0, 'SECTION'); w(2, 'CLASSES'); w(0, 'ENDSEC');
+  w(0, 'SECTION'); w(2, 'CLASSES');
+  if (geo) { w(0, 'CLASS'); w(1, 'GEODATA'); w(2, 'AcDbGeoData'); w(3, 'ObjectDBX Classes'); w(90, 4095); w(280, 0); w(281, 0); }
+  w(0, 'ENDSEC');
 
   // ---- TABLES
   w(0, 'SECTION'); w(2, 'TABLES');
@@ -166,7 +172,8 @@ export function writeDxf2000(doc) {
   table('BLOCK_RECORD', H.brT, rec.size, () => {
     for (const b of [ms, ...spaces, ...plain]) {
       const r = rec.get(b.name);
-      entry('BLOCK_RECORD', r.br, H.brT, 'AcDbBlockTableRecord', enc(blockName(b.name)));
+      if (geo && b === ms) { w(0, 'BLOCK_RECORD'); w(5, r.br); w(102, '{ACAD_XDICTIONARY'); w(360, geo.xd); w(102, '}'); w(330, H.brT); w(100, 'AcDbSymbolTableRecord'); w(100, 'AcDbBlockTableRecord'); w(2, enc(blockName(b.name))); w(70, 0); }
+      else entry('BLOCK_RECORD', r.br, H.brT, 'AcDbBlockTableRecord', enc(blockName(b.name)));
       w(340, r.layout || '0');
     }
   });
@@ -343,6 +350,10 @@ export function writeDxf2000(doc) {
     w(210, '0.0'); w(220, '0.0'); w(230, '1.0'); w(11, '0.0'); w(21, '0.0'); w(31, '0.0'); w(71, 1); w(72, 0); w(73, 0);
     for (let k = 0; k < 2; k++) for (let i = 0; i < 12; i++) w(40, i % 5 === 0 ? '1.0' : '0.0');   // 3 × 4 identity, twice
   }
+  if (geo) {
+    w(0, 'DICTIONARY'); w(5, geo.xd); w(102, '{ACAD_REACTORS'); w(330, rec.get(ms.name).br); w(102, '}'); w(330, rec.get(ms.name).br); w(100, 'AcDbDictionary'); w(280, 1); w(281, 1); w(3, 'ACAD_GEOGRAPHICDATA'); w(360, geo.g);
+    writeDxfGeodata(w, geoF, { handle: geo.g, owner: geo.xd, host: rec.get(ms.name).br, f, enc });
+  }
   w(0, 'MLINESTYLE'); w(5, H.mls); w(330, H.mlsD); w(100, 'AcDbMlineStyle'); w(2, 'Standard'); w(70, 0); w(3, ''); w(62, 256); w(51, '90.0'); w(52, '90.0'); w(71, 2);
   for (const o of [0.5, -0.5]) { w(49, f(o)); w(62, 256); w(6, 'BYLAYER'); }
   for (const L of layouts) {
@@ -350,7 +361,7 @@ export function writeDxf2000(doc) {
     w(0, 'LAYOUT'); w(5, L.h); w(102, '{ACAD_REACTORS'); w(330, H.layoutsD); w(102, '}'); w(330, H.layoutsD);
     w(100, 'AcDbPlotSettings'); w(1, ''); w(2, 'none_device'); w(4, enc(p.name || '')); w(6, '');
     w(40, '0.0'); w(41, '0.0'); w(42, '0.0'); w(43, '0.0'); w(44, f(p.w || 215.9)); w(45, f(p.h || 279.4)); w(46, '0.0'); w(47, '0.0'); w(48, '0.0'); w(49, '0.0');
-    w(140, '0.0'); w(141, '0.0'); w(142, '1.0'); w(143, '1.0'); w(70, paper ? 688 : 1712); w(72, p.units ?? (paper ? 1 : 0)); w(73, 0); w(74, paper ? 5 : 0); w(7, ''); w(75, paper ? 16 : 0); w(147, '1.0'); w(148, '0.0'); w(149, '0.0');
+    w(140, '0.0'); w(141, '0.0'); w(142, '1.0'); w(143, '1.0'); w(70, paper ? 688 : 1712); w(72, p.units ?? (paper ? 1 : 0)); w(73, 0); w(74, paper ? 5 : 0); w(7, enc(p.styleSheet || '')); w(75, paper ? 16 : 0); w(147, '1.0'); w(148, '0.0'); w(149, '0.0');
     w(100, 'AcDbLayout'); w(1, enc(L.name)); w(70, 1); w(71, L.tab);
     w(10, f(lim.min.x)); w(20, f(lim.min.y)); w(11, f(lim.max.x)); w(21, f(lim.max.y)); w(12, '0.0'); w(22, '0.0'); w(32, '0.0');
     w(14, '0.0'); w(24, '0.0'); w(34, '0.0'); w(15, '0.0'); w(25, '0.0'); w(35, '0.0'); w(146, '0.0');

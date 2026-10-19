@@ -3,7 +3,7 @@ title: Work on one drawing together, live
 summary: What changes in CadCraft while you are in a CadCraft Studio live session: other people's cursors and selections, objects someone is editing, the host's locks, your own undo, and joining from a browser on the same network.
 section: tasks
 order: 92
-keywords: live, studio live, together, collaborate, co-edit, session, share live, join, cursor, held, editing, lock, livelock, liveunlock, livehold, hold layer, hold area, padlock, undo, host, assistant, same file
+keywords: live, studio live, together, collaborate, co-edit, session, share live, join, cursor, held, editing, lock, livelock, liveunlock, livehold, hold layer, hold area, padlock, undo, host, assistant, same file, many people, slow, limit, who changed, recent edits, edit log
 ---
 
 ## What you will learn
@@ -23,6 +23,7 @@ What stays yours alone: the current layer, colour and text height for new object
 - **Cursors:** each person's pointer shows with their name in their own colour, and the command they are running. You see the cursors of people working near what is on your screen.
 - **Selections:** what someone has selected is outlined in their colour.
 - **Being edited:** an object someone has selected carries a label such as "Ana is editing". You can still change its colour or move it, but you can't delete, explode or retype it until they let go. Selecting it tells you who has it.
+- **Who changed it last:** select one object that someone else changed in this session and the command line says who, and what the change was ("Ben changed that last: CIRCLE."). Studio's Live panel lists every recent edit under {{ui:Recent edits}}. Nothing of this is saved in the drawing: it lasts as long as the session.
 
 ## Hold a layer or an area while you work there
 
@@ -69,6 +70,10 @@ An assistant connected to your CadCraft window (see the help on working with AI 
 ## Join from a browser
 
 A teammate without Studio can scan the picture under the host's code with a phone, tablet or computer on the same network. CadCraft opens in the browser, asks for your name on the command line, and fills with the host's drawing once the host lets you in. Invite links, for joining from another network, are not open yet.
+
+## Many people on one drawing
+
+Every edit goes to everyone in the session, so the more people there are, the longer each change takes to reach each of them, and slower laptops and connections fall behind first. A session's usual size is 20 people; the host can allow more for one session (see the help on working together live). If the drawing feels slow with many people, fewer people, fewer of them editing at the same moment, or a better connection helps.
 
 ## When the session ends
 

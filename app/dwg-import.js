@@ -17,6 +17,8 @@ import { attdef, resolveAttribs } from './attrs.js';
 import { DIM_DEFAULTS } from './dims.js';
 import { matchPaper } from './sheets.js';
 import { tagFromXdata, parametricText, isParamBlock } from './gcons.js';
+import { isStyleBlock, payloadFrom } from './plotstyle.js';
+import { isGeoBlock, geoFromPayload, readGeo } from './geodwg.js';   // 0.6 GEO-DWG
 import { face3dFromDwg, read3dFromDwg } from './model3d.js';
 import { t } from './i18n.js';
 import { vportsFrom } from './dwg-vports.js';
@@ -24,11 +26,26 @@ import { trFrom, propsFromXdata, stFromVars, stFromCodes, ccDimFrom, dstyleMap }
 import { dynBlockFromDwg, dynRefFromDwg, dynSource } from './dyn-blocks.js';   // 0.5 DB.2
 import { pictureBlock } from './pictures.js';   // 0.5 WL.14
 import { clipFromFilter } from './xclip.js';   // 0.5 WL.16
+import { planMatrix, toPlan, isFlipped } from './ocs.js';   // 0.6 DF.1: objects in their own coordinate system
 
 export const VERSIONS = {
   AC1009: 'R12', AC1012: 'R13', AC1014: 'R14', AC1015: '2000', AC1018: '2004',
   AC1021: '2007', AC1024: '2010', AC1027: '2013', AC1032: '2018',
 };
+/**
+ * 0.6 DF.11: a DWG older than cc-dwg reads (R13, AC1012): its release from the file's first six bytes, else null. The ODA
+ * specification covers R13 onward only and no other published description of the older format exists, so these get a clear
+ * refusal (save as DXF or a newer DWG from the program that made it) instead of an empty drawing.
+ */
+const PRE_R13 = { AC1011: 'R12 (late)', AC1010: 'R12 (early)', AC1009: 'R11 / R12', AC1007: 'R10 (early)', AC1006: 'R10', AC1005: 'R9 (early)', AC1004: 'R9', AC1003: '2.6', AC1002: '2.5', AC1001: '2.2', 'AC2.10': '2.1', 'AC1.50': '2.0', 'AC1.40': '1.40', 'AC1.2': '1.2' };
+export function preR13(tag) {
+  const t6 = String(tag || '').replace(/\0+$/, '').slice(0, 6);
+  if (PRE_R13[t6]) return PRE_R13[t6];
+  if (/^AC1\.\d/.test(t6)) return t6.slice(2);
+  if (/^MC0\.0/.test(t6)) return '1.0';
+  return null;
+}
+
 const UNITS = { 1: 'inches', 2: 'feet', 3: 'miles', 4: 'millimeters', 5: 'centimeters', 6: 'meters', 7: 'kilometers', 8: 'microinches', 9: 'mils', 10: 'yards' };
 
 /** What C6 converts (multileaders, pictures, wipeouts): dxf.js takes just these from a DXF's drawing model (extrasFrom). */
@@ -100,9 +117,13 @@ export function importDwg(db, { versionTag = '' } = {}) {
   const imageDefs = new Map((db.objects || []).filter((o) => o.type === 'IMAGEDEF').map((o) => [o.handle, o]));
   const objByH = new Map((db.objects || []).map((o) => [String(o.handle), o]));   // dictionaries and filters by handle (WL.16)
   let parametric = null;   // CadCraft's constraints (gcons.js): block CADCRAFT_PARAMETRIC
+  let plotStyles = null;   // CadCraft's plot style tables: block CADCRAFT_PLOTSTYLES
+  let geoOwn = null;   // CadCraft's coordinate system and map layers: block CADCRAFT_GEO (geodwg.js)
   for (const b of blockList) {
     if (/^\*(model|paper)_space/i.test(b.name)) continue;
     if (isParamBlock(b.name)) { parametric = parametricText((b.entities || []).map(convert).filter(Boolean)); continue; }
+    if (isStyleBlock(b.name)) { plotStyles = payloadFrom((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // plot style tables (0.6 DC.14, plotstyle.js)
+    if (isGeoBlock(b.name)) { geoOwn = geoFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.6 GEO-DWG
     // a dynamic block (definition or a reference's copy) keeps its hidden entities too (dyn-blocks.js, 0.5 DB.2)
     const dynB = dynBlockFromDwg(b, { convert, attdefOf, defName: b.dynamicOf ? blockList.find((x) => x.record === b.dynamicOf)?.name : null,
       record: (db.tables?.blockRecords || []).find((r) => r.handle === b.record) });
@@ -135,8 +156,15 @@ export function importDwg(db, { versionTag = '' } = {}) {
     if (!list || b === model) continue;
     for (const e of b.entities || []) { const c = convert(e); if (c) list.push(...[].concat(c)); report.paperSpace++; }
   }
+  // references drawn in a tilted plane (0.6 DF.1): mapped once every block is known (a shear needs a new unnamed block)
+  placeOcsInserts([entities, ...blocks.map((b) => b.entities), ...[...paperOf.values()]]);
   // attribute values: positions relative to their block (attrs.js)
   resolveAttribs([entities, ...blocks.map((b) => b.entities), ...[...paperOf.values()]], new Map(blocks.map((b) => [b.name, b])));
+  // the drawing's geographic location (0.6 GEO-DWG): the model space's GEODATA (another program's, or the one CadCraft wrote)
+  const msRec = (db.tables?.blockRecords || []).find((r) => /^\*model_space$/i.test(r.name || ''));
+  const geodata = (db.objects || []).find((o) => o.type === 'GEODATA' && !o.undecoded && !o.damaged && (!msRec || !o.host || o.host === msRec.handle)) || null;
+  const geoRead = readGeo({ payload: geoOwn, geodata, units: UNITS[H.INSUNITS] || '' });
+  if (geoRead.why) report.notes.push(t('geo.read.' + geoRead.why, { name: geoRead.label || '?' }));
   if (report.splines) report.notes.push(t('dwg.read.splines', { n: report.splines }));
   if (report.xrefs) report.notes.push(t('dwg.read.xrefs', { n: report.xrefs }));
   if (report.mleaderBlocks) report.notes.push(t('dwg.read.mleaderblocks', { n: report.mleaderBlocks }));
@@ -159,13 +187,16 @@ export function importDwg(db, { versionTag = '' } = {}) {
     const std = matchPaper(paper.w, paper.h, paper.unit);
     if (own?.key && std?.key === own.key) paper.key = own.key;
     else if (std) paper.key = std.key;
-    return { name: l.name || 'Layout', paper, entities: list };
+    const ss = String(l.paper?.styleSheet || '').trim();   // the plot style table its page setup names (another program's "x.ctb")
+    return { name: l.name || 'Layout', paper, entities: list, ...(ss ? { plotStyle: ss.slice(0, 64) } : {}) };
   });
   if (layouts.length) report.layouts = layouts.length;
 
   return read3dFromDwg(db, {   // + CadCraft's 3D model from block CADCRAFT_3D (model3d.js)
     entities, layers, blocks, layouts, dimStyle, ...(parametric ? { parametric } : {}),
-    linetypes,
+    // plot styles: CadCraft's own block, else the table the Model page setup names (another program's "x.ctb")
+    ...(plotStyles ? { plotStyles } : modelStyleSheet(db) ? { plotStyles: { tables: [], model: modelStyleSheet(db) } } : {}),
+    linetypes, ...(geoRead.geo ? { geo: geoRead.geo } : {}),
     meta: { version: versionTag, release: VERSIONS[versionTag] || '', units: UNITS[H.INSUNITS] || '', ...(H.INSBASE && Number.isFinite(H.INSBASE.x) ? { insbase: { x: H.INSBASE.x, y: H.INSBASE.y || 0 } } : {}),
       ...(H.LTSCALE > 0 && H.LTSCALE !== 1 ? { ltscale: H.LTSCALE } : {}),
       ...lengthFormat(H) },
@@ -200,10 +231,12 @@ export function importDwg(db, { versionTag = '' } = {}) {
       if (!p1 || !p2 || !q2 || dist(p1, p2) < 1e-12) return null;
       if (t === 1) d = close(dist(p1, p2)) ? { kind: 'aligned', p1, p2, loc: q2 } : null;
       else {
-        // the dimension line's angle: square to the line from p2 to its point on the line, or as recorded
-        const cands = [];
+        // the dimension line's angle: as recorded (DXF 50), else square to the line from p2 to its point on the line. The
+        // recorded one first (0.6 DF.1): the definition point may sit on either extension line (ezdxf puts it on the first),
+        // and a file that has not worked out its measurement (-1, as the ODA File Converter writes) cannot rule a guess out.
+        const cands = [normAngle(e.angle || 0)];
         if (dist(p2, q2) > 1e-9) cands.push(normAngle(Math.atan2(q2.y - p2.y, q2.x - p2.x) + Math.PI / 2));
-        cands.push(normAngle(e.angle || 0), 0, Math.PI / 2);
+        cands.push(0, Math.PI / 2);
         const rot = cands.find((r) => close(Math.abs((p2.x - p1.x) * Math.cos(r) + (p2.y - p1.y) * Math.sin(r))));
         d = rot === undefined ? null : { kind: 'linear', p1, p2, loc: q2, rot };
       }
@@ -321,9 +354,32 @@ export function importDwg(db, { versionTag = '' } = {}) {
     return o;
   }
 
+  /**
+   * 0.6 DF.1: an object kept in its own coordinate system (an extrusion other than +Z: drawn from below, mirrored in another
+   * program, or in a tilted plane) → the plan (ocs.js). Block references wait for placeOcsInserts (a shear needs the block).
+   */
+  function inPlan(c, e) {
+    if (!c || !OCS_TYPES.has(e.type)) return c;
+    const m = planMatrix(e.extrusion, ocsElevation(e));
+    if (!m) return c;
+    report.ocs = (report.ocs || 0) + 1;
+    return [].concat(c).map((x) => (x.type === 'insert' ? Object.assign(x, { _ocs: m }) : toPlan(x, m))).flat().filter(Boolean);
+  }
+  function placeOcsInserts(lists) {
+    const byName = new Map(blocks.map((b) => [b.name, b]));
+    const makeBlock = (ents) => { const name = freeName('*T'); const b = { name, base: { x: 0, y: 0 }, entities: ents }; blocks.push(b); byName.set(name, b); return name; };
+    for (const list of lists) for (let i = 0; i < list.length; i++) {
+      const x = list[i];
+      if (!x || !x._ocs) continue;
+      const m = x._ocs; delete x._ocs;
+      const y = toPlan(x, m, { blocks: byName, makeBlock });
+      list[i] = Array.isArray(y) ? y[0] : y;
+    }
+  }
+
   /** One model entity → CadCraft's, with CadCraft's own xdata keys (CCREF) kept. */
   function convert(e) {
-    const c = withProps(tagFromXdata(convertBase(e), e.xdata), e);
+    const c = withProps(tagFromXdata(inPlan(convertBase(e), e), e.xdata), e);
     const one = Array.isArray(c) ? c[0] : c;
     if (e.type === 'INSERT' && e.dyn && one && one.type === 'insert') { const d = dynRefFromDwg(e); if (d) one.dyn = d; }   // a dynamic block reference (0.5 DB.2)
     if (e.type === 'INSERT' && e.extDict && one && one.type === 'insert') {   // XCLIP (0.5 WL.16): xdict → ACAD_FILTER → SPATIAL
@@ -344,7 +400,8 @@ export function importDwg(db, { versionTag = '' } = {}) {
     if (Number.isFinite(e.thickness) && e.thickness && ['line', 'circle', 'arc', 'poly', 'point', 'text'].includes(one.type)) add.th = e.thickness;
     Object.assign(add, propsFromXdata(e.xdata));
     if (one.type !== 'hatch') { delete add.bg; delete add.ox; delete add.oy; delete add.assoc; }
-    const z = zOf(e, one.type);
+    const ext = OCS_TYPES.has(e.type) && e.extrusion;
+    const z = ext && planMatrix(ext) ? (isFlipped(ext) ? -zOf(e, one.type) : 0) : zOf(e, one.type);   // a tilted plane's elevation is no height
     if (z) add.z = z;
     for (const x of [].concat(c)) Object.assign(x, add);
     if (one.type === 'line') { const z1 = e.start?.z, z2 = e.end?.z; for (const x of [].concat(c)) { delete x.z; if (z1) x.z1 = z1; if (z2) x.z2 = z2; } }
@@ -368,18 +425,13 @@ export function importDwg(db, { versionTag = '' } = {}) {
   function convertBase(e) {
     if (e.invisible) return null;
     const base = { layer: e.layer || '0', color: color(e), ...styleOf(e) };
-    const f = e.extrusion && e.extrusion.z < -0.5;   // OCS x runs the other way
-    const X = (x) => (f ? -x : x);
+    // OCS types come out in their own coordinates; inPlan() maps them to the plan (ocs.js)
     const type = /^DIMENSION_/.test(e.type) ? 'DIMENSION' : e.type;
     switch (type) {
       case 'LINE': return { type: 'line', ...base, x1: e.start.x, y1: e.start.y, x2: e.end.x, y2: e.end.y };
       case 'POINT': return { type: 'point', ...base, x: e.position?.x ?? 0, y: e.position?.y ?? 0 };
-      case 'CIRCLE': return { type: 'circle', ...base, cx: X(e.center.x), cy: e.center.y, r: e.radius };
-      case 'ARC': {
-        let a0 = e.startAngle, a1 = e.endAngle;
-        if (f) [a0, a1] = [Math.PI - a1, Math.PI - a0];
-        return { type: 'arc', ...base, cx: X(e.center.x), cy: e.center.y, r: e.radius, a0: normAngle(a0), a1: normAngle(a1) };
-      }
+      case 'CIRCLE': return { type: 'circle', ...base, cx: e.center.x, cy: e.center.y, r: e.radius };
+      case 'ARC': return { type: 'arc', ...base, cx: e.center.x, cy: e.center.y, r: e.radius, a0: normAngle(e.startAngle), a1: normAngle(e.endAngle) };
       case 'LWPOLYLINE': case 'POLYLINE_2D': {
         const vs = (e.vertices || []).filter((v) => !(v.flags & 16));   // 16 = a spline frame's control point
         if (vs.length < 2) return null;
@@ -388,7 +440,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
         const each = !cw && vs.some((v) => v.startWidth > 0 || v.endWidth > 0);
         const wd = (x) => (Number.isFinite(x) && x > 0 ? x : 0);
         return { type: 'poly', ...base, closed: !!e.closed, ...(cw ? { w: cw } : {}),
-          pts: vs.map((v) => ({ x: X(v.x), y: v.y, b: (f ? -1 : 1) * (v.bulge || 0), ...(each ? { sw: wd(v.startWidth), ew: wd(v.endWidth) } : {}) })) };
+          pts: vs.map((v) => ({ x: v.x, y: v.y, b: v.bulge || 0, ...(each ? { sw: wd(v.startWidth), ew: wd(v.endWidth) } : {}) })) };
       }
       case 'POLYLINE_3D': {
         const vs = (e.vertices || []).filter((v) => !(v.flags & 16));
@@ -402,7 +454,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
         return { type: 'poly', ...base, closed: false, pts: pts.map((p) => ({ x: p.x, y: p.y, b: 0 })) };
       }
       case 'TEXT': case 'ATTRIB': {
-        const t = textOf(e, base, X);
+        const t = textOf(e, base);
         if (e.type === 'ATTRIB') return t && e.tag ? { ...t, tag: e.tag, ...(e.flags & 1 ? { invisible: true } : {}) } : null;
         return t && t.s.trim() ? t : null;
       }
@@ -419,7 +471,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
       }
       case 'SOLID': case 'TRACE': {
         const p = e.points || [];   // DXF order: the outline runs 1, 2, 4, 3
-        const c = [p[0], p[1], p[3] || p[2], p[2]].filter(Boolean).map((q) => [X(q.x), q.y]);
+        const c = [p[0], p[1], p[3] || p[2], p[2]].filter(Boolean).map((q) => [q.x, q.y]);
         return { type: 'hatch', ...base, solid: true, loops: [[...c.flat(), ...c[0]]] };
       }
       case 'HATCH': {
@@ -442,9 +494,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
       }
       case 'INSERT': case 'MINSERT': {
         if (!e.block) return null;
-        let x = e.insert.x, rot = e.rotation || 0, sx = e.scale?.x || 1;
-        if (f) { x = -x; rot = Math.PI - rot; sx = -sx; }
-        const ins = { type: 'insert', ...base, block: e.block, x, y: e.insert.y, sx, sy: e.scale?.y || 1, rot: normAngle(rot), ...(e.scale?.z && e.scale.z !== 1 ? { sz: e.scale.z } : {}) };
+        const ins = { type: 'insert', ...base, block: e.block, x: e.insert.x, y: e.insert.y, sx: e.scale?.x || 1, sy: e.scale?.y || 1, rot: normAngle(e.rotation || 0), ...(e.scale?.z && e.scale.z !== 1 ? { sz: e.scale.z } : {}) };
         const out = [];
         const cols = Math.max(1, e.cols || 1), rows = Math.max(1, e.rows || 1);
         const c = Math.cos(ins.rot), s = Math.sin(ins.rot);
@@ -513,7 +563,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
 }
 
 /** TEXT, ATTRIB or ATTDEF → a text entity (value may be empty), or null without a height. */
-function textOf(e, base, X = (x) => x) {
+function textOf(e, base) {
   if (!e.height || !e.insert) return null;
   const s = plain(e.value);
   const h = e.hAlign || 0, v = e.vAlign || 0;
@@ -522,7 +572,7 @@ function textOf(e, base, X = (x) => x) {
   const ap = aligned && h !== 3 && h !== 5 && e.align && (e.align.x || e.align.y) ? e.align : null;
   const p = ap || e.insert;
   return {
-    type: 'text', ...base, x: X(p.x), y: p.y, h: e.height, rot: normAngle(e.rotation || 0), wf: e.widthFactor || 1, s,
+    type: 'text', ...base, x: p.x, y: p.y, h: e.height, rot: normAngle(e.rotation || 0), wf: e.widthFactor || 1, s,
     ha: h === 1 || h === 4 ? 'center' : h === 2 ? 'right' : 'left',
     va: h === 4 || v === 2 ? 'middle' : v === 3 ? 'top' : v === 1 ? 'bottom' : 'baseline',
     ...styleName(e.style), ...(Number.isFinite(e.oblique) && Math.abs(e.oblique) > 1e-12 ? { obl: e.oblique } : {}),
@@ -576,14 +626,29 @@ export function layerOverrides(db, ltName = (x) => x) {
   return out;
 }
 
+/** The entity types whose points are in their OCS (the DXF reference); the rest (LINE, POINT, ELLIPSE, MTEXT, …) are world. */
+const OCS_TYPES = new Set(['CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE_2D', 'TEXT', 'ATTRIB', 'ATTDEF', 'INSERT', 'MINSERT', 'HATCH', 'SOLID', 'TRACE']);
+/** The OCS elevation (z) of such an entity. */
+function ocsElevation(e) {
+  const fin = (v) => (Number.isFinite(v) ? v : 0);
+  switch (e.type) {
+    case 'CIRCLE': case 'ARC': return fin(e.center?.z);
+    case 'TEXT': case 'ATTRIB': case 'ATTDEF': return fin(e.insert?.z) || fin(e.elevation);
+    case 'INSERT': case 'MINSERT': return fin(e.insert?.z);
+    case 'SOLID': case 'TRACE': return fin(e.points?.[0]?.z) || fin(e.elevation);
+    default: return fin(e.elevation);
+  }
+}
+
 /** A text style name other than Standard → { style } (P.7). */
 function styleName(n) { return typeof n === 'string' && n && !/^standard$/i.test(n) ? { style: n } : {}; }
 
 /** A block's ATTDEF → an attribute definition (flags 1 invisible, 2 constant, 8 preset). */
 function attdefOf(e) {
   if (!e.tag) return null;
-  const f = e.extrusion && e.extrusion.z < -0.5;
-  const t = textOf(e, { layer: e.layer || '0', color: color(e) }, (x) => (f ? -x : x));
+  const raw = textOf(e, { layer: e.layer || '0', color: color(e) });
+  const m = raw && planMatrix(e.extrusion, ocsElevation(e));
+  const t = m ? toPlan(raw, m) : raw;   // 0.6 DF.1: its own coordinate system → the block's plan
   if (!t) return null;
   const fl = e.flags || 0;
   return attdef(t, { tag: e.tag, prompt: plain(e.prompt || ''), def: t.s, invisible: !!(fl & 1), constant: !!(fl & 2), preset: !!(fl & 8) });
@@ -731,4 +796,9 @@ function arcBetween(pts, p, q, b) {
   const ux = -(q.y - p.y) / c, uy = (q.x - p.x) / c, cx = mx + ux * h, cy = my + uy * h;
   const a0 = Math.atan2(p.y - cy, p.x - cx), n = Math.max(2, Math.ceil(16 * Math.abs(theta) / Math.PI));
   for (let k = 1; k < n; k++) { const t = a0 + theta * k / n; pts.push(cx + Math.abs(r) * Math.cos(t), cy + Math.abs(r) * Math.sin(t)); }
+}
+
+/** The plot style table a drawing's Model layout names in its page setup (0.6 DC.14), or ''. */
+function modelStyleSheet(db) {
+  return String((db.layouts || []).find((l) => /^model$/i.test(l.name || ''))?.paper?.styleSheet || '').trim().slice(0, 64);
 }

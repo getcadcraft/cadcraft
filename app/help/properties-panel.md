@@ -3,7 +3,7 @@ title: The Properties panel
 summary: See and change everything about the selected objects, many at once: coordinates with Z, sizes, text, dimension settings, transparency and more. Fields take expressions and lengths with units.
 section: tasks
 order: 61
-keywords: properties, properties palette, ctrl+1, pr, ch, mo, ddmodify, varies, quick select, pickadd, coordinates, z, elevation, thickness, transparency, material, hyperlink, expression, quickcalc, vertex, dimension style, tolerance, decimals
+keywords: totals, total length, total area, sum, selection length, properties, properties palette, ctrl+1, pr, ch, mo, ddmodify, varies, quick select, pickadd, coordinates, z, elevation, thickness, transparency, material, hyperlink, expression, quickcalc, vertex, dimension style, tolerance, decimals
 ---
 
 ## What you will learn
@@ -62,6 +62,21 @@ A length with a unit needs the drawing to have units: set {{ui:Units}} under {{u
 
 All four dimensions change, in one undo step. A field that reads **Varies** means the objects differ; typing a value sets it on all of them. Objects on locked layers are left as they are, and the note says how many.
 
+## Totals of a selection
+
+With several objects selected, the {{ui:Totals}} section at the top says:
+
+- **Objects**: how many of each kind, for example "8 lines, 2 polylines, 1 circle".
+- **Total length**: the lines, arcs and polylines added up (splines from other programs count: they come in as
+  polylines), and how many objects that is.
+- **Total area**: the closed ones added up: circles, whole ellipses, closed polylines and hatches (a hatch's holes are
+  taken off).
+
+They are in the drawing's length format (feet and inches when it uses them; areas then in square inches and square feet).
+The status bar shows the same length and area whenever objects are selected; {{ui:Settings}} › {{ui:CadCraft}} ›
+{{ui:Length and area of the selection}} › {{ui:Hidden}} turns that off. For one object, {{ui:Geometry}} shows its own length
+and area, as before.
+
 ## Coordinates
 
 Every point shows **X**, **Y** and **Z**: start and end of a line, centers, insertion points, text positions, the current polyline vertex. Lines also show **Delta X**, **Delta Y** and **Delta Z** (read-only). Polylines and hatches have an **Elevation** (one Z for the whole object).
@@ -76,7 +91,7 @@ The crosshair button beside a point's name lets you pick it in the drawing inste
 | {{ui:Transparency}} | By layer, by block, or 0 to 90% |
 | {{ui:Thickness}} | How far lines, circles, arcs, polylines, points and text extend in Z |
 | {{ui:Material}} | By layer, by block, Global or a name a drawing brought |
-| {{ui:Plot style}} | Read-only: drawings plot by color (a color-dependent table) |
+| {{ui:Plot style}} | Read-only: drawings plot by color, through the sheet's [plot style table](topic:plot-pdf#plot-style-tables) |
 | {{ui:Hyperlink}} | A web address kept with the object |
 
 ## What each type shows

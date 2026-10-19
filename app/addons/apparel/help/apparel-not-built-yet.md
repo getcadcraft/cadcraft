@@ -8,7 +8,7 @@ keywords: limits, not built, missing, roadmap, apparel
 
 ## Not built yet
 
-- **Automatic nesting:** markers are laid out by hand ({{cmd:MARKER}}); CadCraft does not place the pieces for you yet.
+- **Automatic nesting is an assistant, not an optimiser:** {{cmd:MARKERNEST}} has not been compared with a marker made by a pattern maker yet, and it does not split pieces across the fold or match plaids.
 - **Plaids and stripes** in markers (matching pieces to a repeat), and **splitting** a marker across fabric widths.
 - **Adding or removing points** on a piece's sew line: draw the outline again and use {{cmd:PIECE}}.
 - **Pleats, darts that open and close, and walking a seam round a corner** onto the next edge.

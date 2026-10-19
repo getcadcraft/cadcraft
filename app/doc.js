@@ -26,6 +26,8 @@ import { cleanPanes } from './panes.js';
 import { cleanUcs, ucsData, UCS_NAME_RE } from './ucs.js';
 
 import { t } from './i18n.js';
+import { cleanPlotStyles } from './plotstyle.js';
+import { cleanGeo } from './geodwg.js';   // 0.6 GEO-DWG
 // Constraints and parameters (gcons.js, params-doc.js): doc.constraints [] and doc.params {vars, links} are part
 // of the undoable document — doc.setParametric({constraints, params}) inside a change replaces both. A change that
 // moves constrained geometry is re-solved before it is recorded (gcons.afterEdit); one the constraints cannot
@@ -47,6 +49,7 @@ export class Doc {
     this.ucsNamed = [];             // saved UCSs [{ name, x, y, ang }] (UCS NA; the file's UCS table)
     this.viewTwist = 0;             // one pane's view turn to save / opened (radians; the active VPORT's twist, DR.8); split screen: doc.vports[].tw
     this.blockEdit = null;          // the block editor (BEDIT): { name, map, base, mark, from } while it is open
+    this.refEdit = null;            // editing a block in place (REFEDIT, 0.6 DF.5): { ref, name, map, ids (the working set), m, mark }
     this.layers = new Map();        // name → { name, color, on, frozen, locked, plot, linetype, lineweight } (linetypes.js)
     this.linetypes = new Map();     // name → { name, description, pattern } that a file brought (linetypes.js; standard ones built in)
     this.textStyles = new Map();    // name → { font, h, wf, obl } — a file's text styles (STYLE table; Properties lists them; dwg-props / cad-files)
@@ -170,8 +173,11 @@ export class Doc {
     this.emitLayers();
   }
   emitLayers() { if (this.layersMoved && !this.pending) { this.layersMoved = false; this.emit('layers'); } }
-  visible(e) { const l = this.layers.get(e.layer); return !l || (l.on && !l.frozen); }
-  editable(e) { const l = this.layers.get(e.layer); return this.visible(e) && !(l && l.locked); }
+  visible(e) { const l = this.layers.get(e.layer); return (!l || (l.on && !l.frozen)) && !this.refHidden(e); }
+  editable(e) { const l = this.layers.get(e.layer); return this.visible(e) && !(l && l.locked) && !this.refFaded(e); }
+  /** REFEDIT (0.6 DF.5): the reference being edited stays out of sight, and only the working set can be changed. */
+  refHidden(e) { const r = this.refEdit; return !!r && e?.id === r.ref && this.space === r.map; }
+  refFaded(e) { const r = this.refEdit; return !!r && this.space === r.map && !!e && !r.ids.has(e.id); }
 
   // ---- reading ----
   get(id) { return this.entities.get(id); }
@@ -216,6 +222,7 @@ export class Doc {
     ent.id = this.nextId++;
     this.layer(ent.layer);
     map.set(ent.id, ent);
+    if (this.refEdit && map === this.refEdit.map) this.refEdit.ids.add(ent.id);   // drawn while editing in place: it joins the working set
     this.pending.ops.push({ map, id: ent.id, before: null, after: ent });
     return ent;
   }
@@ -358,7 +365,7 @@ export class Doc {
   }
 
   /** Replace everything (open / new). Not undoable; the caller asks about unsaved changes first. */
-  load({ entities = [], layers = [], blocks = [], layouts = [], meta = {}, dimStyle = null, parametric = null, report = null, views = [], linetypes = [], vports = null, textStyles = null, dimStyles = null, ucs = null, viewTwist = 0 } = {}) {
+  load({ entities = [], layers = [], blocks = [], layouts = [], meta = {}, dimStyle = null, parametric = null, report = null, views = [], linetypes = [], vports = null, textStyles = null, dimStyles = null, ucs = null, viewTwist = 0, plotStyles = null, geo = null } = {}) {
     if (this.liveHook) this.liveHook.replaced();   // another drawing replaces the live one here: the session ends for this window
     this.viewTwist = Number.isFinite(viewTwist) && Math.abs(viewTwist) <= 100 ? viewTwist : 0;
     // the file's UCS (DR.8, cad-files): { current: {x, y, ang} | null, named: [{ name, x, y, ang }] } — checked like any file data
@@ -371,6 +378,7 @@ export class Doc {
     this.layouts = [];
     this.space = this.model;
     this.blockEdit = null;
+    this.refEdit = null;
     this.nextId = 1;
     this.addLayer({ name: '0', color: 7 });
     for (const l of layers) this.addLayer(l);
@@ -396,14 +404,21 @@ export class Doc {
       if (report && Array.isArray(report.notes)) report.notes.push(...got.notes);
       this.loadNotes = got.notes;
     }
+    const psIn = cleanPlotStyles(plotStyles);   // the drawing's plot style tables (plotstyle.js; untrusted)
     for (const l of layouts) {
       const map = new Map();
       fill(map, l.entities || []);
-      this.layouts.push({ name: l.name, paper: { x0: 0, y0: 0, ...l.paper }, entities: map });
+      const ps = String(psIn.layouts[l.name] || l.plotStyle || '').trim().replace(/\.ctb$/i, '').slice(0, 64);   // plot style table (0.6 DC.14)
+      this.layouts.push({ name: l.name, paper: { x0: 0, y0: 0, ...l.paper }, entities: map, ...(ps ? { plotStyle: ps } : {}) });
     }
     this.views = (Array.isArray(views) ? views : []).filter((v) => v && typeof v.name === 'string' && v.name && [v.cx, v.cy, v.w, v.h].every(Number.isFinite) && v.w > 0 && v.h > 0)
       .map((v) => ({ name: v.name.slice(0, 255), cx: v.cx, cy: v.cy, w: v.w, h: v.h, ...(typeof v.layout === 'string' ? { layout: v.layout } : {}) }));
     this.meta = { name: 'Drawing1', units: '', source: '', version: '', ...meta };
+    delete this.meta.plotStyles;
+    if (psIn.tables.length || psIn.model) this.meta.plotStyles = { tables: psIn.tables, model: psIn.model };
+    delete this.meta.geo;
+    const geoIn = cleanGeo(geo ?? meta.geo);   // the coordinate system and map layers kept with the drawing (0.6 GEO-DWG, geodwg.js; untrusted)
+    if (geoIn) this.meta.geo = geoIn;
     this.model3d.fromFile(in3d, this.meta.units, report);
     this.current.layer = '0';
     this.current.linetype = null; this.current.lineweight = null;

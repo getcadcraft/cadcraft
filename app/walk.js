@@ -40,6 +40,9 @@ import { resolveLt, resolveLw, patternOf, dashPrims } from './linetypes.js';
 import { findPicture } from './pictures.js';
 import { clipOut, clipPoly } from './xclip.js';
 
+/** How strongly what is outside REFEDIT's working set is drawn (0.6 DF.5). */
+export const REF_FADE = 0.3;
+
 export function walk(doc, entities, out, { m = null, plot = false, frozen = null } = {}) {
   // per-viewport layer overrides (VP.3, frozenSet(vp).ovr): the layers as that viewport shows them
   const ovr = frozen && frozen.ovr;
@@ -153,7 +156,14 @@ export function walk(doc, entities, out, { m = null, plot = false, frozen = null
     }
   };
 
+  // REFEDIT (0.6 DF.5): the reference being edited is not drawn, everything outside the working set is drawn faded
+  const re = doc.refEdit || null;   // only the edited space's own objects are touched (re.map.get(e.id) === e below)
+  const plain = out;
+  const fade = (o) => ({ ...(o || {}), alpha: (o?.alpha ?? 1) * REF_FADE });
+  const faded = re ? { ...plain, stroke: (c, p, lw, o) => plain.stroke(c, p, lw, fade(o)), fill: (c, l, s, o) => plain.fill(c, l, s, o?.wipe ? o : fade(o)), text: (c, e, o) => plain.text(c, e, fade(o)),
+    ...(plain.infinite ? { infinite: (c, e, lw, o) => plain.infinite(c, e, lw, fade(o)) } : {}), ...(plain.picture ? { picture: (p) => plain.picture({ ...p, alpha: (p.alpha ?? 1) * REF_FADE }) } : {}) } : plain;
   for (const e of entities) {
+    if (re && re.map.get(e.id) === e) { if (e.id === re.ref) continue; out = re.ids.has(e.id) ? plain : faded; } else out = plain;
     if (e.type === 'viewport') {
       // the view shows whatever its layer; the border follows the layer like anything else
       out.viewport?.(e);

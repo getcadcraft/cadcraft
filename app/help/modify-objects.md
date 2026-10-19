@@ -3,7 +3,7 @@ title: Move, copy, rotate, scale, mirror, stretch and array
 summary: Lay out furniture in a room with the basic modify commands, using base points, typed distances and undo.
 section: tasks
 order: 40
-keywords: move, copy, rotate, scale, mirror, stretch, array, join, matchprop, match properties, painter, arrayrect, arraypolar, polar array, erase, explode, undo, redo, base point, displacement, modify
+keywords: move, copy, rotate, scale, mirror, stretch, array, join, matchprop, match properties, painter, arrayrect, arraypolar, polar array, erase, explode, undo, redo, base point, displacement, modify, align, distribute, line up, space evenly
 ---
 
 ## What you will make
@@ -99,6 +99,8 @@ CadCraft keeps the last 500 steps. Layer settings (on, freeze, lock, color) are 
 
 The rectangle is 600 wider; lines that ended on the wall still end on it. An arc with one end inside keeps its height, circles and text move when their center or insertion point is inside, and a dimension measures its new length. Objects picked one by one, without a window, simply move.
 
+You can also select first: drag the crossing window (or a crossing lasso) over the wall with no command running, then type `S`. STRETCH takes that selection and stretches what its windows hold, just as if you had dragged them at its own prompt.
+
 ## Array: rows and columns, or round a center
 
 {{cmd:ARRAY}} (`AR`, or {{ui:Array}}) copies the selection in a grid or in a circle.
@@ -117,6 +119,27 @@ For a ring of chairs round a table, choose `PO` (Polar) instead, click the table
 ## Match properties
 
 {{cmd:MATCHPROP}} (`MA`, or {{ui:Modify}} › {{ui:More}} › {{ui:Match properties}}): click the object whose look you want, then select the objects to change and press {{key:Enter}}. They take its layer and color; a text takes its height, a dimension its sizes, a hatch its pattern. Type `S` (Settings) at the second question to turn any of these off.
+
+## Align objects
+
+**By points.** {{cmd:ALIGN}} (`AL`, or {{ui:Modify}} › {{ui:More}} › {{ui:Align}}): select the objects and press {{key:Enter}}, then
+click a point on them (the source) and where it should go (the destination).
+
+- One pair moves them. Press {{key:Enter}} at `Specify second source point` to stop there.
+- Two pairs also turn them, so the line between the two source points lies along the line between the two destination
+  points. CadCraft then asks `Scale objects based on alignment points?`: `Y` makes them that much bigger or smaller too.
+- A third pair mirrors them when its two points are on opposite sides of that line.
+
+**Edges and spacing.** {{ui:Modify}} › {{ui:More}} › {{ui:Align and distribute}} (or `ALIGNPANEL`) opens a small panel
+over the drawing. Select objects, then:
+
+- pick what to line up with in {{ui:Align to}} (the whole selection, the first or the last object you picked, or a point
+  you click) and click {{ui:Left}}, {{ui:Center}}, {{ui:Right}}, {{ui:Top}}, {{ui:Middle}} or {{ui:Bottom}};
+- or pick {{ui:Equal gaps}} or {{ui:Equal centres}} and click {{ui:Across}} or {{ui:Up and down}}: the outer two objects
+  stay, the rest are spaced evenly between them (three objects at least).
+
+Each click is one undo step, and the selection stays, so you can try another. Each object counts by its bounding box, in the
+UCS when one is set. On the command line the same is {{cmd:ALIGNTO}} and {{cmd:DISTRIBUTE}}.
 
 ## Erase and explode
 

@@ -115,6 +115,10 @@ $__more = [
         ['XATTACH', Lang::t('toolbar.xattach'), 'XA'],
         ['XREF', Lang::t('toolbar.xref'), 'XR'],
         ['DELBLOCKS', Lang::t('toolbar.delblocks'), 'DELBLOCKS'],
+        ['EATTEDIT', Lang::t('toolbar.eattedit'), 'EATTEDIT'],   // 0.6 DF.5
+        ['BATTMAN', Lang::t('toolbar.battman'), 'BATTMAN'],
+        ['REFEDIT', Lang::t('toolbar.refedit'), 'REFEDIT'],
+        ['EXPORTPOINTS', Lang::t('toolbar.exportpoints'), 'EXPPTS'],   // 0.6 DF.7
     ],
     'View' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['DIST', Lang::t('toolbar.measure'), 'DI'],
@@ -145,6 +149,8 @@ $__more = [
         ['MATCHPROP', Lang::t('toolbar.matchprop.long'), 'MA'],
         ['BREAK', Lang::t('toolbar.break'), 'BR'],
         ['LENGTHEN', Lang::t('toolbar.lengthen'), 'LEN'],
+        ['ALIGN', Lang::t('toolbar.align'), 'AL'],   // 0.6 DF.2
+        ['ALIGNPANEL', Lang::t('toolbar.alignpanel'), 'ALP'],
     ],
 ];
 ?>
@@ -180,6 +186,7 @@ $__more = [
                 <button type="button" role="menuitem" data-cmd="COPYCLIP"><?= Lang::e('ui.copy') ?> <kbd>Ctrl+C</kbd></button>
                 <button type="button" role="menuitem" data-cmd="PASTECLIP"><?= Lang::e('ui.paste') ?> <kbd>Ctrl+V</kbd></button>
                 <button type="button" role="menuitem" data-cmd="PASTEORIG"><?= Lang::e('ui.paste_place') ?> <kbd>Ctrl+Shift+V</kbd></button>
+                <button type="button" role="menuitem" data-paste-picture><?= Lang::e('ui.paste_picture') ?></button><?php /* 0.6 DF.6: from the system clipboard */ ?>
                 <button type="button" role="menuitem" data-cmd="DUPLICATE"><?= Lang::e('ui.duplicate_move') ?> <kbd>Ctrl+D</kbd></button>
                 <button type="button" role="menuitem" data-cmd="ERASE"><?= Lang::e('ui.delete') ?> <kbd>Delete</kbd></button>
                 <hr>
@@ -357,7 +364,10 @@ $__more = [
       <p class="cc-note" data-sheetset-empty><?= Lang::e('sheetset.empty') ?></p>
     </section>
     <section class="cc-sec">
-      <h2 class="cc-h"><?= Lang::e('ui.drawing') ?></h2>
+      <div class="cc-sec-head">
+        <h2 class="cc-h"><?= Lang::e('ui.drawing') ?></h2>
+        <button type="button" class="cc-linkbtn" data-cmd="SAMPLES"><i class="bi bi-journal-richtext" aria-hidden="true"></i> <?= Lang::e('toolbar.samples') ?></button><?php /* 0.6 DF.9 */ ?>
+      </div>
       <dl class="cc-dl" data-info></dl>
       <div data-report></div>
     </section>
@@ -440,11 +450,11 @@ $__more = [
             <select id="cc-plot-scale" class="cc-select" data-plot-scale></select>
           </div>
           <div class="cc-props">
-            <label for="cc-plot-ink"><?= Lang::e('ui.ink') ?></label>
-            <select id="cc-plot-ink" class="cc-select" data-plot-ink>
-              <option value="mono"><?= Lang::e('ui.black_monochrome') ?></option>
-              <option value="color"><?= Lang::e('ui.drawing_colours') ?></option>
-            </select>
+            <label for="cc-plot-style"><?= Lang::e('plotstyle.plot.label') ?></label>
+            <div class="cc-row">
+              <select id="cc-plot-style" class="cc-select" data-plot-style title="<?= Lang::e('plotstyle.plot.title') ?>"></select>
+              <button type="button" class="btn-line btn-sm-cc" data-plot-style-edit><?= Lang::e('plotstyle.plot.edit') ?></button>
+            </div>
             <label for="cc-plot-pen"><?= Lang::e('ui.line_weight') ?></label>
             <select id="cc-plot-pen" class="cc-select" data-plot-pen></select>
             <label for="cc-plot-dpi"><?= Lang::e('ui.plot.pictures') ?></label>
@@ -471,6 +481,7 @@ $__more = [
   <footer class="cc-status" aria-label="<?= Lang::e('ui.status') ?>">
     <output class="cc-coords" data-coords>0, 0</output>
     <span class="cc-status-msg" data-status></span>
+    <span class="cc-seltotals" data-seltotals hidden aria-live="polite"></span>
     <div class="cc-toggles">
       <button type="button" class="cc-toggle" data-toggle="grid" aria-pressed="true" title="<?= Lang::e('ui.grid_f7') ?>"><?= Lang::e('ui.grid') ?></button>
       <button type="button" class="cc-toggle" data-toggle="ortho" aria-pressed="false" title="<?= Lang::e('ui.ortho_f8') ?>"><?= Lang::e('ui.ortho') ?></button>

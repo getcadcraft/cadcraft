@@ -31,9 +31,10 @@
 import { Doc, TYPE_NAMES, aciHex } from './doc.js';
 import { View, SNAP_LABELS, DRAWING_FONT } from './view.js';
 import { switchState } from './visedit.js';
-import { Engine, lookup, commandList, namedBlocks, setLengthFormat, lengthFormatLabel, lengthFormatName, qsTypeLabel, qsPropLabel, closeBlockEdit, isAttdefText, commandRegistry } from './commands.js';
+import { Engine, lookup, commandList, namedBlocks, setLengthFormat, lengthFormatLabel, lengthFormatName, qsTypeLabel, qsPropLabel, closeBlockEdit, closeRefEdit, isAttdefText, commandRegistry } from './commands.js';
 import { QS_PROPS, propsFor, valuesOf, quickSelect as qsCount } from './qselect.js';
-import { formatLength, formatArea, parseLength, unitsOf, LUNITS } from './units.js';
+import { formatLength, formatArea, parseLength, readNumber, unitsOf, LUNITS } from './units.js';
+import { selectionTotals } from './seltotals.js';   // 0.6 DF.4
 import { PATTERNS, hatchLines } from './hatch.js';
 import { polarTrack, trackPoint } from './tracking.js';
 import { activeUcs, toUcs } from './ucs.js';
@@ -43,13 +44,19 @@ import { dynGripActs } from './dyngrips.js';
 import { sheetNumberOf } from './sheetnum.js';
 import { openCompare } from './compare-ui.js';
 import { installShortcuts } from './keys-ui.js';
+import { installAlignPanel } from './align-ui.js';   // 0.6 DF.2: the Align and distribute panel
+import { installAttEdit } from './attedit-ui.js';   // 0.6 DF.5: EATTEDIT, BATTMAN, the REFEDIT banner
+import { installPlotStyles } from './plotstyle-ui.js';   // 0.6 DC.14: the plot style table editor
+import { BUILTIN as PLOT_BUILTIN, builtinTable, findTable, styleNameFor } from './plotstyle.js';
+import { hasAttributes } from './attedit.js';
+import { placePastedPicture, picturesToSave } from './pastepic.js';   // 0.6 DF.6: a picture pasted from the system clipboard
 import { keyMap } from './mytools.js';
 import { has as hasKey } from './i18n.js';
 import { DynInput } from './dynin.js';
 import { readDxf, writeDxf } from './dxf.js';
 import { saveDwg, DWG_VERSIONS, dwgVersionKey } from './dwg-save.js';
 import { writeDxf2000 } from './dxf2000.js';
-import { importDwg, VERSIONS } from './dwg-import.js';
+import { importDwg, VERSIONS, preR13 } from './dwg-import.js';
 import { gripMove, deg, rad, normAngle, SNAP_KINDS, textLayout, FONT_EM, LINE_SPACING } from './geom.js';
 import { DIM_KINDS, dimMeasure, formatMeasure } from './dims.js';
 import { PAPERS, paperByKey, makePaper, scaleList, scaleLabel, sOf, nOf, aimViewport, modelExtents } from './sheets.js';
@@ -78,7 +85,8 @@ import { startAddons } from './addons/cadcraft-api.js';
 import { installAgents } from './agents.js';
 import { getHost } from "./host.js";
 import './pictures-cmd.js';   // IMAGEATTACH, IMAGE, IMAGECLIP (0.5 WL.14, cad-files)
-import { CloudAttach, attachFile } from './cloud-cad.js';
+import './asbuilt.js';        // ASBUILT: as-built points compared with the drawing's (0.6 LC.22, lc-structure)
+import { CloudAttach, attachFile, CLOUD_ACCEPT, CLOUD_READ, isCloudFile } from './cloud-cad.js';
 import { installMaps } from './maps-cad.js';   // MAPLAYERS (0.5 SG.3; maplayers.js loads on first use)   // POINTCLOUDATTACH, POINTCLOUD (0.5 SG.1; the reader loads with the first cloud)
 import './textmask-cmd.js';   // TEXTMASK (0.5 WL.8, cad-files)
 import './xclip-cmd.js';   // XCLIP (0.5 WL.16, cad-files)
@@ -114,6 +122,9 @@ function init(root) {
     lasso: saved.lasso === 'box' ? 'box' : 'lasso',   // press and drag: a lasso (lasso.js; LASSOMODE 1) or a rectangle (0)
     corner: ['auto', 'cube', 'axes', 'none'].includes(saved.corner) ? saved.corner : 'auto',   // corner indicator (applyCorner)
     tabs: saved.tabs === 'number' ? 'number' : 'full',   // sheet tabs: full names, or sheet numbers only (WL.9)
+    selTotals: saved.selTotals === 'off' ? 'off' : 'on',   // the selection's length and area in the status bar (0.6 DF.4)
+    trimDrag: saved.trimDrag === 'window' ? 'window' : 'path',   // TRIM / EXTEND, a drag on an empty spot: a freehand path or a window (0.6 DF.13)
+    emptyClick: saved.emptyClick === 'keep' ? 'keep' : 'clear',   // a click on an empty spot: clears the selection, or keeps it (Esc clears; 0.6 DC.67)
   };
   const persist = () => { try { localStorage.setItem('cadcraft.settings', JSON.stringify({ ...settings, kinds: [...settings.kinds] })); } catch { /* private window: fine */ } };
 
@@ -130,7 +141,7 @@ function init(root) {
     settingsDlg?.querySelectorAll('input[name="ccCursor"]').forEach((r) => { r.checked = r.value === size; });
   };
   // Paste point and what a click does to the selection: two radio groups in the same panel.
-  const RADIO_SETTINGS = { ccPaste: 'pasteBase', ccPick: 'pick', ccCorner: 'corner', ccLasso: 'lasso', ccTabs: 'tabs' };
+  const RADIO_SETTINGS = { ccPaste: 'pasteBase', ccPick: 'pick', ccCorner: 'corner', ccLasso: 'lasso', ccTabs: 'tabs', ccSelTotals: 'selTotals', ccTrimDrag: 'trimDrag', ccEmptyClick: 'emptyClick' };
   const setRadio = (name, value) => {
     settings[RADIO_SETTINGS[name]] = value; persist();
     settingsDlg?.querySelectorAll('input[name="' + name + '"]').forEach((r) => { r.checked = r.value === value; });
@@ -143,8 +154,9 @@ function init(root) {
       else if (RADIO_SETTINGS[e.target.name]) setRadio(e.target.name, e.target.value);
       if (e.target.name === 'ccCorner') applyCorner();
       if (e.target.name === 'ccTabs') renderTabs();
+      if (e.target.name === 'ccSelTotals') renderSelTotals();
     });
-    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); applyCorner(); renderTabs(); });
+    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); setRadio('ccSelTotals', 'on'); setRadio('ccTrimDrag', 'path'); setRadio('ccEmptyClick', 'clear'); applyCorner(); renderTabs(); renderSelTotals(); });
   }
 
   // The clipboard: this tab's copy + localStorage, so another tab can paste (storage may be off: memory only).
@@ -157,7 +169,7 @@ function init(root) {
     cursor: null, selection: new Set(), shift: false,
     clipboard, settings,
     print, prompt: setPrompt,
-    setSelection(set) { host.selection = new Set(set); view.state.selection = host.selection; refreshGrips(); scheduleProps(); view.invalidate(); layersForViewport(); },
+    setSelection(set) { host.selection = new Set(set); if (set.windows?.length) host.selection.windows = set.windows; view.state.selection = host.selection; refreshGrips(); scheduleProps(); view.invalidate(); layersForViewport(); },
     pickAt: (p) => cycledAt(p) ?? view.pick(p),   // Tab cycling (cycleTab) wins while the pointer stays put
     pickWindow: (w, crossing) => view.pickWindow(w, crossing),
     pickLasso: (pts, mode) => lassoHits(doc.all().filter((e) => doc.editable(e)), pts, mode, doc.blocks, (e) => view.boundsOf(e)),
@@ -182,7 +194,7 @@ function init(root) {
     },
     zoomExtents: () => { rememberView(); view.fit(); },
     // point clouds (cloud-cad.js, 0.5 SG.1): one per window, under whichever drawing shows
-    pickCloud: () => new Promise((resolve) => { const i = el('input', { type: 'file', accept: '.las,.laz,.xyz,.pts' }); i.addEventListener('change', () => resolve(i.files[0] || null)); i.addEventListener('cancel', () => resolve(null)); i.click(); }),
+    pickCloud: () => new Promise((resolve) => { const i = el('input', { type: 'file', accept: CLOUD_ACCEPT }); i.addEventListener('change', () => resolve(i.files[0] || null)); i.addEventListener('cancel', () => resolve(null)); i.click(); }),
     zoomCloud: () => { const b = host.cloud.bbox(); if (b) { rememberView(); view.fitPoints([{ x: b.minX, y: b.minY }, { x: b.maxX, y: b.maxY }]); } },
     status: (msg) => busy(msg),
     zoomWindow: (a, b, o = {}) => { rememberView(); view.fitPoints([a, b], o.exact ? 1 : 0.9); },   // in a turned view: the window as it lies on screen
@@ -196,6 +208,8 @@ function init(root) {
     pickDrawing: () => pickDrawing(),
     // pictures (pictures-cmd.js): PNG / JPEG files → [{ name, bytes }]; redraw once their files are given
     pickPictures: ({ multiple = false } = {}) => pickPictures(multiple),
+    // a text file (ASBUILT's point file, 0.6 LC.22) → { name, text } | null
+    pickText: ({ accept = '.csv,.txt' } = {}) => new Promise((resolve) => { const i = el('input', { type: 'file', accept }); i.addEventListener('change', async () => { const f = i.files[0]; resolve(f ? { name: f.name, text: await f.text() } : null); }); i.addEventListener('cancel', () => resolve(null)); i.click(); }),
     redraw: () => view.invalidate(true),
     chooseBlock: (fileName, names) => chooseBlock(fileName, names),
     choose: (o) => ask(o),
@@ -210,7 +224,7 @@ function init(root) {
     ws3d: null,
     open3d: () => open3d(),
     saveBlob: (name, data, mime) => downloadBlob(name, data, mime),
-    plotPrefs: () => ({ ink: plotPrefs.ink || 'mono', pen: +(plotPrefs.pen || 0.25) }),   // PUBLISH plots as the Plot dialog last did
+    plotPrefs: () => ({ ink: plotPrefs.ink || 'mono', style: plotPrefs.style || '', pen: +(plotPrefs.pen || 0.25) }),   // PUBLISH plots as the Plot dialog last did (a sheet's own table first)
     render3dTabs: () => renderTabs(),
   };
   host.cloud = new CloudAttach({ doc: () => doc, redraw: () => view.invalidate(true), on3d: () => host.ws3d?.cloudChanged?.() });
@@ -241,8 +255,9 @@ function init(root) {
 
   // ---- dynamic input (F12; dynin.js): the values by the crosshair; typing still goes to the command line ----
   const dyn = new DynInput();
-  const parseL = (x) => parseLength(x, doc.layout ? 2 : doc.meta.lunits) ?? NaN;
-  const isLen = (x) => parseLength(x, doc.layout ? 2 : doc.meta.lunits) !== null;
+  const parseL = (x) => parseLength(x, doc.layout ? 2 : doc.meta.lunits, doc.layout ? '' : doc.meta.units) ?? NaN;   // arithmetic too (0.6 DF.3)
+  const isLen = (x) => Number.isFinite(parseL(x));
+  dyn.parseAngle = (x) => { const r = readNumber(x); return r.ok ? r.value : NaN; };
   const dynBox = el('div', { className: 'cc-dyn', hidden: true, 'aria-hidden': 'true' });
   ui.stage.append(dynBox);
   /** The pointer with the locked fields applied. */
@@ -420,12 +435,21 @@ function init(root) {
   let drag = null;         // press and drag: { kind 'lasso' | 'path' (TRIM / EXTEND), start (screen), pts (world), mode } (lasso.js)
 
   function startDrag(kind, p) {
-    drag = { kind, start: { x: down.x, y: down.y }, pts: [down.world, view.toWorld(p.x, p.y)], mode: kind === 'path' ? 'fence' : lassoMode(down, p) };
+    if (kind === 'path' && settings.trimDrag === 'window') kind = 'trimbox';   // TRIM / EXTEND by a dragged window (0.6 DF.13)
+    drag = { kind, start: { x: down.x, y: down.y }, pts: [down.world, view.toWorld(p.x, p.y)], mode: kind === 'path' ? 'fence' : kind === 'trimbox' ? 'crossing' : lassoMode(down, p) };
     if (kind === 'path') engine.dragPath = drag.pts;   // TRIM / EXTEND preview what the path crosses so far
+    if (kind === 'trimbox') { dragMove(p); return; }
     view.state.lasso = { pts: drag.pts, mode: drag.mode || 'window' };
     view.invalidate();
   }
   function dragMove(p) {
+    if (drag.kind === 'trimbox') {   // a rectangle from the press to the pointer, drawn as a crossing lasso
+      const a = drag.pts[0], b = view.toWorld(p.x, p.y);
+      drag.pts = [a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }, b];
+      view.state.lasso = { pts: [a, { x: b.x, y: a.y }, b, { x: a.x, y: b.y }], mode: 'crossing' };
+      view.invalidate();
+      return;
+    }
     const last = drag.pts[drag.pts.length - 1], ls = view.toScreen(last.x, last.y);
     if (Math.hypot(ls.x - p.x, ls.y - p.y) >= 3) drag.pts.push(view.toWorld(p.x, p.y));
     if (!drag.mode) drag.mode = lassoMode(drag.start, p);   // the first sideways move decides: right = window, left = crossing
@@ -438,13 +462,15 @@ function init(root) {
     cancelDrag();
     const pts = thin(d.pts, 2 / view.zoom);
     if (d.kind === 'path') { engine.path(pts); return; }
+    if (d.kind === 'trimbox') { const a = d.pts[0], b = d.pts[d.pts.length - 1]; engine.trimWindow({ minX: Math.min(a.x, b.x), minY: Math.min(a.y, b.y), maxX: Math.max(a.x, b.x), maxY: Math.max(a.y, b.y) }); return; }
     const mode = d.mode || 'window';
     if (pts.length < (mode === 'fence' ? 2 : 3)) return;
     if (engine.expects === 'select') engine.lasso(pts, mode);
     else if (!engine.busy) {
       const replace = settings.pick === 'replace';
-      const s = replace && !host.shift ? new Set() : new Set(host.selection);
+      const s = selectionBase();
       for (const id of host.pickLasso(pts, mode)) { if (host.shift && !replace) s.delete(id); else s.add(id); }
+      if (mode !== 'fence' && (!host.shift || replace)) (s.windows ||= []).push({ poly: pts.map((p) => ({ x: p.x, y: p.y })) });
       host.setSelection(s);
     }
   }
@@ -550,6 +576,12 @@ function init(root) {
     const enough = () => ui.stage.clientHeight >= Math.max(10 * rem, root.clientHeight * 0.3);
     root.classList.remove(...FIT);
     if (!narrow) for (const c of FIT) { if (enough()) break; root.classList.add(c); }
+    // a short phone held upright (an iPhone SE, 375 × 667): the key row joins the status row, one line that scrolls
+    // sideways, so the drawing keeps two thirds of the screen (0.6, platforms' IPH.2 note); moved back when it grows
+    const shortPhone = document.documentElement.classList.contains('cc-phone') && window.innerHeight <= 700 && window.innerHeight > window.innerWidth;
+    const footer = root.querySelector('.cc-status');
+    if (shortPhone && footer && keyRow.parentElement !== footer) { footer.prepend(keyRow); root.classList.add('cc-keys-in-status'); }
+    else if (!shortPhone && keyRow.parentElement !== ui.form.parentElement) { ui.form.after(keyRow); root.classList.remove('cc-keys-in-status'); }
     const r = ui.stage.getBoundingClientRect(), tabsH = root.querySelector('.cc-tabs')?.offsetHeight || 0;
     document.body.style.setProperty('--cc-sp-bottom', Math.max(8, Math.round(window.innerHeight - r.bottom + tabsH + 8)) + 'px');
   }
@@ -635,6 +667,7 @@ function init(root) {
     if (params.dblclick(view.toWorld(pos(e).x, pos(e).y))) return;   // a dimensional constraint's label: its value
     const id = view.pick(view.toWorld(pos(e).x, pos(e).y));
     if (id && ['text', 'mleader'].includes(doc.get(id)?.type)) { host.setSelection(new Set([id])); engine.run('TEXTEDIT'); }   // edit it in place
+    else if (id && hasAttributes(doc.get(id), doc.blocks.get(doc.get(id)?.block))) { host.setSelection(new Set([id])); engine.run('EATTEDIT'); }   // its attributes (0.6 DF.5)
     else if (!view.entered && doc.layout && viewportAt(view.toWorld(lp.x, lp.y))) enterViewport(viewportAt(view.toWorld(lp.x, lp.y)));   // VP.4: inside a viewport = edit the model through it
     else if (id) { host.setSelection(new Set([id])); props.open(); }   // any other object: its properties (props.js)
   });
@@ -685,10 +718,10 @@ function init(root) {
         focusCommandLine();
         resolve(save ? { s: ta.value.replace(/\r/g, ''), h: st.h, ls: st.ls, ww: st.ww, ha: st.ha, va: st.va } : null);
       };
-      const len = (inp, set) => inp.addEventListener('change', () => { const v = parseLength(inp.value, doc.meta.lunits); if (v !== null && v >= 0) { set(v); place(); } inp.value = fmtL(inp === hIn ? st.h : st.ww); });
+      const len = (inp, set) => inp.addEventListener('change', () => { const v = parseLength(inp.value, doc.meta.lunits, doc.meta.units); if (v !== null && v >= 0) { set(v); place(); } inp.value = fmtL(inp === hIn ? st.h : st.ww); });
       len(hIn, (v) => { if (v > 0) st.h = v; });
       len(wIn, (v) => { st.ww = v; });
-      sIn.addEventListener('change', () => { const v = parseFloat(sIn.value); if (v >= 0.25 && v <= 4) st.ls = v; sIn.value = fmt(st.ls); place(); });
+      sIn.addEventListener('change', () => { const r = readNumber(sIn.value), v = r.ok ? r.value : NaN; if (v >= 0.25 && v <= 4) st.ls = v; sIn.value = fmt(st.ls); place(); });
       jSel.addEventListener('change', () => { if (JUSTS[jSel.value]) [st.ha, st.va] = JUSTS[jSel.value]; place(); });
       ta.addEventListener('input', place);
       ok.addEventListener('click', () => finish(true));
@@ -826,13 +859,21 @@ function init(root) {
     const id = host.pickAt(raw);
     if (id) {
       // Settings › Clicking objects: 'add' (Shift removes) or 'replace' (Shift adds, or removes a selected one)
-      const s = settings.pick === 'replace' && !host.shift ? new Set() : new Set(host.selection);
+      const s = selectionBase();
       if (host.shift && s.has(id)) s.delete(id); else s.add(id);
       host.setSelection(s);
       return;
     }
-    if (!host.shift && host.selection.size) { host.setSelection(new Set()); }
+    if (!host.shift && host.selection.size && settings.emptyClick !== 'keep') { host.setSelection(new Set()); }   // 'keep': Esc clears (0.6 DC.67)
     startBox(raw);
+  }
+  /** What an idle click or window adds to: nothing in Settings › Clicking objects 'replace' (no Shift), else the selection
+   * with the windows that made it, which STRETCH takes as its own crossing windows (0.6 DC.68). */
+  function selectionBase() {
+    if (settings.pick === 'replace' && !host.shift) return new Set();
+    const s = new Set(host.selection);
+    if (host.selection.windows?.length) s.windows = [...host.selection.windows];
+    return s;
   }
   function startBox(raw) { pendingBox = raw; view.state.box = { a: raw, b: raw }; view.invalidate(); }
   function finishBox(a, b) {
@@ -848,8 +889,9 @@ function init(root) {
       if (engine.expects === 'select') engine.lasso(poly, mode);
       else if (!engine.busy) {
         const replace = settings.pick === 'replace';
-        const s = replace && !host.shift ? new Set() : new Set(host.selection);
+        const s = selectionBase();
         for (const id of host.pickLasso(poly, mode)) { if (host.shift && !replace) s.delete(id); else s.add(id); }
+        if (!host.shift || replace) (s.windows ||= []).push({ poly: poly.map((p) => ({ x: p.x, y: p.y })) });
         host.setSelection(s);
       }
       view.invalidate();
@@ -858,8 +900,9 @@ function init(root) {
     if (engine.expects === 'select') engine.window(rect, crossing);
     else if (!engine.busy) {
       const replace = settings.pick === 'replace';
-      const s = replace && !host.shift ? new Set() : new Set(host.selection);
+      const s = selectionBase();
       for (const id of view.pickWindow(rect, crossing)) { if (host.shift && !replace) s.delete(id); else s.add(id); }
+      if (!host.shift || replace) (s.windows ||= []).push(rect);   // STRETCH run next stretches what these windows hold (0.6 DC.68)
       host.setSelection(s);
     }
     view.invalidate();
@@ -949,6 +992,9 @@ function init(root) {
       if (k === 'p') { e.preventDefault(); if (!engine.busy) engine.run('PLOT'); return; }
       if (k === '1') { e.preventDefault(); props.toggle(); return; }   // the Properties panel (props.js)
       const EDIT = { c: 'COPYCLIP', x: 'CUTCLIP', v: e.shiftKey ? 'PASTEORIG' : 'PASTECLIP', d: 'DUPLICATE', a: 'SELECTALL' };
+      // Ctrl+V (0.6 DF.6): the browser's paste event says whether the system clipboard holds a picture (pasted as one) or
+      // not (CadCraft's own clipboard, as before); a browser that sends no paste event gets CadCraft's paste shortly after
+      if (k === 'v' && !e.shiftKey && !textKeys) { clearTimeout(pasteWait); pasteWait = setTimeout(() => { pasteWait = 0; editKey('PASTECLIP'); }, 80); return; }
       if (EDIT[k] && !textKeys && (k !== 'd' || !e.shiftKey) && (k === 'v' || !e.shiftKey)) { e.preventDefault(); editKey(EDIT[k]); return; }
       return;
     }
@@ -970,6 +1016,80 @@ function init(root) {
    * pointer starts over (pressing Ctrl+V again picks up the newest clipboard); any other command must be finished
    * or cancelled first, so a half-made selection is never lost.
    */
+  // ---- the sample drawings (0.6 DF.9): File › More › Open a sample (SAMPLES); samples/index.json in this build ----
+  host.openSamples = () => new Promise((done) => {
+    const base = new URL('./samples/', import.meta.url);
+    let list = null;
+    const body = el('div', { className: 'cc-ask-text cc-samples' }, el('p', { className: 'cc-note' }, t('samples.dialog.note')));
+    const dlg = el('dialog', { className: 'cc-dialog cc-ask', 'aria-labelledby': 'cc-samples-h', dataset: { samples: '' } },
+      el('div', { className: 'cc-plot-head' }, el('h2', { className: 'cc-h', id: 'cc-samples-h' }, t('samples.dialog.title'))), body,
+      el('div', { className: 'cc-plot-foot' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { key: 'cancel' } }, t('samples.dialog.cancel'))));
+    const open = async (file) => {
+      dlg.close();
+      print(t('samples.loading', { name: file }));
+      try {
+        const res = await fetch(new URL(file, base));
+        if (!res.ok) throw new Error('HTTP ' + res.status);   // i18n-ignore (a technical detail after the sentence)
+        await openLocal(new File([await res.arrayBuffer()], file));
+      } catch (err) { print(t('samples.failed', { name: file, why: err.message })); }
+    };
+    dlg.addEventListener('click', (e) => { const b = e.target.closest('button[data-key]'); if (b?.dataset.key === 'cancel') dlg.close(); });
+    dlg.addEventListener('keydown', (e) => e.stopPropagation());
+    dlg.addEventListener('close', () => { dlg.remove(); focusCommandLine(); done(); });
+    root.append(dlg);
+    dlg.showModal();
+    fetch(new URL('index.json', base)).then((r) => r.json()).then((j) => {
+      list = Array.isArray(j?.samples) ? j.samples.filter((x) => /^[\w.-]+\.dwg$/.test(x.file || '')) : [];
+      body.prepend(...list.map((x) => el('div', { className: 'cc-sample', dataset: { sample: x.file } },
+        el('h3', { className: 'cc-h' }, t(x.title)), el('p', {}, t(x.about)),
+        el('div', { className: 'cc-sample-btns' },
+          el('button', { type: 'button', className: 'btn-plot btn-sm-cc', onclick: () => open(x.file) }, t('samples.dialog.open')),
+          /^[\w.-]+\.dxf$/.test(x.dxf || '') ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => open(x.dxf) }, t('samples.dialog.dxf')) : null))));
+      dlg.querySelector('.cc-sample button')?.focus();
+    }).catch((err) => body.prepend(el('p', { className: 'cc-note' }, t('samples.failed', { name: 'index.json', why: err.message }))));
+  });
+
+  // ---- a picture from the system clipboard (0.6 DF.6, pastepic.js): Ctrl+V, or Edit › More › Paste a picture ----
+  let pasteWait = 0;
+  document.addEventListener('paste', (e) => {
+    const tgt = e.target;
+    if (tgt !== ui.input && tgt?.closest?.('input, textarea, select, [contenteditable="true"], dialog')) return;   // someone else's field
+    if (tgt === ui.input && (ui.input.value !== '' || engine.expects === 'string')) return;   // text typed at the command line
+    const ours = !!pasteWait;
+    clearTimeout(pasteWait); pasteWait = 0;
+    const item = [...(e.clipboardData?.items || [])].find((i) => i.kind === 'file' && /^image\/(png|jpeg)$/i.test(i.type));
+    if (!item && !ours) return;
+    e.preventDefault();
+    if (item) pastePicture(item.getAsFile()); else editKey('PASTECLIP');
+  }, true);
+  /** Bytes of a picture from the clipboard → a picture at the pointer (or the middle of the view), 40 % of the view wide. */
+  async function pastePicture(blob) {
+    if (!blob) return;
+    if (engine.busy) { status(t('app.finish_cancel_current_command')); return; }
+    let bytes;
+    try { bytes = new Uint8Array(await blob.arrayBuffer()); } catch { print(t('pic.paste.notpicture')); return; }
+    const vw = view.w / view.zoom;
+    const sp = host.cursor ? view.toScreen(host.cursor.x, host.cursor.y) : null;   // the pointer, when it is over the drawing
+    const cur = sp && sp.x >= 0 && sp.y >= 0 && sp.x <= view.w && sp.y <= view.h ? host.cursor : view.toWorld(view.w / 2, view.h / 2);
+    const r = placePastedPicture(doc, bytes, { at: cur, width: vw * 0.4 });
+    if (r.error) { print(r.why || t(r.error)); return; }
+    view.invalidate(true);
+    print(t('pic.paste.done', { file: r.name, w: r.w, h: r.h }));
+  }
+  /** Edit › More › Paste a picture: the clipboard API (the browser may ask first). */
+  async function pastePictureFromApi() {
+    closeMenus();
+    if (!navigator.clipboard?.read) { print(t('pic.paste.api')); return; }
+    try {
+      for (const item of await navigator.clipboard.read()) {
+        const type = item.types.find((ty) => /^image\/(png|jpeg)$/i.test(ty));
+        if (type) { await pastePicture(await item.getType(type)); return; }
+      }
+      print(t('pic.paste.none'));
+    } catch { print(t('pic.paste.denied')); }
+  }
+  for (const b of root.querySelectorAll('[data-paste-picture]')) b.addEventListener('click', pastePictureFromApi);
+
   function editKey(cmd) {
     closeMenus();
     if (engine.busy && !['PASTECLIP', 'DUPLICATE'].includes(engine.running)) { status(t('app.finish_cancel_current_command')); return; }
@@ -1067,7 +1187,21 @@ function init(root) {
     ucsIcon: { get: () => settings.corner !== 'none', set: (on) => { setRadio('ccCorner', on ? 'auto' : 'none'); applyCorner(); } },
   });
   host.props = props;
-  function scheduleProps() { props.schedule(); }
+  function scheduleProps() { props.schedule(); renderSelTotals(); }
+
+  /** The selection's total length and area in the status bar (0.6 DF.4; Settings › CadCraft can switch it off). */
+  function renderSelTotals() {
+    const box = root.querySelector('[data-seltotals]');
+    if (!box) return;
+    const ents = [...host.selection].map((id) => doc.get(id)).filter(Boolean);
+    const T = settings.selTotals === 'off' || !ents.length ? null : selectionTotals(ents);
+    if (!T || (!T.lengthN && !T.areaN)) { box.hidden = true; box.replaceChildren(); return; }
+    const u = doc.layout ? { lunits: 2 } : unitsOf(doc.meta);
+    box.replaceChildren(...[T.lengthN ? el('span', { dataset: { selLength: '' } }, t('status.sel.length', { value: formatLength(T.length, u) })) : null,
+      T.areaN ? el('span', { dataset: { selArea: '' } }, t('status.sel.area', { value: formatArea(T.area, u) })) : null].filter(Boolean));
+    box.title = t('status.sel.title', { n: ents.length });
+    box.hidden = false;
+  }
   function renderProps() { props.render(); }
   /** A length / an area in the drawing's format (paper units on a sheet stay decimal). */
   function fmtL(v) { return doc.layout ? fmt(v) : formatLength(v, unitsOf(doc.meta)); }
@@ -1099,6 +1233,20 @@ function init(root) {
   }
 
   let layerCount = 0;
+  // Toolbar availability: a button that cannot do anything on this drawing right now is greyed out
+  const NEEDS_OBJECTS = new Set(['MOVE', 'COPY', 'ROTATE', 'SCALE', 'MIRROR', 'STRETCH', 'OFFSET', 'TRIM', 'EXTEND', 'FILLET', 'CHAMFER', 'EXPLODE', 'ERASE',
+    'BLOCK', 'COPYCLIP', 'PLOT', 'ZOOM E', 'ZOOM W']);
+  function renderToolbar() {
+    const empty = !doc.count();
+    for (const b of root.querySelectorAll('.cc-tools [data-cmd]')) {
+      const c = b.dataset.cmd;
+      if (c === 'UNDO') b.disabled = !doc.canUndo;
+      else if (c === 'REDO') b.disabled = !doc.canRedo;
+      else if (c === 'NEW' || c === 'SAVE' || c === 'SAVEAS') b.disabled = empty && !doc.dirty;
+      else if (NEEDS_OBJECTS.has(c)) b.disabled = empty;
+    }
+  }
+
   doc.on((kind) => {
     if (kind === 'load') viewHist.clear();   // zoom previous starts again with each drawing
     if (kind === 'layers' || kind === 'load' || doc.layers.size !== layerCount) { layerCount = doc.layers.size; renderLayers(); }
@@ -1114,11 +1262,14 @@ function init(root) {
     // drop selected ids that no longer exist
     if ([...host.selection].some((id) => !doc.get(id))) host.selection = new Set([...host.selection].filter((id) => doc.get(id)));
     view.state.selection = host.selection;
+    renderSelTotals();   // the selected objects may have changed size (0.6 DF.4)
     scheduleProps();
     renderInfo();
+    renderToolbar();
     if (doc.count()) hideHint();
     layersForViewport();
   });
+  renderToolbar();
 
   function hideHint() { ui.hint.hidden = true; }
 
@@ -1229,6 +1380,13 @@ function init(root) {
   // keyboard shortcuts for any command (0.5 WL.18; keys-ui.js): SHORTCUTS / View › More; never a My tools key
   host.shortcuts = installShortcuts({ root, engine, el, t, print, status, lookup: (c) => !!lookup(c), focusCommandLine,
     takenByTools: () => new Map([...keyMap(host.myTools.data())].map(([k, v]) => [k, v.tool.label])) });
+  // the Align and distribute panel (0.6 DF.2; ALIGNPANEL, Modify › More)
+  installAlignPanel({ root, stage: ui.stage, engine, host, el, t, print, focusCommandLine });
+  // attribute editing (0.6 DF.5): EATTEDIT and BATTMAN dialogs, REFEDIT's Save / Discard banner
+  installAttEdit({ root, stage: ui.stage, doc, engine, host, el, t, print, focusCommandLine, colorLabel, fmtL, parseLen: parseL, closeRefEdit });
+  // plot style tables (0.6 DC.14): PLOTSTYLES and the Plot dialog's Edit tables…
+  installPlotStyles({ root, doc, host, el, t, print, colorLabel, aciHex,
+    pickFile: (accept) => new Promise((resolve) => { const i = el('input', { type: 'file', accept }); i.addEventListener('change', () => resolve(i.files[0] || null)); i.addEventListener('cancel', () => resolve(null)); i.click(); }) });
   // the menu styles (0.5 IP.3, input-cadcraft.js + the shell's app-input-ui.js): their messages go to the status bar, and
   // letters stay CadCraft's while a command runs or something is typed at the command line
   window.ccInputHooks = { status: (text) => status(text || ''), busy: () => engine.busy || ui.input.value !== '' };
@@ -1357,7 +1515,7 @@ function init(root) {
   const plotUi = {
     form: ui.plot.querySelector('[data-plot-form]'), what: ui.plot.querySelector('[data-plot-what]'), model: ui.plot.querySelector('[data-plot-model]'),
     area: ui.plot.querySelector('[data-plot-area]'), pick: ui.plot.querySelector('[data-plot-pick]'), paper: ui.plot.querySelector('[data-plot-paper]'),
-    orient: ui.plot.querySelector('[data-plot-orient]'), scale: ui.plot.querySelector('[data-plot-scale]'), ink: ui.plot.querySelector('[data-plot-ink]'),
+    orient: ui.plot.querySelector('[data-plot-orient]'), scale: ui.plot.querySelector('[data-plot-scale]'), style: ui.plot.querySelector('[data-plot-style]'),
     pen: ui.plot.querySelector('[data-plot-pen]'), dpi: ui.plot.querySelector('[data-plot-dpi]'), info: ui.plot.querySelector('[data-plot-info]'), canvas: ui.plot.querySelector('[data-plot-canvas]'),
     status: ui.plot.querySelector('[data-plot-status]'), save: ui.plot.querySelector('[data-plot-save]'), open: ui.plot.querySelector('[data-plot-open]'),
     close: ui.plot.querySelector('[data-plot-close]'),
@@ -1382,7 +1540,7 @@ function init(root) {
         plotUi.scale.replaceChildren(el('option', { value: '' }, t('app.fit_paper')), ...scaleList(doc).map((x) => el('option', { value: String(x.n) }, x.label)));
         plotUi.scale.value = plotPrefs.scale && [...plotUi.scale.options].some((o) => o.value === plotPrefs.scale) ? plotPrefs.scale : '';
       }
-      plotUi.ink.value = plotPrefs.ink || 'mono';
+      fillPlotStyles();
       plotUi.pen.value = plotPrefs.pen || '0.25';
       if (plotUi.dpi) plotUi.dpi.value = ['0', '600', '300', '150'].includes(plotPrefs.dpi) ? plotPrefs.dpi : '0';   // pictures: their own resolution, or a cap (WL.13)
       ui.plot.querySelector('[data-plot-publish]').hidden = doc.layouts.length < 2;   // every sheet in one PDF (PUBLISH, 0.4 C36)
@@ -1411,10 +1569,36 @@ function init(root) {
     savePlotPrefs(); closePlot();
     setTimeout(() => { engine.run('PUBLISH'); setTimeout(() => { if (engine.running === 'PUBLISH' && engine.waiting) engine.text(''); }, 0); }, 0);   // Enter = all sheets
   });
-  for (const k of ['area', 'paper', 'orient', 'scale', 'ink', 'pen']) plotUi[k].addEventListener('change', () => { if (k === 'area' && plotUi.area.value !== 'window') plotState.win = null; savePlotPrefs(); updatePlot(); });
+  for (const k of ['area', 'paper', 'orient', 'scale', 'pen']) plotUi[k].addEventListener('change', () => { if (k === 'area' && plotUi.area.value !== 'window') plotState.win = null; savePlotPrefs(); updatePlot(); });
+  // the plot style table (0.6 DC.14): chosen here, kept with the sheet (or the model) in the drawing — one undo step
+  plotUi.style.addEventListener('change', () => { setPlotStyle(plotUi.style.value); savePlotPrefs(); updatePlot(); });
+  ui.plot.querySelector('[data-plot-style-edit]').addEventListener('click', async () => {
+    const got = await host.plotStyles(plotUi.style.value);
+    if (got && got !== plotUi.style.value) setPlotStyle(got);
+    fillPlotStyles(); savePlotPrefs(); updatePlot();
+  });
+  /** The default when a sheet or the model has no table yet: the last one chosen in this browser (older prefs: ink). */
+  const defaultPlotStyle = () => (findTable(doc, plotPrefs.style) ? findTable(doc, plotPrefs.style).name : plotPrefs.ink === 'color' ? 'colour' : 'monochrome');
+  function fillPlotStyles() {
+    const own = styleNameFor(doc, doc.layout), cur = own || defaultPlotStyle(), found = findTable(doc, cur);
+    const names = [...PLOT_BUILTIN, ...(doc.meta.plotStyles?.tables || []).map((x) => x.name)];
+    plotUi.style.replaceChildren(...names.map((n) => el('option', { value: n }, PLOT_BUILTIN.includes(n) ? t('plotstyle.builtin.' + n) : n)),
+      ...(found ? [] : [el('option', { value: cur }, t('plotstyle.plot.missing_option', { name: cur }))]));
+    plotUi.style.value = found ? found.name : cur;
+  }
+  function setPlotStyle(name) {
+    const lay = doc.layout;
+    if (styleNameFor(doc, lay) === name) return;
+    doc.change(t('plotstyle.undo.assign'), () => {
+      if (lay) doc.setLayouts(doc.layouts.map((l) => (l === lay ? { ...l, plotStyle: name } : l)));
+      else doc.setMeta({ plotStyles: { tables: doc.meta.plotStyles?.tables || [], model: name } });
+    });
+  }
   plotUi.pick.addEventListener('click', () => pickPlotWindow());
   function savePlotPrefs() {
-    Object.assign(plotPrefs, { paper: plotUi.paper.value, orient: plotUi.orient.value, area: plotUi.area.value === 'window' ? 'extents' : plotUi.area.value, scale: plotUi.scale.value, ink: plotUi.ink.value, pen: plotUi.pen.value, dpi: plotUi.dpi?.value || '0' });
+    const st = findTable(doc, plotUi.style.value);
+    Object.assign(plotPrefs, { paper: plotUi.paper.value, orient: plotUi.orient.value, area: plotUi.area.value === 'window' ? 'extents' : plotUi.area.value, scale: plotUi.scale.value, pen: plotUi.pen.value, dpi: plotUi.dpi?.value || '0',
+      ...(st ? { style: st.name, ink: st.name === 'colour' ? 'color' : 'mono' } : {}) });   // ink: what PUBLISH and older builds read
     try { localStorage.setItem('cadcraft.plot', JSON.stringify(plotPrefs)); } catch { /* private window: fine */ }
   }
   /** Close the dialog, pick two corners on the model through the PLOT command, then open it again. */
@@ -1449,7 +1633,8 @@ function init(root) {
   function updatePlot() {
     plotUi.pick.hidden = plotUi.area.value !== 'window';
     const { sheet, info } = currentSheet();
-    plotUi.info.textContent = info;
+    const style = findTable(doc, plotUi.style.value);
+    plotUi.info.textContent = [info, style ? '' : t('plotstyle.plot.missing', { name: plotUi.style.value })].filter(Boolean).join(' ');
     plotUi.save.disabled = plotUi.open.disabled = !sheet;
     const cv = plotUi.canvas, box = cv.parentElement.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
     cv.width = Math.round(box.width * dpr); cv.height = Math.round(box.height * dpr);
@@ -1457,7 +1642,7 @@ function init(root) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, cv.width, cv.height);
     if (!sheet) { plotState.list = null; return; }
-    const list = displayList(doc, sheet, { mono: plotUi.ink.value === 'mono' });
+    const list = displayList(doc, sheet, { style: style || builtinTable('colour') });
     plotState.list = list; plotState.sheet = sheet;
     const pad = 12 * dpr, k = Math.min((cv.width - 2 * pad) / list.w, (cv.height - 2 * pad) / list.h);
     const ox = (cv.width - list.w * k) / 2, oy = (cv.height - list.h * k) / 2;
@@ -1551,7 +1736,7 @@ function init(root) {
   const openTypes = () => [
     { description: t('files.type.drawings'), extensions: ['.dwg', '.dxf'] },
     { description: t('files.type.sheetset'), extensions: ['.ccsheets'] },
-    { description: t('files.type.cloud'), extensions: ['.las', '.laz', '.xyz', '.pts'] },   // a point cloud under the drawing (SG.1)
+    { description: t('files.type.cloud'), extensions: CLOUD_READ.map((e) => '.' + e) },   // a point cloud under the drawing (SG.1; formats from cloud-types.js, 0.6 PF)
     { description: t('files.type.other'), extensions: ['.json', '.pln', '.pla', '.tpl', '.bpn'] },
   ];
   async function openPicked() {
@@ -1576,7 +1761,7 @@ function init(root) {
   /** `recovered` (dwg-autosave.js): the copy's name, source file and save format; the drawing opens unsaved, and a failure throws. */
   async function openLocal(file, recovered = null) {
     const ext = (file.name.match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
-    if (['las', 'laz', 'xyz', 'pts'].includes(ext)) {   // a point cloud goes under the drawing, at its own coordinates (SG.1)
+    if (isCloudFile(file.name)) {   // a point cloud goes under the drawing, at its own coordinates (SG.1); a scanner's own file gets its card (0.6 PF)
       try { await attachFile({ host, print, doc }, file); } catch (err) { print(t('pc.failed', { file: file.name, why: err.message })); } finally { busy(null); }
       return true;
     }
@@ -1606,7 +1791,7 @@ function init(root) {
       print(t('app.open.done', { file: file.name, objects: num(doc.count()), layers: num(doc.layers.size), ms: Math.round(performance.now() - t0) }));
       return true;
     } catch (err) {
-      console.error(err);
+      if (!err?.expected) console.error(err);   // a refusal we word ourselves (an R12 DWG, 0.6 DF.11) is no fault
       print(t('app.open.failed', { file: file.name, why: err.message }));
       if (recovered) throw err;
       return false;
@@ -1618,7 +1803,10 @@ function init(root) {
    * is and how to get a drawing out of it; when BimCraft here takes a handed-over file (ui.inc data-bim-url), offer it.
    */
   async function otherProject(file, ext) {
-    const text = t('archicad.open.text', { file: file.name, kind: t('archicad.kind.' + ext) });
+    // 0.6 DF.12 (a): Archicad projects (17+) start with "ROF FDB " (PRONOM fmt/1913); without it the file was likely renamed
+    const head = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+    const sig = String.fromCharCode(...head) === 'ROF FDB ';   // i18n-ignore: file signature bytes
+    const text = t(sig ? 'archicad.open.text' : 'archicad.open.renamed', { file: file.name, kind: t('archicad.kind.' + ext) });
     print(text);
     const bim = root.dataset.bimUrl;
     const k = await ask({ title: t('archicad.open.title'), text, buttons: [...(bim ? [['bim', t('archicad.open.bim'), 'btn-line']] : []), ['ok', t('archicad.open.ok'), 'btn-plot']] });
@@ -1680,8 +1868,10 @@ function init(root) {
       if (text.includes('\ufffd')) text = new TextDecoder('windows-1252').decode(data);
       return readDxfModel(text);
     }
-    if (!readDwg) readDwg = (await import('./dwg/read-async.js')).readDwgAsync;
     const tag = new TextDecoder().decode(data.subarray(0, 6));
+    const old = preR13(tag);   // 0.6 DF.11: R12 and earlier are not read: say so plainly
+    if (old) throw Object.assign(new Error(t('app.open.pre_r13', { release: old, version: tag.replace(/\0+$/, '') })), { expected: true });
+    if (!readDwg) readDwg = (await import('./dwg/read-async.js')).readDwgAsync;
     let model;
     try { model = await readDwg(data); } catch (err) { console.warn(err); model = null; }   // off the page's thread: big files no longer freeze it
     if (!model || !model.blocks?.length) throw new Error(t('app.open.unreadable', { version: tag || t('app.open.unknown_version') }));
@@ -1760,7 +1950,7 @@ function init(root) {
   function showBlockEdit(be) {
     beBar.hidden = !be;
     if (!be) return;
-    const btn = (label, save) => { const b = el('button', { type: 'button', className: 'cc-te-btn' + (save ? ' is-primary' : '') }, label); b.addEventListener('click', async () => { if (engine.busy) { engine.escape(); await engine.done; } const r = closeBlockEdit(doc, save); showBlockEdit(null); if (r) print(t(save ? 'cmd.bclose.saved' : 'cmd.bclose.discarded', { name: r.name, n: doc.blockUses(r.name) })); view.fit(); focusCommandLine(); }); return b; };
+    const btn = (label, save) => { const b = el('button', { type: 'button', className: 'cc-te-btn' + (save ? ' is-primary' : '') }, label); b.addEventListener('click', async () => { if (engine.busy) { engine.escape(); await engine.done; } const r = closeBlockEdit(doc, save); showBlockEdit(null); if (r) print(t(save ? 'cmd.bclose.saved' : 'cmd.bclose.discarded', { name: r.name, n: doc.blockUses(r.name) })); if (r?.synced) print(t('cmd.attsync.done', { name: r.name, n: r.synced })); view.fit(); focusCommandLine(); }); return b; };
     let pick = null;
     if (be.vis) {   // DB.9: the state shown in the editor
       pick = el('select', { className: 'cc-select', 'aria-label': t('bedit.state'), title: t('bedit.state'), dataset: { beState: '' } }, ...be.vis.states.map((st) => el('option', { value: st.name, selected: st.name === be.vis.cur }, st.name)));
@@ -1799,7 +1989,7 @@ function init(root) {
           const inp = el('input', { type: 'text', className: 'cc-input', id: id('value') });
           inp.addEventListener('input', recount);
           valueBox.replaceChildren(inp);
-          value = () => (P.kind === 'number' ? (parseLength(inp.value, doc.meta.lunits) ?? parseFloat(inp.value)) : inp.value);
+          value = () => (P.kind === 'number' ? (parseLength(inp.value, doc.meta.lunits, doc.meta.units) ?? parseFloat(inp.value)) : inp.value);
         }
       };
       const fillProps = () => { const keep = prop.value; prop.replaceChildren(...propsFor(type.value).map((k) => el('option', { value: k, selected: k === keep }, qsPropLabel(k)))); fillValue(); recount(); };
@@ -1903,6 +2093,7 @@ function init(root) {
   async function saveFile(format = saveFormat(), keep = true, as = false) {
     // SAVE itself, and NEW/OPEN saving a copy before they discard, run as commands: let those through
     if (engine.busy && !['SAVE', 'SAVEAS', 'DXFOUT', 'NEW', 'OPEN'].includes(engine.running)) { print(t('app.finish_cancel_current_command')); return; }
+    if (doc.refEdit) { print(t('app.refedit.save_first', { name: doc.refEdit.name })); return; }   // its working set is in the drawing (0.6 DF.5)
     if (!FORMATS[format]) format = 'dwg';
     doc.vports = view.paneState();   // the split screen on screen goes into the file (its VPORT table, cad-files)
     doc.viewTwist = view.panes ? 0 : doc.inModel && !view.entered ? view.tw || 0 : view.views.get(doc.model)?.tw || 0;   // one pane: the model view's turn (DR.8; the active VPORT's twist)
@@ -1940,6 +2131,8 @@ function init(root) {
     if (r.how === 'written') print(t('app.save.written', { file: r.path || file, format: FORMATS[format].label() }));
     else print(t(format === 'dxf' ? 'app.save.done.dxf' : 'app.save.done', { file, format: FORMATS[format].label() }) + (src && src !== file ? ' ' + t('app.save.original_unchanged', { file: src }) : ''));
     for (const n of report.notes) print('  ' + n);
+    // pasted pictures (0.6 DF.6): a DWG names its pictures' files, so each one goes beside the drawing as its own file
+    for (const p of picturesToSave(doc, file)) { fileHost.download(p.bytes, p.name, p.mime); print('  ' + t('pic.paste.saved', { file: p.name, drawing: file })); }
     renderInfo();
   }
 

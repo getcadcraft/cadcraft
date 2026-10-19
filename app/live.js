@@ -677,6 +677,8 @@ export function createLiveAdapter({ host } = {}) {
     });
   }
   a.onReplaced = () => { const c = a.client; if (c && !c.final) c.leave(); };
+  // The edit log (0.6 DC.23): Studio's Live panel asks who changed the selection last.
+  a.selectionKeys = () => [...((app.host && app.host.selection) || [])].slice(0, HOLD_MAX).map((id) => 'e:' + id);
   return a;
 }
 
@@ -711,6 +713,11 @@ export function attachUi(app, adapter, client) {
     if (fresh.length) client.hold(fresh);
     const held = [...want].map((k) => client.heldBy(k)).find(Boolean);
     if (held) say('live.held_by', { name: nameOf(held) });
+    // The edit log (0.6 DC.23): one object picked that someone else changed last in this session.
+    else if (want.size === 1 && typeof client.lastEdit === 'function') {
+      const e = client.lastEdit([...want][0]);
+      if (e && e.c && e.c !== client.c) say('live.last_edit', { name: e.name || t('live.someone'), what: e.label || t('live.an_edit') });
+    }
     if ([...want].some((k) => client.isLocked(k))) say('live.locked_note');
     push();
   };

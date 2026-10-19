@@ -91,7 +91,7 @@ There are no named dimension styles to manage. `DIMSCALE` and the other settings
 
 ### Plotting is simpler
 
-There are no plot style tables (CTB or STB) and no page setups. A plot is black or in drawing colors; lines print at their lineweight, the others at one pen width. Sheets plot at 1:1 on their own paper; the model plots at a chosen scale or fitted. See [Plot to PDF](topic:plot-pdf).
+Plot style tables work by color, as CTB files do: Monochrome, Colour and Grayscale are built in, you can make your own, and each sheet keeps its table. Reading CTB or STB files and page setups are not built yet. Lines print at their lineweight, the others at one pen width. Sheets plot at 1:1 on their own paper; the model plots at a chosen scale or fitted. See [Plot to PDF](topic:plot-pdf).
 
 ### Working inside a viewport
 

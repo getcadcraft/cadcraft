@@ -39,7 +39,7 @@
 import { TYPE_NAMES } from './doc.js';
 import { deg, rad, normAngle, TAU, curveLength, entityArea } from './geom.js';
 import { DIM_DEFAULTS, DIM_KINDS, dimMeasure } from './dims.js';
-import { DIM_EXTRA, ARROWS, TOL_MODES, dimStyleText } from './dimstyle.js';
+import { DIM_EXTRA, ARROWS, TOL_MODES, dimStyleText, textUnitOf, withTextUnit, textUnitMm } from './dimstyle.js';
 import { PATTERNS } from './hatch.js';
 import { LUNITS } from './units.js';
 import { t } from './i18n.js';
@@ -364,6 +364,10 @@ function dimDefs(ctx) {
     S('tix', 'fit', 'bool', 'tix', { when: (e) => !!e.kind }),
     S('tofl', 'fit', 'bool', 'tofl', { when: (e) => !!e.kind }),
     // Primary units
+    // 0.6 DC.72: mm, cm, m or km in the text (DIMLFAC + a DIMPOST suffix), or the drawing's own units
+    { key: 'dim.tunit', sec: 'units', kind: 'choice', label: t('props.dim.tunit'), title: 'props.dim.tunit.title', when: (e) => !!e.kind && notAng(e),
+      choices: () => textUnitChoices(), get: (e) => textUnitOf(dst(e), textUnitMm(ctx.doc?.meta, ctx.doc?.layout).mm),
+      set: (e, v) => { if (v === 'custom') return e; const n = { ...e, st: withTextUnit(e.st || {}, v, textUnitMm(ctx.doc?.meta, ctx.doc?.layout).mm) }; delete n.block; return n; } },
     S('lunit', 'units', 'choice', 'lunit', { when: (e) => !!e.kind && notAng(e), conv: Number, choices: () => Object.keys(LUNITS).map((k) => [+k, t('props.lunit.' + k)]), get: (e) => dst(e).lunit || 2 }),
     S('dec', 'units', 'int', 'dec', { min: 0, max: 8, when: (e) => !!e.kind && notAng(e) }),
     S('rnd', 'units', 'len', 'rnd', { min: 0, when: (e) => !!e.kind && notAng(e) }),
@@ -393,6 +397,10 @@ function dimDefs(ctx) {
     S('tfac', 'tol', 'num', 'tfac', { gt0: true, max: 2, when: (e) => !!e.kind && ['dev', 'lim'].includes(dst(e).tol) }),
     S('tolj', 'tol', 'choice', 'tolj', { when: (e) => !!e.kind && ['dev', 'lim'].includes(dst(e).tol), conv: Number, choices: () => [0, 1, 2].map((k) => [k, t('props.tolj.' + k)]) }),
   ];
+}
+/** The choices for a dimension's text units (0.6 DC.72); 'custom' = DIMLFAC or the suffix set by hand. */
+export function textUnitChoices() {
+  return [['', t('props.dim.tunit.drawing')], ['mm', 'mm'], ['cm', 'cm'], ['m', 'm'], ['km', 'km'], ['custom', t('props.dim.tunit.custom')]];
 }
 function zinSet(which) {
   return (e, v) => {

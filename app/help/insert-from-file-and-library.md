@@ -50,6 +50,10 @@ The item becomes a block named `LIB_<name>_v<version>`, drawn in this drawing's 
 
 Its data rides along as invisible attributes: the item's id and version, license and attribution, maker, model, category and sizes. See [Block attributes](topic:attributes).
 
+## Items in your language
+
+An item can carry its name and description in other languages. When it has them in the language CadCraft is set to (Settings › General › Language), the card and the placed block's item name use them. The block itself keeps a name made from the item's own name, so a drawing has one block per item whichever language placed it.
+
 ## Check for updates
 
 1. Open the library.

@@ -14,6 +14,7 @@
  */
 
 import { t } from './i18n.js';
+import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets over typed lengths
 
 export const LUNITS = Object.freeze({ 1: 'Scientific', 2: 'Decimal', 3: 'Engineering', 4: 'Architectural', 5: 'Fractional' });
 export const DEFAULT_PREC = Object.freeze({ 1: 4, 2: 4, 3: 4, 4: 4, 5: 4 });
@@ -89,9 +90,59 @@ function mixed(t) {
 
 /**
  * A typed length → drawing units, or null. Plain numbers and fractions (1/2, 6-1/2) always; feet and inches
- * (12', 12'6", 12'-6-1/2", 6") when the drawing's format is engineering or architectural, as AutoCAD reads them.
+ * (12', 12'6", 12'-6-1/2", 6") when the drawing's format is engineering or architectural, as AutoCAD reads them; a
+ * number with a unit (450mm, 3.5m, 2ft, 6in) when the drawing's units are known (`units` = doc.meta.units; a unitless
+ * drawing in feet and inches counts as inches); and arithmetic over those (0.6 DF.3, lencalc.js): 4+7/16, 12'6"+3/4",
+ * (24'-0")/3, 2*450mm. readLength says why one is refused.
  */
-export function parseLength(raw, lunits = 2) {
+export function parseLength(raw, lunits = 2, units = '') {
+  const r = readLength(raw, lunits, units);
+  return r.ok ? r.value : null;
+}
+
+const UNIT_MM = { millimeters: 1, centimeters: 10, meters: 1000, inches: 25.4, feet: 304.8, decimeters: 100, kilometers: 1e6, miles: 1609344, yards: 914.4, microns: 0.001 };
+const SUFFIX_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, inch: 25.4, inches: 25.4, ft: 304.8, foot: 304.8, feet: 304.8 };
+/** Millimetres in one drawing unit, or null when the drawing does not say (a unitless feet-and-inches drawing: inches). */
+export function mmPerDrawingUnit(lunits = 2, units = '') {
+  const u = UNIT_MM[String(units || '').toLowerCase()];
+  return u || (isImperialFormat(lunitCode(lunits)) ? 25.4 : null);
+}
+
+/** One length (no arithmetic) → { value, unit } for lencalc.js, or null. */
+function lengthAtom(s, lunits, units) {
+  const v = parseOne(s, lunits);
+  if (v !== null) return { value: v, unit: /['"]/.test(s) };
+  const m = /^((?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)\s*(mm|cm|m|in|inch|inches|ft|foot|feet)$/i.exec(String(s).trim());
+  const per = m && mmPerDrawingUnit(lunits, units);
+  return per ? { value: m[1] * SUFFIX_MM[m[2].toLowerCase()] / per, unit: true } : null;
+}
+
+/** A typed length → { ok: true, value } | { ok: false, code, pos, text } (lencalc.js codes; calcMessage words them). */
+export function readLength(raw, lunits = 2, units = '') {
+  const s = String(raw ?? '').trim();
+  // a single length first, unless it holds arithmetic: 24' - 6" (spaces round the dash) subtracts, 24'-6" is 24'6"
+  const one = hasArithmetic(s) ? null : parseOne(s, lunits);
+  if (one !== null) return { ok: true, value: one };
+  const r = calc(s, (x) => lengthAtom(x, lunits, units));
+  return r.ok ? { ok: true, value: r.value } : r;
+}
+
+/** A typed plain number (a count, a scale, an angle in degrees) with arithmetic: 360/7, 2*1.5 → { ok, value } | refusal. */
+export function readNumber(raw) {
+  const s = String(raw ?? '').trim();
+  const r = calc(s, (x) => { const v = /['"]/.test(x) ? null : parseOne(x, 2); return v === null ? null : { value: v, unit: false }; });   // 6, 1/2, 6-1/2
+  return r.ok ? { ok: true, value: r.value } : r;
+}
+
+/** Does the text hold arithmetic (so a refusal should say where it went wrong)? */
+export const isArithmetic = (raw) => hasArithmetic(raw);
+
+/** A refusal from readLength / readNumber in words, with the place (1-based) where it went wrong. */
+export function calcMessage(r) {
+  return t('calc.err.' + (r.code || 'length'), { pos: (r.pos ?? 0) + 1, text: r.text ?? '' });
+}
+
+function parseOne(raw, lunits = 2) {
   let s = String(raw ?? '').trim();
   if (!s) return null;
   let sign = 1;

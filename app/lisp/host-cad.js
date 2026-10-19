@@ -355,6 +355,7 @@ export class CadHost {
       case 'LUPREC': return I(m.luprec ?? 4);
       case 'INSUNITS': return I({ inches: 1, feet: 2, millimeters: 4, centimeters: 5, meters: 6 }[m.units] ?? 0);
       case 'LTSCALE': return m.ltscale ?? 1;
+      case 'TRIMEXTENDMODE': return I(this.engine.trimMode === 'standard' ? 0 : 1);   // 0.6 DF.13: 1 Quick, 0 Standard
       case 'DIMSCALE': return doc.current.dim?.scale ?? 1;
       case 'DIMTXT': return doc.current.dim?.txt ?? 2.5;
       case 'DIMASZ': return doc.current.dim?.asz ?? 2.5;
@@ -424,6 +425,7 @@ export class CadHost {
         return true;
       }
       case 'ERRNO': this.errno = v | 0; return true;
+      case 'TRIMEXTENDMODE': if (v !== 0 && v !== 1) return { error: 'bad value' }; this.engine.trimMode = v === 0 ? 'standard' : 'quick'; return true;   // i18n-ignore (an error code)
       case 'DIMSCALE': case 'DIMTXT': case 'DIMASZ': if (!(v > 0)) return { error: 'bad value' }; doc.current.dim = { ...doc.current.dim, [{ DIMSCALE: 'scale', DIMTXT: 'txt', DIMASZ: 'asz' }[n]]: v }; return true;   // i18n-ignore (an error code the LISP side turns into its own message, or DXF data)
       case 'DIMDEC': doc.current.dim = { ...doc.current.dim, dec: v | 0 }; return true;
       case 'ORTHOMODE': case 'SNAPMODE': case 'GRIDMODE': this.sys.set(n, I(v)); this.ui.setToggle?.({ ORTHOMODE: 'ortho', SNAPMODE: 'snapGrid', GRIDMODE: 'grid' }[n], !!v); return true;

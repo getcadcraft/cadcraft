@@ -64,6 +64,7 @@
 }
 .cc-menu-list button { display: flex; justify-content: space-between; gap: 1.25rem; font: inherit; font-size: .875rem; font-weight: 500; text-align: left; color: var(--ink); background: none; border: 0; padding: .35rem .8rem; cursor: pointer; }
 .cc-menu-list button:hover, .cc-menu-list button:focus-visible { background: var(--sheet); text-decoration: underline; outline: none; }
+.cc-menu-list button:disabled { opacity: .45; cursor: default; text-decoration: none; background: none; }
 .cc-menu-list button kbd { font: inherit; font-size: .75rem; color: var(--ink-2); background: none; border: 0; padding: 0; }
 .cc-menu-list hr { margin: .25rem 0; border: 0; border-top: var(--pen-1) solid var(--line); opacity: 1; }
 /* Settings › CadCraft: two-choice rows */
@@ -385,6 +386,9 @@ body:not([data-shell-tb="labels"]) .cc.cc-fit-compact .cc-tool > span {
 .cc-status { grid-area: status; display: flex; align-items: center; gap: 1rem; padding: .2rem 1rem; font-size: .8125rem; background: var(--sheet-2); border-top: var(--pen-1) solid var(--line); }
 .cc-coords { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 13rem; }
 .cc-status-msg { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1 1 auto; }
+.cc-seltotals { display: flex; gap: .75rem; flex: 0 0 auto; font-variant-numeric: tabular-nums; white-space: nowrap; }   /* 0.6 DF.4 */
+.cc-seltotals[hidden] { display: none; }
+html.cc-phone .cc-seltotals { display: none; }
 .cc-toggles { display: flex; align-items: center; gap: .25rem; margin-left: auto; }
 .cc-toggle { font: inherit; font-size: .8125rem; font-weight: 600; padding: .05rem .5rem; color: var(--ink-2); background: transparent; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
 .cc-toggle[aria-pressed="true"] { color: var(--on-action); background: var(--action); border-color: var(--action); }
@@ -685,9 +689,74 @@ html.cc-phone .cc-keyrow > button { flex: 0 0 auto; min-height: 2.25rem !importa
 html.cc-phone .cc-status { flex-wrap: nowrap; gap: .35rem; padding-inline: .5rem; }
 html.cc-phone .cc-status > * { flex: 0 0 auto; }
 html.cc-phone .cc-status .cc-status-msg { flex: 0 1 auto; max-width: 60vw; }
+/* a short phone upright (0.6): the key row sits at the start of the status row, which scrolls sideways */
+.cc.cc-keys-in-status .cc-status { overflow-x: auto; scrollbar-width: none; padding-block: .05rem; }
+.cc.cc-keys-in-status .cc-status > .cc-keyrow { display: flex; flex: 0 0 auto; flex-wrap: nowrap; padding: 0; border: 0; background: none; }
+.cc.cc-keys-in-status .cc-status > .cc-keyrow[hidden] { display: none; }
+.cc.cc-keys-in-status .cc-status .cc-status-msg { order: 9; }   /* a message goes after the toggles, still on the row */
 html.cc-kbd .cc-keyrow { padding-block: .1rem; }
 html.cc-phone .cc-history { height: 1.2rem; padding-block: 0; font-size: .75rem; }   /* the last line; scroll it for the rest */
 html.cc-phone .cc-tabs button, html.cc-phone .cc-tab { min-height: 2.25rem; padding-block: .15rem; font-size: .75rem; }
 html.cc-phone .cc-prompt { font-size: .8125rem; }
 html.cc-phone .cc-cmd-input { font-size: .875rem; }
 html.cc-phone .cc.is-touch, html.cc-phone .cc { --cc-tabs-h: 2.25rem; }
+
+/* ---- Align and distribute panel (0.6 DF.2, align-ui.js): over the drawing's top right, the drawing stays live ---- */
+.cc-alignpanel { position: absolute; top: .5rem; right: .5rem; z-index: 6; width: 17rem; max-width: calc(100% - 1rem); background: var(--sheet); color: var(--ink);
+  border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .5rem .65rem .6rem; display: flex; flex-direction: column; gap: .4rem; }
+.cc-alignpanel[hidden] { display: none; }
+.cc-align-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.cc-align-head .cc-h { font-size: .9375rem; margin: 0; }
+.cc-align-close { background: none; border: 0; color: var(--ink-2); padding: .15rem .3rem; cursor: pointer; }
+.cc-align-close:hover, .cc-align-close:focus-visible { color: var(--ink); }
+.cc-align-field { display: flex; align-items: center; justify-content: space-between; gap: .5rem; font-size: .8125rem; }
+.cc-align-field .cc-select { flex: 0 1 9.5rem; }
+.cc-align-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .3rem; }
+.cc-align-row:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, 1fr); }
+.cc-align-btn { display: flex; flex-direction: column; align-items: center; gap: .1rem; font-size: .75rem; padding: .3rem .2rem; }
+.cc-align-btn .bi { font-size: 1.05rem; }
+.cc-alignpanel .cc-note { font-size: .75rem; margin: 0; }
+html.cc-phone .cc-alignpanel { top: auto; bottom: .5rem; }
+
+/* ---- attribute editor (EATTEDIT) and block attribute manager (BATTMAN), 0.6 DF.5 (attedit-ui.js) ---- */
+.cc-attdlg { width: min(46rem, calc(100vw - 2rem)); }
+.cc-att-body { display: flex; flex-direction: column; gap: .75rem; padding: .75rem 1rem; max-height: 70vh; overflow: auto; }
+.cc-att-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.cc-att-table th, .cc-att-table td { text-align: left; padding: .25rem .35rem; border-bottom: var(--pen-1) solid var(--grid); vertical-align: middle; }
+.cc-att-table thead th { font-weight: 600; color: var(--ink-2); }
+.cc-att-table tbody tr[data-att-row] { cursor: pointer; }
+.cc-att-table tbody tr.is-on { background: var(--sheet-2); }
+.cc-att-table .cc-input { width: 100%; min-width: 6rem; }
+.cc-att-opts { border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .5rem .75rem; margin: 0; }
+.cc-att-opts legend { font-weight: 700; font-size: .875rem; padding: 0 .25rem; }
+.cc-battman-top { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.cc-battman-top .cc-select { width: auto; min-width: 10rem; }
+.cc-battman-modes { white-space: nowrap; font-size: .8125rem; }
+.cc-battman-modes .cc-check { margin-right: .4rem; }
+.cc-battman-btns { white-space: nowrap; }
+
+/* ---- File › Open a sample (0.6 DF.9) ---- */
+.cc-samples { display: flex; flex-direction: column; gap: .75rem; max-width: 34rem; }
+.cc-sample { border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .6rem .75rem; }
+.cc-sample .cc-h { font-size: .9375rem; margin: 0 0 .25rem; }
+.cc-sample p { margin: 0 0 .5rem; font-size: .875rem; }
+.cc-sample-btns { display: flex; gap: .4rem; }
+
+/* ---- plot style tables (0.6 DC.14; plotstyle-ui.js) ---- */
+.cc-psdlg { width: min(56rem, calc(100vw - 2rem)); }
+.cc-ps-body { display: grid; gap: .5rem; padding: .75rem 1rem; max-height: 72vh; overflow: auto; }
+.cc-ps-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; }
+.cc-ps-bar .cc-select { width: auto; min-width: 12rem; flex: 1 1 12rem; }
+.cc-ps-main { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; gap: .75rem; align-items: start; }
+.cc-ps-grid { display: grid; grid-template-columns: repeat(17, minmax(0, 1fr)); gap: 2px; margin-bottom: .375rem; }
+.cc-ps-cell { position: relative; padding: 0; border: var(--pen-1) solid var(--line); border-radius: var(--radius); background: var(--sheet); aspect-ratio: 1; min-width: 0; cursor: pointer; }
+.cc-ps-sw { position: absolute; inset: 2px; border-radius: 1px; }
+.cc-ps-cell.is-set::after { content: ''; position: absolute; top: 1px; right: 1px; width: .35rem; height: .35rem; background: var(--ink); border: 1px solid var(--sheet); border-radius: 50%; }
+.cc-ps-cell.is-on { outline: var(--pen-3) solid var(--action); outline-offset: 0; z-index: 1; }
+.cc-ps-cell:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
+.cc-ps-mark { position: absolute; left: 1px; bottom: 0; font-size: .5rem; line-height: 1; color: var(--ink); text-shadow: 0 0 2px var(--sheet); }
+.cc-ps-colorin { width: 2.5rem; height: 1.9rem; padding: 0; border: var(--pen-1) solid var(--line); background: var(--sheet); }
+@media (max-width: 760px) {
+  .cc-ps-main { grid-template-columns: minmax(0, 1fr); }
+  .cc-ps-grid { grid-template-columns: repeat(15, minmax(0, 1fr)); }
+}

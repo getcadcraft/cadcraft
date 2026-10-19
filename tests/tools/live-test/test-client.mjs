@@ -9,7 +9,7 @@
  * Covers: join and approval, own edits applied at once, rebase over others' commits, refusal rollback (delete wins,
  * the replica's validate, viewers, locks, holds), per-user undo / redo (skipped when someone wrote over it), snapshot
  * catch-up from the replica, same-file catch-up, the code handshake (right / wrong / one-time), rejoin after a drop with
- * pending edits, presence, holds, end.
+ * pending edits, presence, holds, end, the soft people limit (DEC-2-5), the edit log (DC.23).
  */
 import { spawn } from 'node:child_process';
 import path from 'node:path';
@@ -94,6 +94,89 @@ test('join, approval by the host, own edits applied at once, everyone converges'
   await settled(H, A);
   same(H, A);
   assert.equal(A.adapterRef.model.size, 2);
+  srv.stop();
+});
+
+test('people limit is soft (DEC-2-5): over it the host is asked, keeps it small or allows more for the session', async () => {
+  const srv = await server('--max-clients', '1');
+  const H = host(srv);
+  for (const t of ['limit']) H.on(t, (d) => H.events.push([t, d]));
+  await live(H);
+  assert.deepEqual(H.limit, { max: 1, default: 1 }, 'the host knows the limit from welcome');
+  const A = client(srv, 'Ana');
+  await until(() => ev(H, 'join').length === 1, 'join card');
+  assert.equal(ev(H, 'join')[0].over, undefined);
+  H.approve(ev(H, 'join')[0].c, 'editor');
+  await live(A);
+  // over the limit: waiting like anyone, the host's card says so; "keep it small" tells the joiner why
+  const B = client(srv, 'Ben');
+  await until(() => ev(H, 'join').length === 2, 'second card');
+  assert.equal(B.status, 'waiting');
+  assert.deepEqual(ev(H, 'join')[1].over, { limit: 1, people: 2 });
+  H.deny(ev(H, 'join')[1].c, 'full');
+  await until(() => B.final, 'Ben refused');
+  assert.equal(B.status, 'denied');
+  assert.ok(ev(B, 'status').some((s) => s.reason === 'full'));
+  // allow anyway: every host window hears it; the next one is not marked and gets in
+  const C = client(srv, 'Cy');
+  await until(() => ev(H, 'join').length === 3, 'third card');
+  assert.ok(ev(H, 'join')[2].over);
+  H.setLimit(0);
+  await until(() => ev(H, 'limit').length === 1, 'limit heard');
+  assert.deepEqual(H.limit, { max: 0, default: 1 });
+  H.approve(ev(H, 'join')[2].c, 'editor');
+  await live(C);
+  const D = client(srv, 'Dee');
+  await until(() => ev(H, 'join').length === 4, 'fourth card');
+  assert.equal(ev(H, 'join')[3].over, undefined);
+  H.approve(ev(H, 'join')[3].c, 'viewer');
+  await live(D);
+  H.adapterRef.edit('add', [{ op: 'add', id: 'H:1', obj: { color: 1 } }]);
+  await settled(H, A, C, D);
+  same(H, A, C, D);
+  srv.stop();
+});
+
+test('edit log (DC.23): who changed what last, the same in every window, memory only; a snapshot joiner says what it missed', async () => {
+  const srv = await server('--auto-approve');
+  const H = host(srv), A = client(srv, 'Ana'), B = client(srv, 'Ben');
+  await live(H, A, B);
+  H.adapterRef.edit('Line', [{ op: 'add', id: 'o', obj: { color: 0, layer: 'Walls' } }]);
+  await settled(H, A, B);
+  A.adapterRef.edit('Colour', [{ op: 'set', id: 'o', f: 'color', v: 3 }]);
+  await settled(H, A, B);
+  B.adapterRef.edit('Circle', [{ op: 'add', id: 'p', obj: { color: 1 } }]);
+  await settled(H, A, B);
+  for (const c of [H, A, B]) {
+    const log = c.editLog();
+    assert.deepEqual(log.map((e) => [e.name, e.label]), [['Ben', 'Circle'], ['Ana', 'Colour'], ['Host', 'Line']], c.o.name + ' sees the same log, newest first');
+    assert.deepEqual(log[2].keys, ['e:o'], 'reads (the layer) are not listed as changed');
+    assert.equal(c.lastEdit('e:o').name, 'Ana');
+    assert.equal(c.lastEdit('e:p').name, 'Ben');
+    assert.equal(c.lastEditOf(['e:o', 'e:p']).label, 'Circle');
+    assert.equal(c.lastEdit('e:nothing'), null);
+    assert.deepEqual(c.editLog({ keys: ['e:o'] }).map((e) => e.label), ['Colour', 'Line']);
+    assert.equal(c.editLog({ limit: 1 }).length, 1);
+    assert.ok(log.every((e) => typeof e.at === 'number'), 'live edits have a time');
+    assert.equal(c.editsBefore(), false);
+  }
+  // undo is an edit of its own, by its author
+  A.undo();
+  await settled(H, A, B);
+  assert.equal(H.lastEdit('e:o').name, 'Ana');
+  assert.equal(H.editLog().length, 4);
+  // a joiner from a snapshot: what came before is not in its log, and it says so
+  const L = client(srv, 'Lou');
+  await live(L);
+  await settled(H, L);
+  assert.equal(ev(L, 'loaded').length, 1, 'caught up from a snapshot');
+  assert.equal(L.editLog().length, 0);
+  assert.equal(L.editsBefore(), true);
+  H.adapterRef.edit('Move', [{ op: 'set', id: 'p', f: 'x', v: 5 }]);
+  await settled(H, A, B, L);
+  assert.deepEqual(L.editLog().map((e) => [e.name, e.label]), [['Host', 'Move']]);
+  assert.equal(L.editsBefore(), true);
+  assert.equal(B.lastEdit('e:p').label, 'Move');
   srv.stop();
 });
 
@@ -307,6 +390,11 @@ test('rejoin after the log moved on: a fresh snapshot, then the pending edits on
   same(H, A);
   assert.equal(H.adapterRef.model.get('o').ana, 1);
   assert.equal(H.adapterRef.model.get('o').h, 59);
+  // the edit log (DC.23): the missed edits are a gap, nobody is named last for what changed in it
+  const log = A.editLog({ limit: 1000 });
+  assert.ok(log.some((e) => e.gap), 'a gap is marked');
+  assert.equal(A.editsBefore(), true);
+  assert.equal(A.lastEdit('e:o') === null || A.lastEdit('e:o').q > ev(A, 'loaded')[0].q, true);
   srv.stop();
 });
 

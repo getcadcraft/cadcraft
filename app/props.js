@@ -23,14 +23,16 @@ import { el, fmt } from './ui-util.js';
 import { t } from './i18n.js';
 import { TYPE_NAMES, typeName } from './doc.js';
 import { lookup, setLengthFormat, lengthFormatLabel, lengthFormatName, isAttdefText } from './commands.js';
-import { formatLength, unitsOf, LUNITS } from './units.js';
+import { formatLength, formatArea, unitsOf, LUNITS } from './units.js';
+import { selectionTotals } from './seltotals.js';   // 0.6 DF.4
 import { linetypeNames, ltLabel, lwLabel, LINEWEIGHTS } from './linetypes.js';
 import { hatchLines } from './hatch.js';
 import { PAPERS, paperByKey, makePaper, scaleList, scaleLabel, sOf, nOf, aimViewport, modelExtents } from './sheets.js';
 import { attrRows, oneLine } from './attrs.js';
 import { LIB_TAGS } from './libplace.js';
 import { setUnits } from './model3d.js';
-import { VARIES, SECTIONS, groupsOf, defsFor, valueOf, applyValue, groupLabel, pointLabel, addSection, addedSections, sectionLabel } from './propdefs.js';
+import { VARIES, SECTIONS, groupsOf, defsFor, valueOf, applyValue, groupLabel, pointLabel, addSection, addedSections, sectionLabel, textUnitChoices } from './propdefs.js';
+import { textUnitOf, withTextUnit, textUnitMm, refitTextUnits } from './dimstyle.js';
 import { readValue, editText } from './propexpr.js';
 import { prefs, section, divider, field, pointHead } from './proppanel.js';
 
@@ -212,13 +214,25 @@ export function createPropsPanel(o) {
       const opts = fieldOpts(gents, 'cc-p-');
       const defs = shownIn('panel', groupKey, defsFor(groupKey, gents, { doc, vertex: ctxFor(gents).vertex }));
       const extras = gents.length === 1 ? extrasFor(gents[0]) : {};
-      body = [head(groups, groupKey), ...sectionsOf(defs, gents, opts, extras)];
+      body = [head(groups, groupKey), ...(ents.length > 1 ? [totalsSection(ents, groups)] : []), ...sectionsOf(defs, gents, opts, extras)];
       if (groupKey === 'all') body.push(el('p', { className: 'cc-note' }, groups.filter((x) => x.key !== 'all').map((x) => x.n + ' ' + x.label.toLowerCase()).join(', ')));
     }
     ui.props.replaceChildren(...body, live, dividerCtl.el);
     dividerCtl.place();
     renderQuick(ents);
     if (focusId) ui.props.querySelector('#' + CSS.escape(focusId))?.focus();
+  }
+
+  // ---- a multiple selection's totals (0.6 DF.4, seltotals.js): count by type, total length, total area ----
+  function totalsSection(ents, groups) {
+    const T = selectionTotals(ents), u = doc.layout ? { lunits: 2 } : unitsOf(doc.meta);
+    const row = (k, v, id) => [el('span', { className: 'k' }, k), el('span', { className: 'v', id, dataset: id ? { total: id.slice(5) } : undefined }, v)];
+    const rows = [
+      ...row(t('props.totals.objects'), groups.filter((x) => x.key !== 'all').map((x) => x.n + ' ' + x.label.toLowerCase()).join(', '), 'cc-p-tobjects'),   // as the type list below
+      ...row(t('props.totals.length'), T.lengthN ? t('props.totals.of', { value: formatLength(T.length, u), objects: t('cmd.n.objects', { n: T.lengthN }) }) : '–', 'cc-p-tlength'),
+      ...row(t('props.totals.area'), T.areaN ? t('props.totals.of', { value: formatArea(T.area, u), objects: t('cmd.n.objects', { n: T.areaN }) }) : '–', 'cc-p-tarea'),
+    ];
+    return section('totals', t('props.sec.totals'), pr, el('div', { className: 'cc-props cc-pgrid' }, ...rows, el('p', { className: 'cc-note span' }, t('props.totals.note'))));
   }
 
   // ---- one object's extra rows: viewport scale, attribute definitions, attributes, library, notes ----
@@ -325,6 +339,7 @@ export function createPropsPanel(o) {
       ...dimSet('txt', t('props.dim.txt'), { gt0: true }), ...dimSet('asz', t('props.dim.asz'), { min: 0 }),
       ...dimSet('dec', [4, 5].includes(c.dim.lunit) ? t('props.dim.frac') : t('props.dim.dec'), { kind: 'int', min: 0, max: 8 }),
       ...dimSet('scale', t('props.dim.scale'), { kind: 'num', gt0: true, title: 'props.dim.scale.title' }),
+      el('label', { htmlFor: 'cc-cur-dtunit', title: t('props.dim.tunit.title') }, t('props.dim.tunit')), dimUnitSelect(),
       el('p', { className: 'cc-note span' }, lay ? t('props.cur.onsheet', { unit: lay.paper.unit === 'in' ? t('props.unit.in') : t('props.unit.mm') }) : t('props.cur.hint')),
     ];
     // View: the centre and size of what is on screen; typing moves the view (P.9)
@@ -394,6 +409,19 @@ export function createPropsPanel(o) {
       el('div', { className: 'span cc-sheet-actions' }, plotBtn, del));
   }
 
+  /** Units in the text of new dimensions (0.6 DC.72): mm, cm, m, km or the drawing's own (dimstyle.js withTextUnit). */
+  function dimUnitSelect() {
+    const { mm } = textUnitMm(doc.meta, doc.layout);
+    const cur = textUnitOf(doc.current.dim, mm);
+    const s = el('select', { className: 'cc-select', id: 'cc-cur-dtunit', title: t('props.dim.tunit.title') },
+      ...textUnitChoices().filter(([k]) => k !== 'custom' || cur === 'custom').map(([k, lab]) => el('option', { value: k, selected: k === cur }, lab)));
+    s.addEventListener('change', () => {
+      if (s.value === 'custom') return;
+      doc.current.dim = withTextUnit(doc.current.dim, s.value, textUnitMm(doc.meta, doc.layout).mm);
+      status(t('cmd.dimtextunit.set', { unit: s.value || t('props.dim.tunit.drawing') }));
+    });
+    return s;
+  }
   function unitsSelect() {
     const units = ['', 'millimeters', 'centimeters', 'meters', 'inches', 'feet'];
     const name = (u) => t('props.units.' + (u || 'none'));
@@ -402,7 +430,13 @@ export function createPropsPanel(o) {
       ...(units.includes(cur) ? [] : [el('option', { value: cur, selected: true }, cur)]),
       ...units.map((u) => el('option', { value: u, selected: u === cur }, name(u))));
     s.addEventListener('change', () => {
+      const mm0 = textUnitMm(doc.meta).mm;
       const r = setUnits(doc, s.value);   // with solids: the 3D model follows (one undo step, model3d.js)
+      // dimensions written in mm…km keep saying the same length in the new units (0.6 DC.72)
+      const mm1 = textUnitMm(doc.meta).mm, refit = refitTextUnits(doc.model.values(), mm0, mm1);
+      if (refit.length) doc.change('DIMTEXTUNIT', () => { for (const n of refit) doc.update(n.id, n); });
+      const cu = textUnitOf(doc.current.dim, mm0);
+      if (cu && cu !== 'custom') doc.current.dim = withTextUnit(doc.current.dim, cu, mm1);
       status(t(r.scaled ? 'props.units.set.scaled' : 'props.units.set', { units: name(s.value) }));
       if (r.scaled) o.print(t('props.units.set.3d', { units: name(s.value), k: Number(r.ratio.toPrecision(6)) }));
     });

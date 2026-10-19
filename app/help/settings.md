@@ -30,6 +30,13 @@ What a click in the drawing does to the selection when no command is running:
 
 At a `Select objects:` prompt inside a command, clicks always add (and {{key:Shift}} removes), whatever this setting says. See [Select objects](topic:select-objects).
 
+## Clicking an empty spot
+
+What a click where there is no object does when no command is running. Either way it starts a selection window (a second click finishes it).
+
+- **Clears the selection** (the start): what was selected is let go. Hold {{key:Shift}} as you click to keep it.
+- **Keeps the selection**: the selection stays, as in other drafting programs; the window adds to it. Press {{key:Esc}} to clear the selection.
+
 ## Dragging to select
 
 What pressing and dragging on an empty spot draws:
@@ -38,6 +45,15 @@ What pressing and dragging on an empty spot draws:
 - **Rectangle**: the box, as a click and a second click draw it.
 
 {{cmd:LASSOMODE}} `1` or `0` sets the same. See [Lasso selection](topic:lasso-selection).
+
+## Dragging to trim and extend
+
+What pressing on an empty spot and dragging does in {{cmd:TRIM}} and {{cmd:EXTEND}}:
+
+- **A path** (the start): a freehand path; every piece it crosses is trimmed (or extended).
+- **A window**: a box; every piece it touches is trimmed, as the `C` option does.
+
+See [Trim and extend](topic:trim-and-extend).
 
 ## Corner indicator
 
@@ -49,6 +65,12 @@ What sits in the corner of the drawing:
 - **None**: nothing in the corner.
 
 Sheets show neither.
+
+## Length and area of the selection
+
+- **In the status bar** (the start): with objects selected, the status bar shows their total length and the total area of
+  the closed ones. See [Totals of a selection](topic:properties-panel#totals-of-a-selection).
+- **Hidden**: the status bar leaves them out. Properties still shows them for several objects.
 
 ## Grid, Ortho and snaps
 

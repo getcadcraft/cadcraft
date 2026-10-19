@@ -35,6 +35,8 @@ import { forFile3d, M3D_BLOCK } from './model3d.js';
 import { t } from './i18n.js';
 import { vportRecords } from './dwg-vports.js';
 import { trWord, propsXdata, varsOf, dstyleItems, ccDimItems } from './dwg-props.js';
+import { payloadStrings, STYLE_BLOCK, styleSheetName } from './plotstyle.js';
+import { geoPayload, GEO_BLOCK, dwgGeoObjects } from './geodwg.js';
 import { dynSave } from './dyn-blocks.js';
 import { picturePlacement, pictureKey } from './pictures.js';
 import { clipPoly, filterOf } from './xclip.js';
@@ -380,6 +382,12 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     return out;
   });
   if (pf) blocks.push({ name: PARAM_BLOCK, base: P(0, 0), entities: pf.points.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
+  // plot style tables and which one each sheet and the model plot with (0.6 DC.14, plotstyle.js): block CADCRAFT_PLOTSTYLES
+  const psPts = payloadStrings(doc);
+  if (psPts) blocks.push({ name: STYLE_BLOCK, base: P(0, 0), entities: psPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
+  // the coordinate system and map layers (0.6 GEO-DWG, geodwg.js): CadCraft's copy in block CADCRAFT_GEO; GEODATA below
+  const geoPts = geoPayload(doc);
+  if (geoPts) blocks.push({ name: GEO_BLOCK, base: P(0, 0), entities: geoPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   // the 3D model (model3d.js): every face as 3DFACE on layer CC-3D, and its exact copy in the unused block CADCRAFT_3D
   const m3 = forFile3d(doc);
   if (m3) {
@@ -389,7 +397,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   }
 
   // sheets: each layout is a paper space (*Paper_Space, *Paper_Space0, …) whose first viewport is the sheet itself
-  const layouts = [{ name: 'Model', tabOrder: 0 }];
+  const layouts = [{ name: 'Model', tabOrder: 0, ...(doc.meta.plotStyles?.model ? { paper: { styleSheet: styleSheetName(doc.meta.plotStyles.model) } } : {}) }];
   const spaces = [];
   doc.layouts.forEach((L, i) => {
     const p = L.paper, inch = p.unit === 'in', mm = inch ? 25.4 : 1;
@@ -403,7 +411,8 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     layouts.push({
       name: L.name, tabOrder: i + 1, block: record,
       paper: { name: p.key || (inch ? 'Custom_(' + p.w + '_x_' + p.h + '_Inches)' : 'Custom_(' + p.w + '_x_' + p.h + '_MM)'), w: p.w * mm, h: p.h * mm,
-        units: inch ? 0 : 1, rotation: 0, plotType: 5, scaleType: 16, scale: 1, left: 0, bottom: 0, right: 0, top: 0 },
+        units: inch ? 0 : 1, rotation: 0, plotType: 5, scaleType: 16, scale: 1, left: 0, bottom: 0, right: 0, top: 0,
+        ...(L.plotStyle ? { styleSheet: styleSheetName(L.plotStyle) } : {}) },
       limits: { min: { x: p.x0, y: p.y0 }, max: { x: p.x0 + p.w, y: p.y0 + p.h } }, insbase: P(0, 0),
     });
   });
@@ -473,6 +482,13 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     model.version = ds.version; if (Number.isFinite(ds.maintenance)) model.maintenance = ds.maintenance;
   }
   if (picObjects.length || ovrObjects.length || clipObjects.length) model.objects = [...(model.objects || []), ...picObjects, ...ovrObjects, ...clipObjects];
+  // the location other programs read (GEODATA, in the model space's extension dictionary): DWG 2010 and later only
+  const geoObj = !modelOnly && Number(vkey) >= 2010 ? dwgGeoObjects(doc.meta.geo, doc.meta.units || '') : null;
+  if (geoObj) {
+    model.blocks[0].record = geoObj.record;
+    model.tables.blockRecords = [...(model.tables.blockRecords || []), geoObj.blockRecord];
+    model.objects = [...(model.objects || []), ...geoObj.objects];
+  }
   if (modelOnly) return { model, counts, m3 };
   const { bytes, report } = writeDwg(model, { version: code, created });
 
@@ -487,6 +503,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   if (n('mtextwidth')) notes.push(t('dwg.save.mtextwidth'));
   if (n('paperView')) notes.push(t('dwg.save.paperview', { n: n('paperView') }));
   if (m3) notes.push(t('dwg.save.model3d', { n: m3.faces.length, layer: m3.layer, block: M3D_BLOCK }));
+  if (geoPts && !geoObj && (doc.meta.geo?.crs || doc.meta.geo?.src)) notes.push(t('dwg.save.geo.old', { v: t('dwg.version', { v: vkey }) }));
   if (n('xrefBound')) notes.push(t('dwg.save.xref.bound', { n: n('xrefBound') }));
   if (n('xrefLink')) notes.push(t('dwg.save.xref.link', { n: n('xrefLink') }));
   if (n('other')) notes.push(t('dwg.save.other', { n: n('other') }));
