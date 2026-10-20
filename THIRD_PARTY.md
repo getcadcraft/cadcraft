@@ -26,10 +26,6 @@ names both).
 |---|---|---|---|
 | `app/m3d/earcut.js` | earcut (Mapbox) | ISC | https://github.com/mapbox/earcut |
 
-## Must change before 0.5 (not Apache-2.0 compatible as shipped)
-
-- **web-e57 (the e57 crate in WebAssembly) 1.2.0** (Apache-2.0 AND MIT): undefined
-
 ## License texts
 
 ### laz-perf 0.0.7

@@ -1,5 +1,0 @@
-manifold-3d 3.5.4 (npm, published 2026-09-25) — https://github.com/elalish/manifold
-License: Apache-2.0 (LICENSE in this folder).
-Files copied unchanged from the npm tarball: manifold.js (Emscripten ES module, export default Module),
-manifold.wasm (found next to manifold.js through import.meta.url), the .d.ts type files, README.md.
-Used by PartCraft (assets/apps/partcraft) for boolean operations on closed meshes.
