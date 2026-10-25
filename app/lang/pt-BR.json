@@ -6607,5 +6607,51 @@
   "ccusd.part.number": "um número",
   "ccusd.part.no_value": "nenhum valor",
   "ccusd.part.bool": "true ou false",
-  "ccusd.part.value": "um valor"
+  "ccusd.part.value": "um valor",
+  "set.tour.auto": "Iniciar o tour automaticamente ao abrir o CadCraft pela primeira vez",
+  "set.tour.auto.hint": "Configurações › Global › Tours iniciais desativa essa opção para todos os aplicativos.",
+  "ws.layer": "Camada",
+  "ws.aids": "Auxílios de desenho",
+  "ws.zoom": "Zoom",
+  "ws.lwt": "Espessuras de linha",
+  "ws.props": "Propriedades",
+  "ws.browser": "Navegador do projeto",
+  "ws.browser.hint": "O modelo, suas folhas, blocos e desenhos vinculados. Clique em uma folha para abri-la ou em um bloco para selecionar suas inserções.",
+  "ws.panel": "Desenho",
+  "ws.untitled": "Desenho sem título",
+  "ws.why.empty": "Desenhe ou abra um arquivo primeiro",
+  "ws.why.undo": "Nada para desfazer",
+  "ws.why.redo": "Nada para refazer",
+  "ws.opt.sel": {
+    "one": "{n} objeto selecionado",
+    "other": "{n} objetos selecionados"
+  },
+  "ws.opt.ready": "Pronto",
+  "ws.opt.hint": "Escolha uma ferramenta ou digite um comando na linha de comando.",
+  "ws.pb.sheets": "Modelo e folhas",
+  "ws.pb.sheets.new": "Nova folha",
+  "ws.pb.open": "Abrir {name}",
+  "ws.pb.blocks": "Blocos",
+  "ws.pb.blocks.none": "Nenhum bloco ainda.",
+  "ws.pb.blocks.make": "Criar um bloco",
+  "ws.pb.select": "Selecionar as inserções de {name} neste desenho",
+  "ws.pb.insert": "Inserir",
+  "ws.pb.insert.aria": "Inserir {name}",
+  "ws.pb.xrefs": "Desenhos vinculados",
+  "ws.pb.xrefs.none": "Nenhum desenho vinculado.",
+  "ws.pb.xrefs.attach": "Anexar…",
+  "ws.pb.xrefs.manage": "Gerenciar vínculos",
+  "ws.pb.xref.loaded": {
+    "one": "carregado, {n} referência",
+    "other": "carregado, {n} referências"
+  },
+  "ws.pb.xref.missing": "não encontrado",
+  "ws.pb.selected": {
+    "one": "{n} referência a {name} selecionada.",
+    "other": "{n} referências a {name} selecionadas."
+  },
+  "ws.pb.none_here": "{name} não é usado na vista aberta.",
+  "m3d.tool.rotate_copy_off": "Ctrl cria uma cópia.",
+  "m3d.tool.rotate_copy_on": "Copiando: o original é mantido. Pressione Ctrl para girar sem copiar.",
+  "m3d.tool.rotated_copy_type_3x": "Cópia criada. Digite 3x para criar mais cópias em torno do centro ou /3 para dividir o ângulo."
 }
