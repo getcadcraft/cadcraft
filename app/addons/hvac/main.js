@@ -13,6 +13,7 @@
 import { setT, t, sizeUnitOf, perUnit, fmtNum, nearestOnPath, drawTable, csv, newRunId } from './lib/mep-core.js';
 import { VERSION, SHAPES, SYSTEMS, MATERIALS, ELBOWS, DEFAULT_R, cleanDuct, cleanSeg, transformDuct, linkRuns, drawDuct, ductSolid, schedule, sizeText, planW } from './lib/duct.js';
 import { sizeSection, sectionLoss } from './lib/sizing.js';
+import { analyzeNetwork, csvRows as netCsv, inWg } from './lib/ductnet.js';   // 0.8 EG.1 (lib/mep/* is BimCraft's engine, synced)
 import { ductTakeoffPdf, ductPack } from './lib/takeoff.js';
 
 export const DEFAULTS = {
@@ -283,6 +284,40 @@ export function activate(api) {
     settings.rate[u] = rate; save();
   }, { noRepeat: true });
 
+  // ---------------------------------------------------------------------------------------------- DUCTNET (0.8 EG.1)
+  // The whole drawn network from a fan point: airflow in every section, friction and fitting loss, the critical path, the damper each end needs
+  // and the fan's pressure. Fitting coefficients are the engine's labelled defaults; the person's engineer decides what is used.
+  const netOpts = () => ({ method: settings.netMethod || 'friction', rate: settings.netRate ?? null, equipDp: settings.equipPa || 0 });
+  const runNet = (doc, source) => {
+    const u = unitOf(doc), o = netOpts();
+    return analyzeNetwork({ ducts: runsIn(doc).map((r) => ({ id: r.eid, data: r.data })), source, rate: o.rate ?? (u === 'in' ? 0.8172 : 0.8), method: o.method, equipDp: o.equipDp });
+  };
+  const pa = (v, u) => (u === 'in' ? fmtNum(inWg(v), 3) + ' in wg' : fmtNum(v, 1) + ' Pa');
+  cmd('DUCTNET', ['DNET'], async (c) => {
+    const doc = c.doc, u = unitOf(doc);
+    if (!runsIn(doc).length) { c.print(t('err.noducts')); return; }
+    const p = await c.point(t('net.fan'), { options: [opt('M', t('net.opt.method')), opt('E', t('net.opt.equip'))] });
+    if (!p) return;
+    if (p.option === 'M') { const r = await c.keyword(t('net.method'), { options: [opt('F', t('net.method.friction')), opt('V', t('net.method.velocity'))], default: 'F' }); settings.netMethod = (r?.option ?? r) === 'V' ? 'velocity' : 'friction'; save(); c.print(t('net.method.set', { m: t('net.method.' + settings.netMethod) })); return; }
+    if (p.option === 'E') { const v = Number(await c.number(t('net.equip', { unit: u === 'in' ? 'in wg' : 'Pa' }), { default: u === 'in' ? inWg(settings.equipPa || 0) : (settings.equipPa || 0) })); if (Number.isFinite(v) && v >= 0) { settings.equipPa = u === 'in' ? v * 249.08891 : v; save(); c.print(t('net.equip.set', { v: pa(settings.equipPa, u) })); } return; }
+    const a = runNet(doc, p);
+    if (!a.ok) { c.print(t('net.err.' + a.why)); return; }
+    api.storage.set('fan', { x: p.x, y: p.y });
+    for (const n of a.notes) c.print(t('net.note.' + n.code, { tag: n.tag, n: n.n }));
+    c.print(t('net.head', { ends: a.terminals.length, fan: pa(a.fanPa, u), crit: a.critical ? a.critical.label : '-' }));
+    for (const x of a.terminals) c.print('  ' + t('net.end', { label: x.label, lps: fmtNum(x.lps * (u === 'in' ? 1 / 0.471947443 : 1), 0), unit: u === 'in' ? 'cfm' : 'L/s', dp: x.reached ? pa(x.dp, u) : t('net.unreached'), damper: x.reached && x.damperPa > 0.05 ? t('net.damper', { v: pa(x.damperPa, u) }) : '' }));
+    const bad = a.rows.filter((r) => r.status === 'small' || r.status === 'fast' || r.aspectHigh);
+    if (bad.length) c.print(t('net.sizes', { n: bad.length, list: [...new Set(bad.map((r) => r.run.split('.')[0]))].slice(0, 8).join(', ') }));
+    c.print(t('net.defaults'));
+  }, { noRepeat: true });
+  api.files.exporter({ id: 'duct-network-csv', label: t('net.export'), extension: 'csv', mime: 'text/csv', write: (doc) => {
+    const fan = api.storage.get('fan');
+    if (!fan) throw new Error(t('net.err.nofan'));
+    const a = runNet(doc, fan);
+    if (!a.ok) throw new Error(t('net.err.' + a.why));
+    return '﻿' + netCsv(a);
+  } });
+
   // ---------------------------------------------------------------------------------------------- DUCTSCHED and tables
   function tableRows(doc) {
     const runs = runsIn(doc).map((r) => r.data);
@@ -348,7 +383,7 @@ export function activate(api) {
   api.files.exporter({ id: 'duct-pack', label: t('export.pack'), extension: 'json', mime: 'application/json', write: (doc) => JSON.stringify(ductPack(runsIn(doc).map((r) => r.data), doc.meta?.name || 'Drawing1'), null, 1) });
 
   // ---------------------------------------------------------------------------------------------- toolbar, panel, settings
-  const ACTIONS = [['DUCT', 'ui.duct', 'bi-bezier2'], ['DUCTSIZE', 'ui.ductsize', 'bi-arrows-angle-expand'], ['DUCTCALC', 'ui.ductcalc'], ['DUCTSCHED', 'ui.ductsched'], ['DUCT3D', 'ui.duct3d']];
+  const ACTIONS = [['DUCT', 'ui.duct', 'bi-bezier2'], ['DUCTSIZE', 'ui.ductsize', 'bi-arrows-angle-expand'], ['DUCTCALC', 'ui.ductcalc'], ['DUCTNET', 'ui.ductnet'], ['DUCTSCHED', 'ui.ductsched'], ['DUCT3D', 'ui.duct3d']];
   let bar = null;
   function showToolbar(on) {
     if (bar) { for (const n of bar) n?.remove?.(); bar = null; }

@@ -1,0 +1,4 @@
+- Add Electrical, then open CadCraft and switch it on in Settings, General, Add-ons.
+- Type ELSHEET, choose A3 and title the sheet; place a coil with ELSYMBOL, join it with ELWIRE, then run ELNUMBER and ELCHECK.
+- For a building: type ELINSTALL on a plan, place devices on a circuit, draw routes with ELROUTE, then ELPANEL to see the schedule and ELBALANCE to spread the phases.
+- Open the sample project to see all of it filled in: it has three schematic sheets and four report sheets.

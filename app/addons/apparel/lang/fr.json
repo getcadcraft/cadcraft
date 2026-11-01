@@ -204,7 +204,7 @@
   "ui.aamain": "Ouvrir un DXF-AAMA",
   "cmd.graderule.help": "La bibliothèque de règles de gradation : enregistrer la règle d'un point sous un nom, appliquer des règles enregistrées à des points, et importer ou exporter la bibliothèque (JSON ou RUL)",
   "ask.lib": "Bibliothèque de règles de gradation ({n} règles)",
-  "opt.lib.save": "Enregistrer (S)",
+  "opt.lib.save": "Enregistrer",
   "opt.lib.apply": "Appliquer",
   "opt.lib.list": "Liste",
   "opt.lib.export": "Exporter",

@@ -15,3 +15,7 @@ keywords: limits, not built, missing, roadmap, p&id
 - **Moving a line when an item it ends on moves**: lines are never attached. Move the line's end with its grip.
 - **Symbols from other libraries**: the library is CadCraft's own; draw others as blocks.
 - **Other languages** for the add-on's words: they come with the next language update.
+- **Stream splitting and optimising the temperatures** in the heat-exchanger network grid; the grid is a first design.
+- **The PDF of the HAZOP worksheet** has no logo or signature block; the worksheet's PDF is plain tables.
+- **MarkupCraft shows the node boxes only after its own importer** reads the JSON file: it is exported here, not yet read there.
+- **Live values from Studio** need Studio's plant connection (OPC UA is Rust, built with Studio).

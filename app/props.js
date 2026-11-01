@@ -22,8 +22,8 @@
 import { el, fmt } from './ui-util.js';
 import { t } from './i18n.js';
 import { TYPE_NAMES, typeName } from './doc.js';
-import { lookup, setLengthFormat, lengthFormatLabel, lengthFormatName, isAttdefText } from './commands.js';
-import { formatLength, formatArea, unitsOf, LUNITS } from './units.js';
+import { lookup, setLengthFormat, setAngleFormat, angleFormatName, lengthFormatLabel, lengthFormatName, isAttdefText } from './commands.js';
+import { formatLength, formatArea, unitsOf, LUNITS, fmtAngle, editAngle, aunitCode } from './units.js';
 import { selectionTotals } from './seltotals.js';   // 0.6 DF.4
 import { linetypeNames, ltLabel, lwLabel, LINEWEIGHTS } from './linetypes.js';
 import { hatchLines } from './hatch.js';
@@ -54,7 +54,7 @@ export function createPropsPanel(o) {
     switch (def.kind) {
       case 'len': return def.model && onSheet() ? formatLength(v, unitsOf(doc.meta)) : o.fmtL(v);
       case 'area': return o.fmtA(v);
-      case 'ang': return fmt(v) + '°';
+      case 'ang': return fmtAngle(doc.meta, v);
       default: return fmt(v);
     }
   };
@@ -132,7 +132,7 @@ export function createPropsPanel(o) {
   // ---- one group's fields, by section ----
   function fieldOpts(ents, prefix, setFn) {
     return {
-      t, varies: VARIES, show, edit: (def, v) => editText(v), read, note, controls,
+      t, varies: VARIES, show, edit: (def, v) => (def.kind === 'ang' ? editAngle(doc.meta, v) : null) ?? editText(v), read, note, controls,
       set: setFn || ((def, v) => {
         const r = applyValue(doc, def, ents.map((e) => doc.get(e.id) || e), v, ctxFor(ents));
         if (!r.ok) { note(r.error); schedule(); return; }
@@ -169,6 +169,116 @@ export function createPropsPanel(o) {
     return out;
   }
 
+  // ---- 0.8 PANEL-COMPACT: the shared property grid (assets/js/app-propgrid.js) for the generic field list ----
+  const gridOn = () => !!window.ccPropGrid;
+  /** The list of [key, label] choices for the app's own selects, the key now selected, and how a chosen key reads back (same values as `controls`). */
+  function selSpec(kind, def, value, { forLayer = false } = {}) {
+    const varies = value === VARIES;
+    const pickKey = (v) => (varies ? null : v === null || v === undefined ? '' : String(v));
+    let list, key, dec = (x) => x;
+    if (kind === 'layer') {
+      list = [...doc.layers.keys()].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).map((n) => [n, n]);
+      key = varies ? null : value;
+    } else if (kind === 'color') {
+      list = [...(def.none ? [['none', t('props.color.none')]] : []), ['', t('props.color.bylayer')], ['0', t('props.color.byblock')], ...Object.entries(o.ACI_NAMES)];
+      key = pickKey(value);
+      if (key !== null && !list.some(([k]) => k === key)) list.push([key, o.colorLabel(value)]);
+      dec = (v) => (v === '' ? null : v === 'none' ? 'none' : /^#/.test(v) ? v : parseInt(v, 10));
+    } else if (kind === 'lt') {
+      list = [...(forLayer ? [] : [['', ltLabel(null)], ['ByBlock', ltLabel('ByBlock')]]), ...linetypeNames(doc).map((n) => [n, ltLabel(n)])];
+      key = varies ? null : value === null ? '' : list.find(([k]) => k.toUpperCase() === String(value).toUpperCase())?.[0] ?? String(value);
+      if (key !== null && !list.some(([k]) => k === key)) list.push([key, key]);
+      dec = (v) => (v === '' ? null : v);
+    } else if (kind === 'lw') {
+      list = [...(forLayer ? [] : [['', lwLabel(null)], ['-2', lwLabel(-2)]]), ['-3', lwLabel(-3)], ...LINEWEIGHTS.map((w) => [String(w), lwLabel(w)])];
+      key = pickKey(value);
+      dec = (v) => (v === '' ? null : +v);
+    } else if (kind === 'tr') {
+      list = [['', t('props.tr.bylayer')], ['ByBlock', t('props.tr.byblock')], ...[0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((n) => [String(n), t('props.tr.pct', { n })])];
+      key = pickKey(value);
+      if (key !== null && !list.some(([k]) => k === key)) list.push([key, t('props.tr.pct', { n: key })]);
+      dec = (v) => (v === '' ? null : v === 'ByBlock' ? 'ByBlock' : Math.max(0, Math.min(90, Math.round(+v))));
+    } else if (kind === 'mat') {
+      const names = new Set([...MATS, ...(doc.materials ? [...doc.materials.keys()] : [])]);
+      if (value && !varies) names.add(value);
+      list = [['', t('props.mat.bylayer')], ...[...names].map((n) => [n, n === 'ByBlock' ? t('props.mat.byblock') : n === 'Global' ? t('props.mat.global') : n])];
+      key = varies ? null : value === null ? '' : value;
+      dec = (v) => (v === '' ? null : v);
+    } else return null;
+    return { list, key, dec };
+  }
+  const K = (k) => 'k:' + k;   // option values carry a prefix so "" (by layer) is a real, selectable value
+  const selRow = (id, category, label, spec, extra = {}) => ({ id, category, label, type: 'select', options: spec.list.map(([k, l]) => ({ value: K(k), label: String(l) })),
+    value: spec.key === null ? null : K(spec.key), mixed: spec.key === null, ...extra });
+  const numRow = (id, category, label, def, value, extra = {}) => ({ id, category, label, type: 'number', value: value === VARIES ? null : value, mixed: value === VARIES,
+    parse: (text) => read(def, text), hint: value === VARIES ? '' : show(def, value), ...extra });
+
+  /** One descriptor → a grid row (and what a change to it does), or null when the descriptor needs a widget of its own (vertex stepper, multi-line text). */
+  function gridRowOf(d, ents, ctx, opts, handlers) {
+    const id = d.key, category = sectionLabel(d.sec);
+    const label = d.pt ? pointLabel(d.pt.name) + ' ' + d.label : d.label;
+    const val = valueOf(d, ents, ctx), mixed = val === VARIES;
+    const set = (v) => opts.set(d, v);
+    let row = null;
+    if (d.kind.startsWith('ro')) {
+      row = { id, category, label, type: 'readonly', mixed, value: mixed ? '' : d.kind === 'ro' ? String(val ?? '') : show({ ...d, kind: d.kind.slice(3) }, val), hint: d.title ? t(d.title) : '' };
+    } else if (d.kind === 'bool') {
+      row = { id, category, label, type: 'checkbox', value: !mixed && !!val, mixed, hint: d.title ? t(d.title) : '' };
+      handlers.set(id, set);
+    } else if (d.kind === 'choice') {
+      const list = d.choices();
+      if (!mixed && val !== undefined && !list.some(([k]) => String(k) === String(val))) list.push([val, String(val)]);
+      row = { id, category, label, type: 'select', options: list.map(([k, l]) => ({ value: K(k), label: String(l) })), value: mixed ? null : K(val), mixed };
+      handlers.set(id, (v) => set(String(v).slice(2)));
+    } else if (d.kind === 'text') {
+      row = { id, category, label, type: 'text', value: mixed ? '' : String(val ?? ''), mixed, maxLength: d.max || 2000 };
+      handlers.set(id, set);
+    } else if (NUMERIC_KINDS.has(d.kind)) {
+      row = numRow(id, category, label, d, val, { hint: d.title ? t(d.title) : mixed ? '' : show(d, val) });
+      handlers.set(id, set);
+    } else if (selSpec(d.kind, d, val)) {
+      const sp = selSpec(d.kind, d, val);
+      row = selRow(id, category, label, sp, { hint: d.title ? t(d.title) : '' });
+      handlers.set(id, (v) => set(sp.dec(String(v).slice(2))));
+    }
+    return row;
+  }
+  const NUMERIC_KINDS = new Set(['len', 'ang', 'num', 'int', 'area']);
+
+  /** The generic fields of one group as a grid; returns the nodes (grid, pick buttons) and the descriptors it could not take. */
+  function gridOf(defs, ents, opts) {
+    const ctx = ctxFor(ents), rows = [], handlers = new Map(), left = [], taken = new Set(), pts = new Map();
+    for (const d of defs) {
+      const row = taken.has(d.key) ? null : gridRowOf(d, ents, ctx, opts, handlers);
+      if (!row) { left.push(d); continue; }
+      taken.add(d.key); rows.push(row);
+      if (d.pt && !pts.has(d.pt.name)) pts.set(d.pt.name, d);
+    }
+    if (!rows.length) return { nodes: [], left };
+    const host = el('div', { className: 'cc-pgridhost' });
+    window.ccPropGrid.create(host, {
+      label: t('props.title'), key: 'props', rows,
+      onChange: (id, v) => { const h = handlers.get(id); if (h) h(v); },
+      onInvalid: (id, r) => note(r && r.error ? r.error : t('props.expr.title')),
+    });
+    const nodes = [host];
+    if (opts.pick && pts.size) {
+      nodes.push(el('div', { className: 'cc-props-picks' }, ...[...pts].map(([name, d]) => {
+        const lab = pointLabel(name);
+        const b = el('button', { type: 'button', className: 'cc-ppick', title: t('props.pick.title', { what: lab }), 'aria-label': t('props.pick.title', { what: lab }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }));
+        b.addEventListener('click', () => opts.pick(d));
+        return b;
+      })));
+    }
+    return { nodes, left };
+  }
+  /** The panel's body for one group: the grid where the shell has it, else the sections as before. */
+  function bodyOf(defs, ents, opts, extras) {
+    if (!gridOn()) return sectionsOf(defs, ents, opts, extras);
+    const g = gridOf(defs, ents, opts);
+    return [...g.nodes, ...sectionsOf(g.left, ents, opts, extras)];
+  }
+
   // ---- the header row ----
   function head(groups, current) {
     const kids = [];
@@ -199,6 +309,7 @@ export function createPropsPanel(o) {
 
   function render() {
     const focusId = ui.props.contains(document.activeElement) ? document.activeElement.id : null;
+    const focusRow = ui.props.contains(document.activeElement) ? document.activeElement.getAttribute('data-pg-row') : null;
     const ids = [...host.selection].filter((id) => doc.get(id));
     const ents = ids.map((id) => doc.get(id));
     let body;
@@ -214,13 +325,14 @@ export function createPropsPanel(o) {
       const opts = fieldOpts(gents, 'cc-p-');
       const defs = shownIn('panel', groupKey, defsFor(groupKey, gents, { doc, vertex: ctxFor(gents).vertex }));
       const extras = gents.length === 1 ? extrasFor(gents[0]) : {};
-      body = [head(groups, groupKey), ...(ents.length > 1 ? [totalsSection(ents, groups)] : []), ...sectionsOf(defs, gents, opts, extras)];
+      body = [head(groups, groupKey), ...(ents.length > 1 ? [totalsSection(ents, groups)] : []), ...bodyOf(defs, gents, opts, extras)];
       if (groupKey === 'all') body.push(el('p', { className: 'cc-note' }, groups.filter((x) => x.key !== 'all').map((x) => x.n + ' ' + x.label.toLowerCase()).join(', ')));
     }
     ui.props.replaceChildren(...body, live, dividerCtl.el);
     dividerCtl.place();
     renderQuick(ents);
-    if (focusId) ui.props.querySelector('#' + CSS.escape(focusId))?.focus();
+    if (focusRow) ui.props.querySelector('[data-pg-row="' + CSS.escape(focusRow) + '"]')?.focus();
+    else if (focusId) ui.props.querySelector('#' + CSS.escape(focusId))?.focus();
   }
 
   // ---- a multiple selection's totals (0.6 DF.4, seltotals.js): count by type, total length, total area ----
@@ -359,11 +471,70 @@ export function createPropsPanel(o) {
       el('span', { className: 'k' }, t('props.misc.ucs')), el('span', { className: 'v' }, t('props.misc.world')),
       el('span', { className: 'k', title: t('props.misc.annoscale.title') }, t('props.misc.annoscale')), el('span', { className: 'v' }, '1:1'),
     ];
+    if (gridOn()) return noneGrid(lay, c, layerOf, cx, cy, vw, vh, aspect, goTo);
     const out = [head(null, null)];
     if (lay) out.push(section('sheet', t('props.sec.sheet'), pr, sheetSettings(lay)));
     out.push(section('current', t('props.sec.current'), pr, el('div', { className: 'cc-props cc-pgrid' }, ...current)));
     out.push(section('view', t('props.sec.view'), pr, el('div', { className: 'cc-props cc-pgrid' }, ...views)));
     out.push(section('misc', t('props.sec.misc'), pr, el('div', { className: 'cc-props cc-pgrid' }, ...misc)));
+    return out;
+  }
+
+
+  /** Nothing selected, in the shared grid (0.8 PANEL-COMPACT): current settings, the layer's line, new dimensions, View, Misc; the sheet stays its own block. */
+  function noneGrid(lay, c, layerOf, cx, cy, vw, vh, aspect, goTo) {
+    const handlers = new Map(), rows = [];
+    const add = (row, fn) => { rows.push(row); if (fn) handlers.set(row.id, fn); };
+    const sel = (id, cat, label, kind, value, fn, o2 = {}) => { const sp = selSpec(kind, { none: false }, value, o2); add(selRow(id, cat, label, sp), (v) => fn(sp.dec(String(v).slice(2)))); };
+    const num = (id, cat, label, kind, value, fn, extra = {}) => { const { title, ...d } = extra; add(numRow(id, cat, label, { key: id, kind, label, ...d }, value, title ? { hint: t(title) } : {}), fn); };
+    const CUR = t('props.sec.current'), LAY = t('props.layer.sub', { layer: c.layer }), DIM = t('props.cur.newdims'), VIEW = t('props.sec.view'), MISC = t('props.sec.misc');
+    const layerRow = { id: 'cur-layer', category: CUR, label: t('props.f.layer'), type: 'select', value: K(c.layer), options: [...doc.layers.keys()].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).map((n) => ({ value: K(n), label: n })) };
+    add(layerRow, (v) => o.setCurrent(String(v).slice(2)));
+    sel('cur-color', CUR, t('props.f.color'), 'color', c.color, (v) => { doc.current.color = v; });
+    sel('cur-lt', CUR, t('props.lt'), 'lt', c.linetype, (v) => { doc.current.linetype = v; });
+    sel('cur-lw', CUR, t('props.lw'), 'lw', c.lineweight, (v) => { doc.current.lineweight = v; });
+    num('cur-th', CUR, t('props.cur.textheight'), 'len', c.textHeight, (v) => { doc.current.textHeight = v; }, { gt0: true });
+    if (!lay) {
+      const u = unitsOf(doc.meta), frac = u.lunits === 4 || u.lunits === 5, cur = doc.meta.units || '';
+      add({ id: 'cur-units', category: CUR, label: t('props.cur.units'), type: 'select', value: K(cur), hint: t('props.cur.units.title'),
+        options: [...(UNIT_KEYS.includes(cur) ? [] : [cur]), ...UNIT_KEYS].map((x) => ({ value: K(x), label: UNIT_KEYS.includes(x) ? unitName(x) : x })) }, (v) => applyUnits(String(v).slice(2)));
+      add({ id: 'cur-lunits', category: CUR, label: t('props.lunits'), type: 'select', value: K(u.lunits), hint: t('props.lunits.title'),
+        options: Object.keys(LUNITS).map((k) => ({ value: K(k), label: lengthFormatName(+k) })) }, (v) => applyLenFmt(+String(v).slice(2), u.prec));
+      add({ id: 'cur-luprec', category: CUR, label: t('props.luprec'), type: 'select', value: K(u.prec),
+        options: [0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => ({ value: K(n), label: frac ? (n ? '1/' + Math.pow(2, n) : '1') : (n ? '0.' + '0'.repeat(n - 1) + '1' : '0') })) }, (v) => applyLenFmt(u.lunits, +String(v).slice(2)));
+      add({ id: 'cur-aunits', category: CUR, label: t('props.aunits'), type: 'select', value: K(aunitCode(doc.meta.aunits ?? 0)), hint: t('props.aunits.title'),
+        options: [0, 1, 4].map((k) => ({ value: K(k), label: angleFormatName(k) })) }, (v) => applyAngFmt(+String(v).slice(2)));
+      num('cur-lts', CUR, t('props.ltscale'), 'num', doc.meta.ltscale > 0 ? doc.meta.ltscale : 1, (v) => doc.change('LTSCALE', () => doc.setMeta({ ltscale: v })), { gt0: true, title: 'props.ltscale.title' });
+    }
+    sel('lay-lt', LAY, t('props.lt'), 'lt', layerOf?.linetype || 'Continuous', (v) => doc.setLayer(c.layer, { linetype: v }), { forLayer: true });
+    sel('lay-lw', LAY, t('props.lw'), 'lw', layerOf?.lineweight ?? -3, (v) => doc.setLayer(c.layer, { lineweight: v }), { forLayer: true });
+    const dimSet = (key, label, kind, extra = {}) => num('cur-d' + key, DIM, label, kind, c.dim[key], (v) => {
+      doc.current.dim = { ...doc.current.dim, [key]: key === 'dec' ? Math.min(8, Math.round(v)) : v };
+      status(t('props.cur.dimset', { what: label, v: fmt(doc.current.dim[key]) }));
+    }, extra);
+    dimSet('txt', t('props.dim.txt'), 'len', { gt0: true }); dimSet('asz', t('props.dim.asz'), 'len', { min: 0 });
+    dimSet('dec', [4, 5].includes(c.dim.lunit) ? t('props.dim.frac') : t('props.dim.dec'), 'int', { min: 0, max: 8 });
+    dimSet('scale', t('props.dim.scale'), 'num', { gt0: true, title: 'props.dim.scale.title' });
+    { const { mm } = textUnitMm(doc.meta, doc.layout), curU = textUnitOf(doc.current.dim, mm);
+      add({ id: 'cur-dtunit', category: DIM, label: t('props.dim.tunit'), type: 'select', value: K(curU), hint: t('props.dim.tunit.title'),
+        options: textUnitChoices().filter(([k]) => k !== 'custom' || curU === 'custom').map(([k, lab]) => ({ value: K(k), label: lab })) }, (v) => applyDimUnit(String(v).slice(2))); }
+    num('view-cx', VIEW, t('props.view.cx'), 'len', cx, (v) => goTo(v, cy, vw, vh));
+    num('view-cy', VIEW, t('props.view.cy'), 'len', cy, (v) => goTo(cx, v, vw, vh));
+    add({ id: 'view-cz', category: VIEW, label: t('props.view.cz'), type: 'readonly', value: show({ kind: 'len' }, 0) });
+    num('view-h', VIEW, t('props.view.h'), 'len', vh, (v) => goTo(cx, cy, v * aspect, v), { gt0: true });
+    num('view-w', VIEW, t('props.view.w'), 'len', vw, (v) => goTo(cx, cy, v, v / aspect), { gt0: true });
+    add({ id: 'misc-ucsicon', category: MISC, label: t('props.misc.ucsicon'), type: 'checkbox', value: !!o.ucsIcon?.get() }, (v) => { o.ucsIcon?.set(!!v); schedule(); });
+    add({ id: 'misc-ucs', category: MISC, label: t('props.misc.ucs'), type: 'readonly', value: t('props.misc.world') });
+    add({ id: 'misc-anno', category: MISC, label: t('props.misc.annoscale'), type: 'readonly', value: '1:1', hint: t('props.misc.annoscale.title') });
+    const host = el('div', { className: 'cc-pgridhost' });
+    window.ccPropGrid.create(host, {
+      label: t('props.current'), key: 'current', rows,
+      onChange: (id, v) => { const h = handlers.get(id); if (h) h(v); },
+      onInvalid: (id, r) => note(r && r.error ? r.error : t('props.expr.title')),
+    });
+    const out = [head(null, null)];
+    if (lay) out.push(section('sheet', t('props.sec.sheet'), pr, sheetSettings(lay)));
+    out.push(host, el('p', { className: 'cc-note span' }, lay ? t('props.cur.onsheet', { unit: lay.paper.unit === 'in' ? t('props.unit.in') : t('props.unit.mm') }) : t('props.cur.hint')));
     return out;
   }
 
@@ -409,40 +580,44 @@ export function createPropsPanel(o) {
       el('div', { className: 'span cc-sheet-actions' }, plotBtn, del));
   }
 
+  function applyDimUnit(v) {
+    if (v === 'custom') return;
+    doc.current.dim = withTextUnit(doc.current.dim, v, textUnitMm(doc.meta, doc.layout).mm);
+    status(t('cmd.dimtextunit.set', { unit: v || t('props.dim.tunit.drawing') }));
+  }
   /** Units in the text of new dimensions (0.6 DC.72): mm, cm, m, km or the drawing's own (dimstyle.js withTextUnit). */
   function dimUnitSelect() {
     const { mm } = textUnitMm(doc.meta, doc.layout);
     const cur = textUnitOf(doc.current.dim, mm);
     const s = el('select', { className: 'cc-select', id: 'cc-cur-dtunit', title: t('props.dim.tunit.title') },
       ...textUnitChoices().filter(([k]) => k !== 'custom' || cur === 'custom').map(([k, lab]) => el('option', { value: k, selected: k === cur }, lab)));
-    s.addEventListener('change', () => {
-      if (s.value === 'custom') return;
-      doc.current.dim = withTextUnit(doc.current.dim, s.value, textUnitMm(doc.meta, doc.layout).mm);
-      status(t('cmd.dimtextunit.set', { unit: s.value || t('props.dim.tunit.drawing') }));
-    });
+    s.addEventListener('change', () => applyDimUnit(s.value));
     return s;
   }
+  const UNIT_KEYS = ['', 'millimeters', 'centimeters', 'meters', 'inches', 'feet'];
+  const unitName = (u) => t('props.units.' + (u || 'none'));
+  function applyUnits(value) {
+    const mm0 = textUnitMm(doc.meta).mm;
+    const r = setUnits(doc, value);   // with solids: the 3D model follows (one undo step, model3d.js)
+    // dimensions written in mm…km keep saying the same length in the new units (0.6 DC.72)
+    const mm1 = textUnitMm(doc.meta).mm, refit = refitTextUnits(doc.model.values(), mm0, mm1);
+    if (refit.length) doc.change('DIMTEXTUNIT', () => { for (const n of refit) doc.update(n.id, n); });
+    const cu = textUnitOf(doc.current.dim, mm0);
+    if (cu && cu !== 'custom') doc.current.dim = withTextUnit(doc.current.dim, cu, mm1);
+    status(t(r.scaled ? 'props.units.set.scaled' : 'props.units.set', { units: unitName(value) }));
+    if (r.scaled) o.print(t('props.units.set.3d', { units: unitName(value), k: Number(r.ratio.toPrecision(6)) }));
+  }
   function unitsSelect() {
-    const units = ['', 'millimeters', 'centimeters', 'meters', 'inches', 'feet'];
-    const name = (u) => t('props.units.' + (u || 'none'));
     const cur = doc.meta.units || '';
     const s = el('select', { className: 'cc-select', id: 'cc-cur-units', title: t('props.cur.units.title') },
-      ...(units.includes(cur) ? [] : [el('option', { value: cur, selected: true }, cur)]),
-      ...units.map((u) => el('option', { value: u, selected: u === cur }, name(u))));
-    s.addEventListener('change', () => {
-      const mm0 = textUnitMm(doc.meta).mm;
-      const r = setUnits(doc, s.value);   // with solids: the 3D model follows (one undo step, model3d.js)
-      // dimensions written in mm…km keep saying the same length in the new units (0.6 DC.72)
-      const mm1 = textUnitMm(doc.meta).mm, refit = refitTextUnits(doc.model.values(), mm0, mm1);
-      if (refit.length) doc.change('DIMTEXTUNIT', () => { for (const n of refit) doc.update(n.id, n); });
-      const cu = textUnitOf(doc.current.dim, mm0);
-      if (cu && cu !== 'custom') doc.current.dim = withTextUnit(doc.current.dim, cu, mm1);
-      status(t(r.scaled ? 'props.units.set.scaled' : 'props.units.set', { units: name(s.value) }));
-      if (r.scaled) o.print(t('props.units.set.3d', { units: name(s.value), k: Number(r.ratio.toPrecision(6)) }));
-    });
+      ...(UNIT_KEYS.includes(cur) ? [] : [el('option', { value: cur, selected: true }, cur)]),
+      ...UNIT_KEYS.map((u) => el('option', { value: u, selected: u === cur }, unitName(u))));
+    s.addEventListener('change', () => applyUnits(s.value));
     return s;
   }
 
+  const applyLenFmt = (code, prec) => { const r = setLengthFormat(doc, code, prec); status(lengthFormatLabel(r.lunits, r.prec) + ': ' + formatLength(150.5, r)); schedule(); };
+  const applyAngFmt = (code) => { const aprec = Number.isFinite(doc.meta.auprec) ? doc.meta.auprec : 4; const r = setAngleFormat(doc, code, aprec); status(angleFormatName(r.aunits) + ': ' + fmtAngle({ aunits: r.aunits, auprec: r.prec }, 44.6083333)); schedule(); };
   function lengthFormatRows() {
     const u = unitsOf(doc.meta);
     const f = el('select', { className: 'cc-select', id: 'cc-cur-lunits', title: t('props.lunits.title') },
@@ -450,10 +625,14 @@ export function createPropsPanel(o) {
     const frac = u.lunits === 4 || u.lunits === 5;
     const p = el('select', { className: 'cc-select', id: 'cc-cur-luprec' },
       ...[0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => el('option', { value: n, selected: n === u.prec }, frac ? (n ? '1/' + Math.pow(2, n) : '1') : (n ? '0.' + '0'.repeat(n - 1) + '1' : '0'))));
-    const apply = (code, prec) => { const r = setLengthFormat(doc, code, prec); status(lengthFormatLabel(r.lunits, r.prec) + ': ' + formatLength(150.5, r)); schedule(); };
+    const apply = applyLenFmt;
     f.addEventListener('change', () => apply(+f.value, u.prec));
     p.addEventListener('change', () => apply(u.lunits, +p.value));
-    return [el('label', { htmlFor: 'cc-cur-lunits' }, t('props.lunits')), f, el('label', { htmlFor: 'cc-cur-luprec' }, t('props.luprec')), p];
+    const au = aunitCode(doc.meta.aunits ?? 0), aprec = Number.isFinite(doc.meta.auprec) ? doc.meta.auprec : 4;
+    const a = el('select', { className: 'cc-select', id: 'cc-cur-aunits', title: t('props.aunits.title') },
+      ...[0, 1, 4].map((k) => el('option', { value: k, selected: k === au }, angleFormatName(k))));
+    a.addEventListener('change', () => applyAngFmt(+a.value));
+    return [el('label', { htmlFor: 'cc-cur-lunits' }, t('props.lunits')), f, el('label', { htmlFor: 'cc-cur-luprec' }, t('props.luprec')), p, el('label', { htmlFor: 'cc-cur-aunits' }, t('props.aunits')), a];
   }
 
   // ---- picking a point (the button beside each point: _PROPPICK asks for it, with snaps) ----
@@ -652,6 +831,8 @@ export function createPropsPanel(o) {
   return {
     render, schedule, open, close, toggle, picked,
     toggleQuick,
+    /** 0.8 shell-08 RIBBON-COMPACT: the same lists the Properties panel's Current settings use, for the ribbon's inline controls (ribbon-controls.js). */
+    controls,
     pickLabel: () => pending?.label || '',
     focusSheetName: () => ui.props.querySelector('#cc-sheet-name')?.focus(),
     get autohide() { return !!pr.extra.autohide; },

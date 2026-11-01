@@ -11,6 +11,7 @@
  * Saving goes out as DXF (dxf.js) — writing DWG is not built yet.
  */
 
+import { limitsFromHeader } from './limits.js';   // 0.8 D8.2
 import { cleanScales } from './scales.js';
 import { TAU, normAngle, dist, vpModelCentre } from './geom.js';
 import { mtextPlain, mtextRich } from './dxf.js';
@@ -21,7 +22,9 @@ import { DIM_DEFAULTS } from './dims.js';
 import { matchPaper } from './sheets.js';
 import { tagFromXdata, parametricText, isParamBlock } from './gcons.js';
 import { isStyleBlock, payloadFrom } from './plotstyle.js';
+import { addonsFromPayload, isAddonsBlock } from './addons-file.js';   // 0.8 AL.6
 import { laserFromPayload, isLaserBlock } from './laser-file.js';   // 0.7 SU.772: the Laser panel's settings, block CADCRAFT_LASER
+import { classesFromPayload, isClassesBlock } from './classes-file.js';   // 0.8 SU.912: block CADCRAFT_CLASSES
 import { underlayParts } from './pdfmodel.js';   // PDF underlays (0.7 D7.24)
 import { isGeoBlock, geoFromPayload, readGeo } from './geodwg.js';   // 0.6 GEO-DWG
 import { face3dFromDwg, read3dFromDwg } from './model3d.js';
@@ -115,8 +118,9 @@ export function importDwg(db, { versionTag = '' } = {}) {
   for (const d of db.tables?.dimstyles || []) { const st = dimStyles.get(String(d.name).toUpperCase()); const tx = d.vars?.DIMTXSTY_NAME; if (st && tx && !/^standard$/i.test(tx)) st.txsty = String(tx); }
   // the drawing's named dimension and text styles (Properties lists them; doc.dimStyles / doc.textStyles)
   const namedDimStyles = (db.tables?.dimstyles || []).filter((d) => d.name && !/^standard$/i.test(d.name) && !(d.flags & 16)).map((d) => [String(d.name), dimStyles.get(String(d.name).toUpperCase())]);
-  const textStyles = (db.tables?.styles || []).filter((s) => s.name && !s.shapeFile && !(s.flags & 1) && !(s.flags & 16) && !/^standard$/i.test(s.name))
-    .map((s) => [String(s.name), { font: String(s.font || ''), h: Number.isFinite(s.height) ? s.height : 0, wf: s.widthFactor > 0 ? s.widthFactor : 1, obl: Number.isFinite(s.oblique) ? s.oblique : 0 }]);
+  const ownFont = (s) => (s.font && !/^txt(\.shx)?$/i.test(String(s.font))) || !!s.bigFont;   // 0.8 D8.7: Standard is kept when it names a font of its own
+  const textStyles = (db.tables?.styles || []).filter((s) => s.name && !s.shapeFile && !(s.flags & 1) && !(s.flags & 16) && (!/^standard$/i.test(s.name) || ownFont(s)))
+    .map((s) => [/^standard$/i.test(s.name) ? 'Standard' : String(s.name), { font: String(s.font || ''), ...(s.bigFont ? { big: String(s.bigFont) } : {}), h: Number.isFinite(s.height) ? s.height : 0, wf: s.widthFactor > 0 ? s.widthFactor : 1, obl: Number.isFinite(s.oblique) ? s.oblique : 0 }]);
 
   // model space and every sheet are blocks too (*Model_Space, *Paper_Space…), in file order
   const blockList = db.blocks || [];
@@ -134,12 +138,16 @@ export function importDwg(db, { versionTag = '' } = {}) {
   let parametric = null;   // CadCraft's constraints (gcons.js): block CADCRAFT_PARAMETRIC
   let plotStyles = null;   // CadCraft's plot style tables: block CADCRAFT_PLOTSTYLES
   let laser = null;   // the Laser panel's settings: block CADCRAFT_LASER (laser-file.js, 0.7 SU.772)
+  let addons = null;   // which add-ons the data came from: block CADCRAFT_ADDONS (addons-file.js, 0.8 AL.6)
+  let classes = null;   // classes, design layers, viewport class overrides: block CADCRAFT_CLASSES (classes-file.js, 0.8 SU.912)
   let geoOwn = null;   // CadCraft's coordinate system and map layers: block CADCRAFT_GEO (geodwg.js)
   for (const b of blockList) {
     if (/^\*(model|paper)_space/i.test(b.name)) continue;
     if (isParamBlock(b.name)) { parametric = parametricText((b.entities || []).map(convert).filter(Boolean)); continue; }
     if (isStyleBlock(b.name)) { plotStyles = payloadFrom((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // plot style tables (0.6 DC.14, plotstyle.js)
     if (isLaserBlock(b.name)) { laser = laserFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.7 SU.772
+    if (isAddonsBlock(b.name)) { addons = addonsFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.8 AL.6
+    if (isClassesBlock(b.name)) { classes = classesFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.8 SU.912
     if (isGeoBlock(b.name)) { geoOwn = geoFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.6 GEO-DWG
     // a dynamic block (definition or a reference's copy) keeps its hidden entities too (dyn-blocks.js, 0.5 DB.2)
     const dynB = dynBlockFromDwg(b, { convert, attdefOf, defName: b.dynamicOf ? blockList.find((x) => x.record === b.dynamicOf)?.name : null,
@@ -228,13 +236,13 @@ export function importDwg(db, { versionTag = '' } = {}) {
   if (unlinked) report.notes.push(t('dwg.read.layouts_nolink', { n: unlinked }));
 
   return read3dFromDwg(db, {   // + CadCraft's 3D model from block CADCRAFT_3D (model3d.js)
-    entities, layers, blocks, layouts, dimStyle, ...(parametric ? { parametric } : {}), ...(laser ? { laser } : {}),
+    entities, layers, blocks, layouts, dimStyle, ...(parametric ? { parametric } : {}), ...(laser ? { laser } : {}), ...(addons ? { addons } : {}), ...(classes ? { classes } : {}),
     // plot styles: CadCraft's own block, else the table the Model page setup names (another program's "x.ctb")
     ...(plotStyles ? { plotStyles } : modelStyleSheet(db) ? { plotStyles: { tables: [], model: modelStyleSheet(db) } } : {}),
     linetypes, ...(geoRead.geo ? { geo: geoRead.geo } : {}), ...(oleKept.length ? { ole: oleKept } : {}), ...(solidsKept.length ? { solids: solidsKept } : {}),
     meta: { version: versionTag, release: VERSIONS[versionTag] || '', units: UNITS[H.INSUNITS] || '', ...(H.INSBASE && Number.isFinite(H.INSBASE.x) ? { insbase: { x: H.INSBASE.x, y: H.INSBASE.y || 0 } } : {}),
       ...(H.LTSCALE > 0 && H.LTSCALE !== 1 ? { ltscale: H.LTSCALE } : {}),
-      ...lengthFormat(H), ...scalesFrom(db) },
+      ...lengthFormat(H), ...angleFormat(H), ...(limitsFromHeader(H.LIMMIN, H.LIMMAX, H.LIMCHECK) ? { limits: limitsFromHeader(H.LIMMIN, H.LIMMAX, H.LIMCHECK) } : {}), ...scalesFrom(db) },
     views: namedViews(db.tables?.views, layouts),
     vports: splitScreen(db.tables?.vports),
     ...ucsFrom(H, db.tables?.ucs, db.tables?.vports),   // DR.8: the current and named UCSs, the active view's twist
@@ -372,7 +380,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
     const def = imageDefs.get(e.def);
     const file = String(def?.fileName || '').trim() || 'image';
     // the picture's placement on its frame (pictures.js): lower-left corner, one pixel along and up, its size in pixels
-    const pic = { file, x: p.x, y: p.y, ux: u.x, uy: u.y, vx: v.x, vy: v.y, w, h, ...(e.fade > 0 ? { fade: e.fade } : {}) };
+    const pic = { file, x: p.x, y: p.y, ux: u.x, uy: u.y, vx: v.x, vy: v.y, w, h, ...(e.fade > 0 ? { fade: e.fade } : {}), ...(e.displayFlags & 8 ? { transparent: true } : {}) };
     const name = freeName('*I');
     blocks.push(pictureBlock(name, pic, e.clipping && Array.isArray(e.clip) && e.clip.length >= 2 ? frame.pts : null));
     report.images = (report.images || 0) + 1;
@@ -728,6 +736,14 @@ function lengthFormat(H) {
   const out = {};
   if (lu >= 1 && lu <= 5 && lu !== 2) out.lunits = lu;
   if (out.lunits && pr >= 0 && pr <= 8) out.luprec = pr;
+  return out;
+}
+/** The drawing's angle format ($AUNITS, $AUPREC → doc.meta.aunits / auprec; 0.8 SU.932); decimal degrees is left out. */
+function angleFormat(H) {
+  const au = Math.round(+H.AUNITS), pr = Math.round(+H.AUPREC);
+  const out = {};
+  if (au >= 1 && au <= 4) out.aunits = au;
+  if (out.aunits && pr >= 0 && pr <= 8) out.auprec = pr;
   return out;
 }
 /** The VPORT table's *Active records (a split screen) → doc.vports (panes.js shape) or null; the current one comes first. */

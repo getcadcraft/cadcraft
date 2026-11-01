@@ -3,14 +3,16 @@ title: CadCraft settings
 summary: The settings that belong to the drafting app: cursor size, where a pasted copy hangs from the cursor, what a click does to the selection, how many rows the toolbar uses, and the corner indicator.
 section: reference
 order: 5
-keywords: toolbar rows, toolbar display, ctrl f1, settings, preferences, options, corner indicator, view cube, axis icon, ucs icon, cursor, crosshair, pick box, paste point, base point, clicking objects, selection, pickadd, shift, reset
+keywords: cursorsize, full screen crosshair, full-screen cursor, edge to edge, toolbar rows, toolbar display, ctrl f1, settings, preferences, options, corner indicator, view cube, axis icon, ucs icon, cursor, crosshair, pick box, paste point, base point, clicking objects, selection, pickadd, shift, reset
 ---
 
 Open {{ui:Settings}} with the gear in the app bar or {{key:Mod+,}}. The first tab, {{ui:CadCraft}}, holds the settings that belong to this app; {{ui:General}} holds the ones every app in the family shares (theme, panel text size and widths, the toolbar's look and order). CadCraft's settings exist only in the app: you change them here, and this browser remembers them. {{ui:Reset CadCraft settings}} puts every one back to the start.
 
 ## Cursor
 
-**Small**, **Medium** (the start) or **Large**: the size of the crosshair and of the pick box in the drawing. A bigger pick box also picks objects from a little farther away, which helps on a touch screen or a very fine drawing.
+**Small**, **Medium** (the start), **Large** or **Full screen**: the size of the crosshair and of the pick box in the drawing. A bigger pick box also picks objects from a little farther away, which helps on a touch screen or a very fine drawing.
+
+**Full screen** runs the crosshair's two lines edge to edge across the drawing, also when no command is running, so you can check by eye that two things line up across the whole view. With the view split, the lines stay in the pane you are working in. The same as AutoCAD's {{cmd:CURSORSIZE}} 100: type {{cmd:CURSORSIZE}} and 100 for full screen; a smaller number picks the nearest size (under 5 Small, 5 to 9 Medium, 10 to 99 Large).
 
 ## Paste point
 

@@ -315,6 +315,15 @@ Copies objects to the clipboard with a base point you pick; pasting places that 
 
 The pasted objects are selected. A block the drawing already has under the same name keeps this drawing's definition.
 
+When an area copied in MarkupCraft is newer than what CadCraft copied (and less than 6 hours old), {{key:Mod+V}} and `PASTECLIP` paste that area instead: see `PASTEAREA`.
+
+### PASTEAREA
+
+Aliases: `PAREA`. {{ui:Paste a copied area}} in the {{ui:More}} menu. Pastes an area copied with {{ui:Copy area}} in MarkupCraft as a picture at its true size. See [Pictures in a drawing](topic:pictures).
+
+- `Specify the lower-left corner of the copied area`
+- `Scale its paper size by (100 for a 1:100 sheet; Points: two points on it and their true distance) [Points] <1>` (only when the sheet had no drawing scale): a number, {{key:Enter}} for the paper size, or `P`, then `First point on the pasted area`, `Second point on the pasted area` and their true distance.
+
 ### PASTEORIG
 
 {{key:Mod+Shift+V}}, or {{ui:Paste in place}} in the {{ui:More}} menu. Pastes at the coordinates the objects were copied from. Asks nothing.
@@ -661,6 +670,34 @@ Aliases: `Z`.
 
 Aliases: `PDFATT` for {{cmd:PDFATTACH}}, `PDFIM` for {{cmd:PDFIMPORT}}. {{cmd:PDFATTACH}} puts a PDF page under the drawing (file, page, insertion point, scale, rotation); {{cmd:PDFIMPORT}} turns a page's lines, curves, fills and text into drawing objects on layers named after the PDF, at true size, a typed scale, or scaled from two points and a real distance. {{cmd:PDFCLIP}} clips an underlay, {{cmd:PDFADJUST}} sets fade, contrast, monochrome or switches it off, {{cmd:PDFLAYERS}} switches the PDF's own layers, and {{cmd:PDF}} gives CadCraft the files a drawing's underlays use again. See [PDF underlays](topic:pdf-underlay).
 
+### AUTOCOMPLETE
+
+Alias: `AUTOC`. Drawing autocomplete: with no command running, a grey ghost shows what your drawing's own patterns say comes next. {{cmd:AUTOCOMPLETE}} turns it `On` or `Off` (also Settings › CadCraft) or `Show`s what it would suggest now. **Tab** draws the ghost as one undo step, **Esc** dismisses it until the drawing changes. It finds three things in the newest objects: the next copy of something drawn twice or more at an even step (studs, columns, a stair's riser and tread), the next steps of a polyline stair, and the missing side of a room or wall chain. In the middle of {{cmd:LINE}} or {{cmd:PLINE}} the ghost is the **next point**: the next step of a stair (riser, tread, riser…), the fourth corner of a rectangle, the point that closes it, or one more equal step. Bring the cursor near it and press **Tab**, as if you had clicked there; carry on or press Enter. Worked out on this computer by rules, with no model.
+
+### AUTOSHEET
+
+Alias: `ASH`. Sheets that lay themselves out. {{cmd:AUTOSHEET}} takes the pieces of the drawing (your named views, or the separate pieces of the model, or the whole model), chooses a paper size (or the one you give), gives every piece a standard scale (one scale for all, or the largest each can take) and places the views in rows on new sheets with a title block and a caption (name and scale) under each. What does not fit on one sheet gets a sheet of its own. One undo step. Worked out on this computer by rules, with no model.
+
+### PHOTOSKETCH
+
+Alias: `PSK`. Sketch photo to drawing. Choose a photo (JPEG, PNG or TIFF) of a hand sketch on a sheet of paper. {{cmd:PHOTOSKETCH}} finds the sheet's four corners, straightens the perspective, takes the paper size you name (`Paper`, or the nearest standard one) and the `Scale` of the sketch (1 : n), then traces the pen lines into lines, arcs and circles, a layer for each pen colour (black, red, blue, green). If it cannot find the paper's edge it takes the whole photo as the sheet and says so. Lettering is left out. One undo step. Done on this computer with classic image processing, no model, nothing sent anywhere. See also the scanned-drawing commands.
+
+### AUTODIM
+
+Alias: `ADIM`. Auto-dimension by rules. {{cmd:AUTODIM}} dimensions the selected objects (or the whole drawing) from their level and plumb edges: a chain of dimensions along the sides you choose (`Sides`), one overall dimension outside it, the width of each opening (a gap between collinear wall lines), a diameter for each size of hole, and with `Grid` the spacing between grid lines. A dimension that is already there is not made again. One undo step. Worked out on this computer by rules, with no model.
+
+### GRIDMOVE
+
+Alias: `GM`. Moving a grid line carries the set. {{cmd:GRIDMOVE}} moves a grid line (a line on a layer whose name says grid or axis) and what hangs on it: walls with an end on the line stretch to follow it, walls along it move whole, columns (block references and circles on the line), its bubble and tag move, and dimensions whose points sit on it measure the new spacing. Give two points (only the part across the line counts) or `Distance`. One undo step takes it all back. Done by rules on this computer.
+
+### DETAILS
+
+Alias: `DET`. Details that find you. {{cmd:DETAILS}} keeps your firm's own details: `Add` puts a block of this drawing in the list, `List` and `Remove` manage it, and `Find` ranks them for what is selected (or for what you drew last) by the words on its layers, block names, hatch patterns and notes against each detail's name and notes, so a window head finds your sill flashing. Pick a number and a point to place it. With `Hint` on (also Settings › CadCraft), selecting something a detail matches puts one line in the status bar. The list is kept in this browser, on this computer, and that list is the one searched. `Share` puts it in your Documents folder too (`.cadcraft/firm-details.json`, with each block's drawing): `Pull` adds what your team has and you lack, `Push` adds what you have and they lack, `Both` does both, and nothing is ever removed from either side. Open the Documents folder first ({{cmd:DOCUMENTS}}); when that folder is a Team Cloud Plan folder, the whole team shares one list. A detail item in the Library panel has an **Add to my firm's details** button that puts it in the same list. Worked out on this computer by words, with no model.
+
+### SKETCHFIX
+
+Alias: `SKF`. Pen sketches become precise geometry. Press and drag one freehand stroke at a time (pen, mouse or finger), then Enter. Each stroke is read as a line, circle, arc, rectangle or polyline: nearly level and plumb lines are made exactly level and plumb, a closed round stroke becomes a circle, a closed stroke with four right-angled corners a rectangle, and the ends of the strokes are pulled together and onto the ends already in the drawing. One undo step. Worked out on this computer by rules, with no model.
+
 ### SCANATTACH and the scanned-drawing commands
 
 Aliases: `SCA` {{cmd:SCANATTACH}}, `SCS` {{cmd:SCANSCALE}}, `SCL` {{cmd:SCANALIGN}}, `SCD` {{cmd:SCANDESKEW}}, `SCC` {{cmd:SCANCLEAN}}, `SCR` {{cmd:SCANCROP}}, `SCE` {{cmd:SCANERASE}}, `SCT` {{cmd:SCANTRACE}}, `SCI` {{cmd:SCANINFO}}; {{cmd:RASTERSNAP}} has none. They work on a picture, one undo step each. {{cmd:SCANATTACH}} inserts a PNG, JPEG, TIFF (one page or all) or a PDF page that is a picture. {{cmd:SCANSCALE}} scales the sheet from two picked points and the true distance. {{cmd:SCANALIGN}} moves and turns it onto two points (`Scale the sheet to fit` Yes/No). {{cmd:SCANDESKEW}} shows the angle of the sheet's long lines and turns the sheet once you `Accept` or give a `Value`. {{cmd:SCANCLEAN}} makes it black and white (`Threshold` Auto/Adaptive/Level, `Specks`) and `Run`. {{cmd:SCANCROP}} keeps a window. {{cmd:SCANERASE}} erases a `Rectangle`, `Polygon` or `Lasso`. {{cmd:SCANTRACE}} traces lines and arcs onto a new layer (`Tolerance`, `Window`, `Arcs`, `Leftovers`, `Run`) and reports what it found and what it left as raster. {{cmd:SCANINFO}} lists the original file and the steps. {{cmd:RASTERSNAP}} turns snapping to the lines of scanned sheets On or Off. See the topic Scanned drawings and the trace.
@@ -726,6 +763,55 @@ Aliases: `UN`. How lengths are written and typed.
 
 New dimensions follow it. One undo step. Same as {{ui:Length format}} and {{ui:Precision}} in {{ui:Current settings}}; see [Feet and inches](topic:units-papers-scales#feet-and-inches-and-fractions).
 
+### GDSIN
+
+Aliases: `GDS`. View an IC layout (a GDSII stream file): lab spike, for viewing and measuring only.
+
+- A file picker takes a `.gds` file; with several top cells, `Enter the top cell to draw`.
+- Every layer and datatype becomes a drawing layer (`GDS 1`, `GDS 2/5`), references and arrays are placed flat, in the file's user unit (usually micrometres). One undo step. Nothing is simulated or checked and the file is not written back.
+
+### DIAGRAM
+
+Aliases: `TEXTDIAGRAM`, `T2D`. A diagram from text.
+
+- A box takes the text (or one line with `;` between statements at the command line): a Mermaid flowchart, a PlantUML component diagram, D2 or a from-to list.
+- `Specify the top left corner of the diagram`, then `Specify the text height`.
+
+Blocks and connectors are ordinary objects on layer `Diagram`, selected when it ends. One undo step. See [Draw a diagram from text](topic:text-to-diagram).
+
+### OLELIST
+
+Aliases: `OLES`. The OLE objects a DWG carries that CadCraft cannot place by itself.
+
+- Lists each one: number, type, size, whether it saved a picture.
+- `Enter an option [Place/eXit] <eXit>`: Place asks for the number, the lower left corner and the width, and draws a frame with the picture. One undo step; the kept object is not changed. See [Pictures](topic:pictures#objects-from-other-programs-ole).
+
+### SHXFONTS
+
+Aliases: `SHX`. Your own SHX fonts.
+
+- `Enter an SHX font option [Folder/Files/List/Remove/Reverse/Clear] <List>`
+
+{{ui:Folder}} reads every `.shx` in a folder (CadCraft Studio; again at each start), {{ui:Files}} takes picked files (the browser), {{ui:Reverse}} lays out one font's letters last first. Text styles that name a loaded font draw in it. See [Draw text in your own SHX fonts](topic:shx-fonts).
+
+### LIMITS
+
+How big the drawing is meant to be.
+
+- `Specify lower left corner or [ON/OFF] <current>`: a point, `ON` or `OFF`.
+- `Specify upper right corner <current>`.
+
+The grid fills the limits, {{cmd:ZOOM}} All shows them, and with them ON a point outside is refused (`**Outside limits`). One undo step; saved in DWG and DXF. See [Set the drawing limits](topic:drawing-limits).
+
+### AUNITS
+
+Aliases: `ANGUNITS`. How angles are shown and typed.
+
+- `Enter angle format [Decimal degrees/Degrees-minutes-seconds/Surveyor's bearings] <current>`
+- `Enter number of decimal places (0 to 8)`, or for the other two `Enter precision` (0 degrees, 2 minutes, 4 seconds, 5 to 8 decimals of a second).
+
+One undo step; saved in DWG and DXF. Same as {{ui:Angle format}} in {{ui:Current settings}}. See [Type and show bearings and angles](topic:bearings-and-angles).
+
 ### APPLOAD
 
 Aliases: `AP`; or {{ui:View}} › {{ui:More}} › {{ui:Load application…}}. The {{ui:Load applications}} dialog: load `.lsp` routines and `.dcl` dialog files, unload them, load them again from the history, and the Startup Suite. A routine's `(defun c:NAME …)` commands then work like any other. See [Load applications](topic:load-applications) and [Run LISP routines](topic:run-lisp).
@@ -741,3 +827,28 @@ Aliases: `?`. Prints every command, its aliases and a one-line description in th
 ## Select objects prompt
 
 At any `Select objects` prompt: click objects, draw windows (left to right) and crossings (right to left) with two clicks, or press and drag a lasso ({{key:Space}} while dragging: window, crossing, fence), {{key:Shift}}+click to remove, and press {{key:Enter}} to finish. You can also type `ALL` (everything), `L` (the last object), `P` (Previous: what the last command used), `F` (Fence: objects a line of points crosses; `U` takes back a point), `W` (Window), `C` (Crossing), `R` (Remove mode: picks take objects out; the prompt reads `Remove objects`) and `A` (Add again). `?` lists them. They are not shown in the prompt. {{key:Tab}} over overlapping objects highlights the next one; click to pick it. See [Select objects](topic:select-objects).
+
+### ACCESS
+
+Alias: `AX`. Draft without sight. {{cmd:ACCESS}} turns Access on or off (`On`, `Off`) and switches snap sounds (`Sound`) and voice commands (`Voice`); it says the state first. With Access on, every command and result is spoken through your screen reader and the drawing area has a keyboard cursor. The help topic "Draft without sight" has the keys.
+
+### DESCRIBE
+
+Alias: `DESC`. Say what the drawing holds: how many objects, of what kind, how big, how many layers, what is selected. Reads only; changes nothing.
+
+### WHEREAMI
+
+Alias: `WHERE`. Say where the cursor is, in the drawing's units.
+
+### NEARBY
+
+Say what lies close to the cursor, nearest first, each with its distance and the side it is on.
+
+### SAYSEL
+
+Say what is selected, one sentence per object (line length, ends and angle; circle radius and centre; text as written).
+
+### VOICE
+
+Turn spoken commands on or off. They are recognised on this computer; where the browser cannot do that, voice stays off unless you choose the browser's online service in Settings.
+

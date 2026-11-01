@@ -38,6 +38,10 @@
 
 import { prims, txPrim, txEntity, insertMatrix, ellipsePoints, mMul, mApply, dimParts, attrTexts, textLayout, TAU } from './geom.js';
 import { resolveColor } from './doc.js';
+
+let shxHook = null;
+/** (doc, te) → line primitives for a text in an SHX font, or null (shx-text.js). */
+export function setShxHook(fn) { shxHook = fn; }
 import { hatchLines } from './hatch.js';
 import { leaderGeometry } from './leader.js';
 import { resolveLt, resolveLw, patternOf, dashPrims } from './linetypes.js';
@@ -45,6 +49,7 @@ import { findPicture } from './pictures.js';
 import { findPdf } from './pdfmodel.js';
 import { isIsoLinetype } from './plotstyle.js';
 import { clipOut, clipPoly } from './xclip.js';
+import { classView } from './classes.js';   // 0.8 SU.912 (sx-classes): ByClass styles, hidden classes, viewport class overrides
 
 /** How strongly what is outside REFEDIT's working set is drawn (0.6 DF.5). */
 export const REF_FADE = 0.3;
@@ -90,8 +95,10 @@ export function walk(doc, entities, out, { m = null, plot = false, frozen = null
   };
   const optsOf = (tr) => (Number.isFinite(tr) && tr > 0 ? { alpha: Math.max(0, Math.min(1, 1 - tr / 100)) } : undefined);
 
+  const cv = classView(doc, frozen && frozen.vpc);   // 0.8 SU.912: null when the drawing has no classes or overrides
   const emit = (e, byBlock, parentLayer, mm, depth, blk = {}) => {
     if (depth > 16) return;
+    if (cv) { e = cv(e); if (!e) return; }   // 0.8 SU.912: object → class → layer (classes.js)
     const color = resolveColor(doc, e, byBlock, parentLayer);
     const lw = resolveLw(doc, e, blk.lw, parentLayer);
     const ctx = { lt: blk.lt, layer: parentLayer };
@@ -130,7 +137,8 @@ export function walk(doc, entities, out, { m = null, plot = false, frozen = null
             const mc = win ? 'ink' : resolveColor(doc, { ...e, color: e.bgm.color }, byBlock, parentLayer);
             if (out.mask) out.mask(mc, loop, { wipe: win }); else out.fill(mc, [loop], true, win ? { wipe: true } : undefined);
           }
-          out.text(color, te, o);
+          const sp = shxHook ? shxHook(doc, te) : null;   // 0.8 D8.7: text in a loaded SHX font is drawn as strokes
+          if (sp && sp.length) out.stroke(color, sp, lw, o); else out.text(color, te, o);
         }
         return;
       case 'point': { const p = P(mm, e.x, e.y); out.point(color, p.x, p.y); return; }
@@ -233,9 +241,11 @@ function pictureOut(e, mm, o) {
 export function frozenSet(vp) {
   const f = vp && Array.isArray(vp.frz) ? vp.frz.filter((n) => typeof n === 'string' && n) : [];
   const lov = vp && vp.lov && typeof vp.lov === 'object' ? Object.entries(vp.lov).filter(([k, v]) => k && v && typeof v === 'object') : [];
-  if (!f.length && !lov.length) return null;
+  const vpc = vp && vp.vpc && typeof vp.vpc === 'object' && Object.keys(vp.vpc).length ? vp.vpc : null;   // 0.8 SU.912 viewport class overrides (vpclass.js)
+  if (!f.length && !lov.length && !vpc) return null;
   const set = new Set(f.map((n) => n.toUpperCase()));
   if (lov.length) set.ovr = new Map(lov.map(([k, v]) => [k.toUpperCase(), v]));
+  if (vpc) set.vpc = vpc;
   return set;
 }
 
@@ -243,7 +253,7 @@ export function frozenSet(vp) {
 export function frozenKey(set) {
   if (!set) return '';
   const o = set.ovr ? '\u0001' + JSON.stringify([...set.ovr].sort((a, b) => (a[0] < b[0] ? -1 : 1))) : '';
-  return [...set].sort().join('\n') + o;
+  return [...set].sort().join('\n') + o + (set.vpc ? '\u0002' + JSON.stringify(set.vpc) : '');   // 0.8 SU.912
 }
 
 const mm2 = (ps, m) => (m ? ps.flatMap((q) => txPrim(q, m)) : ps);

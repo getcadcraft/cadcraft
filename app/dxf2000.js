@@ -77,6 +77,9 @@ export function writeDxf2000(doc) {
   w(9, '$LUNITS'); w(70, hd.LUNITS || 2);
   if (hd.UCSORG && hd.UCSXDIR) for (const [k, p] of [['$UCSORG', hd.UCSORG], ['$UCSXDIR', hd.UCSXDIR], ['$UCSYDIR', hd.UCSYDIR || { x: -hd.UCSXDIR.y, y: hd.UCSXDIR.x }]]) { w(9, k); w(10, f(p.x)); w(20, f(p.y)); w(30, '0.0'); }   // the current UCS (DR.8)
   if (Number.isFinite(hd.LUPREC)) { w(9, '$LUPREC'); w(70, hd.LUPREC | 0); }
+  if (hd.AUNITS >= 1 && hd.AUNITS <= 4) { w(9, '$AUNITS'); w(70, hd.AUNITS | 0); if (Number.isFinite(hd.AUPREC)) { w(9, '$AUPREC'); w(70, hd.AUPREC | 0); } }   // 0.8 SU.932
+  if (hd.LIMMIN && hd.LIMMAX) { w(9, '$LIMMIN'); w(10, f(hd.LIMMIN.x)); w(20, f(hd.LIMMIN.y)); w(9, '$LIMMAX'); w(10, f(hd.LIMMAX.x)); w(20, f(hd.LIMMAX.y)); w(9, '$LIMCHECK'); w(70, hd.LIMCHECK ? 1 : 0); }   // 0.8 D8.2
+  if (hd.PLIMMIN && hd.PLIMMAX) { w(9, '$PLIMMIN'); w(10, f(hd.PLIMMIN.x)); w(20, f(hd.PLIMMIN.y)); w(9, '$PLIMMAX'); w(10, f(hd.PLIMMAX.x)); w(20, f(hd.PLIMMAX.y)); }   // paper space limits (0.8 D8.2 rest)
   w(9, '$LTSCALE'); w(40, f(hd.LTSCALE || 1));
   w(9, '$CLAYER'); w(8, '0');
   w(9, '$TILEMODE'); w(70, 1);
@@ -137,12 +140,13 @@ export function writeDxf2000(doc) {
   });
   // text styles (P.7): Standard and every one the drawing keeps or an object names
   const stylesIn = (model.tables.styles || []).filter((x) => x.name && !/^standard$/i.test(x.name));
+  const stdIn = (model.tables.styles || []).find((x) => /^standard$/i.test(x.name || ''));   // 0.8 D8.7: Standard's own font
   const styleH = new Map([['STANDARD', H.style], ...stylesIn.map((x) => [x.name.toUpperCase(), h()])]);
   table('STYLE', H.styleT, 1 + stylesIn.length, () => {
-    entry('STYLE', H.style, H.styleT, 'AcDbTextStyleTableRecord', 'Standard'); w(40, '0.0'); w(41, '1.0'); w(50, '0.0'); w(71, 0); w(42, '2.5'); w(3, 'txt'); w(4, '');
+    entry('STYLE', H.style, H.styleT, 'AcDbTextStyleTableRecord', 'Standard'); w(40, '0.0'); w(41, '1.0'); w(50, '0.0'); w(71, 0); w(42, '2.5'); w(3, enc(stdIn?.font || 'txt')); w(4, enc(stdIn?.bigFont || ''));
     for (const x of stylesIn) {
       entry('STYLE', styleH.get(x.name.toUpperCase()), H.styleT, 'AcDbTextStyleTableRecord', enc(x.name));
-      w(40, f(x.height || 0)); w(41, f(x.widthFactor || 1)); w(50, f(deg(x.oblique || 0))); w(71, 0); w(42, '2.5'); w(3, enc(x.font || 'txt')); w(4, '');
+      w(40, f(x.height || 0)); w(41, f(x.widthFactor || 1)); w(50, f(deg(x.oblique || 0))); w(71, 0); w(42, '2.5'); w(3, enc(x.font || 'txt')); w(4, enc(x.bigFont || ''));
     }
   });
   const views = model.tables.views || [];

@@ -14,6 +14,7 @@
  */
 
 import { t } from './i18n.js';
+import { parseAngle, formatAngle } from './angles.js';
 import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets over typed lengths
 import { parseTo } from './unit-table.js';   // 0.7 UNITS: the shared table (lib/units; a copy: tools/units/sync.mjs)
 import { starOf } from './unit-prefs.js';
@@ -150,6 +151,34 @@ export function readNumber(raw) {
   const s = String(raw ?? '').trim();
   const r = calc(s, (x) => { const v = /['"]/.test(x) ? null : parseOne(x, 2); return v === null ? null : { value: v, unit: false }; });   // 6, 1/2, 6-1/2
   return r.ok ? { ok: true, value: r.value } : r;
+}
+
+/** A typed angle in degrees: a bearing (N45°23'30"E), degrees-minutes-seconds (45°23'30"), else a number with arithmetic (360/7) → { ok, value } | refusal (0.8 SU.932). */
+export function readAngle(raw) {
+  const b = parseAngle(raw);
+  return b !== null ? { ok: true, value: b } : readNumber(raw);
+}
+
+/** Angle format codes kept in doc.meta.aunits (the DXF $AUNITS codes: 0 decimal, 1 degrees-minutes-seconds, 4 surveyor's bearings; 2 grads and 3 radians are read and shown, not offered). */
+export const AUNITS = Object.freeze({ 0: 'Decimal degrees', 1: 'Degrees, minutes, seconds', 2: 'Grads', 3: 'Radians', 4: "Surveyor's bearings" });
+export const aunitCode = (v) => (AUNITS[v | 0] && Number(v) === (v | 0) ? v | 0 : 0);
+/** An angle in degrees as the drawing's angle format writes it: "45°" (decimal, unchanged from before), 45°23'30", N44°36'30"E. */
+export function fmtAngle(meta, deg) {
+  const u = aunitCode(meta?.aunits ?? 0);
+  if (!u) return (Math.abs(deg) < 1e-10 ? '0' : Number(deg.toFixed(4)).toString()) + '°';
+  const p = Number.isFinite(meta?.auprec) ? meta.auprec : 4;
+  return formatAngle(deg, u, p);
+}
+/** A sentence whose {ang} sits in front of a degree sign in every language ("Angle = {ang}°"): in a format with its own marks the sign goes. */
+export function tAngle(key, params, meta, deg) {
+  if (!aunitCode(meta?.aunits ?? 0)) return t(key, { ...params, ang: Math.abs(deg) < 1e-10 ? '0' : Number(deg.toFixed(4)).toString() });
+  const ang = fmtAngle(meta, deg);
+  return t(key, { ...params, ang }).replace(ang + '°', ang);
+}
+/** The text a Properties field shows while an angle is edited: full precision in the angle format. */
+export function editAngle(meta, deg) {
+  const u = aunitCode(meta?.aunits ?? 0);
+  return u === 1 || u === 4 ? formatAngle(deg, u, 8) : null;
 }
 
 /** Does the text hold arithmetic (so a refusal should say where it went wrong)? */

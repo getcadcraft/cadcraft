@@ -119,6 +119,12 @@ export function makePaper(key, portrait = false) {
   return { key: p.key, unit: p.unit, w: portrait ? p.h : p.w, h: portrait ? p.w : p.h, x0: 0, y0: 0 };
 }
 
+/** The space a sheet leaves for viewports (inside the border, above the title block), in paper units: { x0, y0, x1, y1 }. Matches sheetContents. */
+export function viewZone(paper) {
+  const k = 1 / UNIT_MM[paper.unit], W = paper.w / k, H = paper.h / k, m = 10, th = 32;
+  return { x0: paper.x0 + (m + 5) * k, y0: paper.y0 + (m + th + 5) * k, x1: paper.x0 + (W - m - 5) * k, y1: paper.y0 + (H - m - 5) * k };
+}
+
 /**
  * A new sheet's contents: a border, a title block in the lower right (plain lines and text on
  * layer "Title block", every field editable) and one viewport showing the whole model at a

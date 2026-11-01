@@ -102,11 +102,14 @@ $__more = [
         ['CIRCLE TTT', Lang::t('toolbar.circle.ttt'), 'C TTT'],   // 0.5 DR.2
         ['XLINE', Lang::t('toolbar.xline'), 'XL'],
         ['RAY', Lang::t('toolbar.ray'), 'RAY'],
+        ['SKETCHLIVE', Lang::t('input.cmd.draw.sketchlive'), 'SKL'],   // 0.8 EG.55: a pen stroke becomes precise geometry as the pen lifts
+        ['SKETCHFIX', Lang::t('input.cmd.draw.sketchfix'), 'SKF'],
     ],
     'Annotate' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['DIMCONTINUE', Lang::t('toolbar.dimcontinue'), 'DCO'],
         ['DIMBASELINE', Lang::t('toolbar.dimbaseline'), 'DBA'],
         ['REVCLOUD', Lang::t('toolbar.revcloud'), 'RC'],
+        ['REDLINE', Lang::t('input.cmd.annotate.redline'), 'RDL'],   // 0.8 EG.19: a MarkupCraft redline package → revision clouds and a log
     ],
     'Blocks' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['BEDIT', Lang::t('toolbar.bedit'), 'BE'],
@@ -117,6 +120,10 @@ $__more = [
         ['DELBLOCKS', Lang::t('toolbar.delblocks'), 'DELBLOCKS'],
         ['EATTEDIT', Lang::t('toolbar.eattedit'), 'EATTEDIT'],   // 0.6 DF.5
         ['BATTMAN', Lang::t('toolbar.battman'), 'BATTMAN'],
+        ['TAGS', Lang::t('input.cmd.blocks.tags'), 'TAGS'],   // 0.8 SU.915: block attributes as tags that feed schedules
+        ['DIAGRAM', Lang::t('input.cmd.blocks.diagram'), 'DIAGRAM'],   // 0.8 SU.883
+        ['GDSIN', Lang::t('input.cmd.blocks.gds'), 'GDS'],   // 0.8 SU.752
+        ['OLELIST', Lang::t('input.cmd.blocks.ole'), 'OLES'],   // 0.8 D7.23: OLE objects a drawing carries (ole-cmd.js)
         ['REFEDIT', Lang::t('toolbar.refedit'), 'REFEDIT'],
         ['EXPORTPOINTS', Lang::t('toolbar.exportpoints'), 'EXPPTS'],   // 0.6 DF.7
     ],
@@ -135,6 +142,7 @@ $__more = [
         ['COMPARESETTINGS', Lang::t('toolbar.compare'), 'CMPSET'],   // 0.5 WL.12
         ['HISTORY', Lang::t('toolbar.history'), 'HIST'],   // 0.7 D7.31
         ['MAPLAYERS', Lang::t('toolbar.maplayers'), 'ML'],   // 0.5 SG.3
+        ['AUTOSHEET', Lang::t('input.cmd.view.autosheet'), 'ASH'],   // 0.8 EG.56: put the views on sheets at a scale that fits
         ['POINTCLOUDATTACH', Lang::t('toolbar.pcattach'), 'PCATTACH'],   // 0.5 SG.1
         ['POINTCLOUD', Lang::t('toolbar.pointcloud'), 'PC'],
         ['LINKVIEWS', Lang::t('toolbar.linkviews'), 'LINKVIEWS'],
@@ -144,6 +152,8 @@ $__more = [
         ['ALIASEDIT', Lang::t('toolbar.aliasedit'), 'ALIASEDIT'],
         ['SHORTCUTS', Lang::t('toolbar.shortcuts'), 'KEYS'],   // 0.5 WL.18
         ['LASER', Lang::t('toolbar.laser'), 'LASER'],   // 0.7 SU.772: the Laser panel (laser-cad.js)
+        ['CLASSES', Lang::t('sx.classes.toolbar'), 'CLS'],   // 0.8 SU.912: the Classes panel (classes-ui.js)
+        ['DOCUMENTS', Lang::t('sx.vault.toolbar'), 'DOCS'],   // 0.8 SU.1058: the Documents panel (vault-ui.js)
     ],
     'Modify' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['ARRAY', Lang::t('toolbar.array'), 'AR'],
@@ -194,6 +204,7 @@ $__more = [
                 <button type="button" role="menuitem" data-cmd="PASTECLIP"><?= Lang::e('ui.paste') ?> <kbd>Ctrl+V</kbd></button>
                 <button type="button" role="menuitem" data-cmd="PASTEORIG"><?= Lang::e('ui.paste_place') ?> <kbd>Ctrl+Shift+V</kbd></button>
                 <button type="button" role="menuitem" data-paste-picture><?= Lang::e('ui.paste_picture') ?></button><?php /* 0.6 DF.6: from the system clipboard */ ?>
+                <button type="button" role="menuitem" data-cmd="PASTEAREA"><?= Lang::e('ui.paste_area') ?></button><?php /* 0.8 D8.15: an area copied in MarkupCraft, at its true size */ ?>
                 <button type="button" role="menuitem" data-cmd="DUPLICATE"><?= Lang::e('ui.duplicate_move') ?> <kbd>Ctrl+D</kbd></button>
                 <button type="button" role="menuitem" data-cmd="ERASE"><?= Lang::e('ui.delete') ?> <kbd>Delete</kbd></button>
                 <hr>
@@ -240,7 +251,7 @@ $__more = [
         </div>
       </div>
     <?php endforeach; ?>
-    <input type="file" class="visually-hidden" accept=".dwg,.dxf,.json,.ccsheets,.pln,.pla,.tpl,.bpn,.las,.laz,.xyz,.pts" tabindex="-1" aria-hidden="true" data-file>
+    <input type="file" class="visually-hidden" accept=".dwg,.dxf,.json,.ccsheets,.pln,.pla,.tpl,.bpn,.ccbundle,.zip,.las,.laz,.xyz,.pts" tabindex="-1" aria-hidden="true" data-file>
   </div>
 
   <?php
@@ -359,7 +370,7 @@ $__more = [
           <details class="cc-menu" data-sheetset-menu>
             <summary class="cc-linkbtn" title="<?= Lang::e('sheetset.menu.title') ?>"><?= Lang::e('sheetset.menu') ?></summary>
             <div class="cc-menu-list" role="menu" aria-label="<?= Lang::e('sheetset.menu.title') ?>">
-              <?php foreach ([['open', 'sheetset.m.open'], ['new', 'sheetset.m.new'], null, ['add', 'sheetset.m.add'], ['newsheet', 'sheetset.m.newsheet'], ['subset', 'sheetset.m.subset'], ['rename', 'sheetset.m.rename'], ['remove', 'sheetset.m.remove'], ['renumber', 'sheetset.m.renumber'], ['numbering', 'sheetset.m.numbering'], ['props', 'sheetset.m.props'], null, ['publish', 'sheetset.m.publish'], ['update', 'sheetset.m.update'], ['list', 'sheetset.m.list'], ['archive', 'sheetset.m.archive'], null, ['undo', 'sheetset.m.undo'], ['redo', 'sheetset.m.redo'], ['download', 'sheetset.m.download'], ['close', 'sheetset.m.close']] as $__ss): ?>
+              <?php foreach ([['open', 'sheetset.m.open'], ['new', 'sheetset.m.new'], null, ['add', 'sheetset.m.add'], ['newsheet', 'sheetset.m.newsheet'], ['subset', 'sheetset.m.subset'], ['rename', 'sheetset.m.rename'], ['remove', 'sheetset.m.remove'], ['renumber', 'sheetset.m.renumber'], ['numbering', 'sheetset.m.numbering'], ['props', 'sheetset.m.props'], null, ['publish', 'sheetset.m.publish'], ['publishdwg', 'sx.classes.ss.publishdwg'], ['update', 'sheetset.m.update'], ['list', 'sheetset.m.list'], ['archive', 'sheetset.m.archive'], null, ['undo', 'sheetset.m.undo'], ['redo', 'sheetset.m.redo'], ['download', 'sheetset.m.download'], ['close', 'sheetset.m.close']] as $__ss): ?>
                 <?php if (!$__ss): ?><hr><?php continue; endif; ?>
                 <button type="button" role="menuitem" data-ss="<?= e($__ss[0]) ?>"><?= Lang::e($__ss[1]) ?></button>
               <?php endforeach; ?>
@@ -501,6 +512,7 @@ $__more = [
   </dialog>
 
   <footer class="cc-status" aria-label="<?= Lang::e('ui.status') ?>">
+    <span class="cc-addons-banner" data-addons-banner hidden></span>
     <output class="cc-coords" data-coords>0, 0</output>
     <span class="cc-status-msg" data-status></span>
     <span class="cc-seltotals" data-seltotals hidden aria-live="polite"></span>

@@ -1,0 +1,24 @@
+{
+  "id": "cabinet",
+  "name": "Cabinets",
+  "version": "0.8.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "toolbar",
+    "panel",
+    "settings",
+    "objects",
+    "files"
+  ],
+  "description": "Cabinets and millwork: base, drawer, wall and tall cabinets placed along a wall in the plan and drawn in a front view, built from your construction rules (frameless 32 mm system by default), with a cut list by material, edge-banding totals, a nest of every sheet, a DXF of the sheets for your CAM program and a bar-coded label for every piece in cutting order.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

@@ -736,7 +736,11 @@ export function pickSection(model, cam, x, y, radius = 6) {
 /** Degrees to 0.1°, without a trailing .0. */
 export const formatDeg = (d) => String(Math.round(d * 10) / 10);
 /** The box of a dimension's text centred on screen point M (the view draws it; a click inside picks it). */
-export const dimTextBox = (M, text) => { const w = text.length * 7 + 12; return { x: M[0] - w / 2, y: M[1] - 10, w, h: 20 }; };
+// The dimension text size in screen pixels (0.8 D8.6: the file's choice, set by the app; 12 = the old fixed size).
+let dimPx = 12;
+export function setDimTextSize(px) { dimPx = Number.isFinite(px) && px >= 8 && px <= 32 ? Math.round(px) : 12; }
+export const dimTextSize = () => dimPx;
+export const dimTextBox = (M, text) => { const k = dimPx / 12, w = (text.length * 7) * k + 12, h = 20 * k; return { x: M[0] - w / 2, y: M[1] - h / 2, w, h }; };
 /** The dimension under screen point x, y ({t: 'd', id} or null): on its line or its text. fmt(m) writes a length. */
 export function pickDim(model, cam, x, y, fmt, radius = 6) {
   if (!model.dims?.size) return null;

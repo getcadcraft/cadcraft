@@ -50,7 +50,7 @@ const me = () => started.list().find((a) => a.id === 'piping');
 ok(me()?.state === 'off' && !Cmd.lookup('PIPE'), 'Piping is bundled off by default', JSON.stringify(me() && [me().state, me().reason, me().detail]));
 await started.loader.setEnabled('piping', true);
 ok(me()?.state === 'active', 'switched on: active', JSON.stringify(me() && [me().state, me().reason, me().detail]));
-const names = ['PIPE', 'VALVE', 'PIDSYM', 'PIPESCHED', 'PIPE3D'];
+const names = ['PIPE', 'VALVE', 'PIDSYM', 'PIPENET', 'PIPESCHED', 'PIPE3D'];
 ok(names.every((n) => Cmd.lookup(n) && Cmd.commandRegistry.owner(n) === 'piping'), 'its commands are registered, owned by the add-on');
 ok(names.every((n) => { const hh = Cmd.commandList().find((c) => c.name === n)?.help; return hh && !/^cmd\./.test(hh); }), 'every command has help in the add-on\'s words');
 const info = (e) => started.kinds.info(e);
@@ -111,4 +111,14 @@ const ex = started.exporters().find((x) => x.id.endsWith('pipe-schedule'));
 const csvText = ex ? String(await ex.write(doc)) : '';
 ok(/^Pipe\r\nItem,Material,Size,Length \(ft\),Weight \(lb\)\r\n"Pipe 1"" steel Sch 40",steel Sch 40,1,5,8\.4\r\n/.test(csvText) && /"Gate valve 2"" \(steel Sch 40\)",1/.test(csvText) && /Sanitary drain,PVC Sch 40,40\.002,108,103,1\/8 in\/ft/.test(csvText), 'EXPORT › Pipe schedule (CSV): pipe with weight, fittings and valves, runs with their elevations and slope', csvText.slice(0, 400));
 // switched off: commands gone, runs stay
+// PIPENET (0.8 EG.1): a source that is not a run end is refused; from the end it asks about each free end, then prints the fixtures
+{
+  log.length = 0;
+  await type('PIPENET', '300,300');
+  ok(log.some((l) => /not on the end of a pipe run/.test(l)), 'PIPENET: a click that is not on a run end is refused');
+  log.length = 0;
+  await type('PIPENET', '0,0', 'lav', 'lav', 'lav', 'lav');
+  ok(log.some((l) => /\d fixtures\./.test(l)) && log.some((l) => /labelled default curve/.test(l)), 'PIPENET from the end asks for the fixtures, then prints the loss to each and the honest note', log.slice(0, 5).join(' | '));
+}
+
 export { started, h };

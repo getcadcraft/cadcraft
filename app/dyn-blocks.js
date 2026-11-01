@@ -303,7 +303,7 @@ export function stateFlags(def, st, n, keep) {
   return shown;
 }
 
-const plain = (x) => JSON.stringify(x, (k, v) => (k === 'id' ? undefined : v));
+const plain = (x) => JSON.stringify(x, (k, v) => (k === 'id' || k === 'key' ? undefined : v));
 const sameGeometry = (a, b) => a.length === b.length && a.every((parts, i) => plain(parts) === plain(b[i]));
 
 /**

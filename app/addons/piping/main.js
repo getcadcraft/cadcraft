@@ -15,6 +15,7 @@ import { VERSION, SYSTEMS, DRAINS, LINES, cleanPipe, transformPipe, linkPipes, d
 import { MATERIALS, CLASSES, DEFAULT_CLASS, sizesFor, pipeSize, nominal, minDrainSlope } from './lib/tables.js';
 import { VALVES, SYMBOLS, drawSymbol } from './lib/symbols.js';
 import { pipeTakeoffPdf, pipePack } from './lib/takeoff.js';
+import { analyzeSupply, freeEnds, csvRows as netCsv, DEFAULT_WSFU } from './lib/pipenet.js';   // 0.8 EG.1 (lib/mep/* is BimCraft's engine, synced)
 
 export const DEFAULTS = {
   toolbar: false, mat: 'steel', cls: { steel: '40', copper: 'L', pvc: '40', pex: 'SDR9' }, size: { steel: '2', copper: '3/4', pvc: '4', pex: '3/4' },
@@ -351,12 +352,55 @@ export function activate(api) {
     rows.push([], [t('row.total'), '', '', +S.totals.len.toFixed(3), S.totals.weight ? +S.totals.weight.toFixed(1) : '']);
     return csv(rows);
   }
+  // ---------------------------------------------------------------------------------------------- PIPENET (0.8 EG.1)
+  // Water supply from a source point: fixture units at each free end (a fixture kind or a number, remembered by place), demand from the engine's
+  // labelled default curve, flow and velocity in every run, pressure lost to each fixture and what is left of the supply pressure the person types.
+  const netMem = () => api.storage.get('net') || { loads: {}, availKpa: null, minKpa: null };
+  const netRun = (doc, source, mem) => analyzeSupply({ pipes: runsIn(doc).map((r) => ({ id: r.eid, data: r.data })), source, loads: mem.loads, availKpa: mem.availKpa, minKpa: mem.minKpa });
+  const kinds = Object.keys(DEFAULT_WSFU);
+  cmd('PIPENET', ['PNET'], async (c) => {
+    const doc = c.doc;
+    if (!runsIn(doc).length) { c.print(t('err.nopipes')); return; }
+    const mem = netMem();
+    const p = await c.point(t('net.source'), { options: [opt('P', t('net.opt.pressure')), opt('R', t('net.opt.reset'))] });
+    if (!p) return;
+    if (p.option === 'R') { mem.loads = {}; api.storage.set('net', mem); c.print(t('net.reset')); return; }
+    if (p.option === 'P') {
+      const a = Number(await c.number(t('net.avail'), { default: mem.availKpa ?? 0 })), m = Number(await c.number(t('net.min'), { default: mem.minKpa ?? 0 }));
+      mem.availKpa = a > 0 ? a : null; mem.minKpa = m > 0 ? m : null; api.storage.set('net', mem); c.print(t('net.pressure.set', { a: mem.availKpa ?? '-', m: mem.minKpa ?? '-' })); return;
+    }
+    const ends = freeEnds(runsIn(doc).map((r) => ({ id: r.eid, data: r.data })), p);
+    if (!ends.length) { c.print(t('net.err.source')); return; }
+    for (const e of ends) {
+      if (mem.loads[e.key] !== undefined) continue;
+      const v = String(await c.string(t('net.fixture', { tag: e.tag || '', x: Math.round(e.p.x), y: Math.round(e.p.y), list: kinds.join(', ') }), { default: '0' }) ?? '0').trim().toLowerCase();
+      mem.loads[e.key] = DEFAULT_WSFU[v] !== undefined ? v : (Number(v) > 0 ? Number(v) : 0);
+    }
+    api.storage.set('net', mem); api.storage.set('netsrc', { x: p.x, y: p.y });
+    const a = netRun(doc, p, mem);
+    if (!a.ok) { c.print(t('net.err.' + a.why)); return; }
+    for (const n of a.notes) c.print(t('net.note.' + n.code, { tag: n.tag || n.key || '', n: n.n }));
+    c.print(t('net.head', { n: a.loads.length, worst: a.worst ? a.worst.label : '-' }));
+    for (const l of a.loads) c.print('  ' + t(l.reached ? 'net.load' : 'net.load.no', { label: l.label, fu: l.fu, dp: l.dpKpa?.toFixed?.(1), left: l.leftKpa != null ? t('net.left', { v: l.leftKpa.toFixed(0), short: l.short ? t('net.short') : '' }) : '' }));
+    const bad = a.rows.filter((r) => r.status === 'small' || r.status === 'toobig');
+    if (bad.length) c.print(t('net.sizes', { n: bad.length, list: [...new Set(bad.map((r) => r.run.split('.')[0]))].slice(0, 8).join(', ') }));
+    if (a.rows.some((r) => r.beyond)) c.print(t('net.beyond'));
+    c.print(t('net.defaults'));
+  }, { noRepeat: true });
+  api.files.exporter({ id: 'pipe-network-csv', label: t('net.export'), extension: 'csv', mime: 'text/csv', write: (doc) => {
+    const src = api.storage.get('netsrc');
+    if (!src) throw new Error(t('net.err.nosrc'));
+    const a = netRun(doc, src, netMem());
+    if (!a.ok) throw new Error(t('net.err.' + a.why));
+    return '﻿' + netCsv(a);
+  } });
+
   api.files.exporter({ id: 'pipe-schedule', label: t('export.csv'), extension: 'csv', mime: 'text/csv', write: (doc) => scheduleCsv(doc) });
   api.files.exporter({ id: 'pipe-takeoff', label: t('export.takeoff'), extension: 'pdf', mime: 'application/pdf', write: async (doc) => (await pipeTakeoffPdf(doc, runsIn(doc).map((r) => r.data))).bytes });
   api.files.exporter({ id: 'pipe-pack', label: t('export.pack'), extension: 'json', mime: 'application/json', write: (doc) => JSON.stringify(pipePack(runsIn(doc).map((r) => r.data), doc.meta?.name || 'Drawing1'), null, 1) });
 
   // ---------------------------------------------------------------------------------------------- toolbar, panel, settings
-  const ACTIONS = [['PIPE', 'ui.pipe', 'bi-bezier2'], ['VALVE', 'ui.valve', 'bi-hourglass'], ['PIDSYM', 'ui.pidsym'], ['PIPESCHED', 'ui.pipesched'], ['PIPE3D', 'ui.pipe3d']];
+  const ACTIONS = [['PIPE', 'ui.pipe', 'bi-bezier2'], ['VALVE', 'ui.valve', 'bi-hourglass'], ['PIDSYM', 'ui.pidsym'], ['PIPENET', 'ui.pipenet'], ['PIPESCHED', 'ui.pipesched'], ['PIPE3D', 'ui.pipe3d']];
   let bar = null;
   function showToolbar(on) {
     if (bar) { for (const x of bar) x?.remove?.(); bar = null; }

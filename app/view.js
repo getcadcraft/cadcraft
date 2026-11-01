@@ -22,6 +22,7 @@
  * colours are darkened on paper and dark ones lightened on a dark screen so every layer reads.
  */
 
+import { limitsOf } from './limits.js';   // 0.8 D8.2: the grid stays inside the drawing limits
 import {
   entityBounds, validBounds, emptyBounds, growPt, distToEntity, inWindow, snapPoints, prims,
   textLayout, ellipsePoints, intersect, grips as entityGrips, viewportCorners, viewportMatrix, dimParts, FONT_EM, TAU,
@@ -38,8 +39,9 @@ import { drawPictures } from './pictures.js';
 import { dynGrips } from './dyngrips.js';
 
 const SNAP_PRIORITY = { end: 0, int: 0, mid: 1, cen: 1, quad: 2, node: 0, ins: 1, perp: 2, tan: 2, near: 9 };
-/** Cursor sizes (Settings → Cursor): crosshair arm, pick box side and pick tolerance, in screen px. */
-export const CURSOR_SIZES = { small: { arm: 20, box: 7, pick: 5 }, medium: { arm: 40, box: 9, pick: 6 }, large: { arm: 90, box: 13, pick: 8 } };
+/** Cursor sizes (Settings → Cursor): crosshair arm, pick box side and pick tolerance, in screen px. `full` (0.8 D8.14,
+ *  AutoCAD's CURSORSIZE 100): the crosshair runs edge to edge across the pane, also while nothing is running, to check what lines up. */
+export const CURSOR_SIZES = { small: { arm: 20, box: 7, pick: 5 }, medium: { arm: 40, box: 9, pick: 6 }, large: { arm: 90, box: 13, pick: 8 }, full: { arm: 0, box: 9, pick: 6, full: true } };
 /** Drawing text: a Helvetica-metric face, the same one plotted PDFs use. */
 export const DRAWING_FONT = 'Helvetica, Arial, "Liberation Sans", sans-serif';
 /** The History compare's mark colours (history-ui.js's legend uses the same ones, cadcraft.css). */
@@ -438,6 +440,12 @@ export class View {
     if (lay) { const p = lay.paper; growPt(b, p.x0, p.y0); growPt(b, p.x0 + p.w, p.y0 + p.h); }
     return b;
   }
+  /** ZOOM All (D8.2): the drawing and the drawing limits together; without limits it is the same as ZOOM Extents. */
+  extentsAndLimits() {
+    const b = this.extents(), lim = this.doc.inModel && this.spaceLayout == null ? limitsOf(this.doc.meta) : null;
+    if (lim?.set) { growPt(b, lim.x0, lim.y0); growPt(b, lim.x1, lim.y1); }
+    return b;
+  }
   fit(b = this.extents(), margin = 0.9) {
     if (this.entered && this.fitEntered(b, margin)) return;
     if (!validBounds(b)) { this.cx = 0; this.cy = 0; this.zoom = Math.min(this.w, this.h) / 120; this.invalidate(true); return; }
@@ -519,7 +527,8 @@ export class View {
 
   /** Crosshair arm and pick box (screen px) for the cursor size setting; the pick tolerance follows the box. */
   cursorSpec() {
-    const c = CURSOR_SIZES[this.cursorSize] || CURSOR_SIZES.medium;
+    // Settings › General › Full-screen crosshair (app-crosshair.js, every app) wins over this app's own size (0.8 D8.14)
+    const c = (typeof document !== 'undefined' && document.documentElement.dataset.ccCrosshair === 'full' && CURSOR_SIZES.full) || CURSOR_SIZES[this.cursorSize] || CURSOR_SIZES.medium;
     return this.coarse ? { ...c, pick: Math.max(c.pick, 12), box: Math.max(c.box, 13) } : c;   // a finger (S.8): a bigger pick box
   }
 
@@ -896,6 +905,14 @@ export class View {
     const d = this.dpr;
     ctx.setTransform(d, 0, 0, d, d * this.x0, d * this.y0);
     ctx.lineWidth = 1;
+    const lim = this.doc.inModel && this.spaceLayout == null ? limitsOf(this.doc.meta) : null;
+    if (lim?.set) {   // D8.2: with drawing limits the grid fills them and nothing else
+      ctx.save();
+      ctx.beginPath();
+      [[lim.x0, lim.y0], [lim.x1, lim.y0], [lim.x1, lim.y1], [lim.x0, lim.y1]].forEach(([x, y], i) => { const q = ap(this.T, x, y); if (i) ctx.lineTo(q.x, q.y); else ctx.moveTo(q.x, q.y); });
+      ctx.closePath();
+      ctx.clip();
+    }
     for (const [s, alpha] of [[step, 0.45], [major, 1]]) {
       if ((u1 - u0) / s > 4000 || (v1 - v0) / s > 4000) continue;
       ctx.strokeStyle = this.colors.grid;
@@ -912,6 +929,17 @@ export class View {
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
+    if (lim?.set) {
+      ctx.restore();
+      // the limits' outline (0.8 D8.2 gap closed, cad_PART_3): a line round the rectangle, on while the limits are on, a dashed one while they only show
+      ctx.save();
+      ctx.strokeStyle = this.colors.ink2; ctx.lineWidth = 1; ctx.globalAlpha = lim.on ? 0.9 : 0.5;
+      ctx.setLineDash(lim.on ? [] : [6, 4]);
+      ctx.beginPath();
+      [[lim.x0, lim.y0], [lim.x1, lim.y0], [lim.x1, lim.y1], [lim.x0, lim.y1]].forEach(([x, y], i) => { const q = ap(this.T, x, y); if (i) ctx.lineTo(q.x, q.y); else ctx.moveTo(q.x, q.y); });
+      ctx.closePath(); ctx.stroke();
+      ctx.restore();
+    }
     this.gridStep = step;
   }
 
@@ -1088,15 +1116,17 @@ export class View {
     // crosshair and pick box (split screen: only while the pointer is over the active pane)
     if (st.cursor && st.crosshair && (!this.panes || this.hoverPane === this.panes.active)) {
       const s = this.toScreen(st.cursor.x, st.cursor.y);
+      const cs = this.cursorSpec(), L = cs.full ? Math.hypot(this.w, this.h) : st.cursorMode === 'select' ? 0 : cs.arm, h = cs.box / 2;
+      ctx.save();
+      if (cs.full) { ctx.beginPath(); ctx.rect(0, 0, this.w, this.h); ctx.clip(); }   // edge to edge of this pane only
       ctx.strokeStyle = this.colors.ink; ctx.lineWidth = 1; ctx.globalAlpha = 0.85;
       ctx.beginPath();
-      const cs = this.cursorSpec(), L = st.cursorMode === 'select' ? 0 : cs.arm, h = cs.box / 2;
       const phi = this.ucsAngle() - this.tw;   // the crosshair follows the UCS (DR.8)
       if (L && Math.abs(Math.sin(2 * phi)) < 1e-9) { ctx.moveTo(s.x - L, s.y + 0.5); ctx.lineTo(s.x + L, s.y + 0.5); ctx.moveTo(s.x + 0.5, s.y - L); ctx.lineTo(s.x + 0.5, s.y + L); }
       else if (L) { const ux = Math.cos(phi) * L, uy = -Math.sin(phi) * L; ctx.moveTo(s.x - ux, s.y - uy); ctx.lineTo(s.x + ux, s.y + uy); ctx.moveTo(s.x + uy, s.y - ux); ctx.lineTo(s.x - uy, s.y + ux); }
       if (st.cursorMode !== 'point') ctx.rect(s.x - h, s.y - h, cs.box, cs.box);
       ctx.stroke();
-      ctx.globalAlpha = 1;
+      ctx.restore();
     }
     // tracking (tracking.js): dotted rays, acquired points, the label by the cursor
     if (st.track) this.drawTrack(ctx, st.track, st.cursor);

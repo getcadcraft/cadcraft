@@ -141,7 +141,7 @@ export class Tools {
     const sc = opts.scene || this.host.scene();
     const r = infer(sc, this.host.cam, ev.x, ev.y, {
       axes: this.axes(), from: opts.from || null, plane: opts.plane || null, skip: opts.skip, snap: this.snapping, ...this.groundOpts(),
-      lockDir: opts.from && this.lock ? this.lock.dir : null, lockKind: this.lock?.kind, ref: this.refEdge, radius: this.touch ? 22 : 12,
+      lockDir: opts.from && this.lock && !opts.free ? this.lock.dir : null, lockKind: this.lock?.kind, ref: this.refEdge, radius: this.touch ? 22 : 12,
     });
     if (r.edge && !opts.from) this.refEdge = { a: r.edge.a, b: r.edge.b };
     return r;
@@ -405,10 +405,16 @@ class RectTool extends ClickTool {
       this.h.overlay({ marker: this.marker(r), tip: r.tip });
       return;
     }
-    const r = this.T.snap(ev, { from: this.p0, plane: this.plane });
+    // 0.7.1 FIX-071-RECT-PLANE: an arrow key locks the PLANE square to that axis (Up = level, the blue plane; Right = the
+    // red plane; Left = the green one) instead of a line; Shift keeps the plane in use. Unlocked, a point off the plane or
+    // a face through the first corner takes the rectangle onto that plane (follow).
+    const L = this.T.lock, axisLock = L && !L.shift && L.kind.startsWith('axis-') ? L.dir : null;
+    if (axisLock && Math.abs(dot(axisLock, this.n)) < 1 - 1e-9) this.setPlane(axisLock, false);
+    const r = this.T.snap(ev, { from: this.p0, plane: this.plane, free: true });
     this.lastDir = r.dir || null; this.lastKind = r.kind;
+    if (!L) this.follow(r);
     let q = sub(r.p, mul(this.n, dot(sub(r.p, this.p0), this.n)));
-    if (r.kind === 'face' || r.kind === 'none' || r.kind === 'ground') {
+    if (r.kind === 'face' || r.kind === 'none' || r.kind === 'ground' || r.kind === 'plane') {
       const ray = this.h.cam.ray(ev.x, ev.y), g = rayPlane(ray.o, ray.d, this.plane);
       if (g && g.t > 0) q = g.p;
     }
@@ -428,12 +434,47 @@ class RectTool extends ClickTool {
       ({ u: this.u, v: this.v } = planeAxes(this.n, ax));
       this.p0 = r.p;
       this.onFace = !!r.face;
+      this.n0 = this.n; this.onFace0 = this.onFace;   // the first plane, to go back to (follow)
       this.busy = true;
       this.h.tip(this.hint);
       return;
     }
     this.hover(ev);
     if (this.wh) this.make(this.wh[0], this.wh[1]);
+  }
+  /** Draw on the plane through the first corner square to n (onFace: a face's plane, so the new face takes its side). */
+  setPlane(n, onFace) {
+    this.n = n;
+    this.plane = planeFrom(n, this.p0);
+    ({ u: this.u, v: this.v } = planeAxes(n, this.T.axes()));
+    this.onFace = onFace;
+  }
+  /** Unlocked: a face through the first corner, or a snapped point off the plane, moves the rectangle onto that plane. */
+  follow(r) {
+    const d = sub(r.p, this.p0), size = Math.max(len(d), 1e-9);
+    if (r.kind === 'face') {
+      const f = r.face, tol = 1e-6 * Math.max(1, Math.abs(this.p0[0]), Math.abs(this.p0[1]), Math.abs(this.p0[2]));
+      if (f && Math.abs(dot(f.n, this.n)) < 1 - 1e-9 && Math.abs(dot(f.n, this.p0) - f.plane.d) <= tol) this.setPlane(f.n, true);
+      return;
+    }
+    if (r.kind === 'none' || r.kind === 'ground' || r.kind === 'plane' || Math.abs(dot(d, this.n)) <= 1e-6 * size) return;
+    // back on the plane the first click chose: that plane again
+    if (Math.abs(dot(d, this.n0)) <= 1e-6 * size) { this.setPlane(this.n0, this.onFace0); return; }
+    // the axis plane the point lies on, or nearest to it (a tie, as straight up the blue axis: the one facing us)
+    const ax = this.T.axes(), eye = this.T.towardEye(this.p0);
+    let best = null;
+    for (const a of [ax.x, ax.y, ax.z]) {
+      const off = Math.abs(dot(d, a)), facing = Math.abs(dot(a, eye));
+      if (!best || off < best.off - 1e-9 * size || (Math.abs(off - best.off) <= 1e-9 * size && facing > best.facing)) best = { a, off, facing };
+    }
+    if (Math.abs(dot(best.a, this.n)) < 1 - 1e-9) this.setPlane(best.a, false);
+  }
+  /** What the status line says for an arrow-key or Shift lock (modelcraft.js sayLock); null = unlocked. */
+  lockText() {
+    const L = this.T.lock;
+    if (!L) return null;
+    if (L.shift || !L.kind.startsWith('axis-')) return t('m3d.tool.rect_plane_kept');
+    return t('m3d.tool.rect_plane_' + { 'axis-x': 'red', 'axis-y': 'green', 'axis-z': 'blue' }[L.kind]);
   }
   make(w, h) {
     if (Math.abs(w) <= EPS || Math.abs(h) <= EPS) return;
@@ -2294,14 +2335,16 @@ class SectionTool extends ClickTool {
 // ---- camera tools ----
 class CamTool extends Tool {
   get hint() { return { orbit: t('m3d.tool.drag_to_orbit_middle_drag_orbits'), pan: t('m3d.tool.drag_to_pan_shift_middle_drag'), zoom: t('m3d.tool.drag_up_and_down_to_zoom') }[this.name]; }
-  down(ev) { this.last = ev; }
+  // 0.7.1: the host may name the point to turn about (ModelCraft: the model under the cursor; null = the view centre),
+  // and Shift held during an Orbit drag pans until it is let go
+  down(ev) { this.last = ev; this.pivot = this.name === 'zoom' ? null : this.h.camPivot?.(ev.x, ev.y) || null; }
   move(ev) {
     if (!this.last) return;
     const dx = ev.x - this.last.x, dy = ev.y - this.last.y;
     this.last = ev;
     const cam = this.h.cam;
-    if (this.name === 'orbit') cam.orbit(dx, dy);
-    else if (this.name === 'pan') cam.pan(dx, dy);
+    if (this.name === 'orbit' && !ev.shift) cam.orbit(dx, dy, this.pivot);
+    else if (this.name === 'pan' || this.name === 'orbit') cam.pan(dx, dy, this.pivot);
     else cam.zoomAt(Math.exp(dy * 0.01), ev.from?.x, ev.from?.y);
     this.h.changed(true);
   }

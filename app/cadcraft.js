@@ -12,6 +12,8 @@
  * Ctrl+Shift+V PASTEORIG, Ctrl+D DUPLICATE, Delete ERASE, Ctrl+A SELECTALL, Esc clears the selection. While the
  * command line holds typed text, Ctrl+C/X/V/A work on that text instead. The clipboard (clipboard.js) lives in this
  * tab and in localStorage "cadcraft.clipboard", so another tab can paste; what comes back is validated like a file.
+ * An area copied in MarkupCraft (localStorage "cadcraft.areaclip", 0.8 D8.15) is pasted at its true size by PASTEAREA:
+ * Ctrl+V runs it when the clipboard's picture is that area's, or (PASTECLIP) when the area is newer than CadCraft's copy.
  *
  * Settings › CadCraft (settings.inc; localStorage "cadcraft.settings"): cursor small | medium | large;
  * pasteBase 'lower-left' | 'center' (where a pasted copy hangs from the cursor; COPYBASE picks its own);
@@ -31,9 +33,9 @@
 import { Doc, TYPE_NAMES, aciHex } from './doc.js';
 import { View, SNAP_LABELS, DRAWING_FONT } from './view.js';
 import { switchState } from './visedit.js';
-import { Engine, lookup, commandList, namedBlocks, setLengthFormat, lengthFormatLabel, lengthFormatName, qsTypeLabel, qsPropLabel, closeBlockEdit, closeRefEdit, isAttdefText, commandRegistry } from './commands.js';
+import { describe as describeEntity, Engine, lookup, commandList, namedBlocks, setLengthFormat, lengthFormatLabel, lengthFormatName, qsTypeLabel, qsPropLabel, closeBlockEdit, closeRefEdit, isAttdefText, commandRegistry } from './commands.js';
 import { QS_PROPS, propsFor, valuesOf, quickSelect as qsCount } from './qselect.js';
-import { formatLength, formatArea, parseLength, readNumber, unitsOf, LUNITS, newDrawingUnits } from './units.js';
+import { formatLength, formatArea, parseLength, readNumber, readAngle, fmtAngle, tAngle, unitsOf, LUNITS, newDrawingUnits } from './units.js';
 import { selectionTotals } from './seltotals.js';   // 0.6 DF.4
 import { PATTERNS, hatchLines } from './hatch.js';
 import { polarTrack, trackPoint } from './tracking.js';
@@ -53,7 +55,9 @@ import { installDimStyles } from './dimstyle-ui.js';
 import { installTour, appTourAutoOn, setAppTourAuto } from './tour.js';   // 0.7 D7.06: the first-drawing tour   // 0.7 D7.14: the dimension style manager
 import { BUILTIN as PLOT_BUILTIN, builtinTable, findTable, styleNameFor } from './plotstyle.js';
 import { hasAttributes } from './attedit.js';
-import { placePastedPicture, picturesToSave } from './pastepic.js';   // 0.6 DF.6: a picture pasted from the system clipboard
+import { placePastedPicture, picturesToSave, readAreaClip } from './pastepic.js';   // 0.6 DF.6: a picture pasted from the system clipboard
+import { sameImage } from './areaclip.js';   // 0.8 D8.15: … or an area copied in MarkupCraft (PASTEAREA, pictures-cmd.js)
+import { sniffPicture } from './pictures.js';
 import { keyMap } from './mytools.js';
 import { has as hasKey } from './i18n.js';
 import { DynInput } from './dynin.js';
@@ -84,20 +88,44 @@ import { createParamsPanel } from './params-panel.js';
 import { readSwExport, loadSwSketch } from './swsketch.js';
 import { mountViewCube } from './m3d/viewcube.js';
 import { createPropsPanel } from './props.js';
+import { installRibbonControls } from './ribbon-controls.js';   // 0.8 RIBBON-COMPACT item 8: layers / colour / linetype / lineweight in the ribbon
 import { setUnits } from './model3d.js';
 import { installLispUi } from './appload.js';
 import { startAddons } from './addons/cadcraft-api.js';
 import { installAgents } from './agents.js';
+import { mountCadShell } from './shell-mount.js';   // 0.8 round 3: the shell's seven modules (calc, reasons, totals, lessons, Suggest, activity, Ask)
+import { Autocomplete, nextPoint } from './autocomplete.js';
+import { addonIdsIn } from './addons-file.js';
+import { mountUndoHook } from './undo-hook.js';   // 0.8 EG.77   // 0.8 AL.6
 import { getHost } from "./host.js";
 import './pdfunder.js';   // PDFATTACH, PDFIMPORT, PDFCLIP, PDFADJUST, PDFLAYERS, PDF (0.7 D7.24)
 import { installPdfUnder } from './pdfunder-ui.js';
 import './spline-cmd.js';   // SPLINE, SPLINEDIT, PEDIT (0.7 D7.10)
 import './pictures-cmd.js';   // IMAGEATTACH, IMAGE, IMAGECLIP (0.5 WL.14, cad-files)
+import './autocomplete-cmd.js';   // AUTOCOMPLETE (0.8 EG.54)
+import './sketch-cmd.js';   // SKETCHFIX (0.8 EG.55)
+import './autosheet-cmd.js';   // AUTOSHEET (0.8 EG.56)
+import './gridmove-cmd.js';   // GRIDMOVE (0.8 EG.35)
+import './access-cmd.js';   // ACCESS, DESCRIBE, WHEREAMI, NEARBY, SAYSEL, VOICE (0.8 EG.52)
+import { mountAccess } from './access-ui.js';
+import './autodim-cmd.js';   // AUTODIM (0.8 EG.20)
+import './redline-cmd.js';   // REDLINE (RDL): redline to revision (0.8 EG.19)
+import './tags-cmd.js';   // TAGS: block attributes as tags that feed schedules (0.8 SU.915)
+import './photosketch-cmd.js';   // PHOTOSKETCH (0.8 EG.36)
+import { offerFor } from './details-cmd.js';   // DETAILS (0.8 EG.57)
 import './scan-cmd.js';   // SCANATTACH … SCANTRACE, RASTERSNAP: scanned drawings (0.7 LC.6, session trace)
 import { installScanUi } from './scan-ui.js';
 import './asbuilt.js';        // ASBUILT: as-built points compared with the drawing's (0.6 LC.22, lc-structure)
+import { installClasses } from './classes-cmd.js';   // CLASSES, CLASS, Properties › Class (0.8 SU.912, sx-classes)
+import './vault-cmd.js';   // DOCUMENTS (DOCS): the project document manager (0.8 SU.1058, sx-vault)
 import { CloudAttach, attachFile, CLOUD_ACCEPT, CLOUD_READ, isCloudFile } from './cloud-cad.js';
 import { installMaps } from './maps-cad.js';   // MAPLAYERS (0.5 SG.3; maplayers.js loads on first use)   // POINTCLOUDATTACH, POINTCLOUD (0.5 SG.1; the reader loads with the first cloud)
+import './diagram-cmd.js';   // DIAGRAM: a diagram from Mermaid / PlantUML / D2 / a from-to list (0.8 SU.883)
+import './gds-cmd.js';   // GDSIN: view an IC layout, a GDSII stream (0.8 SU.752 spike)
+import './ole-cmd.js';   // OLELIST: the OLE objects a DWG carries (0.8 D7.23)
+import { LIB as SHX_LIB, useDoc as shxUseDoc, keepFonts as shxKeepFonts, missingFonts as shxMissing } from './shx-text.js';   // SHX fonts you load (0.8 D8.7)
+import { rescanFolder as shxRescan } from './shx-cmd.js';   // SHXFONTS
+import { cadProblems, auditIds } from './problems-cadcraft.js';   // 0.8 P.6: the file's findings as shared Problems
 import './textmask-cmd.js';   // TEXTMASK (0.5 WL.8, cad-files)
 import './xclip-cmd.js';   // XCLIP (0.5 WL.16, cad-files)
 import { PadDetector } from './wheel-pad.js';   // 0.7 D7.56
@@ -127,7 +155,7 @@ function init(root) {
     grid: saved.grid ?? true, ortho: saved.ortho ?? false, osnap: saved.osnap ?? true,
     polar: saved.polar ?? false, otrack: saved.otrack ?? false, dyn: saved.dyn ?? false, lwt: saved.lwt ?? false, polarInc: saved.polarInc > 0 && saved.polarInc <= 180 ? saved.polarInc : 90,   // polar and object snap tracking (tracking.js)
     kinds: new Set(saved.kinds || ['end', 'mid', 'cen', 'quad', 'int', 'perp', 'node', 'ins']),
-    cursor: ['small', 'medium', 'large'].includes(saved.cursor) ? saved.cursor : 'medium',
+    cursor: ['small', 'medium', 'large', 'full'].includes(saved.cursor) ? saved.cursor : 'medium',
     pasteBase: saved.pasteBase === 'center' ? 'center' : 'lower-left',
     pick: saved.pick === 'replace' ? 'replace' : 'add',
     lasso: saved.lasso === 'box' ? 'box' : 'lasso',   // press and drag: a lasso (lasso.js; LASSOMODE 1) or a rectangle (0)
@@ -137,16 +165,23 @@ function init(root) {
     trimDrag: saved.trimDrag === 'window' ? 'window' : 'path',   // TRIM / EXTEND, a drag on an empty spot: a freehand path or a window (0.6 DF.13)
     toolbarRows: ['auto', '2', '1'].includes(saved.toolbarRows) ? saved.toolbarRows : 'auto',   // toolbar rows: wrap to fit, two rows, or one that scrolls (CP.1, GJoe2 getcadcraft/cadcraft#2)
     toolbarDock: ['top', 'bottom', 'left', 'right'].includes(saved.toolbarDock) ? saved.toolbarDock : 'top',   // which side the toolbar sits on (0.7 D7.02; top = how it always was)
+    fileKeys: saved.fileKeys === 'off' ? 'off' : 'on',   // a key on every object so a git/Fossil merge can tell objects apart (file-keys.js, 0.8 DC.27)
+    details: saved.details === 'off' ? 'off' : 'on',   // offer the firm's details for a selection that matches (details.js, 0.8 EG.57)
+    autocomplete: saved.autocomplete === 'off' ? 'off' : 'on',   // drawing autocomplete: ghost geometry from the drawing's own patterns (autocomplete.js, 0.8 EG.54)
     emptyClick: saved.emptyClick === 'keep' ? 'keep' : 'clear',   // a click on an empty spot: clears the selection, or keeps it (Esc clears; 0.6 DC.67)
   };
   const persist = () => { try { localStorage.setItem('cadcraft.settings', JSON.stringify({ ...settings, kinds: [...settings.kinds] })); } catch { /* private window: fine */ } };
 
+  Doc.fileKeys = settings.fileKeys !== 'off';
   const doc = new Doc();
   doc.meta.units = newDrawingUnits();   // 0.7 UNITS: the starred length unit ($INSUNITS), else none as before
   const view = new View(ui.base, ui.over, doc);
   view.grid = settings.grid;
   view.lwDisplay = settings.lwt;
   view.cursorSize = settings.cursor;
+  // the shell's full-screen crosshair (app-crosshair.js) leaves this view alone: it draws its own, inside the active pane
+  for (const c of [ui.base, ui.over]) c?.setAttribute?.('data-own-crosshair', '');
+  window.addEventListener('cc-crosshair', () => view.invalidate());
 
   // Cursor size lives in the shared Settings dialog (app-settings.inc includes this build's settings.inc).
   const settingsDlg = document.querySelector('[data-app-settings]');
@@ -155,7 +190,7 @@ function init(root) {
     settingsDlg?.querySelectorAll('input[name="ccCursor"]').forEach((r) => { r.checked = r.value === size; });
   };
   // Paste point and what a click does to the selection: two radio groups in the same panel.
-  const RADIO_SETTINGS = { ccPaste: 'pasteBase', ccPick: 'pick', ccCorner: 'corner', ccLasso: 'lasso', ccTabs: 'tabs', ccSelTotals: 'selTotals', ccTrimDrag: 'trimDrag', ccEmptyClick: 'emptyClick', ccToolbarRows: 'toolbarRows', ccToolbarDock: 'toolbarDock' };
+  const RADIO_SETTINGS = { ccPaste: 'pasteBase', ccPick: 'pick', ccCorner: 'corner', ccLasso: 'lasso', ccTabs: 'tabs', ccSelTotals: 'selTotals', ccTrimDrag: 'trimDrag', ccEmptyClick: 'emptyClick', ccAutocomplete: 'autocomplete', ccDetails: 'details', ccFileKeys: 'fileKeys', ccToolbarRows: 'toolbarRows', ccToolbarDock: 'toolbarDock' };
   const setRadio = (name, value) => {
     settings[RADIO_SETTINGS[name]] = value; persist();
     settingsDlg?.querySelectorAll('input[name="' + name + '"]').forEach((r) => { r.checked = r.value === value; });
@@ -169,10 +204,12 @@ function init(root) {
       if (e.target.name === 'ccCorner') applyCorner();
       if (e.target.name === 'ccTabs') renderTabs();
       if (e.target.name === 'ccSelTotals') renderSelTotals();
+      if (e.target.name === 'ccFileKeys') Doc.fileKeys = settings.fileKeys !== 'off';
+      if (e.target.name === 'ccAutocomplete') { auto.on = settings.autocomplete !== 'off'; auto.forget(); refreshCursor(); }
       if (e.target.name === 'ccToolbarRows') applyToolbarRows();
       if (e.target.name === 'ccToolbarDock') applyToolbarDock();
     });
-    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); setRadio('ccSelTotals', 'on'); setRadio('ccTrimDrag', 'path'); setRadio('ccEmptyClick', 'clear'); setRadio('ccToolbarRows', 'auto'); applyToolbarRows(); setRadio('ccToolbarDock', 'top'); applyToolbarDock(); applyCorner(); renderTabs(); renderSelTotals(); });
+    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); setRadio('ccSelTotals', 'on'); setRadio('ccTrimDrag', 'path'); setRadio('ccEmptyClick', 'clear'); setRadio('ccAutocomplete', 'on'); setRadio('ccDetails', 'on'); setRadio('ccFileKeys', 'on'); Doc.fileKeys = true; setRadio('ccToolbarRows', 'auto'); applyToolbarRows(); setRadio('ccToolbarDock', 'top'); applyToolbarDock(); applyCorner(); renderTabs(); renderSelTotals(); });
   }
 
   // The clipboard: this tab's copy + localStorage, so another tab can paste (storage may be off: memory only).
@@ -182,11 +219,13 @@ function init(root) {
 
   // ---- host for the command engine ----
   const commandHooks = new Set();
+  const selListeners = new Set();   // listeners of the selection (host.onSelectionChange; the shell's design reasons, shell-mount.js)
   const host = {
     cursor: null, selection: new Set(), shift: false,
     clipboard, settings,
     print, prompt: setPrompt,
-    setSelection(set) { host.selection = new Set(set); if (set.windows?.length) host.selection.windows = set.windows; view.state.selection = host.selection; refreshGrips(); scheduleProps(); view.invalidate(); layersForViewport(); },
+    onSelectionChange(fn) { selListeners.add(fn); return () => selListeners.delete(fn); },   // the shell's design reasons (shell-mount.js)
+    setSelection(set) { accessUi?.onSelection(set); host.selection = new Set(set); if (set.windows?.length) host.selection.windows = set.windows; view.state.selection = host.selection; refreshGrips(); scheduleProps(); offerDetails(); view.invalidate(); layersForViewport(); for (const f of selListeners) f(); },
     pickAt: (p) => cycledAt(p) ?? view.pick(p),   // Tab cycling (cycleTab) wins while the pointer stays put
     pickWindow: (w, crossing) => view.pickWindow(w, crossing),
     pickLasso: (pts, mode) => lassoHits(doc.all().filter((e) => doc.editable(e)), pts, mode, doc.blocks, (e) => view.boundsOf(e)),
@@ -201,6 +240,7 @@ function init(root) {
     preview(ents) { view.state.preview = ents || []; view.invalidate(); },
     saveSettings: () => persist(),
     setToggle(name, on) { if (name in toggles && !!settings[name] !== !!on) toggle(name); },   // LWDISPLAY
+    setCursorSize: (size) => setCursor(size),   // CURSORSIZE (0.8 D8.14)
     addCommandHook: (fn) => commandHooks.add(fn),   // the first-drawing tour hears commands end (tour.js, 0.7 D7.06)
     onCommand(name) {
       for (const f of commandHooks) { try { f(name); } catch { /* a hook's mistake never stops a command */ } }
@@ -212,6 +252,7 @@ function init(root) {
       scheduleProps();
     },
     zoomExtents: () => { rememberView(); view.fit(); },
+    zoomAll: () => { rememberView(); view.fit(view.extentsAndLimits()); },   // 0.8 D8.2: the limits and the drawing
     regen: (all) => view.regen(all),   // REGEN, REGENALL (0.7)
     // point clouds (cloud-cad.js, 0.5 SG.1): one per window, under whichever drawing shows
     pickCloud: () => new Promise((resolve) => { const i = el('input', { type: 'file', accept: CLOUD_ACCEPT }); i.addEventListener('change', () => resolve(i.files[0] || null)); i.addEventListener('cancel', () => resolve(null)); i.click(); }),
@@ -262,18 +303,39 @@ function init(root) {
   view.underlayKey = () => host.cloud.version + '|' + maps.key();
   view.snapExtra = (p, r) => host.cloud.snap(p, r);
   const engine = new Engine(doc, host);
-  window.cadcraft = { doc, view, engine, host, commands: commandRegistry };   // commands: Studio Live's LIVELOCK (live.js)
+  mountUndoHook({ doc, engine, host });   // 0.8 EG.77: tells the window (Studio's project-level undo) each finished step
+  shxUseDoc(doc);
+  SHX_LIB.onChange(() => { view.regen(true); view.invalidate(true); });   // a font was loaded or removed: text is measured and drawn again
+  shxKeepFonts().then(() => shxRescan()).catch(() => {});
+  // the shell's ⚠ Problems (manifest "problems"; mount from docs/0.8-sessions/problems-08-mounts.md § cad-08): the file's findings as one source
+  if (document.getElementById('cc-problems')) {
+    const go = () => {
+      const P = window.ccProblems;
+      if (!P) return;
+      const src = P.source({ id: 'cadcraft.file', kind: 'check', label: t('problems.src.file'), debounceMs: 600,
+        run: () => cadProblems({ doc, report: lastReport }, { t, shx: SHX_LIB }),
+        fix: (p, f) => { if (f.action !== 'erase') return false; const ids = auditIds(doc, f.args?.what); if (!ids.length) return false; doc.change(t('problems.cad.fix.erase'), () => { for (const id of ids) doc.remove(id); }); return true; } });
+      doc.on((kind) => { if (kind !== 'view') src.invalidate(); });
+      SHX_LIB.onChange(() => src.invalidate());   // a font was loaded or removed: the substituted-font notes change
+      P.adapter({ t, file: () => doc.meta.name || '', select: (p) => { const ids = (p.about || []).filter((a) => a.kind === 'entity').map((a) => a.id); if (ids.length) host.setSelection(new Set(ids)); } });
+    };
+    if (window.ccProblems) go(); else document.addEventListener('cc-problems-ready', go, { once: true });
+  }
+  window.cadcraft = { doc, view, engine, host, commands: commandRegistry, control: getHost({ app: 'cadcraft' }).control };   // commands: Studio Live's LIVELOCK (live.js)
 
   // ---- history and prompt ----
+  let accessUi = null;   // drafting without sight (access-ui.js), once mounted below
   function print(s) {
     for (const line of String(s).split('\n')) {
       ui.history.append(el('li', { className: line.startsWith(t('cmd.echo', { name: '' })) ? 'is-cmd' : '' }, line));
+      accessUi?.onPrint(line);
     }
     while (ui.history.children.length > 400) ui.history.firstChild.remove();
     ui.history.scrollTop = ui.history.scrollHeight;
   }
   function setPrompt(s) {
     ui.prompt.textContent = s || t('app.prompt');
+    if (s) accessUi?.onPrompt(s);
     ui.input.placeholder = engine.expects === 'string' && !engine.waiting?.opts?.raw ? t('app.type_text_enter_next') : '';
     dyn.reset(settings.dyn && engine.expects === 'point' && !engine.waiting?.opts?.accept ? (engine.base ? 'polar' : 'xy') : null);
     updateCursorMode();
@@ -284,7 +346,7 @@ function init(root) {
   const dyn = new DynInput();
   const parseL = (x) => parseLength(x, doc.layout ? 2 : doc.meta.lunits, doc.layout ? '' : doc.meta.units) ?? NaN;   // arithmetic too (0.6 DF.3)
   const isLen = (x) => Number.isFinite(parseL(x));
-  dyn.parseAngle = (x) => { const r = readNumber(x); return r.ok ? r.value : NaN; };
+  dyn.parseAngle = (x) => { const r = readAngle(x); return r.ok ? r.value : NaN; };
   const dynBox = el('div', { className: 'cc-dyn', hidden: true, 'aria-hidden': 'true' });
   ui.stage.append(dynBox);
   /** The pointer with the locked fields applied. */
@@ -297,7 +359,7 @@ function init(root) {
     const typedNow = ui.input.value.trim();
     const field = (i, v, isAngle) => {
       const locked = dyn.locked[i] !== null, active = dyn.on && dyn.active === i;
-      const text = active && typedNow ? typedNow : locked ? dyn.locked[i] : v === null ? '' : typeof v === 'number' ? (isAngle ? fmt(v) + '°' : fmtL(v)) : v;
+      const text = active && typedNow ? typedNow : locked ? dyn.locked[i] : v === null ? '' : typeof v === 'number' ? (isAngle ? fmtAngle(doc.meta, v) : fmtL(v)) : v;
       return el('span', { className: 'cc-dyn-f' + (active ? ' is-active' : '') + (locked ? ' is-locked' : '') }, text);
     };
     const parts = [el('span', { className: 'cc-dyn-p' }, w.prompt)];
@@ -306,7 +368,7 @@ function init(root) {
       const [a, b] = dyn.live(cur, engine.base);
       parts.push(field(0, a, false), field(1, b, dyn.mode === 'polar'));
     } else if (w.kind === 'distance' && w.opts.base) parts.push(el('span', { className: 'cc-dyn-f is-active' }, typedNow || fmtL(Math.hypot(cur.x - w.opts.base.x, cur.y - w.opts.base.y))));
-    else if (w.kind === 'angle' && w.opts.base) parts.push(el('span', { className: 'cc-dyn-f is-active' }, typedNow || fmt(deg(normAngle(Math.atan2(cur.y - w.opts.base.y, cur.x - w.opts.base.x)))) + '°'));
+    else if (w.kind === 'angle' && w.opts.base) parts.push(el('span', { className: 'cc-dyn-f is-active' }, typedNow || fmtAngle(doc.meta, deg(normAngle(Math.atan2(cur.y - w.opts.base.y, cur.x - w.opts.base.x)))) ));
     dynBox.replaceChildren(...parts);
     const s0 = view.toScreen(view.state.cursor.x, view.state.cursor.y), cv = ui.base.parentElement, s = { x: s0.x + view.x0 + cv.offsetLeft, y: s0.y + view.y0 + cv.offsetTop };   // split screen: from the pane to the stage (the drawing may sit inset: document tabs, a workspace layout's blocks)
     const bw = dynBox.offsetWidth || 160, bh = dynBox.offsetHeight || 24, sw = ui.stage.clientWidth, sh = ui.stage.clientHeight;
@@ -319,6 +381,7 @@ function init(root) {
   let typedAt = -1;
   ui.form.addEventListener('submit', (e) => { e.preventDefault(); submit(); });
   ui.input.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' && !e.shiftKey && !ui.input.value && acceptGhost()) { e.preventDefault(); return; }   // EG.54: Tab takes the ghost
     // dynamic input: Tab (or a comma after X) locks the field and moves to the next
     if (dyn.on && (e.key === 'Tab' || (e.key === ',' && dyn.mode === 'xy' && dyn.active === 0 && isLen(ui.input.value.trim())))) {
       e.preventDefault();
@@ -334,6 +397,7 @@ function init(root) {
       suggest();
       return;
     }
+    if (e.key === 'Tab' && !e.shiftKey && !ui.input.value && acceptGhost()) { e.preventDefault(); return; }
     if (e.key === 'Tab' && ui.suggest.dataset.cmd) { e.preventDefault(); ui.input.value = ui.suggest.dataset.cmd; suggest(); return; }
     if (e.key === 'Tab' && !e.shiftKey && !ui.input.value && cycleTab()) e.preventDefault();
   });
@@ -660,6 +724,7 @@ function init(root) {
     }
     lastRaw = view.toWorld(p.x, p.y);
     moveCursor(lastRaw);
+    accessUi?.onMove(lastRaw);
   });
   ui.over.addEventListener('pointerup', (e) => {
     if (e.pointerType === 'touch' && touchUp(e)) return;
@@ -694,6 +759,25 @@ function init(root) {
     if (lastRaw) moveCursor(view.toWorld(p.x, p.y));
   }, { passive: false });
   ui.over.addEventListener('auxclick', (e) => { if (e.button === 1 && e.detail === 2) { rememberView(); view.fit(); } });
+  // 0.8 Track ID: hand the view to the input-device layer (assets/js/app-devices-ui.js) — the same moves as the wheel and the
+  // middle drag (rememberView, so Zoom Previous steps back over them), zoom in the pane under (x, y) on a split screen. While
+  // the 3D tab shows, the 2D canvases are only visibility-hidden (their box still counts as "under the pointer"), so each
+  // move goes on to the 3D tab's own view (ws3d.js ws.devView) with (x, y) moved into its box.
+  const dev3d = () => (host.ws3d?.active ? host.ws3d.devView : null);
+  const devAt3d = (x, y) => { const a = ui.over.getBoundingClientRect(), b = dev3d().el.getBoundingClientRect(); return [x + a.left - b.left, y + a.top - b.top]; };
+  (window.ccViews ||= []).push({
+    el: ui.over, kind: '2d',
+    pan(dx, dy) { if (dev3d()) return dev3d().pan(dx, dy); rememberView('pan'); view.panBy(dx, dy); },
+    zoom(f, x = view.W / 2, y = view.H / 2) {
+      if (!(f > 0)) return;
+      if (dev3d()) return dev3d().zoom(f, ...devAt3d(x, y));
+      if (view.panes) { const i = view.paneAt(x, y); if (i >= 0) switchPane(i); }
+      rememberView('wheel');
+      view.zoomAt(x - view.x0, y - view.y0, f);
+    },
+    orbit(dx, dy) { dev3d()?.orbit(dx, dy); },   // the drawing itself is flat: only the 3D tab turns
+    fit() { if (dev3d()) return dev3d().fit(); rememberView(); view.fit(); },
+  });
   ui.over.addEventListener('dblclick', (e) => {
     if (engine.busy) return;
     const lp = pos(e);
@@ -796,14 +880,14 @@ function init(root) {
       const r = trackPoint(acquired, raw, { inc: settings.polarInc, tol, base, polarAll: settings.polar, start: activeUcs(doc)?.ang || 0 });
       if (r) {
         const from = r.rays[0].from;
-        view.state.track = { rays: r.rays, acquired, label: r.kind === 'two' ? t('track.two') : t('track.one', { d: fmtL(Math.hypot(r.x - from.x, r.y - from.y)), ang: fmt(deg(normAngle(r.rays[0].ang - (activeUcs(doc)?.ang || 0)))) }) };
+        view.state.track = { rays: r.rays, acquired, label: r.kind === 'two' ? t('track.two') : tAngle('track.one', { d: fmtL(Math.hypot(r.x - from.x, r.y - from.y)) }, doc.meta, deg(normAngle(r.rays[0].ang - (activeUcs(doc)?.ang || 0)))) };
         return { x: r.x, y: r.y };
       }
     }
     const ua = activeUcs(doc)?.ang || 0;   // polar rays and ortho follow the UCS (DR.8)
     if (settings.polar && base && !host.shift) {
       const r = polarTrack(base, raw, { inc: settings.polarInc, tol, start: ua });
-      if (r) { view.state.track = { rays: [r.ray], acquired, label: t('track.polar', { d: fmtL(r.d), ang: fmt(deg(normAngle(r.ang - ua))) }) }; return { x: r.x, y: r.y }; }
+      if (r) { view.state.track = { rays: [r.ray], acquired, label: tAngle('track.polar', { d: fmtL(r.d) }, doc.meta, deg(normAngle(r.ang - ua))) }; return { x: r.x, y: r.y }; }
     }
     if (settings.ortho && base) {
       const c = Math.cos(ua), s = Math.sin(ua), dx = raw.x - base.x, dy = raw.y - base.y, u = c * dx + s * dy, v = -s * dx + c * dy;
@@ -840,14 +924,106 @@ function init(root) {
     if (gripEdit) {
       const e = doc.get(gripEdit.id);
       view.state.preview = e ? [gripMove(e, gripEdit.key, p)] : [];
-    } else if (engine.busy) view.state.preview = engine.preview(p);
+    } else if (engine.busy) view.state.preview = withNextGhost(engine.preview(p), raw);
+    else view.state.preview = autoGhosts(raw);
     const base = gripEdit ? gripEdit.from : engine.base;
     const uc = activeUcs(doc), q = toUcs(uc, p);   // the readout is in the UCS (DR.8)
-    ui.coords.textContent = fmtL(q.x) + ', ' + fmtL(q.y) + (base ? '   Δ ' + fmtL(Math.hypot(p.x - base.x, p.y - base.y)) + ' < ' + fmt(deg(normAngle(Math.atan2(p.y - base.y, p.x - base.x) - (uc?.ang || 0)))) + '°' : '');
+    ui.coords.textContent = fmtL(q.x) + ', ' + fmtL(q.y) + (base ? '   Δ ' + fmtL(Math.hypot(p.x - base.x, p.y - base.y)) + ' < ' + fmtAngle(doc.meta, deg(normAngle(Math.atan2(p.y - base.y, p.x - base.x) - (uc?.ang || 0)))) : '');
     renderDyn();
     view.invalidate();
   }
   function refreshCursor() { if (lastRaw) moveCursor(lastRaw); }
+
+  // ---- drawing autocomplete (0.8 EG.54): ghosts of what the drawing's own patterns say comes next; Tab accepts, Esc dismisses ----
+  const auto = new Autocomplete(doc);
+  auto.on = settings.autocomplete !== 'off';
+  const autoIdle = () => auto.on && !engine.busy && !gripEdit && !view.state.box && !host.ws3d?.active;
+  const AUTO_REACH_PX = 140;   // a ghost shows while the cursor is within this many screen pixels of it
+  function autoGhosts(raw) {
+    if (!autoIdle()) return view.state.preview.length && view.state.preview.every((g) => g.ghost && g.auto) ? [] : view.state.preview;
+    const g = auto.preview(raw, AUTO_REACH_PX / view.zoom);
+    { const cur = auto.current?.key || ''; if (cur !== lastIdleGhost) { lastIdleGhost = cur; if (cur) accessUi?.say(t('access.ghost.idle', { what: t('auto.kind.' + auto.current.kind) })); } }   // EG.52
+    return g.length ? g.map((x) => (x.auto ? x : Object.assign(x, { auto: true }))) : (view.state.preview.length && view.state.preview.every((q) => q.auto) ? [] : view.state.preview);
+  }
+  // EG.54: a running LINE / PLINE: the ghost of its next point (nextPoint, autocomplete.js) while the cursor is near it; Tab clicks it
+  let nextGhost = null, lastIdleGhost = '';
+  function withNextGhost(prev, raw) {
+    const was = nextGhost;
+    nextGhost = null;
+    if (!auto.on || engine.expects !== 'point' || !engine.chain || gripEdit || host.ws3d?.active) return prev;
+    const n = nextPoint(engine.chain);
+    if (!n) return prev;
+    const last = engine.chain[engine.chain.length - 1];
+    if (Math.hypot(raw.x - n.x, raw.y - n.y) * view.zoom > AUTO_REACH_PX) return prev;
+    if (!was || was.x !== n.x || was.y !== n.y) accessUi?.say(t('access.ghost.next', { what: t('auto.kind.' + n.kind), at: fmtL(n.x) + ', ' + fmtL(n.y) }));   // EG.52: a ghost is said once when it appears
+    nextGhost = n;
+    return [...prev, { type: 'line', x1: last.x, y1: last.y, x2: n.x, y2: n.y, ghost: true, auto: true }, { type: 'point', x: n.x, y: n.y, ghost: true, auto: true }];
+  }
+  function acceptNextGhost() {
+    if (!nextGhost || engine.expects !== 'point') return false;
+    const n = nextGhost; nextGhost = null;
+    status(t('auto.accepted', { what: t('auto.kind.' + n.kind) }));
+    engine.click({ x: n.x, y: n.y }, { x: n.x, y: n.y });
+    refreshCursor();
+    return true;
+  }
+  function acceptGhost() {
+    if (nextGhost && acceptNextGhost()) return true;
+    if (!autoIdle() || !auto.current || !view.state.preview.some((g) => g.auto)) return false;
+    const r = auto.accept(t('auto.undo'));
+    if (!r) return false;
+    host.setSelection?.(new Set());
+    status(t('auto.accepted', { what: t('auto.kind.' + r.suggestion.kind) }));
+    view.state.preview = [];
+    refreshCursor();
+    return true;
+  }
+  function dismissGhost() {
+    if (!view.state.preview.some((g) => g.auto) || !auto.dismiss()) return false;
+    view.state.preview = []; view.invalidate(); status(t('auto.dismissed'));
+    return true;
+  }
+  host.getAutocomplete = () => auto.on;
+  // ---- drafting without sight (0.8 EG.52): spoken results, a keyboard cursor, snap sounds, voice (access-ui.js) ----
+  accessUi = mountAccess({
+    doc, view, engine, host, ui, settings, fmt: fmtL, moveCursor,
+    click: (p) => click(p), runLine: (s) => { ui.input.value = s; submit(); }, cancel: () => escapeKey(),
+    known: (name) => !!lookup(String(name).toUpperCase()),
+  });
+  host.fmtLength = fmtL;
+  host.viewSpan = () => (ui.stage.clientWidth || 800) / view.zoom;
+  // The switch is the shell's (Settings › Global › Drafting without sight; one record for every app). host.access keeps the shape the ACCESS command and the tests use.
+  host.access = {
+    state: () => { const a = window.ccAccess; return { on: !!a?.on, sound: !!a?.sound, voice: a?.voice === 'on' ? (a.online ? 'online' : 'local') : 'off' }; },
+    set: (o) => { const a = window.ccAccess; if (!a) return; const n = {}; if (o.access) { n.on = o.access === 'on'; } if (o.sound) n.sound = o.sound === 'on'; if (o.voice) { n.voice = o.voice === 'off' ? 'off' : 'on'; if (o.voice === 'online') n.online = true; } a.set(n); },
+  };
+  host.setAutocomplete = (on) => { setRadio('ccAutocomplete', on ? 'on' : 'off'); auto.on = !!on; auto.forget(); refreshCursor(); };
+  host.autocomplete = auto;
+  // ---- details that find you (0.8 EG.57): one quiet line when a selection matches a detail in the firm's library
+  let lastOffer = '', offerTimer = 0;
+  host.getDetailsHint = () => settings.details !== 'off';
+  host.setDetailsHint = (on) => setRadio('ccDetails', on ? 'on' : 'off');
+  function offerDetails() {
+    clearTimeout(offerTimer);
+    if (settings.details === 'off' || !host.selection?.size || engine.busy) { if (!host.selection?.size) lastOffer = ''; return; }
+    offerTimer = setTimeout(() => {
+      const o = offerFor(doc, host.selection);
+      if (o && o.id !== lastOffer) { lastOffer = o.id; status(t('details.offer', { name: o.name })); }
+    }, 500);
+  }
+  doc.on(() => { if (view.state.preview.some((g) => g.auto)) view.state.preview = []; });
+  // ... and while drawing: once a command has finished and nothing is selected, the newest dozen objects are matched the same way
+  let drawTimer = 0;
+  doc.on((kind) => {
+    if (kind !== 'change') return;
+    clearTimeout(drawTimer);
+    if (settings.details === 'off' || host.selection?.size) return;
+    drawTimer = setTimeout(() => {
+      if (settings.details === 'off' || host.selection?.size || engine.busy) return;
+      const o = offerFor(doc, null, { recent: 12 });
+      if (o && o.id !== lastOffer) { lastOffer = o.id; status(t('details.offer', { name: o.name })); }
+    }, 900);
+  });
 
   // ---- Tab cycles through overlapping objects under the pointer (AutoCAD's selection cycling) ----
   function cycleTab() {
@@ -980,6 +1156,7 @@ function init(root) {
   /** Esc: the typed text, then the command, then a grip move or box, then the selection (the key row's Esc too). */
   function escapeKey() {
     ui.input.value = ''; suggest();
+    if (dismissGhost()) return;
     if (engine.escape()) return;
     if (cancelLocal()) return;
     if (host.selection.size) host.setSelection(new Set());
@@ -1008,6 +1185,7 @@ function init(root) {
     const inField = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') && t !== ui.input;
     const mod = e.ctrlKey || e.metaKey;
     if (['F3', 'F7', 'F8', 'F10', 'F11', 'F12'].includes(e.key)) { e.preventDefault(); toggle({ F3: 'osnap', F7: 'grid', F8: 'ortho', F10: 'polar', F11: 'otrack', F12: 'dyn' }[e.key]); return; }
+    if (e.key === 'Tab' && !e.shiftKey && !mod && !inField && !e.defaultPrevented && acceptGhost()) { e.preventDefault(); return; }
     if (e.key === 'Escape') {
       if (inField) return;
       e.preventDefault();
@@ -1102,6 +1280,10 @@ function init(root) {
     if (engine.busy) { status(t('app.finish_cancel_current_command')); return; }
     let bytes;
     try { bytes = new Uint8Array(await blob.arrayBuffer()); } catch { print(t('pic.paste.notpicture')); return; }
+    // the area MarkupCraft copied (0.8 D8.15): same pixel size as its clip, copied recently → PASTEAREA places it at its true
+    // size from the clip's own PNG (the browser may have re-encoded the clipboard's)
+    const s = sniffPicture(bytes);
+    if (s && sameImage(readAreaClip(clipStore), s.w, s.h)) { engine.run('PASTEAREA'); return; }
     const vw = view.w / view.zoom;
     const sp = host.cursor ? view.toScreen(host.cursor.x, host.cursor.y) : null;   // the pointer, when it is over the drawing
     const cur = sp && sp.x >= 0 && sp.y >= 0 && sp.x <= view.w && sp.y <= view.h ? host.cursor : view.toWorld(view.w / 2, view.h / 2);
@@ -1221,6 +1403,7 @@ function init(root) {
     ucsIcon: { get: () => settings.corner !== 'none', set: (on) => { setRadio('ccCorner', on ? 'auto' : 'none'); applyCorner(); } },
   });
   host.props = props;
+  installRibbonControls({ doc, controls: props.controls, setCurrent, t });
   function scheduleProps() { props.schedule(); renderSelTotals(); }
 
   /** The selection's total length and area in the status bar (0.6 DF.4; Settings › CadCraft can switch it off). */
@@ -1433,6 +1616,7 @@ function init(root) {
   // "Open in 3D": the drawing as a DWG to the 3D modeling app in a new tab (handoff.js; ui.inc sets data-open3d-url only
   // when that app is open here and its build takes a handoff). The tab opens inside the click; nothing is uploaded.
   if (root.dataset.open3dUrl) host.openIn3d = async () => {
+    stampAddons();
     const { bytes } = saveDwg(doc, { version: dwgVersion() });
     const file = new File([bytes], (doc.meta.name || 'Drawing1') + '.dwg', { type: 'application/acad' });
     await sendHandoff(root.dataset.open3dUrl, file, 'cadcraft');
@@ -1497,6 +1681,11 @@ function init(root) {
   installAlignPanel({ root, stage: ui.stage, engine, host, el, t, print, focusCommandLine });
   // the Laser panel (0.7 SU.772; LASER, View › More): laser-cad.js + lib/laser's copy in laser/, loaded on first use
   host.laserPanel = async () => { if (!host.laserUi) { const { installLaser } = await import('./laser-cad.js'); host.laserUi = installLaser({ stage: ui.stage, doc, host, el, t, print, ask, focusCommandLine }); } host.laserUi.open(); };
+  // classes (0.8 SU.912, sx-classes; CLASSES, View › More): commands + Properties › Class now, the panel (classes-ui.js) on first use
+  installClasses();
+  host.classesPanel = async () => { if (!host.classesUi) { const { installClassesPanel } = await import('./classes-ui.js'); host.classesUi = installClassesPanel({ stage: ui.stage, doc, host, el, t, print, ask, focusCommandLine }); } host.classesUi.open(); };
+  // the Documents panel (0.8 SU.1058, sx-vault; DOCUMENTS): vault-ui.js + lib/vault's copy in vault/, loaded on first use
+  host.vaultPanel = async () => { if (!host.vaultUi) { const { installVaultPanel } = await import('./vault-ui.js'); host.vaultUi = installVaultPanel({ stage: ui.stage, doc, host, el, t, print, ask, focusCommandLine, fileHost, openFile: (f) => openLocal(f), currentBytes }); } await host.vaultUi.open(); };
   // attribute editing (0.6 DF.5): EATTEDIT and BATTMAN dialogs, REFEDIT's Save / Discard banner
   installAttEdit({ root, stage: ui.stage, doc, engine, host, el, t, print, focusCommandLine, colorLabel, fmtL, parseLen: parseL, closeRefEdit });
   // plot style tables (0.6 DC.14): PLOTSTYLES and the Plot dialog's Edit tables…
@@ -1523,7 +1712,26 @@ function init(root) {
   const cloudHist = deskBridge?.cloud ? new CloudHistory(deskBridge.cloud) : null;
   const historyKey = () => { const hf = saveTargets.get(doc.meta.hostFile); return hf?.path || null; };
   /** The drawing as SAVE would write it now (no file is touched), and its format. */
+  // 0.8 AL.6 "This file uses …": before a save, record which add-ons the drawing's data came from (kept in the file, addons-file.js); after an open, offer the ones this computer lacks
+  function stampAddons() {
+    const f = window.ccAddonsFile;
+    if (!f) return;
+    try {
+      const known = new Set([...(window.ccAddons?.list?.() || []).map((a) => (a.manifest && a.manifest.id) || a.id), ...((window.ccAddonsAccount?.items) || []).map((i) => i.id)]);
+      const tmp = { addons: { ...(doc.meta.addons || {}) } };
+      f.stamp(tmp, addonIdsIn(doc).filter((id) => known.has(id)));
+      if (Object.keys(tmp.addons).length) doc.meta.addons = tmp.addons;
+    } catch (e) { console.warn('add-on record not stamped', e); }
+  }
+  function offerAddons() {
+    const el = document.querySelector('[data-addons-banner]');
+    if (!el) return;
+    el.hidden = true; el.textContent = '';
+    try { window.ccAddonsFile?.offer({ addons: doc.meta.addons }, el); el.hidden = !el.childNodes.length; } catch (e) { console.warn('add-on offer failed', e); }
+  }
+  host.stampAddons = stampAddons; host.offerAddons = offerAddons;
   function currentBytes() {
+    stampAddons();
     const format = saveFormat();
     const bytes = format === 'dwg' ? saveDwg(doc, { version: dwgVersion() }).bytes : new TextEncoder().encode((format === 'dxf2000' ? writeDxf2000(doc) : writeDxf(doc)).text);
     return { bytes, format };
@@ -1532,6 +1740,8 @@ function init(root) {
     const ext = /\.dxf$/i.test(name) ? 'dxf' : 'dwg';
     try { const { drawing } = await readDrawing(new File([bytes], name), ext); return { drawing, ext }; } finally { busy(null); }   // readDrawing shows "Reading …" 
   }
+  host.setCompareMarks = (marks) => { view.compareMarks = marks; view.invalidate(false); };   // 0.8 SU.1058: vault revision compare (marks from history-ui.js marksOf)
+  host.centerOn = (x, y) => { view.cx = x; view.cy = y; view.invalidate(true); };
   host.history = () => {
     let off = null;
     const clearMarks = () => { view.compareMarks = null; view.invalidate(false); off?.(); off = null; };
@@ -2010,7 +2220,7 @@ function init(root) {
     { description: t('files.type.pdf'), extensions: ['.pdf'] },   // 0.7 D7.24
     { description: t('files.type.sheetset'), extensions: ['.ccsheets'] },
     { description: t('files.type.cloud'), extensions: CLOUD_READ.map((e) => '.' + e) },   // a point cloud under the drawing (SG.1; formats from cloud-types.js, 0.6 PF)
-    { description: t('files.type.other'), extensions: ['.json', '.pln', '.pla', '.tpl', '.bpn'] },
+    { description: t('files.type.other'), extensions: ['.json', '.pln', '.pla', '.tpl', '.bpn', '.ccbundle', '.zip'] },
   ];
   // 0.6.1 FIX-061-OPEN-HANG: Open from the toolbar or the command line runs as the OPEN command, and that command waits for
   // the file to open — so opening must never wait for the command that is running to finish when it is that one (it waited
@@ -2060,6 +2270,7 @@ function init(root) {
     }
     if (ext === 'pdf') { await openPdfFile(file); return true; }   // 0.7 D7.24: a PDF is imported as drawing objects or attached as an underlay
     if (ext === 'json') { openSketchExport(file); return; }
+    if (ext === 'ccbundle' || (ext === 'zip' && /ccbundle/i.test(file.name))) { await openBundleHere(file); return; }   // 0.8 BIM-BUNDLE-OPEN: a project bundle's drawings + standards (bundle-cad.js)
     if (['pln', 'pla', 'tpl', 'bpn'].includes(ext)) { otherProject(file, ext); return; }
     if (ext === 'ccsheets') { print(t('sheetset.open.viafolder', { file: file.name })); host.sheetSet?.focus(); return; }   // a set needs its folder (its drawings)
     if (host.openAppFile && (await host.openAppFile(file))) return;   // .lsp / .dcl load, .pgp aliases (appload.js)
@@ -2083,6 +2294,8 @@ function init(root) {
       renderInfo();
       hideHint();
       print(t('app.open.done', { file: file.name, objects: num(doc.count()), layers: num(doc.layers.size), ms: Math.round(performance.now() - t0) }));
+      offerAddons();   // 0.8 AL.6
+      { const miss = shxMissing(doc); if (miss.length) print(t('shx.open.missing', { list: miss.map((m) => m.font).join(', ') })); }   // 0.8 D8.7
       return true;
     } catch (err) {
       if (!err?.expected) console.error(err);   // a refusal we word ourselves (an R12 DWG, 0.6 DF.11) is no fault
@@ -2141,6 +2354,23 @@ function init(root) {
     hideHint();
     print(t('app.sketch.opened', { sketch: res.sketch, file: file.name, objects: num(doc.count()), constraints: doc.constraints.length, params: doc.params.vars.length }));
     for (const n of res.report.notes) print('  ' + n);
+  }
+
+  /** A project bundle (0.8 BIM-BUNDLE-OPEN + DF.12b): its first DWG drawing opens as usual, the other drawings are listed, and the bundle's layers and
+   *  dashed line types are added to the drawing. A bundle with no DWG says so and points to BimCraft, which opens the whole project. */
+  async function openBundleHere(file) {
+    let b;
+    try { b = await (await import('./bundle-cad.js')).bundleDrawings(file); }
+    catch (err) { print(t('bundle.cad.failed', { file: file.name, why: String(err && err.code || 'broken') })); return; }
+    if (!b.files.length) { print(t('bundle.cad.nodwg', { file: file.name })); return; }
+    const BC = await import('./bundle-cad.js');
+    const first = b.files[0];
+    print(t('bundle.cad.opening', { file: file.name, name: first.name, n: b.files.length }));
+    await openLocalNow(await BC.readDrawingFile(b.opened, first), null);
+    for (const f of b.files.slice(1, 8)) print('  ' + t('bundle.cad.other', { name: f.name }));
+    const r = BC.loadStandards(doc, b.opened.manifest);
+    print(t('bundle.cad.standards', { layers: r.layers, types: r.lineTypes }));
+    for (const n of r.notes) print('  ' + t(n.key, n.vars));
   }
 
   /** A DWG or DXF on this computer → { drawing (doc.load() input), format, bytes (as read: Studio Live's file hash) }. */
@@ -2393,10 +2623,12 @@ function init(root) {
     // SAVE itself, and NEW/OPEN saving a copy before they discard, run as commands: let those through
     if (engine.busy && !['SAVE', 'SAVEAS', 'DXFOUT', 'NEW', 'OPEN'].includes(engine.running)) { print(t('app.finish_cancel_current_command')); return; }
     if (doc.refEdit) { print(t('app.refedit.save_first', { name: doc.refEdit.name })); return; }   // its working set is in the drawing (0.6 DF.5)
+    if (keep && !as && host.vaultUi) { const ro = await host.vaultUi.saveBlocked(); if (ro) { print(ro); return; } }   // 0.8 SU.1058: a vault file is saved over only while checked out to you
     if (!FORMATS[format]) format = 'dwg';
     doc.vports = view.paneState();   // the split screen on screen goes into the file (its VPORT table, cad-files)
     doc.viewTwist = view.panes ? 0 : doc.inModel && !view.entered ? view.tw || 0 : view.views.get(doc.model)?.tw || 0;   // one pane: the model view's turn (DR.8; the active VPORT's twist)
     let data, report;
+    stampAddons();
     try {
       if (format === 'dwg') ({ bytes: data, report } = saveDwg(doc, { version: dwgVersion() }));
       else if (format === 'dxf2000') ({ text: data, report } = writeDxf2000(doc));
@@ -2560,6 +2792,20 @@ function init(root) {
   // ---- AI assistants and scripts (0.4 part 2 X.5, session agents; agents.js on host.js's control channel): tools only, off until Settings › Assistants ----
   installAgents({ doc, engine, host, view, print, canvases: [ui.base, ui.over], saveFile: (format) => saveFile(format || undefined),
     download: (name, data, mime) => downloadBlob(name, data, mime), report: () => lastReport });
+  // ---- the shell's seven modules (docs/apps/shell-modules.md § Mounting; shell-mount.js) ----
+  mountCadShell({ doc, control: fileHost.control, selected: () => [...host.selection], onSelection: (fn) => host.onSelectionChange(fn), setSelection: (s) => host.setSelection(s),
+    describe: (e) => describeEntity(e), path: () => doc.meta.source || '', undoTo: (i) => { while (doc.undoStack.length > i && doc.canUndo) doc.undo(); } });
+
+  // 0.8 DC.1 (apps-mount_PART_5): a pick is announced to the page (SuperCadCraft hears `cc-pick` and keeps one selection across its panels);
+  // a related pick from another panel comes back through window.ccPickApply(refs). Both are inert outside Super.
+  host.onSelectionChange(() => {
+    try { window.dispatchEvent(new CustomEvent('cc-pick', { detail: { app: 'cadcraft', ids: [...host.selection].map(String), cls: (() => { const e = host.selection.size ? doc.get([...host.selection][0]) : null; return e && e.layer ? String(e.layer) : undefined; })() } })); } catch { /* no window */ }
+  });
+  window.ccPickApply = (refs) => {
+    const real = (refs || []).map((r) => (r && doc.get(r.id) ? r.id : r && doc.get(Number(r.id)) ? Number(r.id) : null)).filter((x) => x != null);
+    if (!real.length) return false;
+    host.setSelection(new Set(real)); return true;
+  };
 
   // ---- start ----
   applyCorner();

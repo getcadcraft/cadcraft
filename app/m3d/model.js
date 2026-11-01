@@ -112,8 +112,21 @@ export class MeshDef extends Def {
  * `deform(def, mesh)` → the mesh deformed (or null: as it is), the start of the modifier stack, `deformKey(def)` → a stamp of
  * the pose (part of the modifiers' cache key). ModelCraft sets them (anim/deform.js); without them nothing deforms.
  */
-export const MESH_HOOKS = { clean: null, cleanLattice: null, cleanCurve: null, shown: null, rendered: null, lines: null, deform: null, deforms: null, deformKey: null };
+export const MESH_HOOKS = { clean: null, cleanGroup: null, cleanLattice: null, cleanCurve: null, shown: null, rendered: null, lines: null, deform: null, deforms: null, deformKey: null };
 export function setMeshHooks(h) { Object.assign(MESH_HOOKS, h); }
+/**
+ * 0.8 GH.2: a group or component can carry a modifier stack, `def.mods = {src, ops}` (an object; a mesh's `mods` is the array above):
+ * `src` is the definition it is made from, `ops` the ordered stack (mesh/modifiers.js items: scale, linear array), and the
+ * definition's own placements are the source placed by those operations, so the source's edits show at once and every
+ * reader that knows nothing of `mods` still sees an ordinary component. The kernel keeps the shape (src checked, ops plain
+ * JSON, at most 32); the page's hook `cleanGroup(mods)` vets the operations and works out the placements.
+ */
+export const isStacked = (d) => !!d && !!d.mods && !Array.isArray(d.mods);
+const groupModsOf = (m) => {
+  if (!m || typeof m !== 'object' || Array.isArray(m) || typeof m.src !== 'string' || !/^d\d{1,9}$/.test(m.src) || !Array.isArray(m.ops) || m.ops.length > 32) return null;
+  if (MESH_HOOKS.cleanGroup) return MESH_HOOKS.cleanGroup(m);
+  try { return { src: m.src, ops: JSON.parse(JSON.stringify(m.ops)) }; } catch { return null; }
+};
 const modsOf = (j) => (Array.isArray(j?.mods) && MESH_HOOKS.clean ? MESH_HOOKS.clean(j.mods) : []);
 const latticeOf = (j, mesh) => (j?.lattice && MESH_HOOKS.cleanLattice ? MESH_HOOKS.cleanLattice(j.lattice, mesh) : null);
 const curveOf = (j) => (j?.curve && MESH_HOOKS.cleanCurve ? MESH_HOOKS.cleanCurve(j.curve) : null);
@@ -2100,6 +2113,7 @@ export class Model {
     const src = this.context(from), dst = this.context(to);
     const inst = src?.def.insts.get(iid);
     if (!inst || !dst) throw new Error(t('m3d.model.move_gone'));
+    if (isStacked(src.def) || isStacked(dst.def)) throw new Error(t('m3d.model.mods_bake_first'));
     // everything inside the moved definition, itself included
     const reach = new Set(), visit = (id, depth) => { if (reach.has(id) || depth > 64) return; reach.add(id); for (const i of this.defs.get(id)?.insts.values() || []) visit(i.def, depth + 1); };
     visit(inst.def, 0);
@@ -2717,6 +2731,7 @@ export class Model {
     const inst = def.insts.get(iid);
     if (!inst) return [];
     const src = this.defs.get(inst.def);
+    if (isStacked(src) || isStacked(def)) throw new Error(t('m3d.model.mods_bake_first'));
     def.insts.delete(iid);
     const out = [];
     if (src) {
@@ -2739,6 +2754,44 @@ export class Model {
     return out.filter((s) => (s.t === 'e' ? def.edges.has(s.id) : s.t === 'f' ? def.faces.has(s.id) : def.insts.has(s.id)));
   }
 
+  /**
+   * 0.8 GH.2 Bake: turn a stacked definition into plain geometry (every placement of the source made real, each copy its own
+   * vertices, so overlaps stay as they are; no union) and drop its stack. Keeps the id, so every copy of it stays. One undo
+   * step when called inside model.change. Nested groups inside the source stay placements.
+   */
+  bakeModifiers(defId) {
+    const src = this.defs.get(defId);
+    if (!isStacked(src)) return false;
+    const out = new Def(src.id, src.kind, src.name);
+    const off = this.hiddenTags();
+    const visit = (d, m, color = null, hidden = false) => {
+      const vm = new Map(), rc = curveRemapper(out), mirror = det3(m) < 0;
+      for (const [id, p] of d.verts) vm.set(id, vAdd(out, apply(m, p)));
+      for (const e of d.edges.values()) eAdd(out, vm.get(e.a), vm.get(e.b), e.soft, rc(e.curve), hidden || e.hidden);
+      for (const [cid, sp] of d.splines) out.splines.set(rc(cid), { ...sp, pts: sp.pts.map((p) => apply(m, p)) });
+      for (const f of d.faces.values()) {
+        const loops = f.loops.map((l) => l.map((v) => vm.get(v)));
+        fAdd(out, mirror ? loops.map((l) => l.slice().reverse()) : loops, f.color || color, undefined, hidden || f.hidden);
+      }
+    };
+    for (const i of src.insts.values()) {
+      const d = this.defs.get(i.def);
+      if (d) visit(d, i.m, i.color || null, !!i.hidden || off.has(i.tag));
+    }
+    // groups inside the source stay groups, placed once per copy
+    for (const i of src.insts.values()) {
+      const d = this.defs.get(i.def);
+      if (!d) continue;
+      for (const c of d.insts.values()) {
+        const id = nid(out);
+        out.insts.set(id, { ...c, m: mmul(i.m, c.m) });
+      }
+    }
+    this.defs.set(defId, out);   // no cleanup: welding would join copies that touch
+    this.version++;
+    return true;
+  }
+
   /** Give one instance its own copy of its definition. */
   makeUnique(def, iid) {
     const inst = def.insts.get(iid);
@@ -2757,7 +2810,8 @@ export class Model {
     for (;;) {
       const used = this.instanceCounts();
       // an original a stretched copy was made from stays, so the copy can be stretched again (0.4 M26)
-      const origin = new Set([...this.defs.values()].filter((d) => d.dyn && used.get(d.id)).map((d) => d.dyn.src));
+      // 0.8 GH.2: the same for the source of a modifier stack
+      const origin = new Set([...this.defs.values()].filter((d) => (d.dyn || isStacked(d)) && used.get(d.id)).map((d) => (isStacked(d) ? d.mods : d.dyn).src));
       const dead = [...this.defs.keys()].filter((id) => id !== 'root' && !used.get(id) && !origin.has(id));
       if (!dead.length) break;
       for (const id of dead) this.defs.delete(id);
@@ -2789,6 +2843,7 @@ export class Model {
     const need = new Map();
     const visit = (d, depth) => {
       if (depth > 32) return;
+      if (isStacked(d) && !need.has(d.mods.src) && scratch.def(d.mods.src)) { need.set(d.mods.src, scratch.def(d.mods.src)); visit(scratch.def(d.mods.src), depth + 1); }
       for (const i of d.insts.values()) if (!need.has(i.def) && scratch.def(i.def)) { need.set(i.def, scratch.def(i.def)); visit(scratch.def(i.def), depth + 1); }
     };
     visit(top, 0);
@@ -2841,7 +2896,7 @@ export class Model {
       const nm = cleanText(dj.name, 120);
       map.set(dj.id, this.newDef(kind, nm && !names.has(nm) ? nm : undefined).id);
     }
-    const remap = (j) => ({ ...j, insts: (Array.isArray(j.insts) ? j.insts : []).map((i) => {
+    const remap = (j) => ({ ...j, ...(j.mods && !Array.isArray(j.mods) ? { mods: ids.has(j.mods.src) ? { ...j.mods, src: map.get(j.mods.src) } : null } : {}), insts: (Array.isArray(j.insts) ? j.insts : []).map((i) => {
       if (!i || !ids.has(i.def)) fail(t('m3d.model.an_instance_points_at_a_missing'));
       return { ...i, def: map.get(i.def) };
     }) });
@@ -2989,6 +3044,7 @@ export class Model {
     if (F) while (k < E.path.length && k < F.path.length && E.path[k] === F.path[k]) k++;
     const P = F ? E.path.slice(0, k) : E.path;
     const ctx = this.context(P);
+    if (isStacked(ctx.def)) throw new Error(t('m3d.model.mods_bake_first'));
     const ld = applyDir(ctx.inv, d), s = len(ld), dl = norm(ld);
     if (E.path.length > P.length) {
       // the moving end is inside a group or component the fixed end is not in: the whole group moves
@@ -3041,6 +3097,7 @@ export class Model {
   /** A group's or component's size along its own red (0), green (1) or blue (2) axis: its far side moves. */
   setDefSize(defId, axis, size) {
     const def = this.defs.get(defId), bb = def && this.bbox(def);
+    if (isStacked(def)) throw new Error(t('m3d.model.mods_bake_first'));
     if (!bb) throw new Error(t('m3d.model.it_is_empty'));
     if (!(size > EPS)) throw new Error(t('m3d.model.a_size_must_be_above_zero'));
     const cur = bb.max[axis] - bb.min[axis];
@@ -3092,12 +3149,18 @@ export class Model {
     }
     if (!defs.has('root')) fail(t('m3d.model.it_has_no_root'));
     for (const d of defs.values()) for (const inst of d.insts.values()) if (!defs.has(inst.def)) fail(t('m3d.model.an_instance_points_at_a_missing'));
+    // 0.8 GH.2: a stack's source is a plain definition, never the root, a mesh, another stack or a stretched copy, and the stack's own definition holds nothing but placements
+    for (const d of defs.values()) if (isStacked(d)) {
+      const src = defs.get(d.mods.src);
+      if (d.id === 'root' || d.dyn || !src || src === d || src.mods || src.dyn || src.mesh || d.verts.size || d.edges.size || d.faces.size) fail(t('m3d.model.mods_source_only'));
+    }
     // no definition may contain itself
     const state = new Map();
     const visit = (id) => {
       if (state.get(id) === 1) fail(t('m3d.model.a_group_contains_itself'));
       if (state.get(id) === 2) return;
       state.set(id, 1);
+      if (isStacked(defs.get(id))) visit(defs.get(id).mods.src);
       for (const inst of defs.get(id).insts.values()) visit(inst.def);
       state.set(id, 2);
     };
@@ -3263,6 +3326,7 @@ function defToJSON(d) {
   if (d.mesh) return { ...meshHead(d), mesh: d.mesh.toJSON() };
   return {
     id: d.id, kind: d.kind, name: d.name, next: d.next, ...(d.starter ? { starter: d.starter } : {}), ...(d.dyn ? { dyn: { src: d.dyn.src, size: d.dyn.size.slice() } } : {}),
+    ...(isStacked(d) ? { mods: { src: d.mods.src, ops: structuredClone(d.mods.ops) } } : {}),
     verts: [...d.verts].map(([id, p]) => [id, p[0], p[1], p[2]]),
     edges: [...d.edges].map(([id, e]) => (e.hidden ? [id, e.a, e.b, e.soft ? 1 : 0, e.curve || 0, 1] : e.curve ? [id, e.a, e.b, e.soft ? 1 : 0, e.curve] : e.soft ? [id, e.a, e.b, 1] : [id, e.a, e.b])),
     faces: [...d.faces].map(([id, f]) => { const o = { id, loops: f.loops }; if (f.color) o.color = f.color; if (f.hidden) o.hidden = true; return o; }),
@@ -3319,6 +3383,7 @@ function defFromJSON(d, j, fail = (m) => { throw new Error(m); }) {
   if (typeof j.starter === 'string' && /^[a-z0-9_-]{1,40}$/.test(j.starter)) d.starter = j.starter;   // 0.4 M25: which starter thing it is (entourage ids have hyphens: ent-tree-…)
   // 0.4 M26: a stretched copy remembers its original and size
   if (j.dyn && typeof j.dyn.src === 'string' && /^d\d{1,9}$/.test(j.dyn.src) && Array.isArray(j.dyn.size) && j.dyn.size.length === 3 && j.dyn.size.every((x) => Number.isFinite(x) && x >= 0)) d.dyn = { src: j.dyn.src, size: j.dyn.size.slice() };
+  if (j.mods && !Array.isArray(j.mods)) { const m = groupModsOf(j.mods); if (m) d.mods = m; }   // 0.8 GH.2
   const intId = (x) => Number.isInteger(x) && x > 0 && x < 1e9;
   let max = 0;
   for (const v of Array.isArray(j.verts) ? j.verts : []) {

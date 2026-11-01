@@ -6,7 +6,6 @@
   "table.empty": "No ducts in the drawing",
   "solid.name": "Duct {tag}",
   "solid.tag": "HVAC ductwork",
-
   "@unit": "Size units, airflow, velocity, friction rate, length and area, imperial (in) and metric (mm)",
   "unit.in": "in",
   "unit.mm": "mm",
@@ -20,13 +19,11 @@
   "unit.len.mm": "m",
   "unit.area.in": "ft²",
   "unit.area.mm": "m²",
-
   "size.rect": "{w}×{h}",
   "size.round": "Ø{d}",
   "size.oval": "{w}×{h} flat oval",
   "label.q.in": "({q} cfm)",
   "label.q.mm": "({q} L/s)",
-
   "shape.rect": "Rectangular",
   "shape.round": "Round",
   "shape.oval": "Flat oval",
@@ -43,13 +40,11 @@
   "elbow.mitred": "Mitered",
   "on": "On",
   "off": "Off",
-
   "cmd.duct.help": "Draw a duct run on its centerline: elbows, transitions and branch fittings come by themselves",
   "cmd.ductsize.help": "Size a section of a duct run from its airflow (equal friction), or type its size or shape",
   "cmd.ductcalc.help": "Duct calculator: the round, rectangular and flat oval sizes for an airflow at a friction rate",
   "cmd.ductsched.help": "The duct schedule: lengths, fittings and sheet metal area, placed as a table that keeps itself up to date",
   "cmd.duct3d.help": "Build the solids of every duct run on the 3D tab again",
-
   "opt.shape": "Shape",
   "opt.size": "Size",
   "opt.airflow": "Airflow",
@@ -59,7 +54,6 @@
   "opt.undo": "Undo",
   "opt.section": "Section",
   "opt.run": "Run",
-
   "ask.duct.first": "First point of the duct run ({size}); start inside a duct to branch from it",
   "ask.duct.next": "Next point ({size}); end inside a duct to connect to it",
   "ask.shape": "Shape",
@@ -74,7 +68,6 @@
   "ask.ductsize": "Section {size}: size it from its airflow, type a size, or change its shape",
   "ask.which": "Change this section or the whole run",
   "ask.table": "Where the schedule goes (its top left corner)",
-
   "done.duct": "Duct run drawn: {n} sections, starting {size}.",
   "done.branch.from": "Branching from {run}.",
   "done.branch.to": "Connected to {run}.",
@@ -85,7 +78,6 @@
   "sched.total": "Ducts: {len} {lu} straight, {n} fittings, {area} {au} of sheet metal.",
   "calc.exact": "{q} {qu} at {rate} {ru} in {mat}: a round duct of {d} {unit} exactly.",
   "calc.row": "{size}: equivalent diameter {de}, {v} {vu}, friction {rate} {ru}",
-
   "warn.aspect": "Its sides are {a} to 1: more than 4 to 1 costs more sheet metal and pressure; consider a taller duct.",
   "warn.short": "A section is too short for its fittings: they overlap. Move a point or use smaller elbows.",
   "warn.hairpin": "The run turns back on itself at a corner: no elbow can be drawn there.",
@@ -97,7 +89,6 @@
   "err.newer": "This run was made by a newer HVAC add-on: it is left as it is.",
   "err.noducts": "There are no duct runs in the drawing.",
   "err.empty": "The drawing is empty.",
-
   "col.item": "Item",
   "col.qty": "Quantity",
   "col.area": "Sheet metal ({unit})",
@@ -123,7 +114,6 @@
   "row.duct.round": "Round duct {size} ({mat})",
   "row.duct.oval": "Flat oval duct {size} ({mat})",
   "row.fit": "{name} ({mat})",
-
   "fit.elbow.rect": "Radius elbow {deg}° {size} (R/W {r})",
   "fit.elbow.round": "Elbow {deg}° {size} (R/D {r})",
   "fit.elbow.mitred": "Mitered elbow {deg}° {size}",
@@ -133,7 +123,6 @@
   "fit.takeoff": "Round takeoff {size} on {main}",
   "fit.takeoff.oval": "Flat oval takeoff {size} on {main}",
   "fit.lateral": "Lateral {deg}° {size} on {main}",
-
   "export.csv": "Duct schedule (CSV)",
   "export.takeoff": "Ducts for TakeoffCraft (PDF with the takeoff inside)",
   "export.pack": "Duct assemblies for TakeoffCraft (pack)",
@@ -147,7 +136,6 @@
   "pack.source.drawn": "Sheet metal worked out from the drawn sizes: perimeter × centerline length",
   "pack.source.by": "CadCraft HVAC add-on",
   "pack.note": "In the drawing: {qty} {unit}.",
-
   "ui.group": "HVAC",
   "ui.duct": "Duct",
   "ui.ductsize": "Size",
@@ -165,7 +153,6 @@
   "set.labels": "Size labels",
   "set.solids": "Solids on the 3D tab",
   "set.textH": "Schedule text height ({unit})",
-
   "props.section": "Duct run",
   "prop.tag": "Tag",
   "prop.sys": "System",
@@ -179,5 +166,30 @@
   "prop.labels": "Size labels",
   "prop.info": "Run",
   "prop.info.v": "{n} sections, {len} {lu} straight, {f} fittings, {area} {au}.",
-  "prop.info.q": "First section: {v} {vu}, {rate} {ru}."
+  "prop.info.q": "First section: {v} {vu}, {rate} {ru}.",
+  "cmd.ductnet.help": "Pressure in the whole drawn duct network from a fan point: critical path, damper at each end, fan pressure (DNET)",
+  "ui.ductnet": "Network pressure",
+  "net.fan": "Fan or air handler: click on the end of a duct run it feeds [Method/Equipment pressure]",
+  "net.opt.method": "Method",
+  "net.opt.equip": "Equipment",
+  "net.method": "Size check by [Friction/Velocity]",
+  "net.method.friction": "equal friction",
+  "net.method.velocity": "velocity limit",
+  "net.method.set": "Sizes are checked by {m}.",
+  "net.equip": "Pressure of coils, filters and the like in {unit} (typed from the makers' data)",
+  "net.equip.set": "Equipment pressure {v}.",
+  "net.err.source": "The point is not on the end of a duct run. Click the end where the fan or air handler connects.",
+  "net.err.noducts": "There are no duct runs in this drawing.",
+  "net.err.noterminals": "No free duct ends were found, so there is nowhere for the air to go.",
+  "net.err.nofan": "Run DUCTNET first and click the fan, then export.",
+  "net.note.noflow": "{tag}: a free end has a section with no airflow typed, so it counts as zero.",
+  "net.note.loop": "{n} duct loops were found. The calculation follows a tree, so loops are ignored.",
+  "net.note.unreached": "{n} duct sections are not joined to the fan.",
+  "net.head": "{ends} ends. Fan pressure {fan}. Critical path to {crit}.",
+  "net.end": "{label}: {lps} {unit}, {dp}{damper}",
+  "net.unreached": "not joined to the fan",
+  "net.damper": ", damper takes {v}",
+  "net.sizes": "{n} sections are small for their airflow, fast, or too flat: {list}.",
+  "net.defaults": "Fitting losses use labelled default coefficients, not a fitting database, and ignore stack effect. Check with your engineer before you rely on them.",
+  "net.export": "Duct network pressure (CSV)"
 }

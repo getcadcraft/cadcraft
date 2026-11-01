@@ -9,6 +9,7 @@
  */
 import { BUILTIN, LINEWEIGHTS, CAPS, JOINS, FILLS, builtinTable, findTable, penOf, setPens, cleanTable, exportTable, readTableFile, MAX_TABLES } from './plotstyle.js';
 import { linetypeNames } from './linetypes.js';
+import { readCtb } from './ctb.js';   // 0.8 DC.14: a CTB from another program
 
 export function installPlotStyles({ root, doc, host, el, t, print, colorLabel, aciHex, pickFile }) {
   const label = (name) => (BUILTIN.includes(name) ? t('plotstyle.builtin.' + name) : name);
@@ -164,7 +165,14 @@ export function installPlotStyles({ root, doc, host, el, t, print, colorLabel, a
       } else if (act === 'import') {
         const f = await pickFile('.json,.ctb');
         if (!f) return;
-        if (/\.ctb$/i.test(f.name)) { say(t('plotstyle.ctb_not_yet')); return; }
+        if (/\.ctb$/i.test(f.name)) {   // 0.8 DC.14: read from the published description, never checked against a real file: say so
+          if (f.size > 8_000_000) { say(t('plotstyle.err.big')); return; }
+          const c = await readCtb(new Uint8Array(await f.arrayBuffer()));
+          if (!c.ok) { say(t('plotstyle.err.ctb.' + c.error)); return; }
+          const tb = { ...c.table, name: freeName(f.name.replace(/\.ctb$/i, '')) };
+          if (addTable(tb)) { say(t('plotstyle.imported', { name: tb.name, file: f.name })); say(t('plotstyle.ctb.caution')); }
+          return;
+        }
         if (f.size > 2_000_000) { say(t('plotstyle.err.big')); return; }
         const r = readTableFile(await f.text());
         if (!r.ok) { say(t('plotstyle.err.' + r.error)); return; }

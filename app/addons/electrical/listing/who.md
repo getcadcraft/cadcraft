@@ -1,0 +1,4 @@
+- Electrical designers and drafters who draw control and power schematics for machines and panels.
+- Building services designers and installers who lay out sockets, switches and lighting on a plan and need a panel schedule.
+- Panel builders who need a terminal plan, a cable list and a parts list that agree with the drawing.
+- Teams who move drawings between programs and need the schematic to survive a trip through other CAD tools.

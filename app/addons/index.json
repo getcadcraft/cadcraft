@@ -4,6 +4,14 @@
     "apparel",
     "hvac",
     "piping",
-    "pid"
+    "pid",
+    "cabinet",
+    "windows",
+    "lighting",
+    "harness",
+    "regs",
+    "nesting",
+    "trusscraft",
+    "cabinetcraft"
   ]
 }

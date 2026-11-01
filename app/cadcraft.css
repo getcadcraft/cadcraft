@@ -900,3 +900,11 @@ body.ws-on .ws-stage.has-doctabs > .cc-canvases.ws-fill { top: calc(var(--ws-st,
 /* Tabs inside a dialog (the Library's sources: LibraryCraft, Files…, Standard, Other feeds) are a choice, not sheet tabs: a size a hand can
    hit (owner 2026-10-24, dialog audit: they were 22 px tall; tools/workspace-test/dialog-audit.mjs) */
 dialog .cc-tablist .cc-tab { min-height: 2.25rem; padding: .45rem .9rem .35rem; font-size: .875rem; }
+
+/* 0.8 RIBBON-COMPACT: the ribbon's inline controls (ribbon-controls.js) */
+.cc-ribbon-ctl { display: inline-flex; align-items: center; gap: 0.25rem; min-width: 0; }
+.cc-ribbon-ctl select { min-width: 0; max-width: 11rem; }
+.cc-ribbon-ctl-btn { border: 1px solid var(--cc-line, #c9ced6); background: transparent; color: inherit; border-radius: 3px; width: 1.75rem; height: 1.75rem; padding: 0; line-height: 1; }
+.cc-ribbon-ctl-btn[aria-pressed="false"] { opacity: 0.55; }
+.cc-ribbon-ctl-btn:focus-visible { outline: 2px solid var(--cc-accent, #1a64d6); outline-offset: 1px; }
+.cc-addons-banner { font-size: .8125rem; max-width: 40%; }

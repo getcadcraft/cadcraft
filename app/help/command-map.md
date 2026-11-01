@@ -16,11 +16,12 @@ The few that are not the same, or not built:
 - **TABLE** is not built; {{cmd:XREF}}, {{cmd:SPLINE}} and {{cmd:WBLOCK}} are.
 - A routine's own commands (AutoLISP `C:NAME`) show up after you load it with {{cmd:APPLOAD}}; they are not listed here.
 
-## All commands (248)
+## All commands (275)
 
 | Command | Short names | What it does |
 |---|---|---|
 | `3DORBIT` | `3DO`, `ORBIT` | Orbit the 3D view with the left button |
+| `ACCESS` | `AX` | Turn drafting without sight on or off: results spoken through your screen reader, a keyboard cursor on the drawing, snap sounds and spoken commands. |
 | `ALIASEDIT` |  | Edit command aliases in one text file (the familiar L, *LINE format) |
 | `ALIGN` | `AL` | Move and turn objects so that source points land on destination points (one, two or three pairs), and scale them if you want |
 | `ALIGNPANEL` | `ALP` | Open the Align and distribute panel |
@@ -35,7 +36,11 @@ The few that are not the same, or not built:
 | `ATTDEF` | `ATT`, `DDATTDEF`, `-ATTDEF` | Define an attribute (a tag a block asks a value for) to put in a block (ATT) |
 | `ATTEDIT` | `ATE`, `-ATTEDIT` | Edit a block reference's attribute values on the command line, one after another (Enter keeps a value) |
 | `ATTSYNC` |  | Bring a block's references in line with its attribute definitions: new ones added with their defaults, removed ones dropped, positions and text reset; values kept |
+| `AUNITS` | `ANGUNITS` | How angles are shown and typed: decimal degrees, degrees-minutes-seconds or bearings like N45°23'30"E (ANGUNITS) |
+| `AUTOCOMPLETE` | `AUTOC` | Drawing autocomplete on or off, or list what the drawing's patterns suggest now. |
 | `AUTOCONSTRAIN` |  | Add coincident, horizontal and vertical constraints where the geometry is already close |
+| `AUTODIM` | `ADIM` | Dimension by rules: overall size, chains along the sides, openings, hole diameters and grid spacing, without repeating what is already dimensioned. |
+| `AUTOSHEET` | `ASH` | Lays out sheets by itself: picks paper and standard scales and places every view with a caption and a title block. |
 | `BATTMAN` |  | Block attribute manager: order, tags, prompts, defaults and modes of a block's attributes, then its references updated |
 | `BCLOSE` |  | Close the block editor: save the block or discard the changes |
 | `BEDIT` | `BE` | Block editor: edit a block's objects and attributes; BCLOSE saves (BE) |
@@ -50,12 +55,15 @@ The few that are not the same, or not built:
 | `CAL` |  | Work out a length or number: + − * / and brackets, as you type them anywhere |
 | `CHAMFER` | `CHA` | Bevel the corner between two lines (D two distances, A length and angle, P every corner of a polyline) |
 | `CIRCLE` | `C` | Center and radius, diameter, 2 or 3 points |
+| `CLASS` |  | Put the selected objects in a class, or with nothing selected set the active class (? lists them) |
+| `CLASSES` | `CLS` | The Classes panel: classes sort objects across layers; show, hide and style them, and override them per viewport (CLS) |
 | `COMPARESETTINGS` | `CMPSET` | Compare dimension styles, text styles, layers, sheets or units: two in this drawing, or this drawing against another open one, and copy a value across. |
 | `CONSTRAINTBAR` | `CBAR` | Show or hide the constraint bars (Showall / Hideall, or per object) |
 | `COPY` | `CO`, `CP` | Copy objects, as many times as you click |
 | `COPYBASE` |  | Copy objects to the clipboard with a base point you pick |
 | `COPYCLIP` |  | Copy objects to the clipboard (Ctrl+C); PASTECLIP places them |
 | `COUNT` | `BCOUNT` | Count block references: pick one to select and count every reference of its block |
+| `CURSORSIZE` |  | The crosshair's size: 100 runs it edge to edge across the drawing (Settings › Cursor › Full screen) |
 | `CUTCLIP` |  | Cut objects to the clipboard (Ctrl+X): copy, then erase |
 | `CYLINDER` | `CYL` | A cylinder: centre, radius and height (3D) |
 | `DCALIGNED` | `DCALI` | Dimensional constraint: true distance between points, a point and a line, or two lines |
@@ -69,7 +77,10 @@ The few that are not the same, or not built:
 | `DCVERTICAL` | `DCVER` | Dimensional constraint: vertical distance |
 | `DELBLOCKS` |  | Delete blocks: every reference (nested ones too, on every sheet) and the definitions |
 | `DELCONSTRAINT` | `DELCON` | Remove every constraint (geometric and dimensional) from the objects you select |
+| `DESCRIBE` | `DESC` | Say what the drawing holds: how many objects, of what kind, how big, what is selected. |
 | `DESELECT` | `AI_DESELECT`, `SELECTNONE` | Clear the selection (Esc) |
+| `DETAILS` | `DET` | Your firm's own details, found for what you are drawing: find, add a block, list, remove, turn the offers on or off. |
+| `DIAGRAM` | `TEXTDIAGRAM`, `T2D` | Draw a diagram from text: a Mermaid flowchart, a PlantUML component diagram, D2 or a from-to list, as blocks and connectors you can edit |
 | `DIMALIGNED` | `DAL`, `DIMALI` | True distance between two points |
 | `DIMANGULAR` | `DAN`, `DIMANG` | Angle between two lines, of an arc, or by three points |
 | `DIMASZ` |  | Dimension setting: Arrow size |
@@ -92,6 +103,7 @@ The few that are not the same, or not built:
 | `DIMTXT` |  | Dimension setting: Text height |
 | `DIST` | `DI` | Distance and angle between two points |
 | `DISTRIBUTE` |  | Space the selected objects evenly, side to side or up and down: equal steps between centres, or equal gaps; the outer two stay |
+| `DOCUMENTS` | `DOCS` | Open the Documents panel: check drawings out and in, revisions, release states and approval for a project folder |
 | `DUPLICATE` | `DUP` | A copy that moves with the pointer: click to put it down (Ctrl+D) |
 | `DXFOUT` |  | Download the drawing as DXF R12 (Save keeps its own format) |
 | `EATTEDIT` | `DDATTE` | Edit a block reference's attributes: values, text and properties, one attribute at a time |
@@ -116,8 +128,10 @@ The few that are not the same, or not built:
 | `GCSYMMETRIC` |  | Constraint: two points, lines or circles mirror each other across a line |
 | `GCTANGENT` |  | Constraint: a line and a circle or arc (or two of them) stay tangent |
 | `GCVERTICAL` |  | Constraint: a line (or two points) stays vertical |
+| `GDSIN` | `GDS` | View an IC layout (a GDSII stream file): every layer and datatype as a drawing layer, flat, in user units; for viewing and measuring only (lab spike) |
 | `GEOMCONSTRAINT` | `GCON` | Geometric constraints: horizontal, vertical, parallel, tangent, coincident… |
 | `GLBOUT` |  | Export the 3D model as GLB (glTF) |
+| `GRIDMOVE` | `GM` | Move a grid line and carry what hangs on it: walls stretch, columns, bubbles and tags move, dimensions follow. |
 | `HATCH` | `H`, `BH`, `BHATCH`, `-HATCH` | Fill an area with a solid fill or a pattern: click inside it, or select closed objects (H) |
 | `HELP` | `?` | This list |
 | `HISTORY` | `HIST` | HISTORY (HIST): the versions of this drawing — copies kept on this computer when Studio saves it, and the cloud's versions — to open, restore, and compare with what changed shown in colour. |
@@ -144,6 +158,7 @@ The few that are not the same, or not built:
 | `LAYUNISO` |  | Turn back on the layers LAYISO turned off |
 | `LENGTHEN` | `LEN` | Lengthen or shorten lines, arcs and polylines: by an amount, a percentage, to a total, or by dragging (LEN) |
 | `LIBRARY` | `LIB` | The library panel: place items, check for updates, credits |
+| `LIMITS` |  | Set the drawing limits: ON, OFF, or the lower-left and upper-right corners. With the limits ON, points outside them are refused |
 | `LINE` | `L` | Straight segments, each its own object |
 | `LINETYPE` | `LT`, `CELTYPE` | The linetype new objects get (by layer, by block, or a named one) |
 | `LINKVIEWS` | `SYNCVIEWS` | Pan and zoom every pane together (split screen), to compare two drawings or revisions |
@@ -161,13 +176,16 @@ The few that are not the same, or not built:
 | `MTEXT` | `MT`, `T` | Paragraph text: drag its width, then type in place; Enter starts a new paragraph (T) |
 | `MVIEW` | `MV` | A viewport onto the model, on a layout |
 | `NAMEDVIEW` | `NV`, `VIEWS` | Named views: save the view on screen (or a window) under a name and go back to it (NV) |
+| `NEARBY` |  | Say what lies close to the cursor, nearest first, with the distance and the side. |
 | `NEW` |  | Start a new drawing |
 | `OBJOUT` |  | Export the 3D model as OBJ |
 | `OFFSET` | `O` | Parallel copies at a distance |
+| `OLELIST` | `OLES` | List the OLE objects a drawing carries and put a copy of one's picture where you choose |
 | `OPEN` |  | Open a DWG or DXF from this computer |
 | `OPENIN3D` |  | Open this drawing in the 3D modeling app, in a new tab (nothing is uploaded) |
 | `PARAMETERS` | `PAR`, `PARAMETERSMANAGER`, `PARAM` | The Parameters panel: user parameters and dimensional constraints in one table |
 | `PARTSLIST` | `PLIST` | A parts list table of every standard part and steel section placed from the Library |
+| `PASTEAREA` | `PAREA` | Paste an area copied in MarkupCraft (Copy area) at its true size, as a picture. |
 | `PASTECLIP` |  | Paste the clipboard: it follows the cursor, click where it goes (Ctrl+V) |
 | `PASTEORIG` |  | Paste the clipboard at the coordinates it was copied from (Ctrl+Shift+V) |
 | `PDF` |  | Give CadCraft the PDF files the drawing's underlays use |
@@ -177,6 +195,7 @@ The few that are not the same, or not built:
 | `PDFIMPORT` | `PDFIM` | Turn a PDF page's lines, fills and text into drawing objects (PDFIMPORT) |
 | `PDFLAYERS` |  | Switch the layers of a PDF underlay on or off |
 | `PEDIT` | `PE` | Edit a polyline: close, open, join, width, fit curve, spline curve, decurve, linetype generation, reverse; lines, arcs and splines can be turned into polylines |
+| `PHOTOSKETCH` | `PSK` | Turns a photo of a hand sketch on paper into lines and arcs at a scale, straightening the perspective and giving each pen colour its own layer. |
 | `PLAN` |  | Turn the view so the UCS X axis (Current ucs, a saved Ucs, or the World) is level on screen. Nothing in the drawing moves. |
 | `PLINE` | `PL` | A polyline of line and arc segments |
 | `PLOT` | `PRINT`, `PUBLISH`, `EXPORTPDF` | Plot to PDF: a layout, or the model at a scale |
@@ -197,6 +216,7 @@ The few that are not the same, or not built:
 | `RASTERSNAP` |  | Turn snapping to the lines of scanned sheets on or off. |
 | `RAY` |  | Ray: a construction line from a point, endless one way. |
 | `RECTANG` | `REC`, `RECTANGLE` | A closed polyline from two corners |
+| `REDLINE` | `RDL` | Redline to revision: read a MarkupCraft redline package, accept or reject each change, cloud the accepted ones with a revision log, and save the answers file (RDL) |
 | `REDO` |  | Redo what was undone |
 | `REFCLOSE` |  | Finish editing a block in place: save it, or discard the changes |
 | `REFEDIT` |  | Edit a block in place, where a reference of it sits, with the rest of the drawing faded; REFCLOSE saves it |
@@ -211,6 +231,7 @@ The few that are not the same, or not built:
 | `SAMPLES` | `SAMPLE` | Open one of CadCraft's sample drawings (an architectural set, an as-built) to learn from |
 | `SAVE` | `QSAVE` | Download the drawing in its format (DWG or DXF) |
 | `SAVEAS` |  | Download the drawing as DWG or DXF: choose which |
+| `SAYSEL` |  | Say what is selected, one sentence each. |
 | `SCALE` | `SC` | Scale objects about a base point |
 | `SCALELISTEDIT` | `SCALELIST` | Add, edit and delete the drawing's own scales; they appear in the viewport and plot scale lists and are saved in the file (SCALELIST) |
 | `SCANALIGN` | `SCL` | Align a scanned sheet to two points: move, turn and, if you choose, scale it. |
@@ -227,6 +248,9 @@ The few that are not the same, or not built:
 | `SELECTSIMILAR` | `SIM` | Select every object like the ones you pick: same type, layer and color (SIM) |
 | `SHEETSET` | `SSM`, `SHEETSETMANAGER` | Shows the Sheet Set panel: sheets from many drawings, numbered, published as one PDF. |
 | `SHORTCUTS` | `KEYS` | Give any command a key of your own (Ctrl or Alt with a letter, or a free function key), kept in this browser or desktop app. |
+| `SHXFONTS` | `SHX` | Give CadCraft SHX fonts from a folder or files, so text styles that name them draw in them (list, remove, reverse) |
+| `SKETCHFIX` | `SKF` | Draw freehand strokes; each becomes a clean line, circle, arc, rectangle or polyline, squared and joined to the others. |
+| `SKETCHLIVE` | `SKL` | Sketch with a pen: each stroke becomes a precise line, circle, arc or rectangle as you lift the pen, snapped to the drawing, with its size to type over. |
 | `SPLINE` | `SPL` | Draw a spline through points (or with a control polygon), or turn a polyline into one |
 | `SPLINEDIT` | `SPE` | Edit a spline: fit points, control points and weights, open or close it, reverse it, or convert it to a polyline |
 | `SPLIT` |  | Split the drawing area into panes (as VPORTS on the model; from a sheet too) |
@@ -236,6 +260,7 @@ The few that are not the same, or not built:
 | `SUBTRACT` | `SU` | Take solids away from others (3D) |
 | `SWBOUT` | `SWMACRO` | Download a macro for SolidWorks (.swb) that rebuilds the model as one constrained sketch |
 | `SWEEP` |  | Sweep closed 2D objects along a path (line, polyline, arc, circle) into solids (3D) |
+| `TAGS` |  | Tags on block references: define a tag (kind, allowed values, blocks it applies to), set it on the selected references, and list them as a schedule that you can save as CSV |
 | `TEXT` | `DT`, `DTEXT` | Single-line text; Enter starts the next line |
 | `TEXTEDIT` | `ED`, `DDEDIT` | Edit text in place: pick a text (or double-click one) (ED) |
 | `TEXTMASK` | `TMASK` | Put a background mask behind texts (the drawing's background or a colour), or take it away. |
@@ -257,12 +282,14 @@ The few that are not the same, or not built:
 | `VIEW` | `-VIEW`, `V` | Standard 3D views, perspective or parallel (3D) |
 | `VIEWBASE` | `FLATSHOT` | Place a flat 2D view of the 3D solids (front, top, side or isometric, hidden lines dashed) on a sheet or in the model |
 | `VIEWLABEL` | `VL` | A view title on a sheet that shows its viewport's view name, and changes with it. |
+| `VOICE` |  | Turn spoken commands on or off. They are recognised on this computer. |
 | `VPLAYER` |  | Freeze or thaw layers in some viewports only (Freeze, Thaw, Reset), and choose which layers new viewports start frozen (Vpvisdflt). |
 | `VPORTS` | `VIEWPORTS` | Split the drawing area into panes, each with its own view (on a sheet: a viewport, as MVIEW) |
 | `VPVIEW` |  | Set what a viewport shows: pick a window on the model |
 | `VSCURRENT` | `VS`, `SHADEMODE` | Visual style of the 3D view: shaded, edges, hidden line, wireframe, X-ray |
 | `WBLOCK` | `W`, `-WBLOCK` | Write a block, some objects or the whole drawing to a new DWG or DXF file (W) |
 | `WEDGE` | `WE` | A wedge: two corners and a height; it slopes away from the first corner (3D) |
+| `WHEREAMI` | `WHERE` | Say where the cursor is. |
 | `XATTACH` | `XA` | Link another DWG or DXF into this drawing, shown read-only (XREF lists and reloads them) |
 | `XCLIP` | `XC` | Clip block references and linked drawings to a rectangle or a polygon, or remove the clip. |
 | `XLINE` | `XL` | Construction line, endless both ways: through two points, horizontal, vertical, at an angle, bisecting an angle, or offset from a line. |

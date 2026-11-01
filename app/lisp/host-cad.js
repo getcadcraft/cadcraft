@@ -14,6 +14,7 @@
  *   getvar / setvar                      entget entmod entmake entdel entlast entnext handent
  *   tblnext / tblsearch / tblobjname     textbox · osnap · redraw
  */
+import { limitsOf, limitsPatch } from '../limits.js';   // 0.8 D8.2
 import { toPairs, fromPairs, matchFilter, dxfType, layerPairs, blockPairs, ltypePairs, viewPairs, namePairs, I } from './dxflist.js';
 import { lassoHits } from '../lasso.js';
 import { entityBounds, textLayout, snapPoints, SNAP_KINDS } from '../geom.js';
@@ -353,6 +354,11 @@ export class CadHost {
       case 'TEXTSIZE': return doc.current.textHeight ?? 2.5;
       case 'LUNITS': return I(m.lunits ?? 2);
       case 'LUPREC': return I(m.luprec ?? 4);
+      case 'LIMMIN': { const l = limitsOf(m); return [l.x0, l.y0]; }   // 0.8 D8.2: the drawing limits kept in the drawing
+      case 'LIMMAX': { const l = limitsOf(m); return [l.x1, l.y1]; }
+      case 'LIMCHECK': return I(limitsOf(m).on ? 1 : 0);
+      case 'AUNITS': return I(m.aunits ?? 0);   // 0.8 SU.932: the angle format kept in the drawing
+      case 'AUPREC': return I(m.auprec ?? 0);
       case 'INSUNITS': return I({ inches: 1, feet: 2, millimeters: 4, centimeters: 5, meters: 6 }[m.units] ?? 0);
       case 'LTSCALE': return m.ltscale ?? 1;
       case 'TRIMEXTENDMODE': return I(this.engine.trimMode === 'standard' ? 0 : 1);   // 0.6 DF.13: 1 Quick, 0 Standard
@@ -422,6 +428,20 @@ export class CadHost {
       case 'LUNITS': case 'LUPREC': {
         if (!Number.isInteger(v)) return { error: 'bad value' };   // i18n-ignore (an error code the LISP side turns into its own message, or DXF data)
         doc.change('SETVAR', () => doc.setMeta(n === 'LUNITS' ? { lunits: v } : { luprec: v }));
+        return true;
+      }
+      case 'LIMMIN': case 'LIMMAX': case 'LIMCHECK': {
+        const l = limitsOf(doc.meta);
+        let patch;
+        if (n === 'LIMCHECK') patch = v === 0 || v === 1 ? limitsPatch(doc.meta, { on: v === 1 }) : null;
+        else if (Array.isArray(v) && v.length >= 2 && v.every((x) => typeof x === 'number')) patch = limitsPatch(doc.meta, n === 'LIMMIN' ? { x0: v[0], y0: v[1] } : { x1: v[0], y1: v[1] });
+        if (!patch) return { error: 'bad value' };   // i18n-ignore (an error code the LISP side turns into its own message, or DXF data)
+        doc.change('SETVAR', () => doc.setMeta(patch));
+        return true;
+      }
+      case 'AUNITS': case 'AUPREC': {
+        if (!Number.isInteger(v) || (n === 'AUNITS' ? v < 0 || v > 4 : v < 0 || v > 8)) return { error: 'bad value' };   // i18n-ignore (an error code the LISP side turns into its own message, or DXF data)
+        doc.change('SETVAR', () => doc.setMeta(n === 'AUNITS' ? { aunits: v } : { auprec: v }));
         return true;
       }
       case 'ERRNO': this.errno = v | 0; return true;

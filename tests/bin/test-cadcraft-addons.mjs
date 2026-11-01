@@ -141,7 +141,7 @@ ok(!Cmd.lookup('THIEFOK') && Cmd.lookup('LINE') && R.owner('LINE') === null, 'wh
 ok(byId['test.newer']?.state === 'refused' && byId['test.newer'].reason === 'api-newer', 'an add-on asking for API 1.9 is refused (CadCraft has 1.0)');
 ok(Cmd.lookup('IMPORT') && Cmd.lookup('EXPORT') && R.owner('IMPORT') === 'core', 'IMPORT and EXPORT are CadCraft\'s own');
 const api = globalThis.__testPipes;
-ok(api && api.version === '1.0' && api.app.slug === 'cadcraft' && typeof api.commands.add === 'function' && typeof api.ui.toolbarGroup === 'function', 'the API: CadCraft\'s parts and the shared ones');
+ok(api && api.version === '1.4' && api.app.slug === 'cadcraft' && typeof api.commands.add === 'function' && typeof api.ui.toolbarGroup === 'function' && typeof api.ui.panelTab === 'function' && typeof api.rules.provide === 'function' && typeof api.model.read === 'function', 'the API: CadCraft\'s parts and the shared ones');
 ok(api.t('pipe.name') === 'Pipe', 'the add-on\'s own strings');
 ok(api.toolbar.group({ id: 'x', label: 'X', tools: [] }) === null, 'toolbar calls do nothing without a page');
 

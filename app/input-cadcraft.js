@@ -54,6 +54,8 @@ export const COMMANDS = [
   C('draw.circle-ttt', 'draw', 'bi-circle', T('Draw', 'CIRCLE TTT'), tab),
   C('draw.xline', 'draw', 'bi-arrows', T('Draw', 'XLINE'), tab),
   C('draw.ray', 'draw', 'bi-arrow-up-right', T('Draw', 'RAY'), tab),
+  C('draw.sketchlive', 'draw', 'bi-pencil', T('Draw', 'SKETCHLIVE'), tab),   // 0.8 EG.55
+  C('draw.sketchfix', 'draw', 'bi-pencil-square', T('Draw', 'SKETCHFIX'), tab),
 
   C('modify.move', 'modify', 'bi-arrows-move', T('Modify', 'MOVE'), tab),
   C('modify.copy', 'modify', 'bi-copy', T('Modify', 'COPY'), tab),
@@ -85,6 +87,11 @@ export const COMMANDS = [
   C('annotate.dimcontinue', 'annotate', 'bi-arrow-left-right', T('Annotate', 'DIMCONTINUE'), tab),
   C('annotate.dimbaseline', 'annotate', 'bi-arrow-left-right', T('Annotate', 'DIMBASELINE'), tab),
   C('annotate.revcloud', 'annotate', 'bi-cloud', T('Annotate', 'REVCLOUD'), tab),
+  C('annotate.redline', 'annotate', 'bi-cloud-check', T('Annotate', 'REDLINE'), tab),   // 0.8 EG.19: a MarkupCraft redline package → revision clouds and a log
+  C('blocks.tags', 'blocks', 'bi-tags', T('Blocks', 'TAGS'), tab),   // 0.8 SU.915: block attributes as tags that feed schedules
+  C('blocks.diagram', 'blocks', 'bi-diagram-2', T('Blocks', 'DIAGRAM'), tab),   // 0.8 SU.883: text (Mermaid, PlantUML, D2, from-to list) drawn as a diagram
+  C('blocks.gds', 'blocks', 'bi-cpu', T('Blocks', 'GDSIN'), tab),
+  C('blocks.ole', 'blocks', 'bi-paperclip', T('Blocks', 'OLELIST'), tab),   // 0.8 D7.23: the OLE objects a drawing carries; Place puts a copy of the picture where you say   // 0.8 SU.752: view an IC layout (GDSII stream)
 
   C('param.auto', 'parametric', 'bi-magic', T('Parametric', 'AUTOCONSTRAIN'), tab),
   C('param.geom', 'parametric', 'bi-bounding-box', T('Parametric', 'GEOMCONSTRAINT'), tab),
@@ -149,6 +156,7 @@ export const COMMANDS = [
   C('edit.cut', 'edit', 'bi-scissors', '[data-edit-menu] [data-cmd="CUTCLIP"]', { defKeys: ['Ctrl+X'] }),
   C('edit.paste-in-place', 'edit', 'bi-clipboard-check', '[data-edit-menu] [data-cmd="PASTEORIG"]', { defKeys: ['Ctrl+Shift+V'] }),
   C('edit.paste-picture', 'edit', 'bi-image', '[data-edit-menu] [data-paste-picture]'),   // 0.6 DF.6   // i18n-ignore (a selector)
+  C('edit.paste-area', 'edit', 'bi-bounding-box', '[data-edit-menu] [data-cmd="PASTEAREA"]'),   // 0.8 D8.15: a copied area at its true size
   C('edit.duplicate', 'edit', 'bi-files', '[data-edit-menu] [data-cmd="DUPLICATE"]', { defKeys: ['Ctrl+D'] }),
   C('edit.delete', 'edit', 'bi-trash', '[data-edit-menu] [data-cmd="ERASE"]', { defKeys: ['Delete'], fixed: true }),
   C('edit.select-all', 'edit', 'bi-check2-all', '[data-edit-menu] [data-cmd="SELECTALL"]', { defKeys: ['Ctrl+A'] }),
@@ -169,6 +177,7 @@ export const COMMANDS = [
   C('view.turn-right', 'view', 'bi-arrow-clockwise', T('View', 'TURNRIGHT'), tab),
   C('view.turn-world', 'view', 'bi-compass', T('View', 'TURNWORLD'), tab),
   C('view.maplayers', 'view', 'bi-map', T('View', 'MAPLAYERS'), tab),
+  C('view.autosheet', 'view', 'bi-layout-wtf', T('View', 'AUTOSHEET'), tab),   // 0.8 EG.56: the sheets lay themselves out
   C('view.pcattach', 'view', 'bi-cloud-plus', T('View', 'POINTCLOUDATTACH'), tab),
   C('view.pointcloud', 'view', 'bi-cloud-haze2', T('View', 'POINTCLOUD'), tab),
   C('view.open3d', 'view', 'bi-box-arrow-up-right', T('View', 'OPENIN3D'), { optional: true }),
@@ -180,6 +189,8 @@ export const COMMANDS = [
   C('tools.measuregeom', 'tools', 'bi-rulers', T('View', 'MEASUREGEOM'), tab),
   C('tools.compare', 'tools', 'bi-layout-split', T('View', 'COMPARESETTINGS'), tab),
   C('tools.history', 'tools', 'bi-clock-history', T('View', 'HISTORY'), tab),   // 0.7 D7.31
+  C('tools.classes', 'tools', 'bi-diagram-3', T('View', 'CLASSES'), tab),   // 0.8 SU.912: the Classes panel (the toolbar button had no registry command)
+  C('tools.documents', 'tools', 'bi-folder2-open', T('View', 'DOCUMENTS'), tab),   // 0.8 SU.1058: the Documents panel (View › More)
   C('tools.appload', 'tools', 'bi-filetype-js', T('View', 'APPLOAD'), tab),
   C('tools.aliasedit', 'tools', 'bi-card-text', T('View', 'ALIASEDIT'), tab),
   C('tools.shortcuts', 'tools', 'bi-keyboard', T('View', 'SHORTCUTS'), tab),
@@ -243,6 +254,8 @@ const rtab = (label, panels) => ({ label: 'input.m.' + label, panels: panels.map
 // RIBBON-COMPACT sizes (docs/apps/app-input.md): a large button, and a group drawn mixed (large first, then small ones three high)
 const L = (id) => ({ id, size: 'lg' });
 const MIXED = { mixed: true };
+const CTL = (control) => ({ control, size: 'sm' });   // an inline control (ribbon-controls.js)
+const CIRCLES = { split: ['draw.circle', 'draw.circle-ttr', 'draw.circle-ttt'], size: 'lg' };
 
 const FILE_MENU = ['file.new', 'file.open', 'file.samples', '-', 'file.save', 'file.saveas', '-', 'file.plot', 'file.laser', '-', 'app.settings', 'app.palette', 'app.help'];
 const LAYERS = ['layers.iso', 'layers.uniso', 'layers.off', 'layers.frz', 'layers.mcur', 'layers.on', 'layers.thw', 'layers.mrg', 'layers.del', 'layers.rename'];
@@ -271,20 +284,20 @@ export const STYLES = {
     tabs: [
       // the classic Home tab (0.7 WS.8): the four drawing tools large, the rest small and stacked, so the tab fits one screen
       rtab('home', [
-        ['draw', [L('draw.line'), L('draw.pline'), L('draw.circle'), L('draw.arc'), 'draw.rectang', 'draw.polygon', 'draw.ellipse', 'draw.hatch', 'draw.point', 'draw.circle-ttr', 'draw.circle-ttt', 'draw.xline', 'draw.ray']],
-        ['modify', ['modify.move', 'modify.rotate', 'modify.trim', 'modify.extend', 'modify.erase', 'modify.copy', 'modify.mirror', 'modify.fillet', 'modify.chamfer', 'modify.explode', 'modify.stretch', 'modify.scale', 'modify.array', 'modify.offset', 'modify.join', 'modify.break', 'modify.lengthen', 'modify.align', 'modify.alignpanel'], MIXED],
+        ['draw', [L('draw.line'), L('draw.pline'), CIRCLES, L('draw.arc'), 'draw.rectang', 'draw.polygon', 'draw.ellipse', 'draw.hatch'], { more: ['draw.point', 'draw.circle-ttr', 'draw.circle-ttt', 'draw.xline', 'draw.ray', 'draw.sketchlive', 'draw.sketchfix'] }],
+        ['modify', [L('modify.move'), 'modify.rotate', 'modify.scale', 'modify.mirror', 'modify.stretch', 'modify.array', L('modify.trim'), 'modify.extend', 'modify.fillet', 'modify.chamfer', 'modify.offset', 'modify.join', 'modify.explode', L('modify.erase'), 'modify.copy'], { more: ['modify.break', 'modify.lengthen', 'modify.align', 'modify.alignpanel'] }],
         ['annotation', [L('draw.mtext'), L('annotate.dimlinear'), 'annotate.mleader']],
-        ['layers', LAYERS, MIXED],
+        ['layers', [CTL('layers'), 'layers.off', 'layers.frz', 'layers.mcur'], { more: LAYERS.filter((x) => !['layers.off', 'layers.frz', 'layers.mcur'].includes(x)) }],
         ['block', ['blocks.insert', 'blocks.make']],
-        ['properties', ['modify.matchprop']],
-        ['utilities', ['tools.dist', 'tools.area', 'tools.measuregeom', 'edit.qselect', 'edit.select-all', 'edit.similar', 'edit.select-none'], MIXED],
-        ['clipboard', ['edit.paste', 'edit.copy', 'edit.cut', 'edit.paste-in-place', 'edit.paste-picture', 'edit.duplicate', 'edit.delete'], MIXED],
+        ['properties', [CTL('color'), CTL('linetype'), CTL('lineweight'), 'modify.matchprop'], MIXED],
+        ['utilities', [L('tools.dist'), 'tools.area', 'edit.qselect'], { more: ['tools.measuregeom', 'edit.select-all', 'edit.similar', 'edit.select-none'] }],
+        ['clipboard', [L('edit.paste'), 'edit.copy', 'edit.cut', 'edit.delete'], { more: ['edit.paste-in-place', 'edit.paste-picture', 'edit.paste-area', 'edit.duplicate'] }],
       ]),
-      rtab('insert', [['block', ['blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit']], ['reference', ['blocks.xattach', 'blocks.xref']], ['library', ['blocks.library']], ['pointcloud', ['view.pcattach', 'view.pointcloud']], ['data', ['blocks.count', 'blocks.delblocks', 'blocks.exportpoints']], ['map', ['view.maplayers']]]),
-      rtab('annotate', [['text', ['draw.text', 'edit.find']], ['dimensions', ['annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline'], MIXED], ['markup', ['annotate.revcloud']]]),
+      rtab('insert', [['block', ['blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit']], ['reference', ['blocks.xattach', 'blocks.xref']], ['library', ['blocks.library']], ['pointcloud', ['view.pcattach', 'view.pointcloud']], ['data', ['blocks.count', 'blocks.tags', 'blocks.diagram', 'blocks.gds', 'blocks.ole', 'blocks.delblocks', 'blocks.exportpoints']], ['map', ['view.maplayers']]]),
+      rtab('annotate', [['text', ['draw.text', 'edit.find']], ['dimensions', ['annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline'], MIXED], ['markup', ['annotate.revcloud', 'annotate.redline']]]),
       rtab('parametric', [['geometric', [L('param.auto'), L('param.geom'), ...GEOM, 'param.bars-show', 'param.bars-hide']], ['dimensional', ['param.dim', ...DCONS, 'param.dcdisplay'], MIXED], ['manage', ['param.delete', 'param.parameters', 'param.swbout']]]),
-      rtab('view', [['navigate', ['view.extents', 'view.window', 'view.previous']], ['viewports', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews'], MIXED], ['coordinates', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['model', ['view.model', 'view.3d', 'view.open3d']], ['aids', AIDS, MIXED]]),
-      rtab('manage', [['customization', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts']], ['compare', ['tools.compare', 'tools.history']]]),
+      rtab('view', [['navigate', ['view.extents', 'view.window', 'view.previous']], ['viewports', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews'], MIXED], ['coordinates', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['model', ['view.model', 'view.3d', 'view.open3d', 'view.autosheet']], ['aids', AIDS, MIXED]]),
+      rtab('manage', [['customization', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts']], ['compare', ['tools.compare', 'tools.history', 'tools.documents', 'tools.classes']]]),
       rtab('output', [['plot', ['file.plot', 'file.laser']], ['sheets', ['sheets.layout', 'sheets.mview']]]),
       TAB_3D(['3d', 'modeling', 'solidedit', 'modify', 'views', 'visual', 'export']),
     ],
@@ -298,20 +311,25 @@ export const STYLES = {
     menus: [m('file', FILE_MENU)],
     quick: ['file.open', 'file.save', 'edit.undo', 'edit.redo'],
     tabs: [
-      rtab('draw', [['lines', ['draw.line', 'draw.pline', 'draw.xline', 'draw.ray', 'draw.point']], ['shapes', ['draw.circle', 'draw.circle-ttr', 'draw.circle-ttt', 'draw.arc', 'draw.rectang', 'draw.polygon', 'draw.ellipse']], ['text', ['draw.text', 'draw.mtext']], ['fill', ['draw.hatch']]]),
+      rtab('draw', [
+        ['lines', [L('draw.line'), 'draw.pline', 'draw.xline', 'draw.ray'], { more: ['draw.point', 'draw.sketchlive', 'draw.sketchfix'] }],
+        ['shapes', [CIRCLES, L('draw.arc'), 'draw.rectang', 'draw.polygon', 'draw.ellipse']],
+        ['text', [L('draw.text'), 'draw.mtext']],
+        ['fill', ['draw.hatch']],
+      ]),
       rtab('modify', [
-        ['clipboard', ['edit.cut', 'edit.copy', 'edit.paste', 'edit.paste-in-place', 'edit.paste-picture', 'edit.duplicate', 'edit.delete']],
-        ['arrange', ['modify.move', 'modify.copy', 'modify.rotate', 'modify.scale', 'modify.mirror', 'modify.stretch', 'modify.array', 'modify.align', 'modify.alignpanel']],
-        ['shape', ['modify.offset', 'modify.trim', 'modify.extend', 'modify.fillet', 'modify.chamfer', 'modify.break', 'modify.lengthen', 'modify.join', 'modify.explode', 'modify.erase', 'modify.matchprop']],
+        ['clipboard', [L('edit.paste'), 'edit.cut', 'edit.copy', 'edit.delete'], { more: ['edit.paste-in-place', 'edit.paste-picture', 'edit.paste-area', 'edit.duplicate'] }],
+        ['arrange', [L('modify.move'), 'modify.copy', 'modify.rotate', 'modify.scale', 'modify.mirror', 'modify.stretch', 'modify.array'], { more: ['modify.align', 'modify.alignpanel'] }],
+        ['shape', [L('modify.trim'), 'modify.extend', 'modify.fillet', 'modify.chamfer', 'modify.offset', 'modify.join', 'modify.explode', 'modify.erase'], { more: ['modify.break', 'modify.lengthen', 'modify.matchprop'] }],
         ['select', ['edit.select-all', 'edit.select-none', 'edit.qselect', 'edit.similar', 'edit.find']],
       ]),
-      rtab('annotate', [['dimensions', ['annotate.dimlinear', 'annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline']], ['notes', ['annotate.mleader', 'annotate.revcloud']]]),
+      rtab('annotate', [['dimensions', [L('annotate.dimlinear'), 'annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius'], { more: ['annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline'] }], ['notes', ['annotate.mleader', 'annotate.revcloud', 'annotate.redline']]]),
       rtab('parametric', [['constraints', ['param.auto', 'param.geom', 'param.dim', 'param.parameters']], ['geometric', GEOM], ['dimensional', [...DCONS, 'param.dcdisplay']], ['manage', ['param.delete', 'param.bars-show', 'param.bars-hide', 'param.swbout']]]),
-      rtab('blocks', [['blocks', ['blocks.make', 'blocks.insert', 'blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit', 'blocks.count', 'blocks.delblocks', 'blocks.exportpoints']], ['links', ['blocks.xattach', 'blocks.xref', 'blocks.library']], ['layers', LAYERS]]),
+      rtab('blocks', [['blocks', ['blocks.make', 'blocks.insert', 'blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit', 'blocks.count', 'blocks.tags', 'blocks.diagram', 'blocks.gds', 'blocks.ole', 'blocks.delblocks', 'blocks.exportpoints']], ['links', ['blocks.xattach', 'blocks.xref', 'blocks.library']], ['layers', LAYERS]]),
       rtab('sheets', [['sheets', ['sheets.layout', 'sheets.mview']], ['plot', ['file.plot', 'file.laser']]]),
-      rtab('view', [['zoom', ['view.extents', 'view.window', 'view.previous']], ['panes', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews']], ['turn', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['show', ['view.model', 'view.3d', 'view.open3d', 'view.maplayers', 'view.pcattach', 'view.pointcloud']], ['aids', AIDS]]),
+      rtab('view', [['zoom', ['view.extents', 'view.window', 'view.previous']], ['panes', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews']], ['turn', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['show', ['view.model', 'view.3d', 'view.open3d', 'view.maplayers', 'view.pcattach', 'view.pointcloud', 'view.autosheet']], ['aids', AIDS]]),
       TAB_3D(['3d', 'modeling', 'solidedit', 'modify', 'views', 'visual', 'export']),
-      rtab('tools', [['measure', ['tools.dist', 'tools.area', 'tools.measuregeom']], ['customize', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts', 'tools.compare', 'tools.history']]]),
+      rtab('tools', [['measure', ['tools.dist', 'tools.area', 'tools.measuregeom']], ['customize', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts', 'tools.compare', 'tools.history', 'tools.documents', 'tools.classes']]]),
     ],
     keys: { ...DEFAULT_KEYS },
     mouse: { wheel: 1, zoomSpeed: 1, pan2d: ['middle', 'right'], orbit3d: null },

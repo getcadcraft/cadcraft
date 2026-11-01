@@ -49,7 +49,7 @@ Screws, bolts and pins are drawn from the side with the bearing face of the head
 
 Each part's block carries its type, standard, size, length and material as attributes, and its weight from the nominal shape in steel. Change the material in the {{ui:Properties}} panel.
 
-The same parts are in LibraryCraft as items too, and PartCraft opens them as parametric parts ({{ui:Standard part}} in its File group).
+The same parts are in the Library as items too, and PartCraft opens them as parametric parts ({{ui:Standard part}} in its File group).
 
 ## Make a parts list
 

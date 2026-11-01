@@ -29,17 +29,23 @@ import { cleanUcs, ucsData, UCS_NAME_RE } from './ucs.js';
 import { t } from './i18n.js';
 import { cleanPlotStyles } from './plotstyle.js';
 import { cleanGeo } from './geodwg.js';   // 0.6 GEO-DWG
+import { cleanAddons } from './addons-file.js';   // 0.8 AL.6
 import { keptJob } from './laser-file.js';   // 0.7 SU.772
+import { applyClassData } from './classes-file.js';   // 0.8 SU.912 (sx-classes): classes, design layers, viewport class overrides
+import { shownByClass } from './classes.js';   // 0.8 SU.912: an object in a hidden class is like one on a layer turned off
 // Constraints and parameters (gcons.js, params-doc.js): doc.constraints [] and doc.params {vars, links} are part
 // of the undoable document — doc.setParametric({constraints, params}) inside a change replaces both. A change that
 // moves constrained geometry is re-solved before it is recorded (gcons.afterEdit); one the constraints cannot
 // follow is rolled back and doc.note() says why (doc.onNote hears it). load() takes `parametric` (a file's
 // payload) and entities' `ccref` keys.
 
+import { newKey, validKey } from './file-keys.js';
+
 export class Doc {
   /** (doc, ops) → void, run inside every change before it is recorded (add-ons, docs/ADDONS-SPEC.md §5.4); static, so a
    *  drawing swapped in from another tab (swapContent) keeps them. */
   static editHooks = new Set();
+  static fileKeys = true;   // the Settings switch for keys on objects (file-keys.js)
   constructor() {
     this.model = new Map();         // id → entity (insertion order = draw order)
     this.space = this.model;        // the Map being edited: the model or a layout's entities
@@ -60,6 +66,7 @@ export class Doc {
     this.ole = [];                  // OLE objects a DWG held that CadCraft does not show: [{ layer, flags, mode, data (base64) }], written back on save (0.7 D7.23, ole.js)
     this.solids = [];               // other programs' 3D solids (ACIS): [{ type, layer, color, acis }], shown read-only on the 3D tab, written back on save (0.7 D7.25, acis-cad.js)
     this.nextId = 1;
+    // stableKeys (getter below): each object carries a key that never changes and is not handed out twice (H2/H4 of DC.27, file-keys.js); the file keeps it in CADCRAFT xdata
     this.current = { layer: '0', color: null, textHeight: 2.5, dim: { ...DIM_DEFAULTS }, linetype: null, lineweight: null };   // null = by layer
     this.meta = { name: 'Drawing1', units: '', source: '', version: '' };
     this.undoStack = [];
@@ -76,6 +83,10 @@ export class Doc {
     this.addLayer({ name: '0', color: 7 });
     this.model3d = new Model3D(this);   // the 3D model (model3d.js): its edits are ops { m3d } in this history
   }
+
+  /** Keys on objects (Settings › CadCraft › Merge-friendly files); a drawing can override the program's setting. */
+  get stableKeys() { return this._sk ?? Doc.fileKeys; }
+  set stableKeys(v) { this._sk = !!v; }
 
   /** A message about constraints (an edit refused, objects that followed). */
   note(msg) { this.lastNote = msg; this.onNote?.(msg); }
@@ -177,7 +188,7 @@ export class Doc {
     this.emitLayers();
   }
   emitLayers() { if (this.layersMoved && !this.pending) { this.layersMoved = false; this.emit('layers'); } }
-  visible(e) { const l = this.layers.get(e.layer); return (!l || (l.on && !l.frozen)) && !this.refHidden(e); }
+  visible(e) { const l = this.layers.get(e.layer); return (!l || (l.on && !l.frozen)) && !this.refHidden(e) && shownByClass(this, e); }
   editable(e) { const l = this.layers.get(e.layer); return this.visible(e) && !(l && l.locked) && !this.refFaded(e); }
   /** REFEDIT (0.6 DF.5): the reference being edited stays out of sight, and only the working set can be changed. */
   refHidden(e) { const r = this.refEdit; return !!r && e?.id === r.ref && this.space === r.map; }
@@ -224,6 +235,7 @@ export class Doc {
     this.mustBeInChange();
     const ent = { color: null, ...e, layer: e.layer ?? this.current.layer };
     ent.id = this.nextId++;
+    if (this.stableKeys) ent.key = newKey();   // a copy (...e) never shares its original's key
     this.layer(ent.layer);
     map.set(ent.id, ent);
     if (this.refEdit && map === this.refEdit.map) this.refEdit.ids.add(ent.id);   // drawn while editing in place: it joins the working set
@@ -369,7 +381,7 @@ export class Doc {
   }
 
   /** Replace everything (open / new). Not undoable; the caller asks about unsaved changes first. */
-  load({ entities = [], layers = [], blocks = [], layouts = [], meta = {}, dimStyle = null, parametric = null, report = null, views = [], linetypes = [], vports = null, textStyles = null, dimStyles = null, ucs = null, viewTwist = 0, plotStyles = null, geo = null, ole = null, pictures = null, solids = null, laser = null } = {}) {
+  load({ entities = [], layers = [], blocks = [], layouts = [], meta = {}, dimStyle = null, parametric = null, report = null, views = [], linetypes = [], vports = null, textStyles = null, dimStyles = null, ucs = null, viewTwist = 0, plotStyles = null, geo = null, ole = null, pictures = null, solids = null, laser = null, addons = null } = {}) {
     if (this.liveHook) this.liveHook.replaced();   // another drawing replaces the live one here: the session ends for this window
     this.viewTwist = Number.isFinite(viewTwist) && Math.abs(viewTwist) <= 100 ? viewTwist : 0;
     // the file's UCS (DR.8, cad-files): { current: {x, y, ang} | null, named: [{ name, x, y, ang }] } — checked like any file data
@@ -393,9 +405,13 @@ export class Doc {
       ...(b.xref && typeof b.xref === 'object' ? { xref: { path: String(b.xref.path || '').slice(0, 1024) } } : {}),   // a linked drawing a file names (xref.js)
       ...(b.dyn && typeof b.dyn === 'object' ? { dyn: b.dyn } : {}) });   // a dynamic block's hidden entities and states (dyn-blocks.js, cad-files 0.5)
     this.dynSrc = arguments[0]?.dynSrc && Array.isArray(arguments[0].dynSrc.objects) ? arguments[0].dynSrc : null;   // the file's dynamic-block objects (dwg-save.js)
-    const fill = (map, list) => {
+    const seenKeys = new Set();
+    const fill = (map, list, space = 'f') => {   // a file's keys are kept; an object without one (or sharing one) gets the key its place in the file gives, the same for everyone who opens it
+      let i = 0;
       for (const e of list) {
         const ent = { color: null, ...e, layer: e.layer || '0', id: this.nextId++ };
+        if (this.stableKeys && e.type !== undefined) { if (!validKey(ent.key) || seenKeys.has(ent.key)) ent.key = space + (i); seenKeys.add(ent.key); } else delete ent.key;
+        i++;
         this.layer(ent.layer);
         map.set(ent.id, ent);
       }
@@ -414,7 +430,7 @@ export class Doc {
     const psIn = cleanPlotStyles(plotStyles);   // the drawing's plot style tables (plotstyle.js; untrusted)
     for (const l of layouts) {
       const map = new Map();
-      fill(map, l.entities || []);
+      fill(map, l.entities || [], 'l' + this.layouts.length + 'f');
       const ps = String(psIn.layouts[l.name] || l.plotStyle || '').trim().replace(/\.ctb$/i, '').slice(0, 64);   // plot style table (0.6 DC.14)
       this.layouts.push({ name: l.name, paper: { x0: 0, y0: 0, ...l.paper }, entities: map, ...(ps ? { plotStyle: ps } : {}) });
     }
@@ -426,9 +442,13 @@ export class Doc {
     delete this.meta.laser;
     const lzIn = keptJob(laser ?? meta.laser);   // the Laser panel's settings kept with the drawing (0.7 SU.772, laser-file.js; untrusted)
     if (lzIn) this.meta.laser = lzIn;
+    delete this.meta.addons;
+    const adIn = cleanAddons(addons ?? meta.addons);   // which add-ons the drawing's data came from (0.8 AL.6, addons-file.js; untrusted)
+    if (adIn) this.meta.addons = adIn;
     delete this.meta.geo;
     const geoIn = cleanGeo(geo ?? meta.geo);   // the coordinate system and map layers kept with the drawing (0.6 GEO-DWG, geodwg.js; untrusted)
     if (geoIn) this.meta.geo = geoIn;
+    applyClassData(this, arguments[0]?.classes ?? meta.classes, meta.designLayers); delete this.current.cls;   // 0.8 SU.912 (classes-file.js; untrusted)
     this.model3d.fromFile(in3d, this.meta.units, report);
     this.current.layer = '0';
     this.current.linetype = null; this.current.lineweight = null;
@@ -437,7 +457,7 @@ export class Doc {
     this.current.dim = { ...DIM_DEFAULTS, ...(dimStyle || {}) };
     // a file's text and dimension styles (untrusted: names and plain values only)
     const named = (m) => (m instanceof Map ? [...m] : Array.isArray(m) ? m : []).filter(([n, v]) => typeof n === 'string' && n && n.length <= 255 && v && typeof v === 'object').slice(0, 1000);
-    this.textStyles = new Map(named(textStyles).map(([n, v]) => [n, { font: String(v.font || '').slice(0, 255), h: Number.isFinite(v.h) && v.h >= 0 ? v.h : 0, wf: Number.isFinite(v.wf) && v.wf > 0 ? v.wf : 1, obl: Number.isFinite(v.obl) ? v.obl : 0 }]));
+    this.textStyles = new Map(named(textStyles).map(([n, v]) => [n, { font: String(v.font || '').slice(0, 255), ...(v.big ? { big: String(v.big).slice(0, 255) } : {}), h: Number.isFinite(v.h) && v.h >= 0 ? v.h : 0, wf: Number.isFinite(v.wf) && v.wf > 0 ? v.wf : 1, obl: Number.isFinite(v.obl) ? v.obl : 0 }]));
     this.dimStyles = new Map(named(dimStyles).map(([n, v]) => [n, Object.fromEntries(Object.entries(v).filter(([, x]) => x === null || ['number', 'string', 'boolean'].includes(typeof x)).filter(([, x]) => typeof x !== 'number' || Number.isFinite(x)))]));
     this.undoStack.length = 0; this.redoStack.length = 0;
     this.version++;

@@ -351,6 +351,12 @@ section('Objects as DXF lists');
   // system variables
   r = await lisp(h, '(setvar "CLAYER" "WALLS") (list (getvar "clayer") (getvar \'ctab) (getvar "LUNITS") (getvar "nosuch"))');
   ok(r.text === '("WALLS" "Model" 2 nil)', 'getvar / setvar', r.text);
+  r = await lisp(h, '(setvar "LIMMIN" (list 0.0 0.0)) (setvar "LIMMAX" (list 200.0 100.0)) (setvar "LIMCHECK" 1) (list (getvar "LIMMIN") (getvar "LIMMAX") (getvar "LIMCHECK"))');
+  ok(r.text === '((0.0 0.0) (200.0 100.0) 1)' && h.doc.meta.limits?.on === true && h.doc.meta.limits.x1 === 200, 'LIMMIN / LIMMAX / LIMCHECK read and write the drawing limits (0.8 D8.2)', r.text);
+  r = await lisp(h, '(setvar "LIMMAX" (list -5.0 -5.0))');
+  ok(!r.ok && /rejected/.test(r.error), 'setvar refuses limits whose upper right is below the lower left', r.error);
+  r = await lisp(h, '(setvar "AUNITS" 4) (setvar "AUPREC" 2) (list (getvar "AUNITS") (getvar "AUPREC") (angtos 0.7785 4 2))');
+  ok(r.text === '(4 2 "N45\'E")' || /^\(4 2 "/.test(r.text), 'AUNITS / AUPREC read and write the angle format kept in the drawing (0.8 SU.932)', r.text);
   r = await lisp(h, '(setvar "CMDECHO" 0) (getvar "CMDECHO")');
   ok(r.text === '0', 'CMDECHO kept');
   r = await lisp(h, '(setvar "CLAYER" "NOLAYER")');

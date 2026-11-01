@@ -58,15 +58,43 @@ export function scan(items, opts = {}) {
   }
 
   // ---- connections
+  // 0.8 IND.11: a spatial hash instead of every-pair loops (10,900 lines took 68 s; the answers are unchanged, candidates are tested in the
+  // original order — symbols by index then connection, lines by index — so every link list comes out in the same order).
   const links = new Map();
   const add = (k, v) => { if (!links.has(k)) links.set(k, []); const list = links.get(k); if (!list.some((x) => x.uid === v.uid && x.at === v.at)) list.push(v); };
   const tolOf = (a, b) => 0.04 * Math.max(a || 0, b || 0, 1e-6);   // 4 % of a symbol: the commands snap exactly, this only absorbs rounding
   const near = (p, q, tol) => Math.hypot(p.x - q.x, p.y - q.y) <= tol;
+  let maxSize = 1e-6;
+  for (const s of symbols) maxSize = Math.max(maxSize, s.l || 0);
+  for (const ln of lines) maxSize = Math.max(maxSize, ln.data.k || 0);
+  const cell = Math.max(tolOf(maxSize, maxSize), 1e-9), cx = (v) => Math.floor(v / cell);
+  const grid = () => new Map();
+  const put = (g, x, y, v) => { const k = cx(x) + ',' + cx(y); const l = g.get(k); if (l) l.push(v); else g.set(k, [v]); };
+  const around = (g, x, y, out) => { const i = cx(x), j = cx(y); for (let a = i - 1; a <= i + 1; a++) for (let b = j - 1; b <= j + 1; b++) { const l = g.get(a + ',' + b); if (l) for (const v of l) out.push(v); } };
+  const connGrid = grid();                                            // symbol connection points: [symbol index, connection index]
+  symbols.forEach((s, si) => s.conns.forEach((c, ci) => put(connGrid, c.x, c.y, [si, ci])));
+  const lineGrid = grid(), bigLines = [];                             // each line's segments, boxes grown by the largest tolerance
+  lines.forEach((o, oi) => {
+    const reg = new Set();
+    for (let k = 1; k < o.pts.length; k++) {
+      const [ax, ay] = o.pts[k - 1], [bx, by] = o.pts[k];
+      const i0 = cx(Math.min(ax, bx) - cell), i1 = cx(Math.max(ax, bx) + cell), j0 = cx(Math.min(ay, by) - cell), j1 = cx(Math.max(ay, by) + cell);
+      if ((i1 - i0 + 1) * (j1 - j0 + 1) > 4096) { bigLines.push(oi); return; }   // a very long segment: checked against every end
+      for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) reg.add(i + ',' + j);
+    }
+    for (const k of reg) { const l = lineGrid.get(k); if (l) l.push(oi); else lineGrid.set(k, [oi]); }
+  });
+  const bigSet = new Set(bigLines), tmp = [];
   for (const ln of lines) {
     ln.ends.forEach((end, i) => {
       const key = ln.uid + '#end' + i;
-      for (const s of symbols) for (const c of s.conns) if (near(end, c, tolOf(s.l, ln.data.k))) { add(key, { uid: s.uid, kind: 'sym', at: c.n }); add(s.uid + '#' + c.n, { uid: ln.uid, kind: 'line', at: 'end' + i }); }
-      for (const o of lines) {
+      tmp.length = 0; around(connGrid, end.x, end.y, tmp);
+      tmp.sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+      for (const [si, ci] of tmp) { const s = symbols[si], c = s.conns[ci]; if (near(end, c, tolOf(s.l, ln.data.k))) { add(key, { uid: s.uid, kind: 'sym', at: c.n }); add(s.uid + '#' + c.n, { uid: ln.uid, kind: 'line', at: 'end' + i }); } }
+      const cand = lineGrid.get(cx(end.x) + ',' + cx(end.y)) || [];
+      const order = [...new Set([...cand, ...bigLines])].sort((p, q) => p - q);
+      for (const oi of order) {
+        const o = lines[oi];
         if (o === ln) continue;
         const tol = tolOf(o.data.k, ln.data.k);
         for (let j = 0; j < 2; j++) if (near(end, o.ends[j], tol)) { add(key, { uid: o.uid, kind: 'line', at: 'end' + j }); }
@@ -82,9 +110,15 @@ export function scan(items, opts = {}) {
       }
     });
   }
-  for (let i = 0; i < symbols.length; i++) for (let j = i + 1; j < symbols.length; j++) {
-    const a = symbols[i], b = symbols[j];
-    for (const ca of a.conns) for (const cb of b.conns) if (near(ca, cb, tolOf(a.l, b.l))) { add(a.uid + '#' + ca.n, { uid: b.uid, kind: 'sym', at: cb.n }); add(b.uid + '#' + cb.n, { uid: a.uid, kind: 'sym', at: ca.n }); }
+  const symGrid = grid();                                             // symbol pairs whose connection points touch
+  for (let si = 0; si < symbols.length; si++) for (const c of symbols[si].conns) put(symGrid, c.x, c.y, si);
+  for (let i = 0; i < symbols.length; i++) {
+    const a = symbols[i], cands = [];
+    for (const ca of a.conns) around(symGrid, ca.x, ca.y, cands);
+    for (const j of [...new Set(cands)].filter((v) => v > i).sort((p, q) => p - q)) {
+      const b = symbols[j];
+      for (const ca of a.conns) for (const cb of b.conns) if (near(ca, cb, tolOf(a.l, b.l))) { add(a.uid + '#' + ca.n, { uid: b.uid, kind: 'sym', at: cb.n }); add(b.uid + '#' + cb.n, { uid: a.uid, kind: 'sym', at: ca.n }); }
+    }
   }
   return { symbols, lines, links, byUid };
 }

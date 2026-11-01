@@ -29,6 +29,7 @@
 import { DIM_DEFAULTS } from './dims.js';
 import { DIM_EXTRA, ARROWS, TOL_MODES } from './dimstyle.js';
 import { nearestAci } from './doc.js';
+import { validKey } from './file-keys.js';
 
 // ---------------------------------------------------------------------------- transparency
 
@@ -84,6 +85,7 @@ export function propsXdata(e, { r12 = false } = {}) {
   if (typeof e.mat === 'string' && e.mat) cc.push(...chunks('CCMAT:', e.mat.slice(0, 255)));
   if (e.type === 'hatch' && !e.solid && (Number.isFinite(e.ox) || Number.isFinite(e.oy)) && (e.ox || e.oy)) cc.push('CCHORG:' + (+e.ox || 0) + ',' + (+e.oy || 0));
   if (e.type === 'hatch' && e.assoc) cc.push('CCHASSOC');   // the boundary objects are not written, so the file's own flag stays off
+  if (typeof e.key === 'string' && validKey(e.key)) cc.push('CCKEY:' + e.key);   // DC.27 H4: the object's stable key (file-keys.js)
   if (cc.length) x.CADCRAFT = cc.map((s) => [1000, s]);
   if (typeof e.url === 'string' && e.url) x.PE_URL = [[1000, e.url.slice(0, 255)]];
   if (e.ann) x.AcadAnnotative = [[1000, 'AnnotativeData'], [1002, '{'], [1070, 1], [1070, 1], [1002, '}']];
@@ -104,6 +106,8 @@ export function propsFromXdata(xd) {
   const org = cc.find((s) => s.startsWith('CCHORG:'));
   if (org) { const [x, y] = org.slice(7).split(',').map(Number); if (Number.isFinite(x) && Number.isFinite(y)) { if (x) out.ox = x; if (y) out.oy = y; } }
   if (cc.includes('CCHASSOC')) out.assoc = true;
+  const key = cc.find((s) => s.startsWith('CCKEY:'));
+  if (key && validKey(key.slice(6))) out.key = key.slice(6);
   const tr = cc.find((s) => s.startsWith('CCTR:'));
   if (tr) { const v = tr.slice(5); if (v === 'ByBlock') out.tr = v; else if (Number.isFinite(+v) && +v >= 0 && +v <= 90) out.tr = +v; }
   const url = (app('PE_URL') || []).find(([c]) => c === 1000);

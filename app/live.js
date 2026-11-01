@@ -511,6 +511,27 @@ export function createLive(doc, opts = {}) {
     apply(ops, origin) { for (const op of ops) applyOp(op); changed(); live.lastOrigin = origin; },
     invert(ops) { const out = []; for (let i = ops.length - 1; i >= 0; i--) { const r = invertOp(ops[i]); if (r) out.push(r); } const g = out.findIndex((o) => o.o === 'g'); if (g > 0) out.unshift(out.splice(g, 1)[0]); return out; },
     touched,
+    /** EG.41 (studio_PART_2): where a step landed — the sheet it is on ('' = Model) and the extent of what it touches — so a
+     *  session can hold an assistant to a sheet or area (studio/hub/live/assistant-scope.js). null = can't tell. */
+    where(ops) {
+      let sheet, box = null;
+      const grow = (b) => { if (b && validBounds(b)) box = box ? [Math.min(box[0], b.minX), Math.min(box[1], b.minY), Math.max(box[2], b.maxX), Math.max(box[3], b.maxY)] : [b.minX, b.minY, b.maxX, b.maxY]; };
+      let unbounded = false;
+      for (const op of ops) {
+        if (!op || typeof op !== 'object') continue;
+        if (typeof op.sp === 'string' && ['add', 'rep', 'set', 'text', 'del'].includes(op.o)) {
+          if (sheet === undefined) sheet = op.sp; else if (sheet !== op.sp) return { sheet: '\u0000mixed', box: null };
+        }
+        try {
+          if ((op.o === 'add' || op.o === 'rep') && op.e) grow(entityBounds(op.e, live.doc.blocks));
+          else if (op.o === 'set' || op.o === 'text') { const f = findEnt(op.id); if (f) grow(entityBounds(f.e, live.doc.blocks)); else unbounded = true; }
+          else if (op.o === 'del') unbounded = true;
+        } catch { unbounded = true; }
+      }
+      if (sheet === undefined && !box) return null;
+      return { sheet: sheet === undefined ? undefined : sheet, box: unbounded ? null : box };
+    },
+    sheetLabel(lid) { if (!lid) return t('live.where.model'); const l = layoutBy(lid); return l ? l.name : lid; },
     validate,
     snapshot() { return pack(state()); },
     load(bytes) { loadState(unpack(bytes)); },

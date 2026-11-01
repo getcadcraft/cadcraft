@@ -255,9 +255,14 @@ export const LINE_SPACING = 5 / 3;  // × text height, baseline to baseline (Aut
 export const FONT_EM = 1 / 0.718;
 
 /** Width of a line of a text entity's text, in drawing units (Helvetica metrics, see font.js). */
-export const textWidth = (s, e) => advance(s) / 1000 * e.h * FONT_EM * (e.wf || 1);
+let measureHook = null;
+/** SHX text (0.8 D8.7): a measurer (s, e) → width in drawing units, or null to leave the string to the built-in face (shx-text.js). */
+export function setTextMeasure(fn) { measureHook = fn; }
+export const textWidth = (s, e) => { const w = measureHook ? measureHook(s, e) : null; return w !== null && w !== undefined ? w : advance(s) / 1000 * e.h * FONT_EM * (e.wf || 1); };
 
-const layouts = new WeakMap();
+let layouts = new WeakMap();
+/** Forget every measured text (a font was loaded or removed). */
+export function resetTextLayouts() { layouts = new WeakMap(); }
 /**
  * Text layout in the text's own frame (insertion point at 0,0, x along the text):
  * lines (wrapped to `ww` when the text has a wrap width, as multi-line text does), each line's

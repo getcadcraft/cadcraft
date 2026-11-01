@@ -1,0 +1,111 @@
+---
+title: Nouveautés de la version 0.7
+summary: Fonds de plan PDF et import PDF, dessins numérisés avec tracé automatique, vraies splines avec SPLINE, SPLINEDIT et PEDIT, un gestionnaire de styles de cote, un texte qui garde sa mise en forme, WBLOCK et vos propres échelles, solides 3D issus d'autres logiciels, recalage de scans, un panneau Laser, export USD, Historique et impression dans CadCraft Studio, un premier dessin guidé, la barre d'outils sur n'importe quel côté ou en moins de lignes, et davantage pour les assistants IA.
+keywords: nouveautés, notes de version, journal des modifications, changements, 0.7, version, nouvelles fonctions, pdf, pdfattach, pdfimport, fond de plan, numérisation, scanattach, scantrace, tracé, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, mise en forme, wblock, scalelistedit, liste d'échelles, acis, solides 3d, registerscans, recalage de scans, icp, e57, las, laser, grbl, g-code, usd, usdout, historique, versions, comparer, imprimer, imprimante, png, svg, style de tracé, type de ligne, visite, aide-mémoire, carte des commandes, position de la barre d'outils, lignes de la barre d'outils, toolbardock, regen, regenall, pavé tactile, balayage, page de code, cyrillique, coréen, chinois, japonais, électricité, différentiel, p&id, pid, acad.lsp, acaddoc.lsp, dossier de support, assistants, mcp, unités, portugais
+from: b9258ca6
+---
+
+Voici ce qui a changé dans CadCraft 0.7, par rapport à la 0.6. Une bonne part a été demandée sur Discord. La liste est regroupée par domaine, le plus important en premier.
+
+## Nouveau
+
+### PDF et dessins numérisés
+
+- **Placer une page PDF sous le dessin.** {{cmd:PDFATTACH}} (`PDFATT`) place une page à sa taille réelle ou à une échelle que vous saisissez. Accrochez-vous à ses lignes, atténuez-la, passez-la en monochrome ({{cmd:PDFADJUST}}), découpez-la ({{cmd:PDFCLIP}}) et activez ou désactivez les calques propres au PDF ({{cmd:PDFLAYERS}}). Elle se trace en lignes, remplissages et texte, et un DWG ou un DXF 2000 la conserve comme lien vers le fichier. Ouvrir un PDF avec {{ui:Ouvrir}} demande s'il faut l'attacher ou l'importer. Voir [Fonds de plan PDF et import PDF](topic:pdf-underlay).
+- **Transformer une page PDF en objets de dessin.** {{cmd:PDFIMPORT}} (`PDFIM`) crée des lignes, des polylignes, des cercles, des arcs, des hachures pleines et du texte sur des calques nommés d'après le PDF, à la taille réelle, à une échelle saisie, ou mis à l'échelle à partir de deux points et d'une distance réelle, en une seule étape d'annulation. Voir [Importer une page](topic:pdf-underlay#import-a-page).
+- **Dessins numérisés.** {{cmd:SCANATTACH}} fait entrer un PNG, un JPEG ou un TIFF (une page ou toutes) ou une page PDF qui est une image. Mettez-le ensuite à l'échelle à partir de deux points ({{cmd:SCANSCALE}}), alignez-le ({{cmd:SCANALIGN}}), redressez-le d'après ses propres longues lignes ({{cmd:SCANDESKEW}}), passez-le en noir et blanc et supprimez les poussières ({{cmd:SCANCLEAN}}), recadrez-le et effacez-en des parties. Chaque étape est une étape d'annulation et le fichier d'origine est conservé. Voir [Dessins numérisés et tracé](topic:scanned-drawings).
+- **Tracer une numérisation en lignes et en arcs.** {{cmd:SCANTRACE}} dessine les lignes de la numérisation sous forme de lignes et d'arcs sur un nouveau calque, SCAN-TRACE, avec une tolérance que vous réglez, et laisse le texte et les hachures tels quels. Le compte rendu indique ce qui a été créé et ce qui a été laissé, et il ne garantit pas que le résultat est juste : vérifiez-le sur la feuille. {{cmd:RASTERSNAP}} permet aux accrochages aux objets de trouver les extrémités, les angles et les croisements de la numérisation. Rien n'est envoyé nulle part et aucun modèle entraîné n'est utilisé. Voir [Le tracé](topic:scanned-drawings#the-trace).
+
+### Dessiner et modifier
+
+- **De vraies splines.** {{cmd:SPLINE}} (`SPL`) trace une courbe passant par des points ou à partir de points de contrôle (degré 1 à 5), avec des tangentes d'extrémité ; {{cmd:SPLINEDIT}} (`SPE`) déplace, ajoute et supprime des points d'ajustement ou de contrôle, règle les poids, ouvre, ferme, inverse, ou transforme une spline en polyligne. Les splines des fichiers DWG et DXF s'ouvrent comme des splines, et le DWG et le DXF 2000 les enregistrent comme des splines. Voir [Splines et polylignes](topic:splines).
+- **PEDIT.** {{cmd:PEDIT}} (`PE`) ferme et ouvre les polylignes, leur joint des lignes et des arcs, règle une largeur unique, ajuste une courbe passant par les sommets ou une spline le long de ceux-ci et la reprend avec Décourber, inverse, et modifie plusieurs polylignes à la fois. Voir [Modifier une polyligne](topic:splines#edit-a-polyline).
+- **WBLOCK.** {{cmd:WBLOCK}} (`W`) écrit un bloc, quelques objets ou tout le dessin dans un nouveau DWG ou DXF ne contenant que les calques, les styles et les blocs qu'ils utilisent. Voir [Écrire un bloc ou des objets dans un fichier à part](topic:blocks#write-a-block-or-objects-to-a-file-of-their-own).
+- **REGEN et REGENALL.** {{cmd:REGEN}} (`RE`) redessine l'onglet courant à partir du dessin, {{cmd:REGENALL}} (`REA`) tous les onglets, volets et dessins ouverts. Voir [REGEN et REGENALL](topic:commands#regen-and-regenall).
+
+### Texte et cotes
+
+- **Le texte garde sa mise en forme.** Le texte de paragraphe venant d'autres logiciels garde ses couleurs par mot, le gras et l'italique, le soulignement, les fractions empilées et les hauteurs : ils sont tracés à l'écran et dans les PDF, conservés quand vous modifiez les mots, et réenregistrés. Voir [Mise en forme dans le texte de paragraphe venant d'autres logiciels](topic:text#formatting-inside-paragraph-text-from-other-programs).
+- **Un gestionnaire de styles de cote.** {{cmd:DIMSTYLE}} (`D`) crée, modifie, compare et applique des styles de cote nommés ; modifier un style modifie toutes les cotes qui l'utilisent. {{cmd:DIMEDIT}} (`DED`) remet le texte en place, saisit un nouveau texte, le fait pivoter ou incline les lignes de rappel ; {{cmd:DIMTEDIT}} déplace le texte vers la gauche, vers la droite ou au centre. Voir [Styles de cote nommés](topic:dimension-settings#named-dimension-styles).
+- **Vos propres échelles.** {{cmd:SCALELISTEDIT}} (`SCALELIST`) ajoute des échelles telles que 1:75 aux listes d'échelles des fenêtres de présentation et du traçage ; elles sont enregistrées dans le dessin (DWG et DXF 2000), et un dessin venant d'un autre logiciel apporte sa propre liste. Voir [Échelles](topic:units-papers-scales#scales).
+- **Texte dans d'autres alphabets.** Les fichiers DXF enregistrés dans des pages de code cyrilliques, coréennes, chinoises, japonaises ou vietnamiennes s'ouvrent désormais avec leur texte, et le texte chinois, japonais et coréen s'imprime dans les PDF (le traçage récupère une police plus volumineuse la première fois qu'il en a besoin). Voir [Police](topic:text#font).
+
+### Traçage et impression
+
+- **Davantage dans les tables de styles de tracé.** Pour chaque couleur, une table peut désormais aussi définir un type de ligne, l'extrémité et la jonction des lignes, et un style de remplissage qui imprime les remplissages pleins en lignes de hachure ; la table a sa propre liste d'épaisseurs de ligne et une échelle de type de ligne. Voir [Tables de styles de tracé](topic:plot-pdf#plot-style-tables).
+- **Imprimer, et fichiers PNG et SVG.** La boîte de dialogue de traçage propose {{ui:Imprimer…}}, {{ui:Télécharger le PNG}} (300 ppp) et {{ui:Télécharger le SVG}}. Dans CadCraft Studio, elle liste les imprimantes de l'ordinateur, leur papier et le nombre de copies. Voir [Imprimer](topic:plot-pdf#print) et [Fichiers image et SVG](topic:plot-pdf#picture-and-svg-files).
+
+### 3D et nuages de points
+
+- **Solides 3D venant d'autres logiciels.** Les solides, régions et corps de l'espace objet d'un dessin s'affichent sur l'onglet 3D, en lecture seule, et l'enregistrement en DWG les réécrit sans changement. Les faces sur des surfaces que CadCraft ne sait pas encore dessiner sont listées, pas devinées. Voir [Solides venant d'autres logiciels](topic:3d-solids#solids-from-other-programs).
+- **Recaler plusieurs scans.** {{cmd:REGISTERSCANS}} (`REGSCAN`) place dans un même repère des scans pris depuis des positions différentes, par paires de points ou par coordonnées de cibles saisies, les affine par ICP, enregistre le recalage dans un petit fichier de projet, et écrit le nuage recalé dans un seul fichier LAS ou E57. Voir [Recaler plusieurs scans en un seul](topic:register-scans).
+- **Export USD.** {{cmd:USDOUT}}, ou {{cmd:EXPORT3D}} › {{ui:USD}}, écrit les solides de l'onglet 3D en `.usda`, `.usdc` ou `.usdz`. Voir [Exporter le modèle 3D en USD](topic:usd).
+- **Calculs sur l'onglet 3D.** Là où les outils de l'onglet 3D demandent une distance, vous pouvez saisir un calcul, comme à la ligne de commande. Voir [Arithmétique dans une valeur saisie](topic:coordinate-entry#arithmetic-in-a-typed-value).
+
+### Fabriquer
+
+- **Envoyer un dessin à un laser.** {{cmd:LASER}}, ou {{ui:Vue}} › {{ui:Plus}} › {{ui:Laser…}}, ouvre un panneau au-dessus du dessin : chaque calque découpe, marque, grave des lignes, remplit des formes, grave une image ou n'est pas envoyé, avec sa puissance, sa vitesse et ses passes. L'aperçu suit vos modifications, {{ui:Enregistrer le G-code…}} écrit du G-code en mode laser GRBL, et dans Chrome ou Edge le panneau peut cadrer le travail et l'envoyer par USB. Les réglages sont enregistrés dans le dessin (DWG et DXF). Voir [Envoyer un dessin à un laser](topic:laser-cutting).
+- **Symboles d'installation du bâtiment dans le module Électricité.** Prises de données, de téléphone et de TV, interrupteurs à clé et horaires, thermostat, bloc de sortie de secours, détecteurs, déclencheur manuel et avertisseur sonore, ventilateur, chauffe-eau, cuisinière, borne de recharge de véhicule électrique, compteur d'énergie et sous-tableau, et symboles de différentiel (RCD) et de disjoncteur différentiel (RCBO). Un circuit peut porter un différentiel, la nomenclature du tableau a une colonne différentiel, et les vérifications signalent les circuits de prises sans différentiel de 30 mA ou moins. C'est un rappel de planification, pas une vérification réglementaire.
+- **Un module P&ID.** P&ID dessine des schémas de procédé : symboles avec points de raccordement, lignes de procédé et de signal, repères, numéros de ligne, listes de lignes, d'équipements, d'instruments et de vannes (CSV ou classeur) et vérifications. Il est fourni avec CadCraft et désactivé tant que vous ne l'activez pas dans {{ui:Paramètres}} › {{ui:Général}} › {{ui:Modules complémentaires}}. C'est une aide au dessin, pas une validation d'ingénierie, et ses mots sont pour l'instant en anglais seulement.
+
+### Premiers pas et écran
+
+- **Un premier dessin guidé.** {{cmd:TOUR}} (ou {{ui:Faire la visite}} sur la carte de démarrage) vous accompagne en six étapes dans le vrai dessin : une ligne, un cercle, un déplacement, un ajustement, un effacement et une cote. Elle démarre toute seule la première fois que CadCraft s'ouvre avec rien dedans. Voir [Vous préférez être guidé ?](topic:getting-started#prefer-to-be-guided)
+- **Un aide-mémoire et une carte des commandes.** L'[aide-mémoire](topic:cheat-sheet) contient les 40 commandes courantes sur une page, aussi en PDF à imprimer, et la [carte des commandes](topic:command-map) liste les commandes avec leurs noms courts, de A à Z.
+- **La barre d'outils sur n'importe quel côté.** {{ui:Paramètres}} › {{ui:CadCraft}} › {{ui:Position de la barre d'outils}} : en haut (comme avant), en bas, à gauche ou à droite, ou saisissez {{cmd:TOOLBARDOCK}}. Voir [Position de la barre d'outils](topic:settings#toolbar-position).
+- **Lignes de la barre d'outils.** {{ui:Paramètres}} › {{ui:CadCraft}} › {{ui:Lignes de la barre d'outils}} : retour à la ligne automatique, 2 lignes ou 1 ligne, pour la barre d'outils CadCraft et les styles Dessin classique et Ruban. {{key:Shift+Ctrl+F1}} les parcourt, {{key:Ctrl+F1}} parcourt ce que les boutons affichent, et {{cmd:TOOLBARROWS}} et {{cmd:TOOLBAR}} les règlent. L'indication de démarrage a un bouton de fermeture. Merci à GJoe2, qui l'a envoyé sous forme de pull request. Voir [Lignes de la barre d'outils](topic:settings#toolbar-rows).
+
+### Dans CadCraft Studio
+
+- **Historique.** {{cmd:HISTORY}} (`HIST`), ou {{ui:Vue}} › {{ui:Plus}} › {{ui:Historique…}} : les copies que Studio conserve quand vous ouvrez et enregistrez un dessin, et les versions cloud du dessin quand vous l'avez ouvert depuis le cloud. Ouvrez ou restaurez-en une, ou comparez-en deux, avec ce qui a été ajouté, supprimé et modifié affiché en couleur. Voir [Historique](topic:history).
+- **acad.lsp et acaddoc.lsp.** Choisissez un dossier de support dans {{cmd:APPLOAD}} : ces deux fichiers se chargent au démarrage de CadCraft (acaddoc.lsp de nouveau pour chaque nouvel onglet de dessin), et `S::STARTUP` s'exécute après eux. Voir [Charger des applications](topic:load-applications#load-acadlsp-and-acaddoclsp-from-a-support-folder-studio).
+- **La boîte de dialogue de traçage dans sa propre fenêtre.** Un bouton de sa barre de titre la place dans une fenêtre que vous pouvez mettre sur un autre moniteur. Voir [Déplacer une boîte de dialogue](common:arrange-panels#move-a-dialog).
+
+### Pour les assistants IA
+
+- **Des fichiers par leur nom, dans les dossiers que vous choisissez.** Dans CadCraft Studio, un assistant peut ouvrir, enregistrer et tracer des fichiers par leur nom, et donner à une commande le fichier qu'elle demande (INSERT depuis un fichier, l'export de COUNT, SAVEAS, PLOT), mais seulement dans les dossiers que vous ajoutez sous {{ui:Paramètres}} › {{ui:CadCraft}} › {{ui:Assistants}} › {{ui:Dossiers que les assistants peuvent utiliser}}. Voir [Lui laisser utiliser des fichiers dans les dossiers que vous choisissez](topic:use-with-ai-assistants#let-it-use-files-in-folders-you-choose).
+- **Moins d'appels.** Un assistant peut saisir toute une ligne de commande d'un coup, garder une commande ouverte entre ses appels, compter les objets par type et par calque sans les lister, et placer un bloc avec ses valeurs d'attributs en une seule étape.
+- **Sans fenêtre.** La ligne de commande `cadcraft` écrit des tracés SVG et convertit, trace, vérifie ou décrit de nombreux fichiers à la fois. Le paquet MCP n'est pas encore publié. Voir [Travailler sur des fichiers sans ouvrir CadCraft](topic:use-with-ai-assistants#work-on-files-without-opening-cadcraft).
+
+## Modifié
+
+- **Un pavé tactile fait le panoramique.** Déplacez deux doigts sur un pavé tactile et la vue 2D les suit ; le pincement et la molette de la souris zooment. Voir [Souris, pavé tactile et écran tactile](topic:mouse-trackpad-touch).
+- **Les objets OLE sont conservés.** Les objets incorporés d'un DXF s'affichent comme leur image ou comme un cadre étiqueté et sont réenregistrés par le DXF 2000. Ceux d'un DWG sont conservés et réécrits quand vous enregistrez en DWG, mais pas encore affichés. Auparavant, ils étaient perdus à l'enregistrement. Voir [Objets venant d'autres logiciels (OLE)](topic:pictures#objects-from-other-programs-ole).
+- **Les unités d'un nouveau dessin** suivent l'unité que vous marquez d'une étoile dans {{ui:Paramètres}} › {{ui:Général}} › {{ui:Unités}}.
+
+## Corrigé
+
+- Les présentations qui s'ouvraient vides, ou qui perdaient une fenêtre de présentation et montraient tout le modèle à sa place, s'ouvrent désormais avec leurs vraies fenêtres de présentation. Une présentation sans lien vers son contenu est conservée et le compte rendu d'ouverture l'indique.
+- Les fichiers DXF dans d'anciennes pages de code affichaient un texte cyrillique et coréen illisible. Ils se lisent correctement maintenant.
+- Le texte de paragraphe venant d'autres logiciels perdait sa mise en forme à l'ouverture et était réenregistré sans mise en forme.
+
+## Dans toutes les applications
+
+- **Unités.** {{ui:Paramètres}} › {{ui:Général}} › {{ui:Unités}} propose une liste pour chacune des longueurs, aires, volumes, angles et pentes, avec les valeurs exactes données par les définitions des unités (le pied topographique américain est une unité à part). Désactivez les unités dont vous ne vous servez jamais et elles quittent les listes d'unités ; marquez-en une d'une étoile et le nouveau travail commence avec elle. Un fichier garde toujours sa propre unité. Dans CadCraft, l'étoile règle les unités d'un nouveau dessin quand c'est une unité qu'un dessin peut porter ; la boîte {{ui:Unités}} propre à CadCraft ne suit pas encore les interrupteurs. Une fois qu'un dessin a des unités, une longueur que vous saisissez peut porter la marque de n'importe quelle unité. Voir [Unités, valeurs saisies et listes d'unités](common:unit-lists).
+- **Une mise en page plus dense et des panneaux qui se rangent.** {{ui:Paramètres}} › {{ui:Général}} › {{ui:Densité de la mise en page}} › {{ui:Compacte}} fait tenir plus de choses à l'écran (les écrans tactiles et les téléphones gardent leurs grands boutons). Chaque panneau latéral a une fine barre de titre : faites-la glisser pour ancrer ou détacher le panneau, déposez-la sur la barre d'un autre panneau pour partager un cadre sous forme d'onglets, épinglez-la pour la faire glisser vers le bord, ou masquez-la et faites-la revenir depuis le bord. Voir [Organiser les panneaux](common:arrange-panels#make-the-layout-denser).
+- **Les boîtes de dialogue se déplacent.** Faites glisser une boîte de dialogue par sa barre de titre pour la sortir du chemin du dessin ; elle revient là où vous l'avez laissée. Double-cliquez sur la barre de titre pour la centrer de nouveau. Voir [Déplacer une boîte de dialogue](common:arrange-panels#move-a-dialog).
+- **Des recettes pour les assistants IA.** Dix demandes détaillées pour votre propre assistant (ranger un dessin, tracer un jeu de plans, vérifier des dessins, poser des questions à un modèle, totaliser un métré, essayer une variante de pièce…), chacune avec les outils qu'elle appelle et les autorisations dont elle a besoin, et chacune rejouée par nos tests. Les applications ne contiennent aucune IA. Voir [Recettes pour les assistants IA](common:assistants-recipes).
+- **Langues.** **Português (Portugal)** est nouveau dans {{ui:Paramètres}} › {{ui:Général}} › {{ui:Langue}}. Cette langue, **Português (Brasil)**, **Español (México)** et **Bahasa Indonesia** ont maintenant chaque mot des applications, sous forme de brouillons pas encore relus par un locuteur natif. Les rubriques d'aide de démarrage existent dans votre langue ; les autres rubriques d'aide restent en anglais pour l'instant.
+- **CadCraft Studio** indique pourquoi une recherche de mise à jour a échoué (pas encore de fichier pour votre système, pas de réseau, signature invalide) au lieu d'un simple « Terminé », et cesse de ramener une carte Nouveautés que vous avez fermée tant qu'il n'y a pas de version plus récente.
+
+## Pas encore dans cette version
+
+- **La 0.7 n'est pas signée.** La signature de code, et le paquet du Microsoft Store, sont reportés à la 0.8 parce que la validation du certificat n'est pas encore arrivée. Vérifiez le SHA-256 à côté de chaque fichier sur getcadcraft.com/download. Sous Windows, si SmartScreen bloque l'installateur, choisissez {{ui:Informations complémentaires}}, puis {{ui:Exécuter quand même}}. Sur un Mac, la première fois, faites un clic droit sur CadCraft Studio et choisissez {{ui:Ouvrir}}. CadCraft Studio n'est pas encore dans une boutique d'applications, et il n'y a pas encore de version pour iPad ou iPhone.
+- Les listes d'angles et de pentes dans {{ui:Unités}} sont enregistrées, mais aucune boîte ne les lit encore.
+- Les objets OLE d'un DWG sont conservés mais pas affichés, et les images métafichier à l'intérieur des objets OLE ne sont pas tracées.
+- La lecture des tables de styles de tracé (fichiers CTB) venant d'autres logiciels attend un fichier d'exemple.
+- Les anciens textes asiatiques écrits avec des codes `\M+` sont lus, mais n'ont pas encore été comparés à un fichier venant d'un autre logiciel.
+- Fonds de plan PDF : les images à l'intérieur de la page s'affichent à l'écran mais ne sont pas tracées, le traçage d'un assistant laisse de côté les fonds de plan, et la façon dont les autres logiciels lisent le découpage et l'échelle enregistrés n'a pas été vérifiée dans ces logiciels.
+- Historique : CadCraft n'envoie pas encore ses enregistrements vers le cloud, de sorte que les versions cloud sont celles enregistrées depuis d'autres appareils et depuis le web. L'historique n'existe que dans CadCraft Studio.
+- On n'a pas encore vérifié si Studio conserve le dossier de support acad.lsp après un redémarrage ; s'il le demande, choisissez de nouveau le dossier dans APPLOAD.
+- Le panneau Laser n'a pas encore été essayé sur un vrai laser : testez chaque réglage sur une chute. CadCraft Studio n'a pas de Web Serial, de sorte que dans Studio le panneau n'enregistre que le G-code.
+- Le recalage de scans a été testé sur des scans fabriqués, pas encore sur la série d'un vrai scanner.
+- Le panoramique à deux doigts a été essayé avec des événements de pavé tactile simulés, pas encore sur un vrai pavé tactile.
+- {{cmd:PEDIT}} n'a pas d'option Modifier un sommet (utilisez les poignées ou les propriétés). Le décalage, l'ajustement, le prolongement, le raccord, la coupure et la jonction ne prennent pas encore les splines ; la hauteur (Z) d'une spline n'est pas conservée.
+- Le nouveau texte de paragraphe ne peut pas encore recevoir de codes de mise en forme, et les tracés SVG montrent le texte mis en forme dans une seule couleur.
+- L'option Dessin entier de WBLOCK n'écrit que le modèle, pas les feuilles. Le style de cote courant n'est pas enregistré dans le fichier : un dessin s'ouvre avec Standard comme style courant.
+- Les styles de menu en ruban n'ont pas encore de listes de calques, de couleurs ou de types de ligne : utilisez le panneau {{ui:Calques}} et {{ui:Propriétés}}.
+- Les nuages de points ne sont toujours pas enregistrés dans le dessin ni tracés, et les fichiers E57 s'ouvrent jusqu'à 6 millions de points et 512 Mo.
+- Les fichiers DWG enregistrés par CadCraft n'ont pas encore été vérifiés dans AutoCAD lui-même.
+
+Tout le reste se trouve dans [Pas encore réalisé](topic:not-built-yet).

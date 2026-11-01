@@ -1,0 +1,5 @@
+Electrical is an add-on for CadCraft that does two jobs in one drawing file. It draws **control and power schematics** with standard symbols, wires that know what they connect, wire numbers, device tags and cross-references between a coil and its contacts. And it plans **building installations**: outlets, switches and luminaires placed on a plan, each on a circuit, with the load and current of every circuit, cable lengths measured along the routes you draw, and a panel schedule you can balance.
+
+From that it makes the lists a panel builder and an installer ask for: a sheet list, a terminal plan, a cable list and a parts list, as tables on new sheets or as CSV files. A checker finds duplicate tags, wire ends that connect to nothing, contacts with no coil and circuits drawn over their breaker.
+
+Everything it draws is ordinary drawing content. Symbols are blocks with attributes, wires are lines on layers whose names start with `EL-WIRE`, sheets are layouts. A schematic saved as DWG or DXF opens in any CAD program, and opens in CadCraft without this add-on with nothing lost; switching the add-on on again brings back the cross-references and the checks.

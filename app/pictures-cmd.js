@@ -7,6 +7,13 @@
  *   IMAGE (IM)         give CadCraft the files the drawing's pictures use (host.pickPictures, several at once; matched
  *                      by file name, as BimCraft does) — a DWG stores only where a picture was
  *   IMAGECLIP (ICL)    a picture's clip: R rectangle (two corners), P polygon (points, Enter ends), D delete the clip
+ *   PASTEAREA (PAREA)  an area copied in MarkupCraft (Copy area; pastepic.js, areaclip.js) at its true size: the
+ *                      lower-left corner, then — the sheet had a drawing scale — nothing more: it lands at real size in
+ *                      the drawing's units; else at its paper size times a typed scale (100 for a 1:100 sheet), or P: two
+ *                      points on the pasted picture and the distance between them (as SCANSCALE), scaled about the corner.
+ *                      An overlay keeps its see-through paper and starts at its fade. PASTECLIP (Ctrl+V) runs it when the
+ *                      area is the newer copy (`takesPaste`, pastepic.js areaTakesPaste); cadcraft.js runs it when the
+ *                      picture on the system clipboard is the area's (areaclip.js sameImage).
  *
  * Each is one undo step. The files stay with the drawing while it is open (doc.pictures); they are not undoable.
  */
@@ -14,6 +21,7 @@ import { t } from './i18n.js';
 import { commandRegistry } from './commands.js';
 import { addPicture, freePictureName, pictureBlock, pictureFrame, picCorners, findPicture, picturesOf, pictureKey } from './pictures.js';
 import { insertMatrix, mApply } from './geom.js';
+import { placePastedPicture, readAreaClip, areaTakesPaste, areaSize, areaPlacement, areaBytes } from './pastepic.js';
 
 const def = commandRegistry.add, opt = commandRegistry.option;
 const isPicture = (doc, e) => e && e.type === 'insert' && !!pictureFrame(doc.blocks.get(e.block));
@@ -115,5 +123,51 @@ def('IMAGECLIP', ['ICL'], async (c) => {
   });
   c.print(t(pts ? 'pic.clipped' : 'pic.unclipped'));
 }, { help: () => t('pic.help.clip') });
+
+// ---- PASTEAREA (0.8 D8.15): a copied area at its true size ----
+
+const fmt = (v) => String(+v.toPrecision(5));
+const rectAt = (p, w, h) => ({ type: 'poly', layer: '0', closed: true, pts: [{ x: p.x, y: p.y, b: 0 }, { x: p.x + w, y: p.y, b: 0 }, { x: p.x + w, y: p.y + h, b: 0 }, { x: p.x, y: p.y + h, b: 0 }] });
+const areaStore = (c) => c.engine.clipboard?.storage ?? null;   // the localStorage CadCraft's own clipboard shares (null in a memory-only tab)
+
+def('PASTEAREA', ['PAREA'], async (c) => {
+  const clip = readAreaClip(areaStore(c));
+  if (!clip) { c.print(t('area.none')); return; }
+  const real = areaSize(c.doc, clip, 'real'), paper = areaSize(c.doc, clip, 'paper');
+  const units = c.doc.meta?.units || t('area.units.none');
+  const what = clip.label || clip.sheet || clip.source || t('area.unnamed');
+  c.print(real ? t('area.found.real', { what, w: fmt(real[0]), h: fmt(real[1]), units }) : t('area.found.paper', { what, w: fmt(paper[0]), h: fmt(paper[1]), units }));
+  const [w0, h0] = real || paper;
+  c.preview((cur) => [rectAt(cur, w0, h0)]);
+  const at = await c.point(t('area.prompt.corner'));
+  c.preview(null);
+  if (!at || at.option) return;
+  let width = w0, byPoints = false;
+  if (!real) {
+    const v = await c.number(t('area.prompt.scale'), { default: 1, options: [opt('P', 'Points')] });
+    if (v?.option === 'P') byPoints = true;
+    else if (typeof v === 'number' && v > 0) width = w0 * v;
+  }
+  const r = placePastedPicture(c.doc, areaBytes(clip), { at, width, label: 'PASTEAREA', ...areaPlacement(clip) });
+  if (r.error) { c.print(r.why || t(r.error)); return; }
+  c.host.redraw?.();
+  if (byPoints) {
+    // as SCANSCALE: two points on the picture, then how far apart they really are; the corner stays where it was put
+    const a = await c.point(t('area.prompt.point1'));
+    const b = a && !a.option ? await c.point(t('area.prompt.point2'), { base: a }) : null;
+    const cur = b && !b.option ? Math.hypot(b.x - a.x, b.y - a.y) : 0;
+    if (b && !b.option && !(cur > 1e-9)) c.print(t('scan.scale.same'));
+    const want = cur > 1e-9 ? await c.distance(t('scan.prompt.scale3', { d: fmt(cur) }), { base: a }) : null;
+    const ref = c.doc.get(r.id);
+    if (ref && typeof want === 'number' && want > 0) {
+      const f = want / cur;
+      c.doc.change('PASTEAREA', () => c.doc.update(ref.id, { ...ref, sx: ref.sx * f, sy: ref.sy * f }));
+      width *= f;
+    }
+  }
+  c.host.setSelection?.(new Set([r.id]));
+  const wh = { w: fmt(width), h: fmt(width * clip.px[1] / clip.px[0]), units, file: r.name };
+  c.print(t(clip.overlay ? 'area.pasted.overlay' : 'area.pasted', { ...wh, fade: areaPlacement(clip).fade }));
+}, { keepSelection: true, help: () => t('area.help'), takesPaste: (c, cadClip) => areaTakesPaste(readAreaClip(areaStore(c)), cadClip) });
 
 export { picCorners };

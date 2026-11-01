@@ -118,6 +118,8 @@ function starter(w) {
     d.add({ type: 'insert', layer: '0', block: 'CHAIR', x: 20, y: 20, sx: 1, sy: 1, rot: 0 });
     d.setLayouts([{ name: 'Sheet 1', paper: { w: 420, h: 297, unit: 'mm', x0: 0, y0: 0 }, entities: new Map() }]);
   });
+  // every window builds the same start on its own, as if each had opened one file: same keys (DC.27 hands out random ones, so pin them like a file's "f<place>" keys)
+  for (const e of [...d.model.values(), ...d.layouts.flatMap((l) => [...l.entities.values()])]) if (e.key !== undefined) e.key = 'f' + e.id;
   d.undoStack.length = 0; d.redoStack.length = 0;
   d.markSaved();
   return w;
@@ -487,6 +489,22 @@ test('layer and area holds (LV.9): others\' edits there are taken back, the hold
   await settled(...all);
   ok(host.doc.get(c0.id).cx === c0.cx + 2, 'released: the move lands');
   sameDrawing(all);
+});
+
+test('where a step landed (EG.41): the sheet and the extent of what it touches, for holding an assistant to a sheet or area', async () => {
+  const a = cad('A');
+  await a.type('LINE', '0,0', '10,5', '');
+  const id = [...a.doc.model.keys()][0];
+  let w = a.adapter.where([{ o: 'add', id, sp: '', e: a.doc.model.get(id) }]);
+  ok(w && w.sheet === '' && w.box.join() === '0,0,10,5', 'a new line in Model: sheet "" and its box', w);
+  w = a.adapter.where([{ o: 'set', id, f: 'layer', v: '0', sp: '' }]);
+  ok(w && w.sheet === '' && w.box.join() === '0,0,10,5', 'a change to an existing entity: its box from the drawing', w);
+  w = a.adapter.where([{ o: 'del', id, sp: '' }]);
+  ok(w && w.sheet === '' && w.box === null, 'a deletion: the sheet, no box (an area scope refuses it)', w);
+  w = a.adapter.where([{ o: 'del', id: 1, sp: 'L0' }, { o: 'del', id: 2, sp: '' }]);
+  ok(w && w.sheet !== '' && w.sheet !== 'L0', 'a step on two places is neither', w);
+  ok(a.adapter.where([{ o: 'meta', k: 'luprec', v: 3 }]) === null, 'a drawing setting has no place: null');
+  ok(typeof a.adapter.sheetLabel === 'function' && a.adapter.sheetLabel('') !== '', 'sheetLabel names Model');
 });
 
 test('an assistant as its own client (LV.18): its commands go on its own connection, undone as its own, a whole command at a time', async () => {

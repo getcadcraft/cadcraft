@@ -1,0 +1,21 @@
+{
+  "id": "nesting",
+  "name": "Nesting",
+  "version": "0.8.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "settings",
+    "files"
+  ],
+  "description": "Lay the closed outlines of your drawing — polylines with their arcs, circles, holes inside them — on plates or a roll with as little waste as it can, draw the sheets beside the drawing and save them as DXF for the cutter. The same nesting engine as PartCraft's.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

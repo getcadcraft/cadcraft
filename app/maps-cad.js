@@ -28,7 +28,7 @@ commandRegistry.add('MAPLAYERS', ['ML', 'GEOMAP'], async (c) => {
 }, { noRepeat: true, keepSelection: true, help: () => t('ml.cmd.help') });
 
 export function installMaps({ root, attrib, view, doc, say, busy, ask, refocus }) {
-  let ml = null, lib = null, crsLib = null, loading = null, crsCache = { key: '', crs: null };
+  let pickSrc = null, ml = null, lib = null, crsLib = null, loading = null, crsCache = { key: '', crs: null };
   // this browser: only the internet switch (and, before 0.6, the layers and the system: moved into the drawing below)
   const readLocal = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch { return {}; } };
   const writeLocal = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* private window */ } };
@@ -88,6 +88,22 @@ export function installMaps({ root, attrib, view, doc, say, busy, ask, refocus }
       const e = c ? crsLib.byCode(c.code) : null;
       setGeo({ crs: e ? { code: e.code, name: e.name, unit: e.unit, place: c.place } : null, src: null }, t('ml.undo.crs'));
       crsCache.key = '';
+    },
+    /** 0.8 D8.9 (crs-share_PART_3): the shared picker (lib/crs-pick). The drawing keeps an EPSG number (geodwg.js: no new file field), so
+     *  a definition of your own counts only when it gives the same coordinates as a listed system (the picker says so and takes its code). */
+    pickCrs: async () => {
+      const D = await import('./crs-pick-dialog.js');
+      pickSrc ||= D.problemSource(t('ml.sys.more.title'));
+      let got = null;
+      const cur = crs();
+      const dlg = await D.openCrsDialog({
+        title: t('ml.sys.more.title'), intro: t('ml.sys.more.intro'), current: cur ? t('ml.sys.is', { name: cur.name, code: cur.code ?? '\u2014' }) : '',   // i18n-ignore: dash
+        projectedOnly: true, root,
+        check: (c) => (c.code == null ? t('ml.sys.more.nocode', { name: c.name }) : null),
+        onProblem: (p) => pickSrc.set(p),
+        onPick: (c) => { got = c; },
+      });
+      return new Promise((resolve) => dlg.addEventListener('close', () => resolve(got), { once: true }));
     },
     /** Shown where the system goes when there is none: a location another program wrote that CadCraft cannot place is kept. */
     get crsHelp() {

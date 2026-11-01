@@ -27,6 +27,7 @@
  * libraryPlaced(item, insert) and openLibrary() (LIBRARY).
  * The clipboard commands (COPYCLIP CUTCLIP COPYBASE PASTECLIP PASTEORIG) use host.clipboard (a clipboard.js
  * Clipboard; without one the engine keeps a memory-only one) and host.settings?.pasteBase ('lower-left' | 'center').
+ * PASTECLIP hands over to PASTEAREA (pictures-cmd.js) when an area copied in MarkupCraft is newer than CadCraft's copy.
  */
 
 import {
@@ -54,7 +55,8 @@ import { findMatches, applyMatches } from './findtext.js';
 import { leaderGeometry } from './leader.js';
 import { mirrorConstraints, resignAmong, trimConstraints } from './ckeep.js';
 import { PATTERNS, patternNames, boundaryAt, loopsOf, hatchLines, hatchIsMetric } from './hatch.js';
-import { formatLength, formatArea, parseLength, readLength, readNumber, isArithmetic, calcMessage, unitsOf, LUNITS, isImperialFormat, lunitCode, mmPerDrawingUnit } from './units.js';
+import { limitsOf, insideLimits, limitsPatch, defaultLimits, CHECKED } from './limits.js';
+import { formatLength, formatArea, parseLength, readLength, readNumber, readAngle, tAngle, fmtAngle, aunitCode, isArithmetic, calcMessage, unitsOf, LUNITS, isImperialFormat, lunitCode, mmPerDrawingUnit } from './units.js';
 import { install3d } from './commands3d.js';
 import { installLayerTools } from './layertools.js';
 import { installProps } from './propcmds.js';
@@ -113,6 +115,7 @@ export class Engine {
       this.doc.squash(mark, cmd.name);
       this.running = null;
       this.waiting = null;
+      this.chain = null;         // the points a running LINE/PLINE has so far (EG.54)
       this.base = null;
       this.previewFn = null;
       if (!cmd.keepSelection) this.host.setSelection(new Set());   // as in AutoCAD: a finished command clears the selection
@@ -143,6 +146,7 @@ export class Engine {
     switch (w.kind) {
       case 'point': {
         const p = this.parsePoint(typed);
+        if (p && this.outsideLimits(p)) return this.refuseOutside();
         if (p) return this.resolve(p);
         const why = this.pointRefusal(typed);   // arithmetic in a coordinate that went wrong (0.6 DF.3): say where
         if (why) return this.refuse(why);
@@ -168,7 +172,7 @@ export class Engine {
         break;
       }
       case 'angle': {
-        const r = readNumber(typed);   // degrees, with arithmetic (360/7)
+        const r = readAngle(typed);   // degrees, with arithmetic (360/7); a bearing N45°23'30"E or 45°23'30" (SU.932)
         if (r.ok) return this.resolve(rad(r.value) + (w.opts.ucs ? activeUcs(this.doc)?.ang || 0 : 0));   // an absolute angle: from the UCS X axis (DR.8)
         if (isArithmetic(typed)) return this.refuse(r);
         break;
@@ -189,7 +193,10 @@ export class Engine {
     const w = this.waiting;
     if (!w) return false;
     switch (w.kind) {
-      case 'point': this.resolve({ x: point.x, y: point.y, ...(point.tan ? { tan: point.tan } : {}) }); return true;   // a deferred tangent (DR.3) rides along
+      case 'point':
+        if (this.outsideLimits(point)) { this.refuseOutside(); return true; }
+        this.resolve({ x: point.x, y: point.y, ...(point.tan ? { tan: point.tan } : {}) });
+        return true;   // a deferred tangent (DR.3) rides along
       case 'distance':
         if (w.opts.base) this.resolve(dist(w.opts.base, point));
         else { w.opts.base = point; this.base = point; this.host.prompt(t('cmd.specify_second_point')); }
@@ -269,6 +276,13 @@ export class Engine {
     w.resolve(v);
   }
 
+  /** D8.2: with the limits ON, a point for a command that makes objects must lie inside them. */
+  outsideLimits(p) { return !!this.running && CHECKED.has(this.running) && !insideLimits(this.doc.meta, p); }
+  refuseOutside() {
+    this.host.print(t('cmd.limits.outside'));
+    this.host.prompt(this.promptText());
+  }
+
   /** Rubber-band entities for the cursor (the host calls it on every move). */
   preview(cursor) { try { return this.previewFn ? this.previewFn(cursor) || [] : []; } catch { return []; } }
 
@@ -284,7 +298,7 @@ export class Engine {
     const parts = String(t).trim().replace(/^([@#]?)\*/, '$1').replace(/^[@#]/, '').split(/[,<]/);
     for (const [i, part] of parts.entries()) {
       if (!isArithmetic(part)) continue;
-      const r = i === 1 && /</.test(t) ? readNumber(part) : readLength(part, this.doc.meta.lunits, this.doc.meta.units);
+      const r = i === 1 && /</.test(t) ? readAngle(part) : readLength(part, this.doc.meta.lunits, this.doc.meta.units);
       if (!r.ok) return r;
     }
     return null;
@@ -298,7 +312,7 @@ export class Engine {
     s = s.replace(/^([@#]?)\s*\*/, (_m, at) => { world = true; return at; });
     const u = world ? null : activeUcs(this.doc);
     const L = (x) => parseLength(x, this.doc.meta.lunits, this.doc.meta.units);
-    const ang = (x) => { const r = readNumber(x); return r.ok ? r.value : null; };   // degrees, arithmetic allowed (0.6 DF.3)
+    const ang = (x) => { const r = readAngle(x); return r.ok ? r.value : null; };   // degrees, arithmetic allowed (0.6 DF.3)
     let m;
     if ((m = s.match(/^([@#])?([^,<@#]+),([^,<@#]+)$/))) {
       const x = L(m[2]), y = L(m[3]);
@@ -330,7 +344,10 @@ export class Engine {
     const dOpt = typeof w.opts.default === 'string' ? (w.opts.options || []).find((o) => o.en === w.opts.default && o.en !== o.key) : null;   // a default given as an English label shows translated
     const def = w.opts.default !== undefined && w.opts.default !== null && (w.kind !== 'point' || dOpt)   // a point prompt shows a default option (UCS <World>)
       ? ' <' + (w.kind === 'angle' ? fmt(deg(normAngle(w.opts.default - (w.opts.ucs ? activeUcs(this.doc)?.ang || 0 : 0)))) : typeof w.opts.default === 'number' ? fmt(w.opts.default) : dOpt ? dOpt.label : w.opts.default) + '>' : '';
-    return w.prompt + (opts.length ? ' [' + opts.join('/') + ']' : '') + def + ':';
+    // a prompt that already lists its options in the text ("… [LAyer/Block]", in any language) would show them twice, and a translator's letters can
+    // disagree with the ones the command takes: the list built from the options is the one that is right (0.8 round 4, cad_PART_4)
+    const text = opts.length ? w.prompt.replace(/(\s+or)?\s*\[[^\]\n]*\/[^\]\n]*\]/i, '') : w.prompt;
+    return text + (opts.length ? ' [' + opts.join('/') + ']' : '') + def + ':';
   }
 
   /** A selection option typed at "Select objects": → true when handled here. */
@@ -492,7 +509,9 @@ def('LINE', ['L'], async (c) => {
   let prev = first;
   let deferred = first.tan || null;   // DR.3: the first point snapped Tangent with nothing to measure from yet
   const made = [];
+  const chainOf = () => (deferred ? null : [start, ...made.map((m) => ({ x: m.x2, y: m.y2 }))]);   // EG.54: the points so far, for the ghost of the next one
   for (;;) {
+    c.engine.chain = chainOf();
     c.preview((cur) => { const a = deferred ? resolveTangent(deferred, cur) : prev; return a && !Array.isArray(a) ? [{ type: 'line', x1: a.x, y1: a.y, x2: cur.x, y2: cur.y }] : []; });
     const options = [opt('U', 'Undo')];
     if (made.length >= 2) options.push(opt('C', 'Close'));
@@ -542,6 +561,7 @@ def('PLINE', ['PL'], async (c) => {
   const shape = (extra) => ({ type: 'poly', closed: false, pts: extra ? [...pts.slice(0, -1), { ...pts[pts.length - 1], b: extra.b }, { x: extra.x, y: extra.y, b: 0 }] : pts });
   for (;;) {
     const last = pts[pts.length - 1];
+    c.engine.chain = mode === 'line' ? pts : null;   // EG.54: the points so far, for the ghost of the next one
     c.preview((cur) => [shape({ x: cur.x, y: cur.y, b: mode === 'arc' ? arcBulge(last, cur) : 0 })]);
     const options = mode === 'line'
       ? [opt('A', 'Arc'), ...(pts.length > 2 ? [opt('C', 'Close')] : []), opt('U', 'Undo')]
@@ -1253,6 +1273,9 @@ function finishPaste(c, clip, dx, dy, label) {
 }
 
 def('PASTECLIP', [], async (c) => {
+  // an area copied in MarkupCraft since (0.8 D8.15, pictures-cmd.js PASTEAREA): the newer copy is what Ctrl+V pastes
+  const area = lookup('PASTEAREA');
+  if (area?.takesPaste?.(c, c.engine.clipboard.get().clip || null)) return area.fn(c);
   const clip = fromClipboard(c);
   if (!clip) return;
   const base = basePoint(clip, c.host.settings?.pasteBase);
@@ -2545,6 +2568,22 @@ def('LASSOMODE', [], async (c) => {
   if (n === 0 || n === 1) c.host.setLasso(n === 1); else c.print(t('cmd.lassomode.range'));
 }, { noRepeat: true, keepSelection: true, help: () => t('cmd.lassomode.help') });
 
+// ---- CURSORSIZE: the crosshair's size, in AutoCAD's percent of the screen (0.8 D8.14; view.js CURSOR_SIZES) ----
+// 100 runs the crosshair edge to edge (Settings › Cursor › Full screen); smaller values pick the nearest of Small, Medium, Large.
+/** CURSORSIZE (percent of the screen, 1–100) for each size, and back: 100 is full screen, the rest the nearest size. */
+export const CURSOR_PERCENT = { small: 3, medium: 5, large: 15, full: 100 };
+export const cursorSizeOfPercent = (n) => n >= 100 ? 'full' : n >= 10 ? 'large' : n >= 5 ? 'medium' : 'small';
+def('CURSORSIZE', [], async (c) => {
+  const st = c.host.settings;
+  if (!st || !c.host.setCursorSize) { c.print(t('cmd.cursorsize.browser')); return; }
+  const n = await c.number(t('cmd.cursorsize.ask'), { default: CURSOR_PERCENT[st.cursor] ?? 5 });
+  if (n == null) return;
+  if (!(n >= 1 && n <= 100)) { c.print(t('cmd.cursorsize.range')); return; }
+  const size = cursorSizeOfPercent(n);
+  c.host.setCursorSize(size);
+  c.print(t('cmd.cursorsize.set', { size: t(size === 'full' ? 'set.full_screen' : 'set.' + size) }));
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.cursorsize.help') });
+
 // ---- TOOLBAR / TOOLBARROWS (CP.1, GJoe2 getcadcraft/cadcraft#2): what the toolbar buttons show, and how many rows the bars use ----
 // Ctrl+F1 steps through the first, Shift+Ctrl+F1 through the second; both are also in Settings.
 def('TOOLBAR', [], async (c) => {
@@ -2637,6 +2676,62 @@ def('UNITS', ['UN', 'DDUNITS'], async (c) => {
   }
 }, { noRepeat: true, keepSelection: true, help: () => t('cmd.units.help') });
 
+// ---- LIMITS: the drawing limits (0.8 D8.2; limits.js) ----
+
+def('LIMITS', [], async (c) => {
+  const doc = c.doc, cur = limitsOf(doc.meta);
+  const pair = (x, y) => fmtLen(c, x) + ',' + fmtLen(c, y);
+  c.print(t(cur.set ? (cur.on ? 'cmd.limits.now.on' : 'cmd.limits.now.off') : 'cmd.limits.now.none', { ll: pair(cur.x0, cur.y0), ur: pair(cur.x1, cur.y1) }));
+  const a = await c.point(t('cmd.limits.lower') + ' <' + pair(cur.x0, cur.y0) + '>', { options: [opt('ON', 'ON'), opt('OFF', 'OFF')], none: true });
+  if (a && a.option) {
+    const on = a.option === 'ON';
+    const patch = limitsPatch(doc.meta, { on });
+    if (!patch) { c.print(t('cmd.limits.bad')); return; }
+    doc.change('LIMITS', () => doc.setMeta(patch));
+    c.print(t(on ? 'cmd.limits.is.on' : 'cmd.limits.is.off', { ll: pair(patch.limits.x0, patch.limits.y0), ur: pair(patch.limits.x1, patch.limits.y1) }));
+    return;
+  }
+  const ll = a || { x: cur.x0, y: cur.y0 };
+  c.preview((p) => [rect(ll, p)]);
+  const b = await c.point(t('cmd.limits.upper') + ' <' + pair(cur.x1, cur.y1) + '>', { base: ll, none: true });
+  c.preview(null);
+  const ur = b && !b.option ? b : { x: cur.x1, y: cur.y1 };
+  const patch = limitsPatch(doc.meta, { x0: ll.x, y0: ll.y, x1: ur.x, y1: ur.y });
+  if (!patch) { c.print(t('cmd.limits.bad')); return; }
+  doc.change('LIMITS', () => doc.setMeta(patch));
+  c.print(t('cmd.limits.set', { ll: pair(ll.x, ll.y), ur: pair(ur.x, ur.y), state: t(patch.limits.on ? 'cmd.limits.state.on' : 'cmd.limits.state.off') }));
+  if (patch.limits.on) c.print(t('cmd.limits.zoomhint'));
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.limits.help') });
+
+// ---- AUNITS: how angles are shown and typed (0.8 SU.932; angles.js) ----
+
+const AUNIT_OPTS = [['D', 0, 'opt.aunit.decimal'], ['M', 1, 'opt.aunit.dms'], ['S', 4, 'opt.aunit.surveyor']];
+
+/** Set the drawing's angle format (one undo step): 0 decimal degrees, 1 degrees-minutes-seconds, 4 surveyor's bearings. */
+export function setAngleFormat(doc, aunits, auprec) {
+  const code = aunitCode(aunits), prec = Math.max(0, Math.min(8, Math.round(auprec)));
+  doc.change('AUNITS', () => doc.setMeta({ aunits: code, auprec: prec }));
+  return { aunits: code, prec };
+}
+export const angleFormatName = (aunits) => t((AUNIT_OPTS.find((o) => o[1] === aunitCode(aunits)) || AUNIT_OPTS[0])[2]);
+
+def('AUNITS', ['ANGUNITS'], async (c) => {
+  const m = c.doc.meta, cur = aunitCode(m.aunits ?? 0), curPrec = Number.isFinite(m.auprec) ? m.auprec : 4;
+  c.print(t('cmd.aunits.now', { format: angleFormatName(cur), example: fmtAngle(m, 44.6083333) }));
+  const k = await c.keyword(t('cmd.aunits.format'), { options: AUNIT_OPTS.map(([key, , label]) => opt(key, t(label))), default: (AUNIT_OPTS.find((o) => o[1] === cur) || AUNIT_OPTS[0])[0] });
+  const key = k?.option || k;
+  const code = AUNIT_OPTS.find((o) => o[0] === key)?.[1] ?? cur;
+  let prec;
+  for (;;) {
+    const n = await c.number(t(code ? 'cmd.aunits.prec.dms' : 'cmd.aunits.prec'), { default: code === cur ? curPrec : 4 });
+    if (Number.isInteger(n) && n >= 0 && n <= 8) { prec = n; break; }
+    c.print(t('cmd.units.dec.bad'));
+  }
+  const r = setAngleFormat(c.doc, code, prec);
+  c.print(t('cmd.aunits.set', { format: angleFormatName(r.aunits), example: fmtAngle({ aunits: r.aunits, auprec: r.prec }, 44.6083333) }));
+  if (r.aunits) c.print(t('cmd.aunits.typing'));
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.aunits.help') });
+
 // ---- SCALELISTEDIT: the drawing's own scales for viewports and plots (0.7 D7.19; scales.js) ----
 
 def('SCALELISTEDIT', ['SCALELIST'], async (c) => {
@@ -2663,7 +2758,7 @@ def('SCALELISTEDIT', ['SCALELIST'], async (c) => {
   const say = (r) => { if (r.error) c.print(t('cmd.scalelist.err.' + r.error)); return !r.error; };
   list();
   for (;;) {
-    const k = await c.keyword(t('cmd.scalelist.option'), { options: [opt('A', t('cmd.scalelist.add')), opt('E', t('cmd.scalelist.edit')), opt('D', t('cmd.scalelist.delete')), opt('L', t('cmd.scalelist.list')), opt('R', t('opt.reset'))], none: true });
+    const k = await c.keyword(t('cmd.scalelist.option'), { options: [opt('A', t('cmd.scalelist.add')), opt('E', t('cmd.scalelist.edit')), opt('D', t('cmd.scalelist.delete')), { key: 'L', label: t('cmd.scalelist.list'), en: 'List' }, opt('R', t('opt.reset'))], none: true });
     const o = k?.option;
     if (!o) break;
     if (o === 'L') list();
@@ -3613,7 +3708,7 @@ def('DIST', ['DI'], async (c) => {
   const a = await c.point(t('cmd.mea.p1'));
   c.preview((cur) => [{ type: 'line', x1: a.x, y1: a.y, x2: cur.x, y2: cur.y }]);
   const b = await c.point(t('cmd.mea.p2'), { base: a });
-  c.print(t('cmd.mea.dist', { d: fmtLen(c, dist(a, b)), ang: fmt(deg(normAngle(angleOf(a, b)))), dx: fmtLen(c, b.x - a.x), dy: fmtLen(c, b.y - a.y) }));
+  c.print(tAngle('cmd.mea.dist', { d: fmtLen(c, dist(a, b)), dx: fmtLen(c, b.x - a.x), dy: fmtLen(c, b.y - a.y) }, c.doc.meta, deg(normAngle(angleOf(a, b)))));
 }, { help: () => t('cmd.dist.distance_angle_between_two') });
 
 // ---- AREA and MEASUREGEOM ----
@@ -3776,6 +3871,7 @@ const zoomFactor = (s) => { const m = String(s).trim().match(/^((?:\d+\.?\d*|\.\
 
 def('ZOOM', ['Z'], async (c) => {
   const k = await c.point(t('cmd.zoom.prompt'), { options: [opt('E', t('opt.extents')), opt('A', t('opt.all')), opt('W', t('opt.window')), opt('P', t('opt.previous')), opt('S', t('opt.zscale')), opt('C', t('opt.center'))], none: true, accept: zoomFactor });
+  if (k && k.option === 'A' && c.host.zoomAll) { c.host.zoomAll(); return; }
   if (!k || k.option === 'E' || k.option === 'A') { c.host.zoomExtents(); return; }
   if (k.option === 'P') { if (!c.host.zoomPrevious?.()) c.print(t('cmd.zoom.noprev')); return; }
   if (k.option === '_typed' || k.option === 'S') {

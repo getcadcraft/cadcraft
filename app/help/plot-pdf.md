@@ -86,7 +86,7 @@ A colour with its own pen shows a dot in its corner, and a dot at the bottom whe
 
 The drawing keeps its tables and each sheet's choice when you save as DWG (2000 to 2018) or DXF (R12 or 2000), and opens with them again. Other programs see the name in each sheet's page setup (`office.ctb`), not the table itself. A drawing from another program whose page setup names a table such as `monochrome.ctb` plots with the built-in table of that name; for any other name the dialog says the drawing does not have it, and plots the drawing colors until you choose a table or make one with that name.
 
-To use a table in another drawing, click {{ui:Export}} in {{ui:Plot style tables}} (it saves `office.plotstyle.json`), then {{ui:Import…}} in the other drawing. Reading CTB files from other programs is not built yet.
+To use a table in another drawing, click {{ui:Export}} in {{ui:Plot style tables}} (it saves `office.plotstyle.json`), then {{ui:Import…}} in the other drawing. {{ui:Import…}} also takes a `.ctb` file from another program: it is read from the published description of the format and **has not yet been checked against a real file**. The colour, screening and lineweight of each color are read; grayscale, pen numbers, linetypes, line ends and joins and fill styles are not, and a named table (`.stb`) is refused. Compare the first plot with what you expect, and send us the file if it is wrong.
 
 ## Print
 

@@ -15,7 +15,7 @@
  * with a stub host.
  */
 
-import { AddonLoader, sharedApi } from '../addons.js';
+import { AddonLoader, sharedApi, hostApi } from '../addons.js';
 import { commandRegistry, lookup } from '../commands.js';
 import { addSection } from '../propdefs.js';
 import { Doc, TYPE_NAMES } from '../doc.js';
@@ -25,7 +25,7 @@ import { meshDef, softenEdges } from '../m3d/model.js';
 import { translation } from '../m3d/vec.js';
 import { t } from '../i18n.js';
 
-export const CADCRAFT_API_VERSION = '1.0';
+export const CADCRAFT_API_VERSION = '1.4';   // 1.3 (0.8): api.problems (ADDONS-SPEC §5.3); 1.4 (0.8 REG.1 step 4): api.rules, api.model, api.ui.panelTab (addons.js)
 
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const hasDom = () => typeof document !== 'undefined';
@@ -331,6 +331,7 @@ export async function startAddons(ctx) {
   else AddonLoader.verify = ctx.verify;          // tests
   const loader = new AddonLoader(opts);
   const api = {
+    ...hostApi(registry),   // rules(), onRules(), setModelHost(), modelChanged() (add-on API 1.4)
     loader,
     kinds,
     list: () => loader.list(),
@@ -349,6 +350,9 @@ export async function startAddons(ctx) {
       return c ? { name, aliases: [...(c.aliases || [])], help: String((typeof c.help === 'function' ? c.help() : c.help) || ''), addon: { id: a.id, name: a.name, version: a.version, permissions: [...(a.manifest?.permissions || [])] } } : null;
     }).filter(Boolean)),
   };
+  // api.model for add-ons (1.4): the drawing, read through fn(doc); the add-ons hear every change of it
+  api.setModelHost({ current: () => ({ name: String(ctx.doc.meta?.name || 'Drawing1') }), read: (fn) => fn(ctx.doc) });
+  if (typeof ctx.doc.on === 'function') ctx.doc.on((kind) => api.modelChanged(kind));
   if (typeof window !== 'undefined' && !ctx.noGlobal) window.ccAddons = api;
   await loader.start();
   return api;

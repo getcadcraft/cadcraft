@@ -1,6 +1,6 @@
 ---
 title: Insert from a file or the library
-summary: Bring a block, or a whole drawing, in from another DWG or DXF, and place items from LibraryCraft, a file or another library, with their credits and updates.
+summary: Bring a block, or a whole drawing, in from another DWG or DXF, and place items from the Library, a file or another library, with their credits and updates.
 section: tasks
 order: 120
 keywords: insert, file, library, librarycraft, item, equipment, block from another drawing, wblock, design center, credits, attribution, license, update, feed, item.json
@@ -33,10 +33,10 @@ Click {{ui:Library…}} in the {{ui:Blocks}} panel, or {{ui:Library}} in the Blo
 
 The library has four sources, as tabs:
 
-- {{ui:LibraryCraft}}: the CadCraft library. Search by name, maker or model, and filter by category.
+- {{ui:Library}}: the CadCraft library. Search by name, maker or model, and filter by category.
 - {{ui:Files…}}: an item file (`item.json`) from any library, or a drawing, spreadsheet or 3D model to make items from: a DWG or DXF (each block becomes an item), a CSV with name and size columns, or a glTF or OBJ model. Nothing is uploaded.
 - {{ui:Standard}}: steel sections (as sections, elevations or 3D members) and standard parts such as bolts, nuts and bearings, made here from published tables. See [Place steel sections and standard parts](topic:steel-and-standard-parts).
-- {{ui:Other feeds}}: other libraries that answer the same way LibraryCraft does. Add their address once; this browser remembers it.
+- {{ui:Other feeds}}: other libraries that answer the same way Library does. Add their address once; this browser remembers it.
 
 Each card shows a preview, the name, the maker and model, the license and the version. A withdrawn item is marked {{ui:Withdrawn}} with the reason; CadCraft asks before you place one.
 
@@ -76,6 +76,6 @@ Click {{ui:Sign in to the library}}. A small window opens on the site; once you 
 
 ## Common mistakes
 
-- **"Making items from IFC types is in BimCraft."** IFC and family files are read in the BimCraft app. Make the item there or on LibraryCraft, then use its `item.json` here.
+- **"Making items from IFC types is in BimCraft."** IFC and family files are read in the BimCraft app. Make the item there or on the Library, then use its `item.json` here.
 - **"The library could not be reached."** You are offline, or the library is down. Items already in the drawing are not affected.
 - **An item is far too big or too small.** The drawing's units are wrong or not set. Undo, set {{ui:Units}}, and place it again.

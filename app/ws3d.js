@@ -402,14 +402,32 @@ export function createWorkspace3D({ root, doc, engine, host, print, submit, clos
       return;
     }
     const p = pos(e);
-    const r = ws.cam.ray(p.x, p.y);
-    let best = Infinity;
-    for (const f of ws.th.scene().faces) for (const [a, b, c] of f.tris) { const t = rayTri(r.o, r.d, a, b, c); if (t !== null && t < best) best = t; }
-    const pivot = best < Infinity ? [r.o[0] + r.d[0] * best, r.o[1] + r.d[1] * best, r.o[2] + r.d[2] * best] : null;
     const k = Math.exp((e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * (e.ctrlKey ? 0.01 : 0.0015));
-    ws.cam.zoomAt(k, p.x, p.y, pivot);
+    ws.cam.zoomAt(k, p.x, p.y, facePivot(p.x, p.y));
     view.invalidate();
   }, { passive: false });
+  /** The point on the nearest face under (x, y) in the view, or null: the wheel zooms toward it. */
+  function facePivot(x, y) {
+    const r = ws.cam.ray(x, y);
+    let best = Infinity;
+    for (const f of ws.th.scene().faces) for (const [a, b, c] of f.tris) { const t = rayTri(r.o, r.d, a, b, c); if (t !== null && t < best) best = t; }
+    return best < Infinity ? [r.o[0] + r.d[0] * best, r.o[1] + r.d[1] * best, r.o[2] + r.d[2] * best] : null;
+  }
+  // 0.8 Track ID: hand the view to the input-device layer (assets/js/app-devices-ui.js) — the moves of the middle drag (orbit, pan
+  // about the target, as camDrag does) and the wheel (zoom toward the face under (x, y)); cadcraft.js's 2D view passes its moves
+  // here while this tab shows (its canvases are only visibility-hidden). The workspace is made once, so this registers once.
+  ws.devView = {
+    el: over, kind: '3d',
+    pan(dx, dy) { if (!ws.active) return; ws.cam.pan(dx, dy); view.invalidate(); },
+    orbit(dx, dy) { if (!ws.active) return; cubeOpts.stop(); ws.cam.orbit(dx, dy); view.invalidate(); },
+    zoom(f, x = over.clientWidth / 2, y = over.clientHeight / 2) {
+      if (!ws.active || !(f > 0)) return;
+      ws.cam.zoomAt(1 / f, x, y, facePivot(x, y));
+      view.invalidate();
+    },
+    fit() { if (ws.active) ws.fit(); },
+  };
+  (window.ccViews ||= []).push(ws.devView);
 
   // ---- keys (cadcraft.js asks first while the tab shows) ----
   const ARROWS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']);

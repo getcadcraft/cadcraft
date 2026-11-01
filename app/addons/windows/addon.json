@@ -1,0 +1,24 @@
+{
+  "id": "windows",
+  "name": "Windows and doors",
+  "version": "0.8.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "toolbar",
+    "panel",
+    "settings",
+    "objects",
+    "files"
+  ],
+  "description": "Window and door builder for PVC and aluminium profiles: pick a profile system, type the opening and a layout, and get the elevation, the profile cut list with angle cuts and welding allowances, bars to saw with the least waste, steel, glass sizes, hardware and gaskets, and labels in sawing order.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

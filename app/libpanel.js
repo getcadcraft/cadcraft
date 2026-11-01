@@ -22,6 +22,8 @@ import { LibraryClient, LIBRARYCRAFT, feedUrl, isUuid } from './library.js';
 import { itemProblem, itemEntities, libraryUses, updateLibraryBlock, creditsText, creditsCsv } from './libplace.js';
 import { prims, entityBounds, validBounds, emptyBounds, growPt } from './geom.js';
 import * as Li from './libitem.js';
+import { entryFromItem, addEntry } from './details.js';
+import { loadIndex, saveIndex } from './details-cmd.js';
 import { FAMILIES as STD_FAMILIES, familyOf, standardCards, cardDefaults, cardItem, partsList, partsCsv, installStandard } from './stdlib.js';
 import { commandRegistry } from './commands.js';
 
@@ -65,7 +67,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
   // ---- the dialog ----
   const $ = {};
   const tab = (key, label) => { const b = el('button', { type: 'button', role: 'tab', className: 'cc-tab', 'aria-selected': 'false', dataset: { src: key } }, label); b.addEventListener('click', () => setSource(key)); return b; };
-  $.tabs = el('div', { className: 'cc-tablist', role: 'tablist', 'aria-label': t('lib.panel.library_sources') }, tab('librarycraft', 'LibraryCraft'), tab('files', t('lib.panel.files')), tab('standard', t('lib.panel.standard')), tab('feeds', t('lib.panel.other_feeds')));
+  $.tabs = el('div', { className: 'cc-tablist', role: 'tablist', 'aria-label': t('lib.panel.library_sources') }, tab('librarycraft', 'Library'), tab('files', t('lib.panel.files')), tab('standard', t('lib.panel.standard')), tab('feeds', t('lib.panel.other_feeds')));
   $.feedSel = el('select', { className: 'cc-select', 'aria-label': t('lib.panel.feed'), hidden: true });
   $.feedSel.addEventListener('change', () => { if ($.feedSel.value) { source = $.feedSel.value; search(); } });
   $.q = el('input', { type: 'search', className: 'cc-input', placeholder: t('lib.panel.search_name_maker_model'), 'aria-label': t('lib.panel.search_library'), maxLength: 200 });
@@ -347,6 +349,23 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     } catch (err) { say(err.message); return false; }
   }
 
+  // ---- the firm's details (0.8 EG.57): a detail item joins the firm's list kept in this browser (DETAILS) ----
+  const isDetail = (card) => card.kind === 'detail' || card.item?.kind === 'detail' || /^details(\/|$)/.test(card.category || '');
+  async function addToFirm(card) {
+    let item = card.item;
+    if (!item) {
+      say('Downloading ' + card.name + '…');
+      try { item = await client(card.from).itemJson(card.uuid, card.version); }
+      catch (err) { say(err.message); return; }
+      const why = await problemOf(item);
+      if (why) { say(why); return; }
+    }
+    const e = entryFromItem(item);
+    if (!e) { say(t('lib.panel.firm.notdetail', { name: card.name })); return; }
+    try { saveIndex(addEntry(loadIndex(), e)); say(t('details.added', { name: e.name })); }
+    catch { say(t('details.full')); }
+  }
+
   // ---- uses (§6.5) ----
   function registerUse(item) {
     if (!token || !isUuid(item?.uuid) || (item.provenance?.library && item.provenance.library !== 'librarycraft')) return;
@@ -376,6 +395,8 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
   function cardEl(card) {
     const placeBtn = el('button', { type: 'button', className: 'btn-plot btn-sm-cc' }, t('lib.panel.place'));
     placeBtn.addEventListener('click', () => place(card));
+    const firmBtn = isDetail(card) ? el('button', { type: 'button', className: 'btn-line btn-sm-cc' }, t('lib.panel.firm.add')) : null;
+    firmBtn?.addEventListener('click', () => addToFirm(card));
     const mm = [card.maker, card.model].filter(Boolean).join(' ');
     return el('li', { className: 'cc-lib-card' + (card.withdrawn ? ' is-withdrawn' : '') },
       preview(card),
@@ -384,7 +405,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
         mm ? el('p', { className: 'cc-muted' }, mm) : null,
         el('p', { className: 'cc-lib-tags' }, badge(card.license), card.std ? el('span', { className: 'cc-muted' }, card.source) : el('span', { className: 'cc-muted' }, t('lib.panel.version', { version: card.version })), card.category ? el('span', { className: 'cc-muted' }, catLabel(card.category)) : null),
         card.withdrawn ? el('p', { className: 'cc-lib-warn' }, el('i', { className: 'bi bi-exclamation-triangle', 'aria-hidden': 'true' }), ' Withdrawn: ' + card.withdrawn) : null),
-      placeBtn);
+      placeBtn, firmBtn);
   }
   function render(extra = null) {
     for (const b of $.tabs.children) b.setAttribute('aria-selected', String(b.dataset.src === srcKey() && (view === 'browse' || view === 'feeds')));

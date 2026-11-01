@@ -81,6 +81,8 @@ Select the cover sheet in the list and choose {{ui:Put the sheet list on this sh
 
 {{ui:Publish to PDF}} makes one PDF with a page per sheet, in the set's order, at each sheet's own paper size, with a bookmark per sheet ("A-101 — Floor plan"). With a subset selected, CadCraft asks whether to publish just that subset. The title blocks in the PDF are filled from the set even before you update the drawings; the drawings themselves are not changed by publishing. The PDF downloads.
 
+{{ui:Publish to DWG…}} writes each sheet as a DWG of its own (DWG 2018): the model and that one sheet, with its title block filled from the set, named by its number and title (`A-101 Level 1 floor plan.dwg`). Choose {{ui:DWG}}, or {{ui:DWG + PDF}} for the set's PDF beside them. A `publish.json` lists every file with its size and SHA-256. When the set's folder can be written (CadCraft Studio, or a folder you picked in the browser) the files go into a folder `<set name> - published`; otherwise they download as one zip. Viewport [class overrides](topic:viewport-overrides) come along in each DWG.
+
 ## Archive the set
 
 {{ui:Archive as a zip}} packs the set file, every drawing it uses and what those drawings link to (linked drawings, and theirs in turn, and pictures), keeping their folders, plus a `Transmittal.txt` that lists every file. A link that is not in the set's folder is listed there as missing. Links are found by their path from the drawing, then by their file name anywhere in the folder.

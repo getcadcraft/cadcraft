@@ -20,6 +20,7 @@
  * sheet is kept as a paper-space view (DWG does not say which sheet).
  */
 
+import { limitsOf } from './limits.js';   // 0.8 D8.2
 import { writeDwg } from './dwg/write.js';
 import { unitCode } from './dxf.js';
 import { nearestAci } from './doc.js';
@@ -41,7 +42,9 @@ import { t } from './i18n.js';
 import { vportRecords } from './dwg-vports.js';
 import { trWord, propsXdata, varsOf, dstyleItems, ccDimItems } from './dwg-props.js';
 import { payloadStrings, STYLE_BLOCK, styleSheetName } from './plotstyle.js';
+import { addonsPayload, ADDONS_BLOCK } from './addons-file.js';   // 0.8 AL.6
 import { laserPayload, laserFromPayload, isLaserBlock, LASER_BLOCK } from './laser-file.js';   // 0.7 SU.772: the Laser panel's settings, block CADCRAFT_LASER
+import { classesPayload, CLASSES_BLOCK } from './classes-file.js';   // 0.8 SU.912: classes, design layers, viewport class overrides, block CADCRAFT_CLASSES
 import { geoPayload, GEO_BLOCK, dwgGeoObjects } from './geodwg.js';
 import { dynSave } from './dyn-blocks.js';
 import { picturePlacement, pictureKey } from './pictures.js';
@@ -182,7 +185,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
         if (pic) {   // a picture: IMAGE (+ its IMAGEDEF), clipped to its frame when it has a clip
           note('picture');
           return [{ ...base, type: 'IMAGE', insert: P(pic.insert.x, pic.insert.y, z), u: P(pic.u.x, pic.u.y), v: P(pic.v.x, pic.v.y), size: pic.size, def: picDef(pic.file, pic.size),
-            displayFlags: 7, brightness: 50, contrast: 50, fade: pic.fade | 0, ...(pic.clip ? { clipping: true, clipType: 2, clip: pic.clip } : { clipping: false, clip: [] }) }];
+            displayFlags: 7 | (pic.transparent ? 8 : 0), brightness: 50, contrast: 50, fade: pic.fade | 0, ...(pic.clip ? { clipping: true, clipType: 2, clip: pic.clip } : { clipping: false, clip: [] }) }];
         }
         const pdfp = blk ? pdfPlacement(e, blk) : null;
         if (pdfp) {   // a PDF underlay: PDFUNDERLAY (+ its PDFDEFINITION)
@@ -361,7 +364,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
 
   // text and dimension styles (P.7, P.6): every one the drawing keeps, and every name an object uses
   const textStyles = new Map();   // upper-case name → { name, font, height, widthFactor, oblique }
-  for (const [n, v] of doc.textStyles || []) textStyles.set(n.toUpperCase(), { name: n, font: v.font || 'txt', height: v.h || 0, widthFactor: v.wf || 1, oblique: v.obl || 0 });
+  for (const [n, v] of doc.textStyles || []) textStyles.set(n.toUpperCase(), { name: n, font: v.font || 'txt', ...(v.big ? { bigFont: v.big } : {}), height: v.h || 0, widthFactor: v.wf || 1, oblique: v.obl || 0 });
   function textStyle(n) { const k = String(n).toUpperCase(); if (!textStyles.has(k)) textStyles.set(k, { name: String(n), font: 'txt', height: 0, widthFactor: 1, oblique: 0 }); return textStyles.get(k).name; }
   const dimStylesOut = new Map();   // upper-case name → { name, vars }
   const dsVars = (st) => ({ ...varsOf(st), ...(st?.txsty && !/^standard$/i.test(st.txsty) ? { DIMTXSTY: textStyle(st.txsty) } : {}) });
@@ -436,6 +439,10 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   // the Laser panel's settings (0.7 SU.772, laser-file.js): block CADCRAFT_LASER, the same way (DWG 2000–2018 and DXF 2000)
   const lzPts = laserPayload(doc);
   if (lzPts) blocks.push({ name: LASER_BLOCK, base: P(0, 0), entities: lzPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
+  const adPts = addonsPayload(doc);   // 0.8 AL.6 (addons-file.js): block CADCRAFT_ADDONS, the same way
+  if (adPts) blocks.push({ name: ADDONS_BLOCK, base: P(0, 0), entities: adPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
+  const clPts = classesPayload(doc);   // 0.8 SU.912 (classes-file.js): block CADCRAFT_CLASSES, the same way
+  if (clPts) blocks.push({ name: CLASSES_BLOCK, base: P(0, 0), entities: clPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   // the coordinate system and map layers (0.6 GEO-DWG, geodwg.js): CadCraft's copy in block CADCRAFT_GEO; GEODATA below
   const geoPts = geoPayload(doc);
   if (geoPts) blocks.push({ name: GEO_BLOCK, base: P(0, 0), entities: geoPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
@@ -477,6 +484,9 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   const units = doc.meta.units || '';
   const header = { INSUNITS: unitCode(units), MEASUREMENT: IMPERIAL.has(units) ? 0 : 1, LUNITS: doc.meta.lunits || 2 };
   if (Number.isFinite(doc.meta.luprec)) header.LUPREC = doc.meta.luprec;
+  if (doc.meta.aunits >= 1 && doc.meta.aunits <= 4) { header.AUNITS = doc.meta.aunits; if (Number.isFinite(doc.meta.auprec)) header.AUPREC = doc.meta.auprec; }   // 0.8 SU.932
+  if (doc.meta.limits) { const l = limitsOf(doc.meta); header.LIMMIN = P(l.x0, l.y0); header.LIMMAX = P(l.x1, l.y1); header.LIMCHECK = l.on ? 1 : 0; }   // 0.8 D8.2
+  { const pp = (doc.layouts || [])[0]?.paper; if (pp && [pp.x0, pp.y0, pp.w, pp.h].every(Number.isFinite) && pp.w > 0 && pp.h > 0) { header.PLIMMIN = P(pp.x0, pp.y0); header.PLIMMAX = P(pp.x0 + pp.w, pp.y0 + pp.h); } }   // $PLIMMIN / $PLIMMAX: the paper space limits (0.8 D8.2 rest, cad_PART_3), as the DXF writer already does
   if (doc.meta.insbase) header.INSBASE = P(doc.meta.insbase.x || 0, doc.meta.insbase.y || 0);
   // the current UCS and the named ones (DR.8; ucs.js { x, y, ang }): $UCSORG / $UCSXDIR / $UCSYDIR and the UCS table
   const axes = (u) => ({ origin: P(u.x, u.y), xAxis: P(Math.cos(u.ang), Math.sin(u.ang)), yAxis: P(-Math.sin(u.ang), Math.cos(u.ang)) });

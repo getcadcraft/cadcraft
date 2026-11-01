@@ -155,6 +155,17 @@ export const SYMBOLS = [
     draw: { iec: () => [C(0, 2.5, 4), C(0, -2.5, 4), L(-2.5, 10, -2.5, 5.7), L(2.5, 10, 2.5, 5.7), L(-2.5, -10, -2.5, -5.7), L(2.5, -10, 2.5, -5.7)],
       ansi: () => [...[0, 1, 2, 3].flatMap((i) => [A(-5 + i * 2.5 + 1.25, 2, 1.25, 180, 360), A(-5 + i * 2.5 + 1.25, -2, 1.25, 0, 180)]), L(-5, 0.6, 5, 0.6), L(-5, -0.6, 5, -0.6),
         L(-2.5, 10, -2.5, 4), L(-2.5, 4, -5, 2), L(2.5, 10, 2.5, 4), L(2.5, 4, 5, 2), L(-2.5, -10, -2.5, -4), L(-2.5, -4, -5, -2), L(2.5, -10, 2.5, -4), L(2.5, -4, 5, -2)] } },
+  // power (0.8 EG.15): the parts of a PV one-line. Drawn on a vertical axis like the others (in at the top, out at the bottom); the PV one-line places them turned 90° so the diagram reads left to right.
+  { key: 'pv.array', group: 'power', role: 'device', pins: [['P1', 0, -5, '']],
+    draw: { iec: () => [L(0, -5, 0, -3.5), R(-4, -3.5, 4, 3.5), L(-4, 0, 4, 0), L(0, -3.5, 0, 3.5), L(-4, -3.5, 4, 3.5)], ansi: () => [L(0, -5, 0, -3.5), R(-4, -3.5, 4, 3.5), L(-4, 0, 4, 0), L(0, -3.5, 0, 3.5), L(-4, -3.5, 4, 3.5)] } },
+  { key: 'pv.combiner', group: 'power', role: 'device', pins: [['P1', 0, 5, ''], ['P2', 0, -5, '']],
+    draw: { iec: () => [L(0, 5, 0, 3), L(0, -3, 0, -5), R(-4, -3, 4, 3), L(-2.5, 3, -2.5, 0.5), L(0, 3, 0, 0.5), L(2.5, 3, 2.5, 0.5), L(-2.5, 0.5, 2.5, 0.5), L(0, 0.5, 0, -3)], ansi: () => [L(0, 5, 0, 3), L(0, -3, 0, -5), R(-4, -3, 4, 3), L(-2.5, 3, -2.5, 0.5), L(0, 3, 0, 0.5), L(2.5, 3, 2.5, 0.5), L(-2.5, 0.5, 2.5, 0.5), L(0, 0.5, 0, -3)] } },
+  { key: 'pv.inverter', group: 'power', role: 'device', pins: [['P1', 0, 5, 'DC'], ['P2', 0, -5, 'AC']],
+    draw: { iec: () => [L(0, 5, 0, 3.5), L(0, -3.5, 0, -5), R(-4, -3.5, 4, 3.5), L(-4, -3.5, 4, 3.5), L(-3, 2.4, -1, 2.4), L(-3, 1.8, -1, 1.8), A(2, -2.2, 0.9, 0, 180), A(3.8, -2.2, 0.9, 180, 360)], ansi: () => [L(0, 5, 0, 3.5), L(0, -3.5, 0, -5), R(-4, -3.5, 4, 3.5), L(-4, -3.5, 4, 3.5), L(-3, 2.4, -1, 2.4), L(-3, 1.8, -1, 1.8), A(2, -2.2, 0.9, 0, 180), A(3.8, -2.2, 0.9, 180, 360)] } },
+  { key: 'panel.board', group: 'power', role: 'device', pins: [['P1', 0, 5, ''], ['P2', 0, -5, '']],
+    draw: { iec: () => [L(0, 5, 0, 4), L(0, -4, 0, -5), R(-4, -4, 4, 4), L(-3, 1, 3, 1), L(-3, -1, 3, -1)], ansi: () => [L(0, 5, 0, 4), L(0, -4, 0, -5), R(-4, -4, 4, 4), L(-3, 1, 3, 1), L(-3, -1, 3, -1)] } },
+  { key: 'utility', group: 'power', role: 'device', pins: [['P1', 0, 5, '']],
+    draw: { iec: () => [L(0, 5, 0, 3.5), C(0, 0, 3.5), A(-1.75, 0, 1.75, 0, 180), A(1.75, 0, 1.75, 180, 360)], ansi: () => [L(0, 5, 0, 3.5), C(0, 0, 3.5), A(-1.75, 0, 1.75, 0, 180), A(1.75, 0, 1.75, 180, 360)] } },
   // terminals and PLC
   { key: 'terminal', group: 'terminals', role: 'terminal', pins: [['P1', 0, 2.5, ''], ['P2', 0, -2.5, '']],
     draw: { iec: () => [C(0, 0, 1.25), L(0, 2.5, 0, 1.25), L(0, -1.25, 0, -2.5)], ansi: () => [C(0, 0, 1.25), L(0, 2.5, 0, 1.25), L(0, -1.25, 0, -2.5), L(-0.9, -0.9, 0.9, 0.9)] } },
@@ -166,7 +177,7 @@ export const SYMBOLS = [
     draw: { iec: () => [L(0, 5, 0, 0), L(-3, 0, 3, 0), L(-2, -1, 2, -1), L(-1, -2, 1, -2)], ansi: () => [L(0, 5, 0, 0), L(-3, 0, 3, 0), L(-2, -1, 2, -1), L(-1, -2, 1, -2)] } },
 ];
 
-export const GROUPS = ['contacts', 'switches', 'coils', 'protection', 'loads', 'terminals', 'plc'];
+export const GROUPS = ['contacts', 'switches', 'coils', 'protection', 'loads', 'power', 'terminals', 'plc'];
 
 /** IEC 81346-2 class letters for a new tag, by symbol (tags.js uses them). */
 export const LETTERS = {
@@ -174,7 +185,7 @@ export const LETTERS = {
   'pushbutton.no': 'S', 'pushbutton.nc': 'S', 'switch.selector': 'S', 'switch.manual': 'S', 'switch.limit': 'B',
   coil: 'K', 'coil.on-delay': 'K', 'coil.off-delay': 'K',
   fuse: 'F', breaker: 'F', 'rcd.2p': 'F', 'rcd.4p': 'F', rcbo: 'F', 'breaker.3p': 'Q', 'breaker.motor': 'Q', overload: 'F', disconnector: 'Q',
-  'motor.3ph': 'M', 'motor.dc': 'M', lamp: 'P', horn: 'P', transformer: 'T', terminal: 'X', 'plc.input': 'A', 'plc.output': 'A', earth: '',
+  'motor.3ph': 'M', 'motor.dc': 'M', lamp: 'P', horn: 'P', transformer: 'T', 'pv.array': 'G', 'pv.combiner': 'X', 'pv.inverter': 'T', 'panel.board': '', utility: '', terminal: 'X', 'plc.input': 'A', 'plc.output': 'A', earth: '',
 };
 
 const BY_KEY = new Map(SYMBOLS.map((s) => [s.key, s]));
