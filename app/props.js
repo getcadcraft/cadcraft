@@ -210,7 +210,15 @@ export function createPropsPanel(o) {
   const K = (k) => 'k:' + k;   // option values carry a prefix so "" (by layer) is a real, selectable value
   const selRow = (id, category, label, spec, extra = {}) => ({ id, category, label, type: 'select', options: spec.list.map(([k, l]) => ({ value: K(k), label: String(l) })),
     value: spec.key === null ? null : K(spec.key), mixed: spec.key === null, ...extra });
-  const numRow = (id, category, label, def, value, extra = {}) => ({ id, category, label, type: 'number', value: value === VARIES ? null : value, mixed: value === VARIES,
+  /** The text a number field holds: the drawing's own format (12'-6", 1/2") when reading it back gives the same number, else the plain number. */
+  const numText = (def, value) => {
+    if (value === VARIES || !Number.isFinite(value) || (def.kind !== 'len' && def.kind !== 'ang')) return value === VARIES ? null : value;
+    const txt = show(def, value);
+    let back = null;
+    try { back = read(def, txt); } catch { back = null; }
+    return back && back.ok && Math.abs(back.value - value) <= 1e-9 * Math.max(1, Math.abs(value)) ? txt : value;
+  };
+  const numRow = (id, category, label, def, value, extra = {}) => ({ id, category, label, type: 'number', value: numText(def, value), mixed: value === VARIES,
     parse: (text) => read(def, text), hint: value === VARIES ? '' : show(def, value), ...extra });
 
   /** One descriptor → a grid row (and what a change to it does), or null when the descriptor needs a widget of its own (vertex stepper, multi-line text). */

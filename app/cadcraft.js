@@ -741,7 +741,16 @@ function init(root) {
     click(raw);
     cycle = null;
   });
-  ui.over.addEventListener('pointerleave', () => { view.hoverPane = -1; view.state.cursor = null; view.state.snap = null; renderDyn(); view.invalidate(); });
+  const dropCrosshair = () => { view.hoverPane = -1; view.state.cursor = null; view.state.snap = null; renderDyn(); view.invalidate(); };
+  ui.over.addEventListener('pointerleave', dropCrosshair);
+  // The crosshair is painted on the canvas, so a popup that opens under a still pointer (a dialog, a menu, a floating panel) left it showing
+  // with no pointerleave to clear it: drop it when any pointer move lands outside the drawing, and when a modal dialog opens.
+  document.addEventListener('pointermove', (e) => { if (view.state.cursor && !down && !ui.over.contains(e.target) && e.target !== ui.over) dropCrosshair(); }, true);
+  if (!HTMLDialogElement.prototype.showModal.__ccCrosshair) {
+    const showModal = HTMLDialogElement.prototype.showModal;
+    HTMLDialogElement.prototype.showModal = function () { dropCrosshair(); return showModal.apply(this, arguments); };
+    HTMLDialogElement.prototype.showModal.__ccCrosshair = true;
+  }
   const padDetector = new PadDetector();
   ui.over.addEventListener('wheel', (e) => {
     e.preventDefault();
