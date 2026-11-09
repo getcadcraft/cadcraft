@@ -45,6 +45,9 @@ import { DIM_EXTRA, ARROWS, TOL_MODES, dimStyleText, textUnitOf, withTextUnit, t
 import { PATTERNS } from './hatch.js';
 import { LUNITS } from './units.js';
 import { t } from './i18n.js';
+import { stretchRefused, stretchAllowed } from './libplace.js';
+/** "width and depth" / "nothing" for the axes a Library item may be stretched along. */
+const stretchWords = (axes) => axes.map((a) => t('props.stretch.' + a)).join(t('props.stretch.and'));
 import { visibilityOf, setVisibility } from './dyn-blocks.js';
 
 export const VARIES = Symbol('varies');
@@ -258,10 +261,10 @@ const TYPES = {
     ...dynamicDefs(ctx),
   ],
   hatch: () => [
-    { key: 'pattern', sec: 'pattern', kind: 'choice', when: (e) => !e.patlines?.length && (e.solid || !e.pattern || !!PATTERNS[String(e.pattern).toUpperCase()]),
+    { key: 'pattern', sec: 'pattern', kind: 'choice', when: (e) => !e.patlines?.length && !e.patdef?.length && (e.solid || !e.pattern || !!PATTERNS[String(e.pattern).toUpperCase()]),
       choices: () => ['SOLID', ...Object.keys(PATTERNS)].map((k) => [k, k]), get: (e) => (e.solid ? 'SOLID' : String(e.pattern || 'ANSI31').toUpperCase()),
       set: (e, v) => { const n = { ...e, solid: v === 'SOLID' }; if (v === 'SOLID') delete n.pattern; else { n.pattern = v; n.pscale ??= 1; n.pangle ??= 0; } return n; } },
-    { key: 'patname', sec: 'pattern', kind: 'ro', when: (e) => !!e.patlines?.length || (!e.solid && !!e.pattern && !PATTERNS[String(e.pattern).toUpperCase()]), get: (e) => e.pattern || t('props.hatch.custom') },
+    { key: 'patname', sec: 'pattern', kind: 'ro', when: (e) => !!e.patlines?.length || !!e.patdef?.length || (!e.solid && !!e.pattern && !PATTERNS[String(e.pattern).toUpperCase()]), get: (e) => e.pattern || t('props.hatch.custom') },
     { key: 'pscale', sec: 'pattern', kind: 'num', gt0: true, when: (e) => !e.solid, get: (e) => (e.pscale > 0 ? e.pscale : 1), set: (e, v) => ({ ...e, pscale: v }) },
     { key: 'pangle', sec: 'pattern', kind: 'ang', when: (e) => !e.solid, get: (e) => deg(e.pangle || 0), set: (e, v) => ({ ...e, pangle: normAngle(rad(v)) }) },
     ...['x', 'y'].map((a) => ({ key: 'origin.' + a, sec: 'pattern', kind: 'len', when: (e) => !e.solid, pt: { name: 'origin', axis: a }, label: t('props.f.' + a),
@@ -483,10 +486,11 @@ export function defsFor(key, ents, ctx = {}) {
   let list = general;
   if (key !== 'all' && types.size === 1 && TYPES[key]) list = [...general, ...TYPES[key](c)];
   list = [...list, ...addedDefs(types, c)];
+  if (c.ents?.length && c.ents.every((e) => e.type === 'insert' && e.xd?.CADCRAFT_WALL)) list = list.filter((d) => d.sec !== 'geometry' && d.sec !== 'custom' && d.sec !== 'misc');   // a wall (0.9 PLAN2D.4) shows its own section, not a block's
   list = list.filter((d) => (!d.one || ents.length === 1) && (!d.when || ents.every((e) => d.when(e, c))));
   list = list.map((d) => ({ ...d, label: d.label || t('props.f.' + d.key) }));
   const added = [...ADDED.keys()];
-  const order = (s) => { const i = SECTIONS.indexOf(s); return i >= 0 ? i : SECTIONS.length + 1 + added.indexOf(s); };
+  const order = (s) => { if (s === 'plan2d-wall') return 0.5; const i = SECTIONS.indexOf(s); return i >= 0 ? i : SECTIONS.length + 1 + added.indexOf(s); };
   return list.map((d, i) => [d, i]).sort((a, b) => order(a[0].sec) - order(b[0].sec) || a[1] - b[1]).map(([d]) => d);
 }
 
@@ -520,6 +524,7 @@ export function applyValue(doc, def, ents, v, ctx = {}) {
         if (!doc.editable(cur)) { locked++; continue; }
         const next = def.set(cur, v, c);
         if (!next || next === cur) continue;
+        if (stretchRefused(cur, next)) { const ok = stretchAllowed(cur); throw ok.length ? new PropError('props.err.libstretch', { allowed: stretchWords(ok) }) : new PropError('props.err.libstretch.none'); }   // 2026-11-02: a Library item's maker decides
         doc.update(cur.id, next);
         changed++;
       }

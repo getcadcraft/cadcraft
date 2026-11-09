@@ -69,7 +69,7 @@ An assistant connected to your CadCraft window (see the help on working with AI 
 
 ## Join from a browser
 
-A teammate without Studio can scan the picture under the host's code with a phone, tablet or computer on the same network. CadCraft opens in the browser, asks for your name on the command line, and fills with the host's drawing once the host lets you in. Invite links, for joining from another network, are not open yet.
+A teammate without Studio can scan the picture under the host's code with a phone, tablet or computer on the same network. CadCraft opens in the browser, asks for your name on the command line, and fills with the host's drawing once the host lets you in. An invite link lets someone join from another network: the host needs a Team Cloud Plan seat for the app, everyone else joins free, and the link works only while the host's session is open.
 
 ## Many people on one drawing
 

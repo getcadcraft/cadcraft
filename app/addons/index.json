@@ -12,6 +12,8 @@
     "regs",
     "nesting",
     "trusscraft",
-    "cabinetcraft"
-  ]
+    "cabinetcraft",
+    "chip",
+    "carving",
+    "lightdesign", "pointcloud", "circuit", "chain"]
 }

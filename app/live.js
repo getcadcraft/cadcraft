@@ -708,8 +708,10 @@ export function createLiveAdapter({ host } = {}) {
 // nothing above does. `app` = window.cadcraft { doc, view, engine, host, commands }.
 
 /** Colours for people (the site's eight layer colours; every one passes 4.5:1 on paper and on the dark model space). */
-export const PEOPLE = ['#c8102e', '#1f6fd1', '#d9640a', '#b5179e', '#9a7b00', '#1d8a4b', '#6a3fd6', '#008c9e'];
-export const personColour = (c) => PEOPLE[((c || 1) - 1) % PEOPLE.length];
+// (0.9 SU.1112) one palette for every app's Live: the shared presence layer's (live-presence.js; every other app draws with it)
+import { PEOPLE, personColour } from './live-presence.js';
+import { attachFollow, fitUnits } from './live-follow.js';   // 0.9 ED.1 / ED.2: follow a view, the people list
+export { PEOPLE, personColour };
 const HOLD_MAX = 500, SEL_MAX = 200, NEAR = 0.25;
 
 export function attachUi(app, adapter, client) {
@@ -756,10 +758,32 @@ export function attachUi(app, adapter, client) {
     const p = mine(), k = JSON.stringify(p);
     if (k === sent) return;
     sent = k;
-    client.setPresence(p);
+    client.setPresence({ ...(client.lastPresence || {}), ...p });   // keep what live-follow.js adds (vw, ld)
   }
   const timer = setInterval(push, 33);
   offs.push(() => clearInterval(timer));
+
+  // ---- follow someone's view, and the people list (0.9 ED.1 / ED.2; live-follow.js) ----------------------------------
+  const view2d = () => (window.ccViews || []).find((x) => x && x.kind === '2d' && x.el) || null;
+  const layoutOf = (key) => (doc().layouts || []).find((l) => adapter.lidOf(l.entities) === key) || null;
+  offs.push(attachFollow(client, {
+    get el() { const v = view2d(); return v ? v.el : null; },
+    hidden: () => !!(host.ws3d && host.ws3d.active),
+    space: spaceId,
+    spaceName: (key) => (key ? (layoutOf(key) || {}).name || '' : t('live.where.model')),
+    goSpace: (key) => { if (!host.showSpace) return; if (!key) host.showSpace(null); else { const l = layoutOf(key); if (l) host.showSpace(l); } },
+    toModel: (x, y) => { const p = view.toWorld(x - (view.x0 || 0), y - (view.y0 || 0)); return [p.x, p.y]; },
+    toScreen: (p) => { const q = view.toScreen(p[0], p[1]); return [q.x + (view.x0 || 0), q.y + (view.y0 || 0)]; },
+    snap: () => (view.w && view.h && view.zoom > 0 ? { k: '2d', c: [view.cx, view.cy], u: 1 / view.zoom, w: view.w, h: view.h } : null),
+    apply: (vw) => {
+      if (!vw || vw.k !== '2d' || !view.w || !view.h) return false;
+      const u = fitUnits(vw, view.w, view.h);
+      if (!(u > 0)) return false;
+      view.cx = vw.c[0]; view.cy = vw.c[1]; view.zoom = 1 / u;
+      view.invalidate();
+      return true;
+    },
+  }, { t, colour: personColour }));
   // the space id of the open sheet, cheaply (presence runs often)
 
   adapter.drawPresence = (peers) => { others = new Map(peers); view.invalidate(); };

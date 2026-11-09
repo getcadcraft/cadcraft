@@ -16,3 +16,5 @@ Open **Connect to a device** in the add-on panel.
 4. **Read the devices** needs CadCraft Studio, because a browser page cannot open a network connection to a plant. Without it the panel says so.
 
 The map is kept with the add-on's storage on this computer; it never holds a password.
+
+A drafting and study aid, not an engineering approval. A person with the right training checks every result before it is used.

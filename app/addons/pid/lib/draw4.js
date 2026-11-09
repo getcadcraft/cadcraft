@@ -166,6 +166,14 @@ export function install4(api, deps) {
     }).catch((e) => { connectBody.textContent = String(e && e.message || e); });
   }
 
+  // ---------------------------------------------------------------------------------------------- panel: Connect your lab system (CH.26)
+  const limsBody = api.ui.panelSection({ id: 'pid-lims', title: tt('ui.lims', 'Connect your lab system'), render: () => {} });
+  if (limsBody) {
+    import('../../../process/env/limsconnect-ui.js').then(({ mountLims }) => {
+      mountLims(limsBody, { load: () => api.storage.get('limsprofile'), save: (p) => api.storage.set('limsprofile', p), publish: (list) => publishCalc(list) });
+    }).catch((e) => { limsBody.textContent = String(e && e.message || e); });
+  }
+
   // ---------------------------------------------------------------------------------------------- PIDTUBESHEET (CH.8) and PIDPLUME (CH.19)
   cmd('PIDTUBESHEET', ['PTUBES'], async (c) => {
     const doc = c.doc, inp = lastInputs.exchanger || CALC.get('exchanger').input;

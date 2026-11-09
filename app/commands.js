@@ -35,16 +35,18 @@ import {
   txEntity, offsetEntity, extendEntity, trimSplit, pieceAt, pieceEntity, trimResult, pathCrossings, extensionPart, inWindow, fenceHits, stretchEntity, joinEntities, breakEntity, lengthenEntity, curveLength, paramOn, pathOf, revcloud, entityArea, polygonMeasure, intersect, cornerTarget, filletPair, chamferPair, polyCorners, explodeEntity, entityBounds, validBounds, prims, primPoint, bulgeArc,
   unitDir, distToPrim, UNBOUNDED, resolveTangent, insertMatrix, mInverse,
 } from './geom.js';
+import * as Arcs from './arcs/arcs.js';
 import { TYPE_NAMES, typeName, Doc } from './doc.js';
 import { formatMeasure, angularFromLines, DIM_KINDS } from './dims.js';
 import { textUnitOf, withTextUnit, textUnitMm } from './dimstyle.js';
 import { sheetContents, defaultPaper, makePaper, aimViewport, modelExtents, scaleLabel } from './sheets.js';
 import { defaultAttrs, attrRows, nextNumber, oneLine } from './attrs.js';
 import { planCopy, applyCopy } from './blockcopy.js';
-import { ensureLibraryBlock, libraryAttrs } from './libplace.js';
+import { ensureLibraryBlock, libraryAttrs, stretchRefused } from './libplace.js';
 import { Clipboard, makeClip, basePoint, pastePreview, pasteClip } from './clipboard.js';
 import { wblockDoc } from './wblock.js';
 import { withPlain } from './mtext.js';
+import * as TS from './textstyles.js';
 import { listStyles, currentName, styleOf, setCurrent, saveStyle, renameStyle, deleteStyle, applyStyle, differences, findName } from './dimstyles.js';
 import { scalesOf, parseRatio, scaleLine, addScale, editScale, deleteScale, resetScales } from './scales.js';
 import { installParametric } from './pcommands.js';
@@ -55,6 +57,8 @@ import { findMatches, applyMatches } from './findtext.js';
 import { leaderGeometry } from './leader.js';
 import { mirrorConstraints, resignAmong, trimConstraints } from './ckeep.js';
 import { PATTERNS, patternNames, boundaryAt, loopsOf, hatchLines, hatchIsMetric } from './hatch.js';
+import { parsePat } from './patfile.js';
+import { linkHatch, sourcesOf } from './hatch-assoc.js';   // 0.9 PLAN2D.1
 import { limitsOf, insideLimits, limitsPatch, defaultLimits, CHECKED } from './limits.js';
 import { formatLength, formatArea, parseLength, readLength, readNumber, readAngle, tAngle, fmtAngle, aunitCode, isArithmetic, calcMessage, unitsOf, LUNITS, isImperialFormat, lunitCode, mmPerDrawingUnit } from './units.js';
 import { install3d } from './commands3d.js';
@@ -70,6 +74,17 @@ import { activeUcs, toWorld as ucsToWorld, toUcs, vecToWorld, setUcs, threePoint
 import { alignMatrix, alignMoves, distributeMoves } from './align.js';   // 0.6 DF.2
 import { placementOf, editedRef, syncBlock, attdefsDiffer, applyAttdefs, hasAttributes, refsOf } from './attedit.js';   // 0.6 DF.5
 import { collectPoints, formatPoints, blockTags, UNIT_FACTOR, POINT_FORMATS } from './ptexport.js';   // 0.6 DF.7
+
+/** FX.34: the object snap words AutoCAD takes at a point prompt: three letters or more of the name (mid, midp, end, cen, int, per …). */
+const SNAP_WORDS = [['end', 'endpoint'], ['mid', 'midpoint'], ['cen', 'center'], ['qua', 'quadrant', 'quad'], ['int', 'intersection'], ['per', 'perpendicular', 'perp'],
+  ['tan', 'tangent'], ['nea', 'nearest', 'near'], ['nod', 'node'], ['ins', 'insertion'], ['non', 'none']];
+const SNAP_KIND_OF = { end: 'end', mid: 'mid', cen: 'cen', qua: 'quad', int: 'int', per: 'perp', tan: 'tan', nea: 'near', nod: 'node', ins: 'ins', non: 'none' };
+export function snapWord(text) {
+  const w = String(text || '').trim().toLowerCase();
+  if (w.length < 3 || !/^[a-z]+$/.test(w)) return null;
+  for (const names of SNAP_WORDS) if (names.some((n) => n.startsWith(w))) return { kind: SNAP_KIND_OF[names[0]], name: names[1] === 'quad' ? 'quadrant' : names[1] };
+  return null;
+}
 
 export class Cancel extends Error { constructor() { super('Cancel'); } }
 
@@ -145,6 +160,8 @@ export class Engine {
     if (w.opts.accept) { const v = w.opts.accept(typed); if (v !== null && v !== undefined) return this.resolve({ option: '_typed', value: v }); }   // a command's own token (ZOOM 2x)
     switch (w.kind) {
       case 'point': {
+        const sw = this.host.snapOnce ? snapWord(typed) : null;   // FX.34: a typed object snap (mid, end, cen …) for the next pick
+        if (sw) { this.host.snapOnce(sw.kind); this.host.print(t('cmd.snapword.of', { name: sw.name })); return; }
         const p = this.parsePoint(typed);
         if (p && this.outsideLimits(p)) return this.refuseOutside();
         if (p) return this.resolve(p);
@@ -201,8 +218,13 @@ export class Engine {
         if (w.opts.base) this.resolve(dist(w.opts.base, point));
         else { w.opts.base = point; this.base = point; this.host.prompt(t('cmd.specify_second_point')); }
         return true;
+      case 'number':
+        if (!w.opts.fromClick) return false;
+        this.resolve(w.opts.fromClick(point));   // 0.9 FX.137: ARC's chord length and radius by pointer
+        return true;
       case 'angle':
-        if (w.opts.base) this.resolve(angleOf(w.opts.base, point));
+        if (w.opts.fromClick) this.resolve(w.opts.fromClick(point));   // ARC's included angle is measured from the start's ray
+        else if (w.opts.base) this.resolve(angleOf(w.opts.base, point));
         else { w.opts.base = point; this.base = point; this.host.prompt(t('cmd.specify_second_point')); }
         return true;
       case 'select': {
@@ -264,6 +286,7 @@ export class Engine {
   }
 
   escape() {
+    this.host.snapOnce?.(null);
     if (this.waiting) { const w = this.waiting; this.waiting = null; w.reject(new Cancel()); return true; }
     return !!this.host.cancelEdit?.();   // an in-place editor open (MTEXT): close it without saving
   }
@@ -272,6 +295,7 @@ export class Engine {
     const w = this.waiting;
     if (!w) return;
     this.waiting = null;
+    if (w.kind === 'point') this.host.snapOnce?.(null);
     if (v && typeof v.x === 'number' && w.kind === 'point') this.lastPoint = { x: v.x, y: v.y };
     w.resolve(v);
   }
@@ -749,24 +773,75 @@ def('RAY', [], async (c) => {
   return throughPoints(c, 'ray', (p) => { const u = unitDir(p.x - a.x, p.y - a.y); return u && { x: a.x, y: a.y, ...u }; });
 }, { help: () => t('cmd.ray.help') });
 
-def('ARC', ['A'], async (c) => {
-  const p0 = await c.point(t('cmd.arc.specify_start_point_arc'), { options: [opt('C', 'Center')] });
-  if (p0.option === 'C') {
-    const center = await c.point(t('cmd.arc.specify_center_point_arc'));
-    const s = await c.point(t('cmd.arc.specify_start_point_arc'), { base: center });
-    const r = dist(center, s), a0 = angleOf(center, s);
-    c.preview((cur) => [{ type: 'arc', cx: center.x, cy: center.y, r, a0, a1: angleOf(center, cur) }]);
-    const e = await c.point(t('cmd.arc.specify_end_point_arc'), { base: center });
-    c.add(ent(c, { type: 'arc', cx: center.x, cy: center.y, r, a0: normAngle(a0), a1: normAngle(angleOf(center, e)) }));
-    return;
+// ---- ARC (0.9 FX.137): the eleven ways of drawing an arc, geometry in arcs.js (lib/arcs, shared by every drawing app) ----
+const ARC_FAMILY = [['SCE', 'SCA', 'SCL'], ['CSE', 'CSA', 'CSL'], ['SEA', 'SED', 'SER']];
+const ARC_KEY = { SCE: 'E', CSE: 'E', SCA: 'A', CSA: 'A', SCL: 'L', CSL: 'L', SEA: 'A', SED: 'D', SER: 'R' };
+const ARC_WORD = { E: 'End', A: 'Angle', L: 'Length', D: 'Direction', R: 'Radius' };
+const ARC_PROMPT = { start: 'cmd.arc.specify_start_point_arc', center: 'cmd.arc.specify_center_point_arc', second: 'cmd.arc.specify_second_point_arc', end: 'cmd.arc.specify_end_point_arc', angle: 'cmd.arc.angle', length: 'cmd.arc.length', direction: 'cmd.arc.direction', radius: 'cmd.arc.radius' };
+
+/** Where Continue starts: the end of the last line, arc or open polyline drawn, and the way it was heading → { x, y, dir } or null. */
+function arcContinueFrom(doc) {
+  const ids = [...doc.entities.keys()];
+  for (let k = ids.length - 1; k >= 0; k--) {
+    const e = doc.get(ids[k]);
+    if (!e || !doc.editable(e)) continue;
+    if (e.type === 'line') { const u = unitDir(e.x2 - e.x1, e.y2 - e.y1); return u && { x: e.x2, y: e.y2, dir: Math.atan2(u.dy, u.dx) }; }
+    if (e.type === 'arc') return Arcs.endTangent(e);
+    if (e.type === 'poly' && !e.closed && e.pts.length > 1) {
+      const a = e.pts[e.pts.length - 2], b = e.pts[e.pts.length - 1], chord = angleOf(a, b);
+      return { x: b.x, y: b.y, dir: chord + 2 * Math.atan(a.b || 0) };   // the tangent at the end of a bulge leans half the included angle off the chord
+    }
   }
-  const p1 = await c.point(t('cmd.arc.specify_second_point_arc'), { base: p0 });
-  c.preview((cur) => { const a = arc3(p0, p1, cur); return a ? [{ type: 'arc', ...a }] : [{ type: 'line', x1: p0.x, y1: p0.y, x2: p1.x, y2: p1.y }]; });
-  const p2 = await c.point(t('cmd.arc.specify_end_point_arc'), { base: p1 });
-  const a = arc3(p0, p1, p2);
-  if (!a) { c.print(t('cmd.circle.three_points_line')); return; }
-  c.add(ent(c, { type: 'arc', ...a }));
-}, { help: () => t('cmd.arc.three_points_center_start') });
+  return null;
+}
+
+def('ARC', ['A'], async (c) => {
+  const hidden = Arcs.METHOD_IDS.map((k) => ({ key: k, label: k, hidden: true }));   // the toolbar's "ARC SCE" feeds the method here
+  const p0 = await c.point(t('cmd.arc.specify_start_point_arc'), { none: true, options: [opt('C', 'Center'), ...hidden] });
+  let id, v = [], from = null;
+  if (p0 === null || p0.option === 'CON') {   // Enter or Continue: on from the last line or arc
+    from = arcContinueFrom(c.doc);
+    if (!from) { c.print(t('cmd.arc.nothing_to_continue')); return; }
+    id = 'CON';
+  } else if (p0.option === 'C') id = 'CSE';
+  else if (p0.option) id = p0.option;
+  else {
+    v = [p0];
+    const p1 = await c.point(t('cmd.arc.specify_second_point_arc'), { base: p0, options: [opt('C', 'Center'), opt('E', 'End')] });
+    if (p1.option === 'C') id = 'SCE';
+    else if (p1.option === 'E') id = 'SEA';
+    else { id = '3P'; v.push(p1); }
+  }
+  const solveOpt = { from };
+  for (;;) {
+    const roles = Arcs.ROLES[id], i = id === 'CON' ? 0 : v.length, role = roles[i];
+    if (!role) break;
+    const lastStep = i === roles.length - 1, fam = ARC_FAMILY.find((f) => f.includes(id));
+    const options = lastStep && fam ? fam.filter((m) => m !== id).map((m) => opt(ARC_KEY[m], ARC_WORD[ARC_KEY[m]])) : [];
+    const prev = v[i - 1] || (id === 'CON' ? from : undefined);
+    const start = v[roles.indexOf('start')] || from, ctr = roles.includes('center') ? v[roles.indexOf('center')] : null;
+    const at = { ...(from ? { from } : {}) };
+    c.preview((cur) => {
+      if (lastStep || id === 'CON') { const r = Arcs.drag(id, v, cur, at); return r ? [{ type: 'arc', ...r.arc }] : []; }
+      return prev ? [{ type: 'line', x1: prev.x, y1: prev.y, x2: cur.x, y2: cur.y }] : [];
+    });
+    const fromClick = (pt) => Arcs.pointerValue(id, v, pt, at);
+    const prompt = t(ARC_PROMPT[role]);
+    let r;
+    if (role === 'angle') r = await c.angle(prompt, { base: ctr || start, options, fromClick });
+    else if (role === 'direction') r = await c.angle(prompt, { base: start, options, fromClick });
+    else if (role === 'length' || role === 'radius') r = await c.number(prompt, { length: true, base: start, options, fromClick });
+    else r = await c.point(prompt, { base: prev, options });
+    if (r === null || r === undefined) return;
+    if (r.option) { id = fam.find((m) => ARC_KEY[m] === r.option); continue; }
+    v.push(r);
+    if (id === 'CON') break;
+  }
+  const res = Arcs.solve(id, v, solveOpt);
+  if (!res.arc) { c.print(t('cmd.arc.err.' + res.error)); return; }
+  const a = res.arc;
+  c.add(ent(c, { type: 'arc', cx: a.cx, cy: a.cy, r: a.r, a0: a.a0, a1: a.a1 }));
+}, { help: () => t('cmd.arc.help') });
 
 def('RECTANG', ['REC', 'RECTANGLE'], async (c) => {
   const a = await c.point(t('cmd.area.first'));
@@ -837,7 +912,8 @@ def('TEXT', ['DT', 'DTEXT'], async (c) => {
     va = { M: 'middle', MC: 'middle', TL: 'top' }[k] || 'baseline';
     at = await c.point(t('cmd.text.specify_insertion_point_text'));
   }
-  const h = await c.distance(t('cmd.mtext.height'), { base: at, default: c.doc.current.textHeight });
+  const sty = TS.newTextProps(c.doc), fixed = TS.styleOf(c.doc, TS.currentName(c.doc))?.h || 0;   // 0.9 FX.92: the current text style
+  const h = fixed || await c.distance(t('cmd.mtext.height'), { base: at, default: c.doc.current.textHeight });
   if (!h) return;
   c.doc.current.textHeight = h;
   const rot = await c.angle(t('cmd.attdef.rot'), { base: at, default: activeUcs(c.doc)?.ang || 0, ucs: true });   // new text runs along the UCS (DR.8)
@@ -846,7 +922,7 @@ def('TEXT', ['DT', 'DTEXT'], async (c) => {
     const line = await c.string(t('cmd.text.enter_text'));
     if (!line) return;
     const pos = polar(at, (rot || 0) - Math.PI / 2, y);
-    c.add(ent(c, { type: 'text', x: pos.x, y: pos.y, h, rot: normAngle(rot || 0), s: line, ha, va, wf: 1 }));
+    c.add(ent(c, { type: 'text', x: pos.x, y: pos.y, h, rot: normAngle(rot || 0), s: line, ha, va, wf: 1, ...sty }));
     y += h * 1.667;   // DTEXT line spacing
   }
 }, { help: () => t('cmd.text.help') });
@@ -856,23 +932,47 @@ def('TEXT', ['DT', 'DTEXT'], async (c) => {
 def('HATCH', ['H', 'BH', 'BHATCH', '-HATCH'], async (c) => {
   const E = c.engine;
   E.hatch ??= { pattern: 'ANSI31', scale: 1, angle: 0 };
+  E.hatchLib ??= new Map();   // patterns read from .pat files this session: NAME → { description, lines }
   const S = E.hatch;
   const label = () => (S.pattern === 'SOLID' ? t('cmd.hatch.solid') : S.pattern + ', ' + t('cmd.hatch.scaleangle', { scale: fmt(S.scale), angle: fmt(deg(S.angle)) }));
   c.print(t('cmd.hatch.current', { what: label() }));
   const picks = [];   // [{ loops }] — every area picked or object selected, one hatch at the end
-  const make = (loops) => ({ ...ent(c, { type: 'hatch', loops, solid: S.pattern === 'SOLID' }), ...(S.pattern === 'SOLID' ? {} : { pattern: S.pattern, pscale: S.scale, pangle: S.angle, piso: hatchIsMetric({}, c.doc) }) });
+  const make = (loops) => ({ ...ent(c, { type: 'hatch', loops, solid: S.pattern === 'SOLID' }), ...(S.pattern === 'SOLID' ? {} : { pattern: S.pattern, pscale: S.scale, pangle: S.angle, piso: hatchIsMetric({}, c.doc), ...(E.hatchLib.has(S.pattern) ? { patdef: E.hatchLib.get(S.pattern).lines } : {}) }) });
   const show = () => c.preview(() => (picks.length ? [make(picks.flatMap((p) => p.loops))] : []));
   for (;;) {
     show();
-    const p = await c.point(t('cmd.hatch.pick'), { none: true, options: [opt('S', t('opt.selectobjects')), opt('P', t('opt.pattern')), opt('SC', t('opt.scale')), opt('A', t('opt.angle')), ...(picks.length ? [opt('U', t('opt.undo'))] : [])] });
+    const p = await c.point(t('cmd.hatch.pick'), { none: true, options: [opt('S', t('opt.selectobjects')), opt('P', t('opt.pattern')), { key: 'F', label: t('opt.patfile'), en: 'patFile' }, opt('SC', t('opt.scale')), opt('A', t('opt.angle')), { key: 'AS', label: t('plan2d.opt.assoc'), en: 'ASsociative' }, ...(picks.length ? [opt('U', t('opt.undo'))] : [])] });
     if (!p) break;
     if (p.option === 'U') { picks.pop(); continue; }
+    if (p.option === 'AS') { S.assoc = S.assoc === false; c.print(t(S.assoc ? 'plan2d.hatch.assoc.on' : 'plan2d.hatch.assoc.off')); continue; }
+    if (p.option === 'F') {
+      if (!c.host.pickText) { c.print(t('cmd.hatch.pat.nofile')); continue; }
+      const file = await c.host.pickText({ accept: '.pat' });
+      if (!file) continue;
+      const r = parsePat(file.text);
+      if (!r.patterns.length) { c.print(t('cmd.hatch.pat.none', { name: file.name })); continue; }
+      for (const q of r.patterns) E.hatchLib.set(q.name, { description: q.description, lines: q.lines });
+      if (r.skipped) c.print(t('cmd.hatch.pat.skipped', { n: r.skipped }));
+      c.print(t('cmd.hatch.pat.loaded', { n: r.patterns.length, name: file.name }));
+      let pick = r.patterns[0].name;
+      if (r.patterns.length > 1) {
+        c.print(r.patterns.map((q) => q.name + (q.description ? ' — ' + q.description : '')).join('\n'));
+        for (;;) {
+          const v = (await c.string(t('cmd.hatch.pat.which'), { default: pick })).trim().toUpperCase();
+          if (!v || E.hatchLib.has(v)) { if (v) pick = v; break; }
+          c.print(t('cmd.hatch.unknown', { name: v }));
+        }
+      }
+      S.pattern = pick;
+      c.print(t('cmd.hatch.current', { what: label() }));
+      continue;
+    }
     if (p.option === 'P') {
       for (;;) {
         const v = (await c.string(t('cmd.hatch.pattern'), { default: S.pattern })).trim().toUpperCase();
         if (!v) break;
-        if (v === '?') { c.print(['SOLID', ...patternNames()].map((n) => n + ' — ' + (PATTERNS[n] ? t('hatch.pat.' + n.toLowerCase()) : t('cmd.hatch.solid'))).join('\n')); continue; }
-        if (v === 'SOLID' || v === 'S' || PATTERNS[v]) { S.pattern = v === 'S' ? 'SOLID' : v; break; }
+        if (v === '?') { c.print(['SOLID', ...patternNames(), ...[...E.hatchLib.keys()].filter((n) => !PATTERNS[n])].map((n) => n + ' — ' + (E.hatchLib.has(n) ? (E.hatchLib.get(n).description || t('cmd.hatch.pat.fromfile')) : PATTERNS[n] ? t('hatch.pat.' + n.toLowerCase()) : t('cmd.hatch.solid'))).join('\n')); continue; }
+        if (v === 'SOLID' || v === 'S' || PATTERNS[v] || E.hatchLib.has(v)) { S.pattern = v === 'S' ? 'SOLID' : v; break; }
         c.print(t('cmd.hatch.unknown', { name: v }));
       }
       continue;
@@ -886,20 +986,55 @@ def('HATCH', ['H', 'BH', 'BHATCH', '-HATCH'], async (c) => {
       let skipped = 0;
       for (const id of ids) { const l = loopsOf(c.doc.get(id)); if (l) loops.push(...l); else skipped++; }
       if (skipped) c.print(t('cmd.hatch.notclosed', { n: skipped }));
-      if (loops.length) picks.push({ loops });
+      if (loops.length) picks.push({ loops, ids: [...ids].filter((id) => loopsOf(c.doc.get(id))) });
       continue;
     }
     const within = c.host.viewExtents?.() || null;
     const r = boundaryAt(c.doc.all().filter((e) => c.doc.visible(e)), p, c.doc.blocks, { within });
     if (r.error) { c.print(t('cmd.hatch.err.' + r.error)); continue; }
-    picks.push(r);
+    picks.push({ ...r, seed: { x: p.x, y: p.y }, ids: sourcesOf(c.doc.all().filter((e) => c.doc.visible(e)), r.loops, c.doc.blocks) });   // 0.9 PLAN2D.1: what bounds it
   }
   c.preview(null);
   if (!picks.length) return;
   const h = make(picks.flatMap((p) => p.loops));
   if (!h.solid && !hatchLines(h, c.doc)) c.print(t('cmd.hatch.dense'));
-  c.doc.change('HATCH', () => c.doc.add(h));
+  c.doc.change('HATCH', () => { const a = c.doc.add(h); if (S.assoc !== false) linkHatch(c.doc, a, picks); });
 }, { help: () => t('cmd.hatch.help') });
+
+// ---- STYLE: text styles (0.9 FX.92; textstyles.js) — the dialog, or -STYLE on the command line ----
+
+async function textStyleLine(c) {
+  const doc = c.doc;
+  const show = () => { for (const r of TS.listStyles(doc)) c.print('  ' + (r.current ? '* ' : '  ') + r.name + '  ' + t('tstyle.summary', { font: r.font || t('tstyle.builtin'), h: r.h ? fmt(r.h) : t('tstyle.ask'), wf: fmt(r.wf), obl: fmt(deg(r.obl)) }) + '  ' + t('tstyle.uses', { n: r.uses })); };
+  const fail = (r) => { if (r.error) c.print(t('tstyle.err.' + r.error, { uses: r.uses })); return !r.error; };
+  show();
+  for (;;) {
+    const k = await c.keyword(t('cmd.style.option'), { options: [opt('C', t('cmd.style.current')), opt('N', t('cmd.style.new')), opt('F', t('cmd.style.font')), opt('H', t('opt.height')), opt('W', t('cmd.style.width')), opt('O', t('cmd.style.oblique')), opt('D', t('cmd.style.delete')), opt('L', t('cmd.style.list'))], none: true });
+    const o = k?.option;
+    if (!o) return;
+    if (o === 'L') { show(); continue; }
+    const name = async (prompt, dflt) => (await c.string(prompt, dflt ? { default: dflt } : {})).trim();
+    if (o === 'N') { const n = await name(t('cmd.style.name.new')); if (n && fail(TS.newStyle(doc, n, TS.currentName(doc)))) c.print(t('tstyle.made', { name: n })); continue; }
+    const n = await name(t('cmd.style.name'), TS.currentName(doc));
+    if (!n) continue;
+    const s = TS.styleOf(doc, n);
+    if (!s) { c.print(t('tstyle.err.missing')); continue; }
+    if (o === 'C') { if (fail(TS.setCurrent(doc, n))) c.print(t('tstyle.now_current', { name: n })); continue; }
+    if (o === 'D') { if (fail(TS.deleteStyle(doc, n))) c.print(t('tstyle.deleted', { name: n })); continue; }
+    let patch = null;
+    if (o === 'F') patch = { font: await c.string(t('cmd.style.font.ask'), { default: s.font || 'Arial' }) };
+    else if (o === 'H') patch = { h: await c.distance(t('cmd.mtext.height'), { default: s.h }) };
+    else if (o === 'W') patch = { wf: await c.number(t('cmd.style.width.ask'), { default: s.wf }) };
+    else if (o === 'O') patch = { obl: rad(await c.number(t('cmd.style.oblique.ask'), { default: deg(s.obl) })) };
+    const r = TS.modifyStyle(doc, n, patch);
+    if (fail(r)) c.print(t('tstyle.modified', { name: r.name, n: r.n }));
+  }
+}
+def('STYLE', ['ST', 'TEXTSTYLE', 'DDSTYLE'], async (c) => {
+  if (c.host.textStyleManager) { await c.host.textStyleManager(); return; }
+  await textStyleLine(c);
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.style.help') });
+def('-STYLE', [], (c) => textStyleLine(c), { noRepeat: true, keepSelection: true, help: () => t('cmd.style.help') });
 
 // ---- MTEXT (paragraph text) and TEXTEDIT: the browser edits in place (host.editText), else the command line asks ----
 
@@ -919,7 +1054,7 @@ async function textWords(c, e) {
 
 def('MTEXT', ['MT', 'T'], async (c) => {
   const E = c.engine;
-  const S = { h: c.doc.current.textHeight, ls: E.mtextLs ?? 1, rot: normAngle(activeUcs(c.doc)?.ang || 0), just: E.mtextJust || 'TL', width: null };   // along the UCS (DR.8)
+  const S = { h: TS.styleOf(c.doc, TS.currentName(c.doc))?.h || c.doc.current.textHeight, ls: E.mtextLs ?? 1, rot: normAngle(activeUcs(c.doc)?.ang || 0), just: E.mtextJust || 'TL', width: null };   // along the UCS (DR.8)
   const a = await c.point(t('cmd.mtext.first'));
   const u = () => ({ x: Math.cos(S.rot), y: Math.sin(S.rot) }), n = () => ({ x: -Math.sin(S.rot), y: Math.cos(S.rot) });
   const frame = (b) => {   // the box from corner a to b, in the text's own direction
@@ -951,12 +1086,13 @@ def('MTEXT', ['MT', 'T'], async (c) => {
     const ly = va === 'top' ? f.top : va === 'bottom' ? f.bottom : (f.top + f.bottom) / 2;
     at = { x: a.x + u().x * lx + n().x * ly, y: a.y + u().y * lx + n().y * ly };
   }
-  const e = ent(c, { type: 'text', x: at.x, y: at.y, h: S.h, rot: S.rot, s: '', ha, va, wf: 1, ...(ww > 1e-9 ? { ww } : {}), ...(S.ls !== 1 ? { ls: S.ls } : {}) });
+  const e = ent(c, { type: 'text', x: at.x, y: at.y, h: S.h, rot: S.rot, s: '', ha, va, wf: 1, ...TS.newTextProps(c.doc), ...(ww > 1e-9 ? { ww } : {}), ...(S.ls !== 1 ? { ls: S.ls } : {}) });
   const r = await textWords(c, e);
   if (!r || !String(r.s ?? '').trim()) { c.print(t('cmd.mtext.empty')); return; }
   const made = { ...e, ...r };
   if (!(made.ww > 1e-9)) delete made.ww;
   if (!made.ls || made.ls === 1) delete made.ls;
+  if (!made.mt) delete made.mt;
   c.doc.current.textHeight = made.h;
   c.add(made);
 }, { help: () => t('cmd.mtext.help') });
@@ -1072,7 +1208,8 @@ def('TEXTEDIT', ['ED', 'DDEDIT'], async (c) => {
     c.host.setSelection(new Set());
     if (r && String(r.s ?? '').trim()) {
       const cur = c.doc.get(e.id);
-      const next = e.type === 'text' ? withPlain(cur, { ...cur, ...r }) : { ...cur, ...r };   // the formatting codes stay (mtext.js)
+      const next = e.type === 'text' ? ('mt' in r ? { ...cur, ...r } : withPlain(cur, { ...cur, ...r })) : { ...cur, ...r };   // the formatting codes stay (mtext.js); the formatted editor returns its own
+      if (!next.mt) delete next.mt;
       if (!(next.ww > 1e-9)) delete next.ww;
       if (!next.ls || next.ls === 1) delete next.ls;
       c.doc.change('TEXTEDIT', () => c.doc.update(e.id, next));
@@ -1425,14 +1562,18 @@ def('SELECT', [], async (c) => {
 
 /** Move or copy objects through m, as one change. `after(pairs)` runs inside it, pairs = [[source id, result id]]. */
 function apply(c, src, m, copy, after = null) {
+  let kept = 0;
   c.doc.change(copy ? 'COPY' : 'MOVE', () => {
     const pairs = [];
     for (const e of src) {
-      const t = txEntity(c.doc.get(e.id) || e, m);
+      const cur = c.doc.get(e.id) || e, t = txEntity(cur, m);
+      // 2026-11-02: a Library item keeps its size along any axis its maker did not allow stretching (SCALE, ALIGN with scale …)
+      if (stretchRefused(cur, t)) { kept++; continue; }
       if (copy) { delete t.id; pairs.push([e.id, c.doc.add(t).id]); } else { c.doc.update(e.id, t); pairs.push([e.id, e.id]); }
     }
     after?.(pairs);
   });
+  if (kept) c.print(t('cmd.lib.stretch_kept', { n: kept }));
 }
 
 // ---- STRETCH and ARRAY ----
@@ -1660,7 +1801,7 @@ export function matchProps(src, dst, on = { color: true, layer: true, text: true
   if (on.color) out.color = src.color ?? null;
   if (on.text && src.type === 'text' && dst.type === 'text') { out.h = src.h; out.wf = src.wf || 1; }
   if (on.dim && src.type === 'dim' && dst.type === 'dim' && src.st) { out.st = { ...src.st }; delete out.block; }
-  if (on.hatch && src.type === 'hatch' && dst.type === 'hatch') { out.solid = !!src.solid; for (const k of ['pattern', 'pscale', 'pangle', 'piso', 'patlines']) { if (src[k] !== undefined) out[k] = src[k]; else delete out[k]; } }
+  if (on.hatch && src.type === 'hatch' && dst.type === 'hatch') { out.solid = !!src.solid; for (const k of ['pattern', 'pscale', 'pangle', 'piso', 'patlines', 'patdef']) { if (src[k] !== undefined) out[k] = src[k]; else delete out[k]; } }
   return out;
 }
 
@@ -2619,6 +2760,32 @@ def('TOOLBARDOCK', ['TBDOCK'], async (c) => {
   c.print(t('status.toolbar.dock', { side: t('set.toolbar_dock.' + side) }));
 }, { noRepeat: true, keepSelection: true, help: () => t('cmd.toolbardock.help') });
 
+/** COMMANDLINE (0.9 SU.1083, cmdline.js): Dock it at the bottom, Float it, One line (the history in a pop-up, F2), Lines (how many history
+ *  lines), History (the pop-up now). Also the command line's own … menu and Settings › CadCraft › Command line. */
+def('COMMANDLINE', ['CMDLINE'], async (c) => {
+  const cl = c.host.cmdline;
+  if (!cl) { c.print(t('cmd.toolbar.browser')); return; }
+  const k = await c.keyword(t('cmd.commandline.ask'), { options: [opt('D', t('set.cmdline.dock.bottom')), opt('F', t('set.cmdline.dock.float')), opt('O', t('cmdline.lines.one')), opt('L', t('set.cmdline.lines')), opt('H', t('ui.cmd.hist'))], default: cl.state().dock === 'float' ? 'D' : 'F' });
+  const key = String((k && k.option) || (typeof k === 'string' ? k : '')).toUpperCase();
+  if (key === 'D') cl.dock('bottom');
+  else if (key === 'F') cl.dock('float');
+  else if (key === 'O') cl.lines(0);
+  else if (key === 'H') cl.history(true);
+  else if (key === 'L') {
+    const n = await c.number(t('cmd.commandline.lines'), { default: cl.state().lines ?? 4 });
+    if (Number.isInteger(n) && n >= 0 && n <= 12) cl.lines(n); else c.print(t('cmd.commandline.lines.bad'));
+  }
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.commandline.help') });
+/** TOPAREA (0.9 SU.1083): Standard or Compact bars above the drawing (Settings › CadCraft › Top area). */
+def('TOPAREA', [], async (c) => {
+  if (!c.host.setTopArea) { c.print(t('cmd.toolbar.browser')); return; }
+  const cur = c.host.getTopArea?.() || 'standard';
+  const k = await c.keyword(t('set.top_area'), { options: [opt('S', t('set.top_area.standard')), opt('C', t('set.top_area.compact'))], default: cur === 'compact' ? 'S' : 'C' });
+  const mode = String((k && k.option) || (typeof k === 'string' ? k : 'S')).toUpperCase() === 'C' ? 'compact' : 'standard';
+  c.host.setTopArea(mode);
+  c.print(t('status.top_area', { mode: t('set.top_area.' + mode) }));
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.toparea.help') });
+
 // ---- LWDISPLAY: lineweights on screen (the status bar's LWT; view.js + lwdisplay.js) ----
 def('LWDISPLAY', ['LWT'], async (c) => {
   const st = c.host.settings;
@@ -3232,7 +3399,11 @@ def('INSERT', ['I', 'DDINSERT'], async (c) => {
   for (;;) {
     const typed = (await c.string(t('cmd.insert.enter_block_name_file'), { default: c.engine.lastBlock && c.doc.blocks.has(c.engine.lastBlock) ? c.engine.lastBlock : undefined })).trim();
     name = typed || c.engine.lastBlock;
-    if (name && c.doc.blocks.has(name)) break;
+    if (name && c.doc.blocks.has(name)) {
+      const more = typed ? names.filter((n) => n !== name && n.toLowerCase().startsWith(name.toLowerCase())) : [];   // FX: "1" is a block, "10" and "12" start the same way: say so
+      if (more.length) c.print(t('cmd.insert.alsostarts', { name, list: more.slice(0, 12).join(', ') + (more.length > 12 ? ' …' : '') }));
+      break;
+    }
     if (!name) return;
     const near = names.find((n) => n.toLowerCase() === name.toLowerCase());
     if (near) { name = near; break; }
@@ -3248,7 +3419,10 @@ def('INSERT', ['I', 'DDINSERT'], async (c) => {
       ({ name, attrs, item: libItem } = r);
       break;
     }
-    c.print(t('cmd.insert.noblock', { name, list: (names.slice(0, 30).join(', ') || t('cmd.none')) + (names.length > 30 ? ' …' : '') }));
+    const lc = name.toLowerCase();   // FX: names that start with or hold what was typed, so a number that is no block says which blocks are close
+    const close = [...names.filter((n) => n.toLowerCase().startsWith(lc)), ...names.filter((n) => !n.toLowerCase().startsWith(lc) && n.toLowerCase().includes(lc))];
+    if (close.length) c.print(t('cmd.insert.didyoumean', { name, list: close.slice(0, 12).join(', ') + (close.length > 12 ? ' …' : '') }));
+    else c.print(t('cmd.insert.noblock', { name, list: (names.slice(0, 30).join(', ') || t('cmd.none')) + (names.length > 30 ? ' …' : '') }));
   }
   c.engine.lastBlock = name;
   const placed = await placeBlock(c, name, { scale, attrs });
@@ -3337,7 +3511,7 @@ async function libraryBlock(c) {
   if (!c.host.library) { c.print(t('cmd.library.library_needs_browser')); return null; }
   const pick = await c.host.library();
   if (!pick?.item) return null;
-  const r = c.doc.change('INSERT', () => ensureLibraryBlock(c.doc, pick.item, { slug: pick.slug }));
+  const r = c.doc.change('INSERT', () => ensureLibraryBlock(c.doc, pick.item, { slug: pick.slug, stretch: pick.stretch || [] }));
   if (!r.reused) c.print(r.skipped ? t('cmd.library.made.skipped', { name: r.name, item: pick.item.name, n: r.skipped }) : t('cmd.library.made', { name: r.name, item: pick.item.name }));
   if (!r.units) c.print(t('cmd.library.drawing_has_no_units'));
   return { name: r.name, item: pick.item, attrs: libraryAttrs(c.doc.blocks.get(r.name), nextNumber(c.doc)) };
@@ -3560,6 +3734,12 @@ def('SHORTCUTS', ['KEYS'], async (c) => {
   if (!c.host.shortcuts) { c.print(t('keys.browser')); return; }
   await c.host.shortcuts.open();
 }, { noRepeat: true, keepSelection: true, help: () => t('keys.help') });
+
+// ---- OSNAP / DDOSNAP / SHORTCUTMENU: the object snap menu by name (desktop report 2026-11-05) ----
+def('OSNAP', ['DDOSNAP', 'OSNAPSETTINGS', 'SHORTCUTMENU'], async (c) => {
+  if (!c.host.openSnapKinds) { c.print(t('cmd.osnap.browser')); return; }
+  c.host.openSnapKinds();
+}, { noRepeat: true, keepSelection: true, help: () => t('cmd.osnap.help') });
 
 // ---- COMPARESETTINGS (0.5 WL.12): dimension styles, text styles, layers, sheets and units side by side ----
 def('COMPARESETTINGS', ['CMPSET'], async (c) => {

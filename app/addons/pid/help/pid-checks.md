@@ -20,3 +20,5 @@ Type {{cmd:PIDCHECK}} (`PIDC`). The history lists every finding, errors first. T
 | Instrument alone | warning | an instrument has no line attached |
 
 The checks are a drafting aid: a clean result means the drawing is consistent with itself, not that the plant is right.
+
+A drafting and study aid, not an engineering approval. A person with the right training checks every result before it is used.

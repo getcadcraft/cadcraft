@@ -16,7 +16,7 @@ The few that are not the same, or not built:
 - **TABLE** is not built; {{cmd:XREF}}, {{cmd:SPLINE}} and {{cmd:WBLOCK}} are.
 - A routine's own commands (AutoLISP `C:NAME`) show up after you load it with {{cmd:APPLOAD}}; they are not listed here.
 
-## All commands (275)
+## All commands (309)
 
 | Command | Short names | What it does |
 |---|---|---|
@@ -27,7 +27,7 @@ The few that are not the same, or not built:
 | `ALIGNPANEL` | `ALP` | Open the Align and distribute panel |
 | `ALIGNTO` |  | Line up the selected objects' left, centre, right, top, middle or bottom edges, on the selection, the first or last picked object, or a point |
 | `APPLOAD` | `AP` | Load applications: LISP routines (.lsp) and their dialog files (.dcl); the Startup Suite (AP) |
-| `ARC` | `A` | Three points, or center, start and end |
+| `ARC` | `A` | Arc: 3-Point, Start/Center/End, Start/Center/Angle, Start/Center/Length, Start/End/Angle, Start/End/Direction, Start/End/Radius, Center/Start/End, Center/Start/Angle, Center/Start/Length, Continue |
 | `AREA` | `AA` | Area and perimeter by points or of an object; Add and Subtract keep a running total (AA) |
 | `ARRAY` | `AR` | Copies in rows and columns, or round a center (AR) |
 | `ARRAYPOLAR` |  | Copies round a center point |
@@ -57,12 +57,14 @@ The few that are not the same, or not built:
 | `CIRCLE` | `C` | Center and radius, diameter, 2 or 3 points |
 | `CLASS` |  | Put the selected objects in a class, or with nothing selected set the active class (? lists them) |
 | `CLASSES` | `CLS` | The Classes panel: classes sort objects across layers; show, hide and style them, and override them per viewport (CLS) |
+| `COMMANDLINE` | `CMDLINE` | Dock or float the command line, make it one line, set its history lines, or open the history (F2) |
 | `COMPARESETTINGS` | `CMPSET` | Compare dimension styles, text styles, layers, sheets or units: two in this drawing, or this drawing against another open one, and copy a value across. |
 | `CONSTRAINTBAR` | `CBAR` | Show or hide the constraint bars (Showall / Hideall, or per object) |
 | `COPY` | `CO`, `CP` | Copy objects, as many times as you click |
 | `COPYBASE` |  | Copy objects to the clipboard with a base point you pick |
 | `COPYCLIP` |  | Copy objects to the clipboard (Ctrl+C); PASTECLIP places them |
 | `COUNT` | `BCOUNT` | Count block references: pick one to select and count every reference of its block |
+| `CREDITS` |  | Puts the Library credits in the drawing as a table. Run it again to update the table from the items in the drawing now. |
 | `CURSORSIZE` |  | The crosshair's size: 100 runs it edge to edge across the drawing (Settings › Cursor › Full screen) |
 | `CUTCLIP` |  | Cut objects to the clipboard (Ctrl+X): copy, then erase |
 | `CYLINDER` | `CYL` | A cylinder: centre, radius and height (3D) |
@@ -77,10 +79,11 @@ The few that are not the same, or not built:
 | `DCVERTICAL` | `DCVER` | Dimensional constraint: vertical distance |
 | `DELBLOCKS` |  | Delete blocks: every reference (nested ones too, on every sheet) and the definitions |
 | `DELCONSTRAINT` | `DELCON` | Remove every constraint (geometric and dimensional) from the objects you select |
+| `DELOPENING` |  | Take a door or window out of a wall. |
 | `DESCRIBE` | `DESC` | Say what the drawing holds: how many objects, of what kind, how big, what is selected. |
 | `DESELECT` | `AI_DESELECT`, `SELECTNONE` | Clear the selection (Esc) |
 | `DETAILS` | `DET` | Your firm's own details, found for what you are drawing: find, add a block, list, remove, turn the offers on or off. |
-| `DIAGRAM` | `TEXTDIAGRAM`, `T2D` | Draw a diagram from text: a Mermaid flowchart, a PlantUML component diagram, D2 or a from-to list, as blocks and connectors you can edit |
+| `DIAGRAM` | `TEXTDIAGRAM`, `T2D` | Draw a diagram from text: a Mermaid flowchart, a PlantUML component diagram, D2, a from-to list or draw.io XML, as blocks and connectors you can edit |
 | `DIMALIGNED` | `DAL`, `DIMALI` | True distance between two points |
 | `DIMANGULAR` | `DAN`, `DIMANG` | Angle between two lines, of an arc, or by three points |
 | `DIMASZ` |  | Dimension setting: Arrow size |
@@ -104,6 +107,7 @@ The few that are not the same, or not built:
 | `DIST` | `DI` | Distance and angle between two points |
 | `DISTRIBUTE` |  | Space the selected objects evenly, side to side or up and down: equal steps between centres, or equal gaps; the outer two stay |
 | `DOCUMENTS` | `DOCS` | Open the Documents panel: check drawings out and in, revisions, release states and approval for a project folder |
+| `DOOR` | `DR` | Put a door in a wall. The side you click is the side it swings to. |
 | `DUPLICATE` | `DUP` | A copy that moves with the pointer: click to put it down (Ctrl+D) |
 | `DXFOUT` |  | Download the drawing as DXF R12 (Save keeps its own format) |
 | `EATTEDIT` | `DDATTE` | Edit a block reference's attributes: values, text and properties, one attribute at a time |
@@ -117,6 +121,9 @@ The few that are not the same, or not built:
 | `EXTRUDE` | `EXT` | Extrude closed 2D objects into solids (3D) |
 | `FILLET` | `F` | Round or square the corner between two objects (R radius, P every corner of a polyline, M several) |
 | `FIND` |  | Find and replace words in text, attribute values and dimension text |
+| `FLOOR` |  | Choose the floor to draw on, add one, or move or copy the selection to one. |
+| `FLOORLAYERS` |  | Turn floors into layers named Floor-Layer, for a file going to someone without floors. |
+| `FLOORS` | `FLR` | Open the Floors panel: stack floors in one model space. |
 | `GCCOINCIDENT` |  | Constraint: two points meet, or a point stays on an object |
 | `GCCOLLINEAR` |  | Constraint: two lines stay on one line |
 | `GCCONCENTRIC` |  | Constraint: two circles or arcs share a centre |
@@ -133,6 +140,7 @@ The few that are not the same, or not built:
 | `GLBOUT` |  | Export the 3D model as GLB (glTF) |
 | `GRIDMOVE` | `GM` | Move a grid line and carry what hangs on it: walls stretch, columns, bubbles and tags move, dimensions follow. |
 | `HATCH` | `H`, `BH`, `BHATCH`, `-HATCH` | Fill an area with a solid fill or a pattern: click inside it, or select closed objects (H) |
+| `HATCHEDIT` | `HE` | Change a hatch: pattern, scale, angle, origin, and its link to a boundary. |
 | `HELP` | `?` | This list |
 | `HISTORY` | `HIST` | HISTORY (HIST): the versions of this drawing — copies kept on this computer when Studio saves it, and the cloud's versions — to open, restore, and compare with what changed shown in colour. |
 | `ID` |  | Coordinates of a point |
@@ -148,6 +156,7 @@ The few that are not the same, or not built:
 | `LAYDEL` |  | Delete a layer and every object on it (in the model, on sheets and in blocks) |
 | `LAYER` | `LA` | Show the layers panel |
 | `LAYFRZ` |  | Freeze the layer of each object you pick |
+| `LAYGROUP` | `LG` | Group layers into folders in the Layers panel. |
 | `LAYISO` |  | Isolate the layers of the selected objects (every other layer off) |
 | `LAYMCUR` |  | Make the layer of the object you pick current |
 | `LAYMRG` |  | Merge layers: their objects move to a target layer, and the merged layers go |
@@ -171,6 +180,7 @@ The few that are not the same, or not built:
 | `MEASUREGEOM` | `MEA` | Measure a distance, a radius, an angle or an area (MEA) |
 | `MIRROR` | `MI` | Mirror objects across a line |
 | `MLEADER` | `MLD`, `MLEAD` | Multileader: an arrow, a leader and a note, as one object (MLD) |
+| `MLINE` |  | Draw parallel lines together, joined at the corners. |
 | `MOVE` | `M` | Move objects by a base point and a second point |
 | `MSPACE` | `MS` | Work on the model through a viewport of the open sheet (or double-click inside the viewport). |
 | `MTEXT` | `MT`, `T` | Paragraph text: drag its width, then type in place; Enter starts a new paragraph (T) |
@@ -183,6 +193,7 @@ The few that are not the same, or not built:
 | `OLELIST` | `OLES` | List the OLE objects a drawing carries and put a copy of one's picture where you choose |
 | `OPEN` |  | Open a DWG or DXF from this computer |
 | `OPENIN3D` |  | Open this drawing in the 3D modeling app, in a new tab (nothing is uploaded) |
+| `OSNAP` | `DDOSNAP`, `OSNAPSETTINGS`, `SHORTCUTMENU` | Open the object snap menu: pick which snaps are on. Also a right-click on Snap in the status bar. |
 | `PARAMETERS` | `PAR`, `PARAMETERSMANAGER`, `PARAM` | The Parameters panel: user parameters and dimensional constraints in one table |
 | `PARTSLIST` | `PLIST` | A parts list table of every standard part and steel section placed from the Library |
 | `PASTEAREA` | `PAREA` | Paste an area copied in MarkupCraft (Copy area) at its true size, as a picture. |
@@ -257,6 +268,7 @@ The few that are not the same, or not built:
 | `STEELMEMBER` | `SMEMBER` | A steel member in 3D from a standard section: two points (a beam) or a base point and a height (Column) |
 | `STLOUT` |  | Export the 3D model as STL (millimeters) |
 | `STRETCH` | `S` | Stretch: drag a crossing window over the ends to move; what is inside moves, the rest stays (S) |
+| `STYLE` | `ST`, `TEXTSTYLE`, `DDSTYLE` | Text styles: the font, height, width and slant new text takes (the dialog; -STYLE on the command line) |
 | `SUBTRACT` | `SU` | Take solids away from others (3D) |
 | `SWBOUT` | `SWMACRO` | Download a macro for SolidWorks (.swb) that rebuilds the model as one constrained sketch |
 | `SWEEP` |  | Sweep closed 2D objects along a path (line, polyline, arc, circle) into solids (3D) |
@@ -267,6 +279,7 @@ The few that are not the same, or not built:
 | `TOOLBAR` |  | Choose what the toolbar buttons show: icons and text, just icons, or just text (Ctrl+F1) |
 | `TOOLBARDOCK` | `TBDOCK` | Put the toolbar on the top, bottom, left or right of the window |
 | `TOOLBARROWS` |  | Choose how many rows the toolbar uses: wrap to fit, 2, or 1 (Shift+Ctrl+F1) |
+| `TOPAREA` |  | Make the bars above the drawing standard or compact |
 | `TOUR` | `TUTORIAL` | Take the six-step first-drawing tour again |
 | `TRIM` | `TR` | Cut objects back to where others cross them: click a piece, drag through several, or Shift+click to extend |
 | `TRIMEXTENDMODE` |  | How TRIM and EXTEND start: 1 Quick (every object is a cutting edge or boundary), 0 Standard (choose the edges first) |
@@ -287,9 +300,30 @@ The few that are not the same, or not built:
 | `VPORTS` | `VIEWPORTS` | Split the drawing area into panes, each with its own view (on a sheet: a viewport, as MVIEW) |
 | `VPVIEW` |  | Set what a viewport shows: pick a window on the model |
 | `VSCURRENT` | `VS`, `SHADEMODE` | Visual style of the 3D view: shaded, edges, hidden line, wireframe, X-ray |
+| `WALL` | `WA` | Draw 2D walls like a polyline. They join, and carry doors and windows. |
+| `WALLARC` | `WARC` | Draw an arc of walls. Plan walls are straight, so the arc is drawn as short straight walls (15 degrees each) that join. |
+| `WALLDELSEG` |  | Delete a piece of a wall between two points. What is left stays as one or two walls. |
+| `WALLDIM` |  | Type a new value for a dimension: the wall at its far end moves square to itself, the wall at the first end holds, and the walls joined to it follow. |
+| `WALLGRID` |  | Lock a wall to a grid line: along it, or one end on it. Move the line with GRIDMOVE and the wall follows. |
+| `WALLHOLD` |  | Align and lock: a wall keeps its place against another wall (on its line, or at the distance it has). If one moves the other follows. |
+| `WALLHOLDDIM` |  | Lock the distance between two parallel walls. If one moves, the other follows to keep it. |
+| `WALLHOLDS` |  | List the locks on the walls. |
+| `WALLJOINS` |  | Give every wall of an older drawing its id and store the joins between them. This also happens at the first change you make. |
+| `WALLOFFSET` | `WO` | Move a wall square to itself by a distance (the walls joined to it follow), or make a copy at that distance. |
+| `WALLPICK` |  | Make walls on a line or polyline in the drawing, with the lines joined to it if you say Yes. |
+| `WALLPOLY` | `WP` | Draw walls round a regular polygon of 3 to 64 sides, like POLYGON. |
+| `WALLRECT` | `WR` | Draw four joined walls from two opposite corners, like RECTANG. |
+| `WALLREJOIN` |  | Make two parts of a wall one wall again. The first keeps its place in the drawing. |
+| `WALLROT` |  | Draw four joined walls as a rectangle turned to any angle: the first side, then how far out. |
+| `WALLSPLIT` | `WS` | Split a wall in two at a point or where another wall crosses. The parts stay joined unless you ask for a gap or free ends. Doors and windows go with their part. |
+| `WALLSTRETCH` |  | Stretch with a window: wall ends inside it move, walls wholly inside move whole, and walls that butt into their sides slide with them. |
+| `WALLTAN` |  | Continue a wall with an arc that leaves it along the wall (drawn as short straight walls). |
+| `WALLTRACE` |  | Make walls round the smallest closed area of lines and walls around the point you click. |
+| `WALLUNHOLD` |  | Take the locks off a wall (and the locks of other walls to it). |
 | `WBLOCK` | `W`, `-WBLOCK` | Write a block, some objects or the whole drawing to a new DWG or DXF file (W) |
 | `WEDGE` | `WE` | A wedge: two corners and a height; it slopes away from the first corner (3D) |
 | `WHEREAMI` | `WHERE` | Say where the cursor is. |
+| `WINDOW` | `WN` | Put a window in a wall. |
 | `XATTACH` | `XA` | Link another DWG or DXF into this drawing, shown read-only (XREF lists and reloads them) |
 | `XCLIP` | `XC` | Clip block references and linked drawings to a rectangle or a polygon, or remove the clip. |
 | `XLINE` | `XL` | Construction line, endless both ways: through two points, horizontal, vertical, at an angle, bisecting an angle, or offset from a line. |

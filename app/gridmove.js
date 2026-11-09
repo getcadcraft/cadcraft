@@ -16,6 +16,7 @@
  *   normalOf(line) → { x, y }   the unit normal (left of a → b): + distance moves that way
  */
 import { stretchEntity, txEntity, mTranslate, entityBounds, validBounds, dist } from './geom.js';
+import { isWall, model as wallModel, canonical as wallCanonical } from './plan2d/walls.js';
 
 export const GRID_LAYER = /(^|[-_ .])(grid|grids|axis|axes|gridline|gridlines)([-_ .]|$)/i;
 const LOOK_MAX = 200000;
@@ -81,6 +82,15 @@ export function planGridMove(doc, id, distance, opts = {}) {
       if (off(c) <= Math.max(tol, h * 0.5) && along(c) >= -reach && along(c) <= L + reach) { out = txEntity(e, mTranslate(dx, dy)); counts.notes++; }
     } else if (e.type === 'circle') {
       if (off({ x: e.cx, y: e.cy }) <= Math.max(tol, e.r * 0.05) && along({ x: e.cx, y: e.cy }) >= -reach - e.r && along({ x: e.cx, y: e.cy }) <= L + reach + e.r) { out = txEntity(e, mTranslate(dx, dy)); counts.moved++; }
+    } else if (isWall(e)) {
+      // a plan wall (0.9 FX.59, walls-plan-09): its ends are what sit on the line, not its insert point. An end on the line goes with it
+      // (the wall stretches or shortens, the corner keeps its joins); a wall with both ends on the line moves whole. The insert point
+      // used to decide, which carried a whole wall away when it merely started on the line.
+      const w = wallModel(e);
+      if (w) {
+        const ia = inside(w.a), ib = inside(w.b);
+        if (ia || ib) { out = wallCanonical(e, { ...w, a: ia ? { x: w.a.x + dx, y: w.a.y + dy } : w.a, b: ib ? { x: w.b.x + dx, y: w.b.y + dy } : w.b }); (ia && ib ? counts.moved++ : counts.stretched++); }
+      }
     } else {
       out = stretchEntity(e, inside, dx, dy);
       if (out) {

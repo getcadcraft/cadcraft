@@ -31,6 +31,7 @@ import { cleanPlotStyles } from './plotstyle.js';
 import { cleanGeo } from './geodwg.js';   // 0.6 GEO-DWG
 import { cleanAddons } from './addons-file.js';   // 0.8 AL.6
 import { keptJob } from './laser-file.js';   // 0.7 SU.772
+import { shownByFloor, editableOnFloor } from './floors.js';   // 0.9 PLAN2D.3: stacked floors
 import { applyClassData } from './classes-file.js';   // 0.8 SU.912 (sx-classes): classes, design layers, viewport class overrides
 import { shownByClass } from './classes.js';   // 0.8 SU.912: an object in a hidden class is like one on a layer turned off
 // Constraints and parameters (gcons.js, params-doc.js): doc.constraints [] and doc.params {vars, links} are part
@@ -183,13 +184,14 @@ export class Doc {
         }
         for (const b of [...this.blocks.values()]) if (b.entities.some((e) => e.layer === name)) this.defineBlock({ ...b, entities: b.entities.map((e) => (e.layer === name ? { ...e, layer: rename } : e)) });
       }
+      if (rename && Array.isArray(this.meta.layerGroups)) this.setMeta({ layerGroups: this.meta.layerGroups.map((g) => ({ ...g, layers: g.layers.map((n) => (n === name ? rename : n)) })) });   // layergroups.js
       this.setLayerState(state);
     });
     this.emitLayers();
   }
   emitLayers() { if (this.layersMoved && !this.pending) { this.layersMoved = false; this.emit('layers'); } }
-  visible(e) { const l = this.layers.get(e.layer); return (!l || (l.on && !l.frozen)) && !this.refHidden(e) && shownByClass(this, e); }
-  editable(e) { const l = this.layers.get(e.layer); return this.visible(e) && !(l && l.locked) && !this.refFaded(e); }
+  visible(e) { const l = this.layers.get(e.layer); return (!l || (l.on && !l.frozen)) && !this.refHidden(e) && shownByClass(this, e) && shownByFloor(this, e); }
+  editable(e) { const l = this.layers.get(e.layer); return this.visible(e) && !(l && l.locked) && !this.refFaded(e) && editableOnFloor(this, e); }
   /** REFEDIT (0.6 DF.5): the reference being edited stays out of sight, and only the working set can be changed. */
   refHidden(e) { const r = this.refEdit; return !!r && e?.id === r.ref && this.space === r.map; }
   refFaded(e) { const r = this.refEdit; return !!r && this.space === r.map && !!e && !r.ids.has(e.id); }

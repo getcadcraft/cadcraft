@@ -1,9 +1,9 @@
 ---
 title: Draw a diagram from text
-summary: Paste a Mermaid flowchart, a PlantUML component diagram, D2 or a from-to list and CadCraft lays out blocks and connectors you can edit like any other objects.
+summary: Paste a Mermaid flowchart, a PlantUML component diagram, D2, a from-to list or draw.io XML and CadCraft lays out blocks and connectors you can edit like any other objects.
 section: tasks
 order: 66
-keywords: diagram, flowchart, mermaid, plantuml, d2, from to, from-to list, block diagram, connectors, text to diagram, DIAGRAM, TEXTDIAGRAM, system diagram, wiring diagram, piping, csv
+keywords: draw.io, drawio, diagrams.net, mxfile, xml, local model, diagram, flowchart, mermaid, plantuml, d2, from to, from-to list, block diagram, connectors, text to diagram, DIAGRAM, TEXTDIAGRAM, system diagram, wiring diagram, piping, csv
 ---
 
 Type {{cmd:DIAGRAM}} (`TEXTDIAGRAM`, `T2D`). A box opens: paste the text, choose {{ui:Draw}}, click the top left corner of the diagram and give the text height. CadCraft reads the text, lays the blocks out in layers with right-angle connectors, and draws them on a layer called `Diagram`. The new objects are selected, so you can move them straight away. They are plain objects: change a block's text with {{cmd:TEXTEDIT}}, stretch a connector with its grips, erase a block, add your own lines. One {{cmd:UNDO}} takes the whole diagram away.
@@ -19,7 +19,19 @@ At the command line, without the box, the text can be one line with `;` between 
 | **D2** | `a -> b: label`, `a <- b`, `a <-> b`, `a -- b`, chains, `a: Label`, `direction: right`, quoted names, `#` comments |
 | **A from-to list** (a table pasted as text or CSV) | columns `from`, `to` and optionally `label` and `type` (`dashed` draws a dashed connector), in any order, separated by commas, semicolons or tabs; without a header line the first three columns are from, to, label |
 
+| **draw.io XML** (a `.drawio` file's text, `<mxfile>` or `<mxGraphModel>`) | boxes, rounded boxes, ellipses, rhombus decisions and plain text; container and swimlane boxes (drawn dashed with their title); connectors with their waypoints, arrow ends (`endArrow`, `startArrow`) and `dashed=1`; HTML labels become plain text, `<UserObject label>` and `<object label>` work |
+
 Anything else on a line (styles, notes, loop frames) is skipped, and the command line says how many lines were skipped. A diagram has at most 400 blocks and 1200 connectors.
+
+## Draw.io XML keeps its positions
+
+The other languages say what connects to what, so CadCraft lays them out. Draw.io XML already says where everything is, so CadCraft keeps it: each block sits where the file puts it, scaled so a 12-pixel font becomes the text height you give (a 120 by 60 pixel box is 60 by 30 drawing units at height 6), and the diagram's top left goes at the corner you click. Connectors run from the edge of one block to the edge of the next, through their waypoints; a connector with `orthogonalEdgeStyle` and no waypoints gets one right-angle bend.
+
+Draw.io's default save is compressed. The box and the command line open it for you; an assistant tool in a window without a compression stream says so, and `File › Export as › XML` with *Compressed* unticked gives plain XML. Images, connectors with a loose end and second pages are skipped and counted.
+
+## Writing it with a model on your computer
+
+A local model (Ollama, LM Studio, llama.cpp, Jan) can write the XML or the Mermaid text from a PDF's or an SVG's contents, and the result goes in through the same box, or straight into the drawing when the model is connected as an assistant: `diagram_from_text` takes `format` `drawio`. Small models make more mistakes in XML than in Mermaid or a from-to list, so a first try with Mermaid is cheaper; what the reader cannot use is skipped and counted, not guessed. See Connect your AI for the model recipes.
 
 ## How it is laid out
 

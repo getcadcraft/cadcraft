@@ -42,6 +42,8 @@ $__tools = [
         ['ELLIPSE', 'egg', Lang::t('ui.ellipse'), Lang::t('ui.ellipse_el')],
         ['TEXT', 'type', Lang::t('ui.text'), Lang::t('toolbar.text.title')],
         ['MTEXT', 'text-paragraph', Lang::t('toolbar.mtext'), Lang::t('toolbar.mtext.title')],
+        ['MLINE', 'list', Lang::t('toolbar.mline'), Lang::t('toolbar.mline.title')],
+        ['STYLE', 'fonts', Lang::t('toolbar.style'), Lang::t('toolbar.style.title')],
         ['HATCH', 'grid-3x3', Lang::t('toolbar.hatch'), Lang::t('toolbar.hatch.title')],
     ],
     'Modify' => [   // i18n-ignore: group id (label toolbar.group.modify; data-tb-key keeps arranged toolbars)
@@ -91,13 +93,29 @@ $__tools = [
     'View' => [   // i18n-ignore: group id (label toolbar.group.view; data-tb-key keeps arranged toolbars)
         ['ZOOM E', 'arrows-fullscreen', Lang::t('ui.extents'), Lang::t('ui.zoom_whole_drawing_double')],
         ['ZOOM W', 'zoom-in', Lang::t('ui.window'), Lang::t('ui.zoom_window_z_w')],
+        ['ZOOM 2X', 'plus-circle', Lang::t('toolbar.zoomin'), Lang::t('toolbar.zoomin.title')],   // 0.9 D9.9: a click to see the detail bigger
+        ['ZOOM 0.5X', 'dash-circle', Lang::t('toolbar.zoomout'), Lang::t('toolbar.zoomout.title')],
         ['ZOOM P', 'skip-backward', Lang::t('toolbar.zoomprev'), Lang::t('toolbar.zoomprev.title')],
     ],
 ];
 // Less-used tools of a group, in its "More" menu: [command, label, alias shown as the key]
 $__more = [
     'Draw' => [   // i18n-ignore (the group's key in $__tools, not shown); Point moved here for XLINE / RAY (0.5 DR.6): two rows at 1440 px
+        ['WALL', Lang::t('plan2d.toolbar.wall'), 'WA'],   // 0.9 PLAN2D.4: 2D smart walls, doors and windows
+        ['DOOR', Lang::t('plan2d.toolbar.door'), 'DR'],
+        ['WINDOW', Lang::t('plan2d.toolbar.window'), 'WN'],
         ['POINT', Lang::t('toolbar.point'), 'PO'],
+        ['ARC 3P', Lang::t('toolbar.arc.3p'), 'A 3P'],
+        ['ARC SCE', Lang::t('toolbar.arc.sce'), 'A SCE'],
+        ['ARC SCA', Lang::t('toolbar.arc.sca'), 'A SCA'],
+        ['ARC SCL', Lang::t('toolbar.arc.scl'), 'A SCL'],
+        ['ARC SEA', Lang::t('toolbar.arc.sea'), 'A SEA'],
+        ['ARC SED', Lang::t('toolbar.arc.sed'), 'A SED'],
+        ['ARC SER', Lang::t('toolbar.arc.ser'), 'A SER'],
+        ['ARC CSE', Lang::t('toolbar.arc.cse'), 'A CSE'],
+        ['ARC CSA', Lang::t('toolbar.arc.csa'), 'A CSA'],
+        ['ARC CSL', Lang::t('toolbar.arc.csl'), 'A CSL'],
+        ['ARC CON', Lang::t('toolbar.arc.con'), 'A CON'],
         ['CIRCLE T', Lang::t('toolbar.circle.ttr'), 'C T'],   // 0.5 DR.1
         ['CIRCLE TTT', Lang::t('toolbar.circle.ttt'), 'C TTT'],   // 0.5 DR.2
         ['XLINE', Lang::t('toolbar.xline'), 'XL'],
@@ -136,6 +154,9 @@ $__more = [
         ['SPLIT 4', Lang::t('toolbar.split.4'), 'SPLIT'],
         ['SPLIT SI', Lang::t('toolbar.split.1'), 'SPLIT'],
         // a turned view (0.5 DR.8): UCS Z ∓90, which turns the view with it (as UCSFOLLOW 1); nothing in the drawing moves
+        ['UCS', Lang::t('toolbar.ucs'), 'UCS'],   // 0.9 D9.5: the UCS commands were only on the command line
+        ['UCS OB', Lang::t('toolbar.ucs.object'), 'UCS'],
+        ['UCS W', Lang::t('toolbar.ucs.world'), 'UCS'],
         ['TURNLEFT', Lang::t('toolbar.turn.left'), 'TURNLEFT'],
         ['TURNRIGHT', Lang::t('toolbar.turn.right'), 'TURNRIGHT'],
         ['TURNWORLD', Lang::t('toolbar.turn.world'), 'TURNWORLD'],
@@ -152,6 +173,7 @@ $__more = [
         ['ALIASEDIT', Lang::t('toolbar.aliasedit'), 'ALIASEDIT'],
         ['SHORTCUTS', Lang::t('toolbar.shortcuts'), 'KEYS'],   // 0.5 WL.18
         ['LASER', Lang::t('toolbar.laser'), 'LASER'],   // 0.7 SU.772: the Laser panel (laser-cad.js)
+        ['FLOORS', Lang::t('plan2d.toolbar.floors'), 'FLR'],   // 0.9 PLAN2D.3: stacked floors (floors-ui.js)
         ['CLASSES', Lang::t('sx.classes.toolbar'), 'CLS'],   // 0.8 SU.912: the Classes panel (classes-ui.js)
         ['DOCUMENTS', Lang::t('sx.vault.toolbar'), 'DOCS'],   // 0.8 SU.1058: the Documents panel (vault-ui.js)
     ],
@@ -338,7 +360,7 @@ $__more = [
           <details class="cc-menu" data-layer-menu>
             <summary class="cc-linkbtn" title="<?= Lang::e('layers.tools.title') ?>"><?= Lang::e('layers.tools') ?></summary>
             <div class="cc-menu-list" role="menu" aria-label="<?= Lang::e('layers.tools.title') ?>">
-              <?php foreach ([['LAYISO', 'layers.tools.iso'], ['LAYUNISO', 'layers.tools.uniso'], ['LAYOFF', 'layers.tools.off'], ['LAYFRZ', 'layers.tools.frz'], ['LAYMCUR', 'layers.tools.mcur'], null, ['LAYON', 'layers.tools.on'], ['LAYTHW', 'layers.tools.thw'], null, ['LAYMRG', 'layers.tools.mrg'], ['LAYDEL', 'layers.tools.del'], ['RENAME', 'layers.tools.ren']] as $__lt): ?>
+              <?php foreach ([['LAYISO', 'layers.tools.iso'], ['LAYUNISO', 'layers.tools.uniso'], ['LAYOFF', 'layers.tools.off'], ['LAYFRZ', 'layers.tools.frz'], ['LAYMCUR', 'layers.tools.mcur'], null, ['LAYON', 'layers.tools.on'], ['LAYTHW', 'layers.tools.thw'], null, ['LAYGROUP N', 'plan2d.tools.group.new'], ['LAYGROUP S', 'plan2d.tools.group.std'], ['LAYGROUP P', 'plan2d.tools.group.prefix'], null, ['LAYMRG', 'layers.tools.mrg'], ['LAYDEL', 'layers.tools.del'], ['RENAME', 'layers.tools.ren']] as $__lt): ?>
                 <?php if (!$__lt): ?><hr><?php continue; endif; ?>
                 <button type="button" role="menuitem" data-cmd="<?= e($__lt[0]) ?>"><?= Lang::e($__lt[1]) ?> <kbd><?= e($__lt[0]) ?></kbd></button>
               <?php endforeach; ?>
@@ -352,6 +374,8 @@ $__more = [
         <button type="submit" class="btn-plot btn-sm-cc"><?= Lang::e('ui.add') ?></button>
       </form>
       <p class="cc-note cc-vpfrz-note" data-vpfrz-note hidden><?= Lang::e('vp.frz.note') ?></p>
+      <input type="search" class="cc-input cc-layer-filter" placeholder="<?= Lang::e('plan2d.layer.filter') ?>" aria-label="<?= Lang::e('plan2d.layer.filter') ?>" autocomplete="off" data-layer-filter>
+      <label class="cc-layer-groupline" hidden><span><?= Lang::e('plan2d.group.current') ?></span> <select class="cc-select" data-layer-group-pick></select></label>
       <ul class="cc-layers" data-layer-list></ul>
       <p class="cc-note"><?= Lang::e('ui.filled_dot_current_layer') ?></p>
     </section>
@@ -433,13 +457,32 @@ $__more = [
     </section>
   </aside>
 
-  <div class="cc-cmd">
-    <ol class="cc-history" data-history aria-live="polite" aria-label="<?= Lang::e('ui.command_history') ?>"></ol>
+  <?php /* The command line (0.9 SU.1083, cmdline.js): docked at the bottom or floating, its height in history lines (one line = the
+         history in a pop-up, F2). The grip, the height and width handles and the options menu are cmdline.js's. */ ?>
+  <div class="cc-cmd" data-cmd-bar data-cmd-dock="bottom" data-cmd-lines="std">
+    <div class="cc-cmd-size" role="separator" aria-orientation="horizontal" tabindex="0" aria-valuemin="0" aria-valuemax="12" aria-label="<?= Lang::e('ui.cmd.size') ?>" title="<?= Lang::e('ui.cmd.size.title') ?>" data-cmd-size></div>
+    <ol class="cc-history" id="cc-history" data-history aria-live="polite" aria-label="<?= Lang::e('ui.command_history') ?>"></ol>
+    <div class="cc-cmd-peek" aria-hidden="true" data-cmd-peek hidden></div>
     <form class="cc-cmdline" data-cmd-form autocomplete="off">
+      <button type="button" class="cc-cmd-grip" aria-label="<?= Lang::e('ui.cmd.grip') ?>" title="<?= Lang::e('ui.cmd.grip.title') ?>" data-cmd-grip><i class="bi bi-grip-vertical" aria-hidden="true"></i></button>
       <label for="cc-cmd" class="cc-prompt" data-prompt><?= Lang::e('ui.command') ?></label>
       <input type="text" id="cc-cmd" class="cc-cmd-input" data-cmd-input spellcheck="false" autocapitalize="off" aria-describedby="cc-suggest">
       <span class="cc-suggest" id="cc-suggest" data-suggest></span>
+      <button type="button" class="cc-cmd-btn" aria-controls="cc-history" aria-expanded="false" aria-label="<?= Lang::e('ui.cmd.hist') ?>" title="<?= Lang::e('ui.cmd.hist') ?>" data-cmd-hist><i class="bi bi-clock-history" aria-hidden="true"></i></button>
+      <details class="cc-menu cc-cmd-more" data-cmd-more>
+        <summary class="cc-cmd-btn" aria-label="<?= Lang::e('ui.cmd.more') ?>" title="<?= Lang::e('ui.cmd.more') ?>"><i class="bi bi-three-dots" aria-hidden="true"></i></summary>
+        <div class="cc-menu-list" role="menu" aria-label="<?= Lang::e('ui.cmd.more') ?>">
+          <button type="button" role="menuitem" data-cmd-opt="float"><?= Lang::e('ui.cmd.opt.float') ?></button>
+          <button type="button" role="menuitem" data-cmd-opt="dock"><?= Lang::e('ui.cmd.opt.dock') ?></button>
+          <button type="button" role="menuitem" data-cmd-opt="one"><?= Lang::e('ui.cmd.opt.one') ?></button>
+          <button type="button" role="menuitem" data-cmd-opt="lines"><?= Lang::e('ui.cmd.opt.lines') ?></button>
+          <button type="button" role="menuitem" data-cmd-opt="history"><?= Lang::e('ui.cmd.hist') ?> <kbd>F2</kbd></button>
+          <hr>
+          <button type="button" role="menuitem" data-cmd-opt="settings"><?= Lang::e('ui.cmd.opt.settings') ?></button>
+        </div>
+      </details>
     </form>
+    <div class="cc-cmd-wsize" role="separator" aria-orientation="vertical" tabindex="0" aria-label="<?= Lang::e('ui.cmd.width') ?>" data-cmd-wsize hidden></div>
   </div>
 
   <dialog class="cc-dialog" data-plot data-popout aria-labelledby="cc-plot-h">
@@ -518,6 +561,7 @@ $__more = [
     <span class="cc-seltotals" data-seltotals hidden aria-live="polite"></span>
     <div class="cc-toggles">
       <button type="button" class="cc-toggle" data-toggle="grid" aria-pressed="true" title="<?= Lang::e('ui.grid_f7') ?>"><?= Lang::e('ui.grid') ?></button>
+      <button type="button" class="cc-toggle" data-toggle="gsnap" aria-pressed="false" title="<?= Lang::e('ui.gridsnap_f9') ?>"><?= Lang::e('ui.gridsnap') ?></button>
       <button type="button" class="cc-toggle" data-toggle="ortho" aria-pressed="false" title="<?= Lang::e('ui.ortho_f8') ?>"><?= Lang::e('ui.ortho') ?></button>
       <button type="button" class="cc-toggle" data-toggle="polar" aria-pressed="false" title="<?= Lang::e('status.polar.title') ?>"><?= Lang::e('status.polar') ?></button>
       <button type="button" class="cc-toggle" data-toggle="osnap" aria-pressed="true" title="<?= Lang::e('ui.object_snap_f3') ?>"><?= Lang::e('ui.snap') ?></button>

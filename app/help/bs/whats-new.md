@@ -1,111 +1,72 @@
 ---
-title: Šta je novo u 0.7
-summary: PDF podloge i uvoz PDF-a, skenirani crteži sa automatskim praćenjem, pravi splajnovi sa SPLINE, SPLINEDIT i PEDIT, upravljač stilovima kota, tekst koji zadržava oblikovanje, WBLOCK i vaše vlastite razmjere, 3D solidi iz drugih programa, registracija skenova, panel Laser, izvoz USD, historija i štampanje u CadCraft Studiu, vođeni prvi crtež, traka sa alatima na bilo kojoj strani ili u manje redova, i još više za AI asistente.
-keywords: šta je novo, what's new, bilješke o izdanju, izmjene, 0.7, verzija, nove funkcije, pdf, pdfattach, pdfimport, podloga, skeniranje, scanattach, scantrace, praćenje, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, oblikovanje, wblock, scalelistedit, spisak razmjera, acis, 3d solidi, registerscans, registracija skenova, icp, e57, las, laser, grbl, g-code, usd, usdout, historija, verzije, uporedi, štampa, štampač, png, svg, stil štampe, tip linije, obilazak, brzi pregled, karta komandi, položaj trake, redovi trake, regen, regenall, touchpad, prevlačenje, kodna stranica, ćirilica, korejski, kineski, japanski, električne instalacije, rcd, p&id, pid, acad.lsp, acaddoc.lsp, fascikla podrške, asistenti, mcp, jedinice, portugalski
-from: b9258ca6
+title: Šta je novo u 0.8 i 0.8.1
+summary: Duh koji dovršava vaš crtež, skice olovkom i fotografije skica pretvorene u geometriju, listovi koji se sami slažu, detalji ponuđeni dok crtate, GRIDMOVE i AUTODIM, oznake, datoteke pogodne za spajanje, crveni markupi pretvoreni u revizije, crtanje bez vida, granice crteža, azimuti, SHX fontovi, dijagrami iz teksta i ispravke u 0.8.1.
+keywords: šta je novo, what's new, bilješke o izdanju, dnevnik promjena, promjene, 0.8, 0.8.1, verzija, nove funkcije, automatsko dovršavanje, duh, tab, sketchfix, photosketch, autosheet, detalji, gridmove, autodim, oznake, redline, spajanje, git, fossil, pristup, crtanje bez vida, čitač ekrana, granice, azimuti, aunits, shx, dijagram, ole, historija, uporedi, riječima, svojstva, stope i inči, istegni, jezici, ulazni uređaji, problemi, uživo, asistenti
+from: 9dd82db5
 ---
 
-Ovo je ono što se promijenilo u CadCraft-u 0.7, u odnosu na 0.6. Mnogo toga je traženo na Discordu. Spisak je grupisan po oblastima, s najvažnijim prvo.
+Ovo je ono što se promijenilo u CadCraft 0.8 i 0.8.1, u odnosu na 0.7. Verzija 0.8 (1. novembar 2026) dodaje pomoćna sredstva za crtanje koja rade na osnovu vašeg crteža, pravila na vašem računaru i bez modela, a verzija 0.8.1 (2. novembar 2026) ispravlja greške prijavljene nakon nje.
 
 ## Novo
 
-### PDF-ovi i skenirani crteži
+### Crtež koji dovršava vašu misao
 
-- **Stavite PDF stranicu ispod crteža.** {{cmd:PDFATTACH}} (`PDFATT`) postavlja stranicu u pravoj veličini ili u razmjeri koju upišete. Hvatajte se za njene linije, učinite je blijedom, napravite je jednobojnom ({{cmd:PDFADJUST}}), isjecite je ({{cmd:PDFCLIP}}) i uključujte i isključujte slojeve samog PDF-a ({{cmd:PDFLAYERS}}). Štampa se kao linije, popune i tekst, a DWG ili DXF 2000 je zadržava kao vezu na datoteku. Kad otvorite PDF sa {{ui:Otvori}}, pita da li da ga pridružite ili uvezete. Vidi [PDF podloge i uvoz PDF-a](topic:pdf-underlay).
-- **Pretvorite PDF stranicu u objekte crteža.** {{cmd:PDFIMPORT}} (`PDFIM`) pravi linije, polilinije, krugove, lukove, pune šrafure i tekst na slojevima imenovanim po PDF-u, u pravoj veličini, u upisanoj razmjeri, ili razmjerom iz dvije tačke i stvarne udaljenosti, u jednom koraku poništavanja. Vidi [Uvoz stranice](topic:pdf-underlay#import-a-page).
-- **Skenirani crteži.** {{cmd:SCANATTACH}} unosi PNG, JPEG ili TIFF (jednu stranicu ili sve) ili PDF stranicu koja je slika. Zatim je razmjerite iz dvije tačke ({{cmd:SCANSCALE}}), poravnajte ({{cmd:SCANALIGN}}), ispravite je po njenim dugim linijama ({{cmd:SCANDESKEW}}), pretvorite u crno-bijelu i uklonite mrlje ({{cmd:SCANCLEAN}}), izrežite je i obrišite dijelove. Svaki korak je jedan korak poništavanja, a originalna datoteka se čuva. Vidi [Skenirani crteži i praćenje](topic:scanned-drawings).
-- **Pratite skenirani crtež u linije i lukove.** {{cmd:SCANTRACE}} crta linije skena kao linije i lukove na novom sloju, SCAN-TRACE, s tolerancijom koju postavite, a tekst i šrafure ostavlja kakvi jesu. Izvještaj kaže šta je napravljeno i šta je ostavljeno, i nije tvrdnja da je rezultat tačan: provjerite ga sa listom. {{cmd:RASTERSNAP}} omogućava da hvatanje objekata pronalazi krajeve, uglove i presjeke skena. Ništa se nigdje ne šalje i ne koristi se obučen model. Vidi [Praćenje](topic:scanned-drawings#the-trace).
+- **Duh pokazuje šta slijedi.** Kad nijedna naredba nije pokrenuta, sivi isprekidani duh pokazuje šta uzorci vašeg crteža kažu da slijedi: sljedeći stub na istom razmaku, sljedeći korak stepenica, nedostajući zid prostorije. Pritisnite {{key:Tab}} da ga nacrtate kao jedan korak poništavanja, ili {{key:Esc}} da ga odbacite. Gleda samo najnovije objekte, pa ostaje glatko i na velikom crtežu. Isključite ga u {{ui:Postavke}} › {{ui:CadCraft}} ili naredbom {{cmd:AUTOCOMPLETE}} `Isključi (O)`.
+- **Sljedeća tačka dok crtate liniju.** Usred {{cmd:LINE}} ili {{cmd:PLINE}} duh je sljedeća tačka: sljedeći korak stepenica, četvrti ugao pravougaonika ili tačka koja ga zatvara. Približite kursor i pritisnite {{key:Tab}}, kao da ste kliknuli tu.
+- **Skice olovkom postaju precizna geometrija.** {{cmd:SKETCHFIX}}: nacrtajte grube poteze olovkom, mišem ili prstom i svaki postaje čista linija, krug, luk, pravougaonik ili polilinija, pripijena uz ono što je već nacrtano. Pogledajte [Skicirajte olovkom i dobijte preciznu geometriju](topic:sketch-with-a-pen).
+- **Fotografija skice postaje crtež.** {{cmd:PHOTOSKETCH}} (`PSK`) pronalazi papir na fotografiji, ispravlja perspektivu, primjenjuje veličinu papira i razmjeru koje zadate, i prenosi linije olovke na sloj za svaku boju olovke. Natpisi se ne prenose.
+- **Dimenzioniranje po pravilima.** {{cmd:AUTODIM}} (`ADIM`) pravi lance kota duž stranica koje izaberete, ukupnu veličinu, širine otvora, prečnike rupa i, uz `Grid`, razmake mreže. Nikad ne ponavlja kotu koja već postoji.
+- **Pomjerite liniju mreže i ostatak prati.** {{cmd:GRIDMOVE}} (`GM`): zidovi koji završavaju na liniji mreže istežu se s njom, zidovi uz nju, stubovi, njen krug i oznaka se pomjeraju, a kote na njoj mjere novi razmak. Jedan korak poništavanja.
 
-### Crtanje i uređivanje
+### Listovi, detalji i oznake
 
-- **Pravi splajnovi.** {{cmd:SPLINE}} (`SPL`) crta krivu kroz tačke ili iz kontrolnih tačaka (stepen 1 do 5), sa krajnjim tangentama; {{cmd:SPLINEDIT}} (`SPE`) pomjera, dodaje i briše tačke prileganja ili kontrolne tačke, postavlja težine, otvara, zatvara, obrće, ili pretvara splajn u polilinije. Splajnovi iz DWG i DXF datoteka otvaraju se kao splajnovi, a DWG i DXF 2000 ih spašavaju kao splajnove. Vidi [Splajnovi i polilinije](topic:splines).
-- **PEDIT.** {{cmd:PEDIT}} (`PE`) zatvara i otvara polilinije, spaja linije i lukove s njima, postavlja jednu širinu, prilagođava krivu kroz vrhove ili splajn duž njih, a vraća je nazad sa Decurve, obrće, i uređuje više odjednom. Vidi [Uređivanje polilinije](topic:splines#edit-a-polyline).
-- **WBLOCK.** {{cmd:WBLOCK}} (`W`) upisuje blok, neke objekte ili cijeli crtež u novu DWG ili DXF datoteku, koja sadrži samo slojeve, stilove i blokove koje koriste. Vidi [Upis bloka ili objekata u njihovu datoteku](topic:blocks#write-a-block-or-objects-to-a-file-of-their-own).
-- **REGEN i REGENALL.** {{cmd:REGEN}} (`RE`) ponovo crta karticu na kojoj jeste, iz crteža; {{cmd:REGENALL}} (`REA`) svaku karticu, okno i otvoren crtež. Vidi [REGEN i REGENALL](topic:commands#regen-and-regenall).
+- **Listovi koji se sami slažu.** {{cmd:AUTOSHEET}} uzima vaše imenovane poglede (ili zasebne dijelove modela), bira veličinu papira i standardnu razmjeru, i postavlja poglede na nove listove s naslovnim blokom i natpisom s imenom i razmjerom. Sve ostaje izmjenjivo. Pogledajte [Slaganje listova umjesto mene](topic:lay-out-sheets-for-me).
+- **Detalji vaše firme, ponuđeni dok crtate.** {{cmd:DETAILS}} (`DET`) čuva vaše blokove detalja. Kad se ono što izaberete poklapa s jednim po riječima na njegovim slojevima, nazivima blokova i bilješkama, statusna traka to kaže; izaberite ga i postavite. {{cmd:DETAILS}} › Podijeli stavlja vašu listu u fasciklu Dokumenti i donosi ono što je vaš tim dodao. Postavke isključuju ponude.
+- **Oznake na blokovima.** {{cmd:TAGS}} definiše oznaku (njenu vrstu, vrijednosti koje može imati, blokove na koje se odnosi), postavlja je na reference blokova koje izaberete i ih ispisuje kao specifikaciju koju možete sačuvati kao CSV. Definicije se čuvaju u DWG datoteci. Pogledajte [Oznake](topic:tags).
+- **Granice crteža.** {{cmd:LIMITS}} postavlja pravougaonik za crtež: mreža ga popunjava, a zumiranje Sve ga prikazuje. Granice se prikazuju kao obris i čuvaju se u DWG i DXF datotekama, zajedno s granicama papira. Pogledajte [Postavite granice crteža](topic:drawing-limits).
 
-### Tekst i kote
+### Rad s drugim ljudima i drugim programima
 
-- **Tekst zadržava oblikovanje.** Pasus tekst iz drugih programa zadržava boje po riječi, podebljano i kurziv, podvlačenje, slagane razlomke i visine: crtaju se na ekranu i u PDF-ovima, zadržavaju se kad uređujete riječi i vraćaju se pri spašavanju. Vidi [Oblikovanje unutar pasus teksta iz drugih programa](topic:text#formatting-inside-paragraph-text-from-other-programs).
-- **Upravljač stilovima kota.** {{cmd:DIMSTYLE}} (`D`) pravi, mijenja, upoređuje i primjenjuje imenovane stilove kota; promjena stila mijenja svaku kotu koja ga koristi. {{cmd:DIMEDIT}} (`DED`) vraća tekst, upisuje novi tekst, okreće ga ili kosi pomoćne linije; {{cmd:DIMTEDIT}} pomjera tekst ulijevo, udesno ili u sredinu. Vidi [Imenovani stilovi kota](topic:dimension-settings#named-dimension-styles).
-- **Vaše razmjere.** {{cmd:SCALELISTEDIT}} (`SCALELIST`) dodaje razmjere kao 1:75 u spiskove razmjera prozora pregleda i štampe; čuvaju se u crtežu (DWG i DXF 2000), a crtež iz drugog programa donosi svoj spisak. Vidi [Razmjere](topic:units-papers-scales#scales).
-- **Tekst u drugim abecedama.** DXF datoteke spašene u kodnim stranicama ćirilice, korejskog, kineskog, japanskog ili vijetnamskog sada se otvaraju sa svojim tekstom, a kineski, japanski i korejski tekst se štampa u PDF-ovima (štampa preuzima veći font kad mu prvi put zatreba). Vidi [Font](topic:text#font).
+- **Pretvorite markup u reviziju.** {{cmd:REDLINE}} čita paket koji piše MarkupCraft i nabraja svaku promjenu. Prihvatite ili odbacite svaku uz bilješku; prihvaćene dobijaju oblak revizije i dnevnik revizija u jednom koraku poništavanja, a vi sačuvate datoteku odgovora koja zatvara markupe u MarkupCraft. Pogledajte [Pretvorite markup u reviziju](topic:redline-to-revision).
+- **Crteži koje git i Fossil mogu spojiti.** Uz {{ui:Datoteke pogodne za spajanje}} uključeno u {{ui:Postavke}} › {{ui:CadCraft}}, svaki objekat dobija ključ koji se nikad ne mijenja (datoteke su oko 10 posto veće). `cadcraft merge base ours theirs` zatim spaja izmjene dvoje ljudi na jednom DWG ili DXF crtežu objekat po objekat i prijavljuje samo mjesta na kojima su dvoje ljudi promijenili istu stvar. Pogledajte [Spojite izmjene dvoje ljudi na jednom crtežu](topic:merge-drawings).
+- **Šta se promijenilo, riječima.** U {{ui:Historija}}, Uporedi daje običan spisak: gdje su stvari promijenjene, koliko su velika ta mjesta, šta je dodano, uklonjeno ili promijenjeno, i tekst koji je uređen. Pogledajte [Recite riječima šta se promijenilo](topic:changes-in-words).
+- **Azimuti i uglovi.** Upišite smjer kao geodetski azimut, na primjer N45°23'30"E, ili u stepenima, minutama i sekundama, bilo gdje gdje se traži ugao; AUNITS određuje kako se uglovi prikazuju. Pogledajte [Unesite i prikažite azimute i uglove](topic:bearings-and-angles).
+- **Vaši SHX fontovi.** Dajte CadCraft fasciklu SHX fontova i stilovi teksta koji ih imenuju crtaju se njima, na ekranu i u štampi. Pogledajte [Crtajte tekst vlastitim SHX fontovima](topic:shx-fonts).
+- **Dijagram iz teksta.** {{cmd:DIAGRAM}} čita Mermaid dijagram toka, PlantUML dijagram komponenti, D2 ili spisak od-do i crta blokove i konektore koje možete uređivati. Pogledajte [Nacrtajte dijagram iz teksta](topic:text-to-diagram).
+- **OLE objekti u DWG datoteci.** {{cmd:OLELIST}} nabraja OLE objekte koje DWG nosi, a CadCraft ih ne može sam postaviti, i postavlja kopiju slike gdje kažete. Pogledajte [Slike](topic:pictures#objects-from-other-programs-ole).
+- **Vaši proračuni ostaju uz crtež.** Listovi proračuna i razlozi za projekat čuvaju se u DWG datoteci zajedno s tabelom klasa.
 
-### Štampanje i štampa
+### Crtanje bez vida
 
-- **Više u tabelama stila štampe.** Za svaku boju tabela sada može postaviti i tip linije, kraj i spoj linije, i stil popune koji štampa pune popune kao linije šrafure; tabela ima svoj spisak debljina i razmjeru tipa linije. Vidi [Tabele stila štampe](topic:plot-pdf#plot-style-tables).
-- **Štampa, i PNG i SVG datoteke.** Dijalog Štampaj ima {{ui:Štampaj…}}, {{ui:Preuzmi PNG}} (300 dpi) i {{ui:Preuzmi SVG}}. U CadCraft Studiu navodi štampače računara, njihov papir i broj kopija. Vidi [Štampa](topic:plot-pdf#print) i [Slika i SVG datoteke](topic:plot-pdf#picture-and-svg-files).
+- Uključite {{ui:Crtanje bez vida}} u {{ui:Postavke}} (ili upišite {{cmd:ACCESS}} i odgovorite `Uključi (O)`). CadCraft izgovara svaku naredbu i rezultat preko vašeg čitača ekrana, opisuje crtež i ono što je blizu kursora, omogućava vam da pomjerate kursor i birate tačke tastaturom, i pušta zvuk za svaki snap i grip. Tamo gdje vaš pregledač može prepoznati govor na vašem računaru, naredbe se mogu izgovarati. Pogledajte [Crtajte bez vida](topic:draft-without-sight).
 
-### 3D i oblaci tačaka
+### U svim aplikacijama
 
-- **3D solidi iz drugih programa.** Solidi, regije i tijela u modelskom prostoru crteža prikazuju se na kartici 3D, samo za čitanje, a spašavanje kao DWG ih vraća nepromijenjene. Površine na površinama koje CadCraft još ne crta se navode, a ne pogađaju. Vidi [Solidi iz drugih programa](topic:3d-solids#solids-from-other-programs).
-- **Registrujte više skenova.** {{cmd:REGISTERSCANS}} (`REGSCAN`) postavlja skenove snimljene s različitih položaja u jedan okvir, po parovima tačaka ili upisanim koordinatama cilja, dorađuje ih sa ICP, čuva registraciju kao mali projektni fajl i upisuje registrovani oblak tačaka kao jednu LAS ili E57 datoteku. Vidi [Registracija više skenova u jedan](topic:register-scans).
-- **Izvoz USD.** {{cmd:USDOUT}}, ili {{cmd:EXPORT3D}} › {{ui:USD}}, upisuje solide kartice 3D kao `.usda`, `.usdc` ili `.usdz`. Vidi [Izvoz 3D modela kao USD](topic:usd).
-- **Proračuni na kartici 3D.** Gdje alati kartice 3D traže udaljenost, možete upisati proračun, kao u komandnoj liniji. Vidi [Aritmetika u upisanoj vrijednosti](topic:coordinate-entry#arithmetic-in-a-typed-value).
+- **Jezici.** 54 jezika; deset je novo (litvanski, letonski, bosanski, marati, telugu, albanski, afrikaans, filipinski, svahili, uzbečki). Jezici osim engleskog su mašinski nacrti dok ih ne pročita izvorni govornik.
+- **Ulazni uređaji.** Trackpad, olovka, 3D miš, kontroler za igre i MIDI kontrole.
+- **Redovi alatne trake i tabela svojstava.** {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Redovi alatne trake}} nudi Prelom, 2 reda ili 1 red u ostalim aplikacijama. CadCraft ima svoju postavku u {{ui:Postavke}} › {{ui:CadCraft}} (pogledajte [Redovi alatne trake](topic:settings#toolbar-rows)). Zajednička tabela svojstava nalazi se u tri druge aplikacije, a ne u CadCraft.
+- **Problemi, Uživo i dodaci.** Zajednički panel Problemi koji upozorava u svakoj aplikaciji, prikaz Uživo koji pokazuje ko je gdje u CadCraft Studiju (pogledajte [Radite zajedno na jednom crtežu](topic:work-live)), i popis dodataka.
+- **Povežite svoj AI.** Jedna veza od CadCraft Studija do svih osam aplikacija, sa nivoom samo za čitanje, predlaganje ili uređivanje po aplikaciji, i dnevnikom običnim riječima o tome šta je asistent radio. CadCraft nema vlastiti AI, a Pitaj u svakoj aplikaciji koristi AI koji povežete.
 
-### Pravljenje stvari
+## Ispravljeno u 0.8.1
 
-- **Pošaljite crtež laseru.** {{cmd:LASER}}, ili {{ui:Pogled}} › {{ui:Više}} › {{ui:Laser…}}, otvara panel preko crteža: svaki sloj reže, ureže, graviše linije, popunjava oblike, graviše sliku ili se ne šalje, sa svojom snagom, brzinom i prolazima. Pregled prati vaše izmjene, {{ui:Spasi G-kod…}} piše G-kod GRBL režima lasera, a u Chrome-u ili Edge-u panel može uokviriti posao i poslati ga preko USB-a. Postavke se čuvaju u crtežu (DWG i DXF). Vidi [Slanje crteža laseru](topic:laser-cutting).
-- **Simboli instalacija za zgrade u dodatku Električne instalacije.** Utičnice za podatke, telefon i TV, prekidači s ključem i vremenski prekidači, termostat, znak izlaza, detektori, tačka poziva i zvučni signal, ventilator, bojler, šporet, tačka za punjenje EV-a, brojilo energije i podtabla, te simboli RCD i RCBO. Strujno kolo može imati RCD, tabela panela ima kolonu RCD, a provjere imenuju kola utičnica bez RCD-a od 30 mA ili manje. To je podsjetnik za planiranje, a ne provjera propisa.
-- **Dodatak P&ID.** P&ID crta dijagrame procesa: simbole sa tačkama spoja, linije procesa i signala, oznake, brojeve linija, spiskove linija, opreme, instrumenata i ventila (CSV ili radna sveska) i provjere. Dolazi uz CadCraft i isključen je dok ga ne uključite u {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Dodaci}}. To je pomoć pri crtanju, a ne inženjersko odobrenje, a njegove riječi su za sada samo na engleskom.
-
-### Početak i ekran
-
-- **Vođeni prvi crtež.** {{cmd:TOUR}} (ili {{ui:Pogledaj obilazak}} na početnoj kartici) vodi vas kroz šest koraka u stvarnom crtežu: linija, krug, pomjeranje, skraćivanje, brisanje i kota. Počinje sam prvi put kad se CadCraft otvori praznog. Vidi [Radije biste da vas vodimo?](topic:getting-started#prefer-to-be-guided)
-- **Brzi pregled i karta komandi.** [Brzi pregled](topic:cheat-sheet) ima 40 svakodnevnih komandi na jednoj stranici, i kao PDF za štampanje, a [karta komandi](topic:command-map) navodi komande sa njihovim kratkim nazivima, od A do Z.
-- **Traka sa alatima na bilo kojoj strani.** {{ui:Postavke}} › {{ui:CadCraft}} › {{ui:Položaj trake s alatima}}: gore (kao prije), dolje, lijevo ili desno, ili upišite {{cmd:TOOLBARDOCK}}. Vidi [Položaj trake s alatima](topic:settings#toolbar-position).
-- **Redovi trake sa alatima.** {{ui:Postavke}} › {{ui:CadCraft}} › {{ui:Redovi alatne trake}}: prelamanje da stane, 2 reda ili 1 red, za traku CadCraft-a i stilove Drafting classic i Ribbon. {{key:Shift+Ctrl+F1}} prolazi kroz njih, {{key:Ctrl+F1}} kroz ono što dugmad prikazuju, a {{cmd:TOOLBARROWS}} i {{cmd:TOOLBAR}} ih postavljaju. Početna napomena ima dugme za zatvaranje. Hvala korisniku GJoe2, koji je ovo poslao kao pull request. Vidi [Redovi alatne trake](topic:settings#toolbar-rows).
-
-### U CadCraft Studiu
-
-- **Historija.** {{cmd:HISTORY}} (`HIST`), ili {{ui:Pogled}} › {{ui:Više}} › {{ui:Historija…}}: kopije koje Studio čuva kad otvorite i spasite crtež, i verzije crteža u oblaku ako ste ga otvorili iz oblaka. Otvorite ili vratite jednu, ili uporedite dvije, sa prikazanim dodatim, uklonjenim i promijenjenim stvarima u boji. Vidi [Historija](topic:history).
-- **acad.lsp i acaddoc.lsp.** Izaberite fasciklu podrške u {{cmd:APPLOAD}}: te dvije datoteke učitavaju se kad se CadCraft pokrene (acaddoc.lsp ponovo za svaku novu karticu crteža), a `S::STARTUP` se izvršava nakon njih. Vidi [Učitavanje aplikacija](topic:load-applications#load-acadlsp-and-acaddoclsp-from-a-support-folder-studio).
-- **Dijalog za štampanje u vlastitom prozoru.** Dugme u naslovnoj traci premješta dijalog u prozor koji možete staviti na drugi monitor. Vidi [Pomjeranje dijaloga](common:arrange-panels#move-a-dialog).
-
-### Za AI asistente
-
-- **Datoteke po imenu, u fasciklama koje izaberete.** U CadCraft Studiu asistent može otvoriti, spasiti i štampati datoteke po imenu, i predati komandi datoteku koju traži (INSERT iz datoteke, COUNT-ov izvoz, SAVEAS, PLOT), ali samo unutar fascikli koje dodate pod {{ui:Postavke}} › {{ui:CadCraft}} › {{ui:Asistenti}} › {{ui:Folderi koje smije koristiti}}. Vidi [Dozvolite mu da koristi datoteke u fasciklama koje izaberete](topic:use-with-ai-assistants#let-it-use-files-in-folders-you-choose).
-- **Manje poziva.** Asistent može upisati cijelu komandnu liniju odjednom, držati komandu otvorenom između poziva, brojati objekte po vrsti i sloju bez njihovog nabrajanja, i postaviti blok sa vrijednostima atributa u jednom koraku.
-- **Bez prozora.** Komandna linija `cadcraft` piše SVG štampe i pretvara, štampa, provjerava ili opisuje mnogo datoteka odjednom. MCP paket još nije objavljen. Vidi [Rad s datotekama bez otvaranja CadCraft-a](topic:use-with-ai-assistants#work-on-files-without-opening-cadcraft).
-
-## Izmijenjeno
-
-- **Touchpad pomjera.** Pomjerite dva prsta na touchpadu i 2D pogled ih prati; štipanje i točkić miša zumiraju. Vidi [Miš, touchpad i dodir](topic:mouse-trackpad-touch).
-- **OLE objekti se zadržavaju.** Ugrađeni objekti DXF-a prikazuju se kao slika ili kao označeni okvir i spašavaju se nazad kroz DXF 2000. OLE objekti DWG-a se zadržavaju i zapisuju kad spasite kao DWG, ali se još ne prikazuju. Prije su se gubili pri spašavanju. Vidi [Objekti iz drugih programa (OLE)](topic:pictures#objects-from-other-programs-ole).
-- **Jedinice novog crteža** prate jedinicu koju označite zvjezdicom u {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Jedinice}}.
-
-## Ispravljeno
-
-- Listovi koji su se otvarali prazni, ili su izgubili prozor pregleda i na njegovom mjestu prikazivali cijeli model, sada se otvaraju sa svojim stvarnim prozorima pregleda. List bez veze sa svojim sadržajem se zadržava, a izvještaj o otvaranju to kaže.
-- DXF datoteke u starijim kodnim stranicama prikazivale su pokvaren tekst na ćirilici i korejskom. Sada se čitaju ispravno.
-- Pasus tekst iz drugih programa gubio je oblikovanje pri otvaranju i spašavao se kao običan tekst.
-
-## Za sve aplikacije
-
-- **Jedinice.** {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Jedinice}} ima po jedan spisak za dužinu, površinu, zapreminu, ugao i nagib, sa tačnim veličinama koje daju definicije jedinica (američka geodetska stopa je sopstvena jedinica). Isključite jedinice koje nikad ne koristite i one nestaju sa spiskova; označite jednu zvjezdicom i novi rad počinje u njoj. Datoteka uvijek zadržava svoju jedinicu. U CadCraft-u zvjezdica postavlja jedinice novog crteža kad je to jedinica koju crtež može nositi, a vlastiti okvir {{ui:Jedinice}} u CadCraft-u još ne prati prekidače. Kad crtež ima jedinice, dužina koju upišete može nositi oznaku bilo koje jedinice. Vidi [Jedinice, upisane vrijednosti i spiskovi jedinica](common:unit-lists).
-- **Gušći raspored i paneli koji se sklanjaju.** {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Gustina rasporeda}} › {{ui:Zbijeno}} stane više na ekran (ekrani osjetljivi na dodir i telefoni zadržavaju velika dugmad). Svaki bočni panel ima tanku naslovnu traku: prevucite je da pričvrstite ili otkačite panel, spustite je na naslovnu traku drugog panela da dijele jedan okvir kao kartice, zakačite je da kliznu do ivice, ili sakrijte panel i vratite ga sa ivice. Vidi [Poredajte panele](common:arrange-panels#make-the-layout-denser).
-- **Dijalozi se pomjeraju.** Prevucite dijalog za naslovnu traku izvan puta crtežu; vraća se tamo gdje ste ga ostavili. Dvaput kliknite naslovnu traku da ga ponovo centrirate. Vidi [Pomjeranje dijaloga](common:arrange-panels#move-a-dialog).
-- **Recepti za AI asistente.** Deset gotovih zahtjeva za vašeg asistenta (sredite crtež, odštampajte set, provjerite crteže, postavite pitanja modelu, zbrojite predmjer, isprobajte varijantu dijela…), svaki sa alatima koje poziva i dozvolama koje treba, i svaki ponovljen našim testovima. Aplikacije ne sadrže AI. Vidi [Recepti za AI asistente](common:assistants-recipes).
-- **Jezici.** **Português (Portugal)** je novo u {{ui:Postavke}} › {{ui:Opšte}} › {{ui:Jezik}}. Taj, **Português (Brasil)**, **Español (México)** i **Bahasa Indonesia** sada imaju svaku riječ aplikacija, kao nacrte koje izvorni govornik još nije pregledao. Teme pomoći su na engleskom jeziku.
-- **CadCraft Studio** kaže zašto provjera ažuriranja nije uspjela (nema datoteke za vaš sistem još, nema mreže, loš potpis) umjesto samo „Gotovo“, i prestaje da vraća karticu Šta je novo koju ste zatvorili dok ne izađe novije izdanje.
+- **Svojstva su prikazivala 150 umjesto 12'-6"** u crtežima u stopama i inčima. Polja koja aplikacija sama čita ponovo zadržavaju svoj tekst.
+- **DWG datoteke čiji je dio klasa pročitan kao pogrešan tip** (GitHub cadcraft#5) sada se ispravno otvaraju.
+- **Nišan se više ne prikazuje iza iskačućih prozora.**
+- **Studio i zapakovana izdanja mogu promijeniti jezik u toku rada.** Ranije su bila samo na engleskom. Još nije testirano na svim platformama: javite nam ako se jezik ne mijenja.
+- **Tableti u uspravnom položaju** daju prostor mreže platnu, a režim listova počinje na 760 px ili manje.
+- **STRETCH s ukrštenim prozorom i LIMITS** prijavljeni su na Studiju 0.8.0, a u web verziji 0.8 su već bili ispravni; instalater korisnika bio je stariji. Studio 0.8.1 ih sadrži.
 
 ## Još nije u ovoj verziji
 
-- **0.7 nije potpisan kodom.** Potpisivanje i paket Microsoft Store prebačeni su na 0.8 jer provjera certifikata još nije stigla. Provjerite SHA-256 uz svaku datoteku na getcadcraft.com/download. Na Windows-u, ako SmartScreen zaustavi instalater, izaberite {{ui:Više informacija}}, pa {{ui:Ipak pokreni}}. Na Mac-u, prvi put, desnim klikom kliknite CadCraft Studio i izaberite {{ui:Otvori}}. CadCraft Studio još nije u prodavnici aplikacija, i još nema verzije za iPad ili iPhone.
-- Spiskovi uglova i nagiba u {{ui:Jedinice}} se čuvaju, ali ih još nijedan okvir ne čita.
-- OLE objekti DWG-a se zadržavaju ali se ne prikazuju, a metafile slike unutar OLE objekata se ne crtaju.
-- Čitanje tabela stila štampe (CTB datoteke) iz drugih programa čeka uzorak datoteke.
-- Stariji azijski tekst zapisan kao `\M+` kodovi se čita, ali još nije provjeren sa datotekom iz drugog programa.
-- PDF podloge: slike unutar stranice se prikazuju na ekranu ali se ne štampaju, štampa asistenta izostavlja podloge, a nije provjereno kako ih drugi programi čitaju u sačuvanom isječku i razmjeri.
-- Historija: CadCraft još ne šalje svoja spašavanja u oblak, pa su verzije u oblaku one spašene s drugih uređaja i sa weba. Historija je samo u CadCraft Studiu.
-- Nije provjereno da li Studio zadržava fasciklu podrške acad.lsp nakon ponovnog pokretanja; ako pita, izaberite fasciklu ponovo u APPLOAD-u.
-- Panel Laser još nije isproban na pravom laseru: testirajte svaku postavku na otpadu. CadCraft Studio nema Web Serial, pa u Studiu panel samo spašava G-kod.
-- Registracija skenova je testirana na izmišljenim skenovima, još ne na skenovima pravog skenera.
-- Pomjeranje dvama prstima je isprobano sa simuliranim događajima touchpada, još ne na pravom touchpadu.
-- {{cmd:PEDIT}} nema opciju Edit vertex (koristite hvataljke ili Svojstva). Ofset, skraćivanje, produženje, zaobljenje, prekid i spajanje još ne uzimaju splajnove; visina splajna (Z) se ne zadržava.
-- Novi pasus tekst ne može još dobiti kodove oblikovanja, a SVG štampe prikazuju oblikovani tekst u jednoj boji.
-- Opcija Cijeli crtež u WBLOCK-u piše samo model, ne listove. Trenutni stil kota se ne čuva u datoteci: crtež se otvara sa stilom Standard kao trenutnim.
-- Stilovi menija trake nemaju još spiskove sloja, boje ili tipa linije: koristite panel {{ui:Slojevi}} i {{ui:Svojstva}}.
-- Oblaci tačaka se još ne čuvaju u crtežu niti se štampaju, a E57 datoteke se otvaraju do 6 miliona tačaka i 512 MB.
-- Sačuvani DWG-ovi CadCraft-a još nisu provjereni u samom AutoCAD-u.
+- **0.8 i 0.8.1 nisu potpisani kodom.** Windows može upozoriti (izaberite {{ui:Više informacija}}, pa {{ui:Ipak pokreni}}); na Mac-u kliknite desnim tasterom na CadCraft Studio i izaberite {{ui:Otvori}}. Verzije za prodavnice aplikacija su na čekanju, a verzija za iPad i iPhone nije ponovo izgrađena za 0.8.1.
+- **Skice olovkom i fotografije skica** isprobane su samo na izmišljenim fotografijama i mišem, još ne sa pravom olovkom, ekranom osjetljivim na dodir ili ručnom skicom na papiru.
+- **Crtanje bez vida** testirano je automatskim provjerama, još ne sa čitačem ekrana ili slijepim testerom.
+- **Dijeljenje detalja** nije provjereno od dvije osobe, a fascikla Team Cloud Plan kao fascikla Dokumenti nije izgrađena.
+- **Spajanje** radi za DWG i DXF datoteke CadCraft; za datoteke drugih aplikacija nije izgrađeno.
+- **Poništavanje preko prozora:** CadCraft prijavljuje svaki završeni korak, ali Studio još nema jedinstveno Poništi za sve aplikacije; svaka aplikacija poništava svoje korake.
+- **OLE objekti DWG datoteke** se čuvaju, ali se ne crtaju na mjestu.
+- **Čitanje tabela stilova štampe (CTB datoteke)** iz drugih programa je izgrađeno, ali nije provjereno na datoteci iz drugog programa.
+- **Povežite svoj AI:** povezivanje jednim klikom u Studiju, hostovani konektor za AI u pregledaču, vlastiti API ključ unutar Studija i objavljeni MCP paket nisu obećani u ovom izdanju.
 
-Ostalo je u [Još nije izrađeno](topic:not-built-yet).
+Za verziju prije ove, pogledajte [Šta je novo u 0.7](topic:whats-new-0-7).

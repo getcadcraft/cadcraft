@@ -1,0 +1,23 @@
+{
+  "id": "circuit",
+  "name": "Circuit simulation",
+  "version": "0.9.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.3",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "panel",
+    "files",
+    "problems"
+  ],
+  "description": "Draw a circuit as a schematic and simulate it on our own solver: DC operating point, transient and AC sweep, read with a meter, a scope and a plotter placed on nets. Part values are typed by you; no maker's models or Multisim files are read.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off",
+  "honesty": "Our own solver (modified nodal analysis with Newton iteration) checked against closed forms; part values are the ones you type, not a maker's model. It reads no Multisim files and has no part library of real devices."
+}

@@ -131,6 +131,26 @@
   </div>
   <p class="shell-hint-text"><?= Lang::e('set.toolbar_rows.hint') ?></p>
 </fieldset>
+<?php /* 0.9 SU.1083: the command line (cmdline.js; stored in cc-app-settings:cadcraft → cmdline) and the top area (cadcraft.settings topArea) */ ?>
+<fieldset class="shell-set" data-cmdline-settings>
+  <legend><?= Lang::e('set.cmdline') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.cmdline') ?>">
+    <label><input type="radio" name="ccCmdDock" value="bottom"> <i class="bi bi-window-dock" aria-hidden="true"></i> <?= Lang::e('set.cmdline.dock.bottom') ?></label>
+    <label><input type="radio" name="ccCmdDock" value="float"> <i class="bi bi-window-stack" aria-hidden="true"></i> <?= Lang::e('set.cmdline.dock.float') ?></label>
+  </div>
+  <label class="cc-set-range" for="cc-set-cmdlines"><?= Lang::e('set.cmdline.lines') ?>: <output data-cmd-lines-out for="cc-set-cmdlines"></output></label>
+  <input type="range" id="cc-set-cmdlines" name="ccCmdLines" min="0" max="12" step="1" value="4">
+  <p><button type="button" class="btn-line btn-sm-cc" data-cmd-std><?= Lang::e('set.cmdline.std') ?></button></p>
+  <p class="shell-hint-text"><?= Lang::e('set.cmdline.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend><?= Lang::e('set.top_area') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.top_area') ?>">
+    <label><input type="radio" name="ccTopArea" value="standard"> <i class="bi bi-layout-text-window" aria-hidden="true"></i> <?= Lang::e('set.top_area.standard') ?></label>
+    <label><input type="radio" name="ccTopArea" value="compact"> <i class="bi bi-arrows-collapse" aria-hidden="true"></i> <?= Lang::e('set.top_area.compact') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.top_area.hint') ?></p>
+</fieldset>
 <fieldset class="shell-set">
   <legend><?= Lang::e('set.tour') ?></legend>
   <p><button type="button" class="btn-line btn-sm-cc" data-set-tour><?= Lang::e('set.tour.again') ?></button></p>

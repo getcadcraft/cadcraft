@@ -1,111 +1,72 @@
 ---
-title: Uutta versiossa 0.7
-summary: PDF-alustat ja PDF-tuonti, skannatut piirustukset automaattisella jäljityksellä, oikeat splinit komennoilla SPLINE, SPLINEDIT ja PEDIT, mitoitustyylien hallinta, teksti joka säilyttää muotoilunsa, WBLOCK ja omat mittakaavat, 3D-kiintokappaleet muista ohjelmista, skannausten rekisteröinti, Laser-paneeli, USD-vienti, Historia ja tulostus CadCraft Studiossa, ohjattu ensimmäinen piirustus, työkalurivi millä sivulla tahansa tai vähemmillä riveillä ja lisää tekoälyavustajille.
-keywords: uutta, mitä uutta, versiotiedot, muutosloki, muutokset, 0.7, versio, uudet ominaisuudet, pdf, pdfattach, pdfimport, alusta, skannaus, scanattach, scantrace, jäljitys, rasteri, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, muotoilu, wblock, scalelistedit, mittakaavaluettelo, acis, 3d-kiintokappaleet, registerscans, rekisteröi skannaukset, icp, e57, las, laser, grbl, g-koodi, usd, usdout, historia, versiot, vertaa, tulosta, tulostin, png, svg, plottaustyyli, viivatyyppi, kierros, pikaohje, komentokartta, työkalurivin sijainti, työkalurivin rivit, toolbardock, regen, regenall, ohjauslevy, pyyhkäisy, koodisivu, kyrillinen, korea, kiina, japani, sähkö, rcd, p&id, pid, acad.lsp, acaddoc.lsp, tukikansio, avustajat, mcp, yksiköt, portugali
-from: b9258ca6
+title: Uutta versioissa 0.8 ja 0.8.1
+summary: Haamu, joka viimeistelee piirustuksesi, kynäluonnokset ja luonnoskuvat muutettuna geometriaksi, arkit, jotka asettuvat itsestään, piirtäessä tarjotut detaljit, GRIDMOVE ja AUTODIM, tunnisteet, yhdistettävät tiedostot, punamerkinnät muutettuna revisioiksi, piirtäminen ilman näköä, piirustuksen rajat, suuntakulmat, SHX-kirjasimet, tekstistä tehdyt kaaviot sekä korjaukset versiossa 0.8.1.
+keywords: mitä uutta, what's new, julkaisutiedot, muutosloki, muutokset, 0.8, 0.8.1, versio, uudet ominaisuudet, automaattitäydennys, haamu, Tab, sketchfix, photosketch, autosheet, detaljit, gridmove, autodim, tunnisteet, punamerkintä, yhdistäminen, git, fossil, saavutettavuus, piirtäminen ilman näköä, ruudunlukija, rajat, suuntakulmat, aunits, shx, kaavio, ole, historia, vertaa, sanoin, ominaisuudet, jalat ja tuumat, venytä, kielet, syöttölaitteet, ongelmat, live, avustajat
+from: 9dd82db5
 ---
 
-Tämä on luettelo siitä, mikä muuttui CadCraftissa versiossa 0.7 verrattuna versioon 0.6. Suuri osa siitä toivottiin Discordissa. Luettelo on ryhmitelty alueittain, tärkein ensin.
+Tämä on muuttunut CadCraft 0.8:ssa ja 0.8.1:ssä verrattuna versioon 0.7. Versio 0.8 (1. marraskuuta 2026) lisää piirtämisen apuvälineitä, jotka toimivat omasta piirustuksestasi, tietokoneesi sääntöjen mukaan ja ilman mallia. Versio 0.8.1 (2. marraskuuta 2026) korjaa virheitä, jotka ilmoitettiin julkaisun jälkeen.
 
 ## Uutta
 
-### PDF-tiedostot ja skannatut piirustukset
+### Piirustus, joka viimeistelee ajatuksesi
 
-- **Aseta PDF-sivu piirustuksen alle.** {{cmd:PDFATTACH}} (`PDFATT`) asettaa sivun todelliseen kokoonsa tai kirjoittamaasi mittakaavaan. Tartu sen viivoihin, haalenna se, tee siitä yksivärinen ({{cmd:PDFADJUST}}), rajaa se ({{cmd:PDFCLIP}}) ja vaihda PDF:n omia tasoja ({{cmd:PDFLAYERS}}). Se plottautuu viivoina, täytteinä ja tekstinä, ja DWG tai DXF 2000 säilyttää sen linkkinä tiedostoon. PDF:n avaaminen {{ui:Avaa}}-toiminnolla kysyy, liitetäänkö vai tuodaanko se. Katso [PDF-alustat ja PDF-tuonti](topic:pdf-underlay).
-- **Muuta PDF-sivu piirustuskohteiksi.** {{cmd:PDFIMPORT}} (`PDFIM`) tekee viivoja, murtoviivoja, ympyröitä, kaaria, täytettyjä viivoituksia ja tekstiä PDF:n mukaan nimetyille tasoille, todelliseen kokoon, kirjoitettuun mittakaavaan tai kahdesta pisteestä ja todellisesta etäisyydestä skaalattuna, yhdellä kumoamisvaiheella. Katso [Tuo sivu](topic:pdf-underlay#import-a-page).
-- **Skannatut piirustukset.** {{cmd:SCANATTACH}} tuo PNG-, JPEG- tai TIFF-tiedoston (yksi sivu tai kaikki) tai PDF-sivun, joka on kuva. Sitten skaalaa se kahdesta pisteestä ({{cmd:SCANSCALE}}), kohdista se ({{cmd:SCANALIGN}}), oikaise se sen omista pitkistä viivoista ({{cmd:SCANDESKEW}}), tee siitä mustavalkoinen ja poista pilkut ({{cmd:SCANCLEAN}}), rajaa se ja poista sen osia. Jokainen vaihe on yksi kumoamisvaihe, ja alkuperäinen tiedosto säilyy. Katso [Skannatut piirustukset ja jäljitys](topic:scanned-drawings).
-- **Jäljitä skannaus viivoiksi ja kaariksi.** {{cmd:SCANTRACE}} piirtää skannauksen viivat viivoina ja kaarina uudelle tasolle, SCAN-TRACE, asettamallesi toleranssille, ja jättää tekstin ja viivoitukset ennalleen. Raportti kertoo, mitä se teki ja mitä jätti, eikä se väitä tuloksen olevan oikea: tarkista se arkkia vasten. {{cmd:RASTERSNAP}} antaa kohteen tartuntojen löytää skannauksen päät, kulmat ja risteykset. Mitään ei lähetetä minnekään, eikä koulutettua mallia käytetä. Katso [Jäljitys](topic:scanned-drawings#the-trace).
+- **Haamu näyttää, mitä tulee seuraavaksi.** Kun mitään komentoa ei ole käynnissä, harmaa katkoviivainen haamu näyttää, mitä piirustuksesi omat kuviot ennustavat seuraavaksi: seuraavan pilarin samalla välillä, portaan seuraavan askelman tai huoneen puuttuvan seinän. Piirrä se yhtenä kumoamisvaiheena painamalla {{key:Tab}}, tai hylkää se painamalla {{key:Esc}}. Haamu tarkastelee vain uusimpia kohteita, joten se pysyy sujuvana suuressa piirustuksessa. Kytke se pois kohdasta {{ui:Asetukset}} › {{ui:CadCraft}} tai komennolla {{cmd:AUTOCOMPLETE}} `Off`.
+- **Seuraava piste viivaa piirtäessä.** {{cmd:LINE}}- tai {{cmd:PLINE}}-komennon aikana haamu on seuraava piste: portaan seuraava askel, suorakulmion neljäs kulma tai piste, joka sulkee sen. Vie kohdistin sen lähelle ja paina {{key:Tab}}, aivan kuin olisit napsauttanut siihen.
+- **Kynäluonnokset muuttuvat tarkaksi geometriaksi.** {{cmd:SKETCHFIX}}: piirrä karkeita vetoja kynällä, hiirellä tai sormella, ja jokainen muuttuu siistiksi viivaksi, ympyräksi, kaareksi, suorakulmioksi tai murtoviivaksi, joka tarttuu siihen, mikä on jo piirretty. Katso [Piirrä kynällä ja saa tarkka geometria](topic:sketch-with-a-pen).
+- **Luonnoksen valokuva muuttuu piirustukseksi.** {{cmd:PHOTOSKETCH}} (`PSK`) löytää paperin kuvasta, oikaisee perspektiivin, käyttää antamaasi paperikokoa ja mittakaavaa ja jäljittää kynäviivat tasolle kullekin kynän värille. Kirjoitusta ei jäljitetä.
+- **Mitoita sääntöjen mukaan.** {{cmd:AUTODIM}} (`ADIM`) tekee mittaketjuja valitsemillesi sivuille, kokonaismitan, aukkojen leveydet, reikien halkaisijat ja komennolla `Grid` ruudukon välit. Se ei koskaan toista mittaa, joka on jo olemassa.
+- **Siirrä ruudukon viivaa, ja sarja seuraa.** {{cmd:GRIDMOVE}} (`GM`): ruudukon viivaan päättyvät seinät venyvät sen mukana, sen suuntaiset seinät, pilarit sekä sen kupla ja tunniste siirtyvät, ja sen mitat mittaavat uuden välin. Yksi kumoamisvaihe.
 
-### Piirtäminen ja muokkaus
+### Arkit, detaljit ja tunnisteet
 
-- **Oikeat splinit.** {{cmd:SPLINE}} (`SPL`) piirtää käyrän pisteiden kautta tai ohjauspisteistä (aste 1-5) päätangentteineen; {{cmd:SPLINEDIT}} (`SPE`) siirtää, lisää ja poistaa sovitus- tai ohjauspisteitä, asettaa painoja, avaa, sulkee, kääntää tai muuttaa splinin murtoviivaksi. DWG- ja DXF-tiedostojen splinit avautuvat splineinä, ja DWG ja DXF 2000 tallentavat ne splineinä. Katso [Splinit ja murtoviivat](topic:splines).
-- **PEDIT.** {{cmd:PEDIT}} (`PE`) sulkee ja avaa murtoviivoja, liittää niihin viivoja ja kaaria, asettaa yhden leveyden, sovittaa käyrän kärkipisteiden kautta tai splinin niitä pitkin ja ottaa sen pois komennolla Decurve, kääntää ja muokkaa useita kerralla. Katso [Muokkaa murtoviivaa](topic:splines#edit-a-polyline).
-- **WBLOCK.** {{cmd:WBLOCK}} (`W`) kirjoittaa lohkon, joitakin kohteita tai koko piirustuksen uuteen DWG:hen tai DXF:ään, joka sisältää vain niiden käyttämät tasot, tyylit ja lohkot. Katso [Kirjoita lohko tai kohteita omaan tiedostoonsa](topic:blocks#write-a-block-or-objects-to-a-file-of-their-own).
-- **REGEN ja REGENALL.** {{cmd:REGEN}} (`RE`) piirtää nykyisen välilehden uudelleen piirustuksesta, {{cmd:REGENALL}} (`REA`) jokaisen välilehden, ruudun ja avoimen piirustuksen. Katso [REGEN ja REGENALL](topic:commands#regen-and-regenall).
+- **Arkit, jotka asettuvat itsestään.** {{cmd:AUTOSHEET}} ottaa nimetyt näkymäsi (tai mallin erilliset osat), valitsee paperikoon ja vakiomittakaavan ja sijoittaa näkymät uusille arkeille piirustusotsikolla ja nimi- ja mittakaavatekstillä. Kaikki pysyy muokattavana. Katso [Asettele arkit puolestani](topic:lay-out-sheets-for-me).
+- **Yrityksesi detaljit, tarjottuina piirtäessä.** {{cmd:DETAILS}} (`DET`) pitää omat detaljilohkosi. Kun valintasi vastaa jotakin niistä tasojen, lohkonimien tai huomautusten sanojen perusteella, tilarivi kertoo siitä. Valitse se ja sijoita. {{cmd:DETAILS}} › Jaa tallentaa listasi Asiakirjat-kansioosi ja tuo mukaan sen, minkä tiimisi on lisännyt. Asetukset kytkee tarjoukset pois.
+- **Tunnisteet lohkoille.** {{cmd:TAGS}} määrittelee tunnisteen (sen laji, arvot, joita se voi saada, lohkot, joihin se kohdistuu), asettaa sen valitsemiisi lohkoviittauksiin ja listaa ne luetteloksi, jonka voit tallentaa CSV-tiedostona. Määritykset säilytetään DWG-tiedostossa. Katso [Tunnisteet](topic:tags).
+- **Piirustuksen rajat.** {{cmd:LIMITS}} asettaa piirustukselle suorakulmion: ruudukko täyttää sen ja zoomaus Kaikki näyttää sen. Rajat näkyvät ääriviivana ja tallentuvat DWG- ja DXF-tiedostoihin paperirajojen kanssa. Katso [Aseta piirustuksen rajat](topic:drawing-limits).
 
-### Teksti ja mitoitukset
+### Työskentely muiden ja muiden ohjelmien kanssa
 
-- **Teksti säilyttää muotoilunsa.** Muista ohjelmista tuleva kappaleteksti säilyttää sanakohtaiset värit, lihavoinnin ja kursiivin, alleviivauksen, pinotut murtoluvut ja korkeudet: ne piirretään näytöllä ja PDF-tiedostoissa, säilytetään kun muokkaat sanoja ja tallennetaan takaisin. Katso [Muotoilu muista ohjelmista tulevan kappaletekstin sisällä](topic:text#formatting-inside-paragraph-text-from-other-programs).
-- **Mitoitustyylien hallinta.** {{cmd:DIMSTYLE}} (`D`) tekee, muuttaa, vertaa ja ottaa käyttöön nimettyjä mitoitustyylejä; tyylin muuttaminen muuttaa jokaisen sitä käyttävän mitoituksen. {{cmd:DIMEDIT}} (`DED`) palauttaa tekstin, kirjoittaa uuden tekstin, kiertää sen tai kallistaa apuviivoja; {{cmd:DIMTEDIT}} siirtää tekstin vasemmalle, oikealle tai keskelle. Katso [Nimetyt mitoitustyylit](topic:dimension-settings#named-dimension-styles).
-- **Omat mittakaavat.** {{cmd:SCALELISTEDIT}} (`SCALELIST`) lisää mittakaavoja, kuten 1:75, näkymäruudun ja plottauksen mittakaavaluetteloihin; ne tallennetaan piirustukseen (DWG ja DXF 2000), ja toisesta ohjelmasta tuleva piirustus tuo oman luettelonsa. Katso [Mittakaavat](topic:units-papers-scales#scales).
-- **Teksti muilla aakkosilla.** Kyrillisillä, korealaisilla, kiinalaisilla, japanilaisilla tai vietnamilaisilla koodisivuilla tallennetut DXF-tiedostot avautuvat nyt teksteineen, ja kiinalainen, japanilainen ja korealainen teksti tulostuu PDF-tiedostoissa (plottaus hakee suuremman fontin ensimmäisellä tarvekerralla). Katso [Fontti](topic:text#font).
+- **Muuta merkintä revisioksi.** {{cmd:REDLINE}} lukee paketin, jonka MarkupCraft kirjoittaa, ja luettelee jokaisen muutoksen. Hyväksy tai hylkää kukin huomautuksella. Hyväksytyt saavat revisiopilven ja revisiolokin yhdessä kumoamisvaiheessa, ja tallennat vastaustiedoston, joka sulkee merkinnät MarkupCraftissa. Katso [Muuta merkintä revisioksi](topic:redline-to-revision).
+- **Piirustukset, jotka git ja Fossil voivat yhdistää.** Kun {{ui:Yhdistettävissä olevat tiedostot}} on päällä kohdassa {{ui:Asetukset}} › {{ui:CadCraft}}, jokainen kohde saa avaimen, joka ei koskaan muutu (tiedostot ovat noin 10 prosenttia suurempia). `cadcraft merge base ours theirs` yhdistää kahden henkilön muokkaukset yhdestä DWG- tai DXF-tiedostosta kohde kohteelta ja ilmoittaa vain kohdat, joissa kaksi henkilöä muutti samaa asiaa. Katso [Yhdistä kahden henkilön muokkaukset yhteen piirustukseen](topic:merge-drawings).
+- **Mitä muuttui, sanoin.** Historiassa Vertaa antaa selkeän luettelon: missä asiat muuttuivat, kuinka suuria alueet ovat, mitä lisättiin, poistettiin tai muutettiin ja mitä tekstiä muokattiin. Katso [Kerro sanoin, mitä muuttui](topic:changes-in-words).
+- **Suuntakulmat.** Kirjoita suunta mittausinsinöörin suuntakulmana, kuten N45°23'30"E, tai asteina, minuutteina ja sekunteina, missä tahansa kohdassa, jossa kulmaa kysytään. AUNITS määrittää, miten kulmat näytetään. Katso [Kirjoita ja näytä suuntakulmat](topic:bearings-and-angles).
+- **Omat SHX-kirjasimet.** Anna CadCraftille kansio SHX-kirjasimia, ja tekstityylit, jotka nimeävät ne, piirretään niillä, näytöllä ja tulosteissa. Katso [Piirrä teksti omilla SHX-kirjasimillasi](topic:shx-fonts).
+- **Kaavio tekstistä.** {{cmd:DIAGRAM}} lukee Mermaid-vuokaavion, PlantUML-komponenttikaavion, D2:n tai lähtö–kohde-luettelon ja piirtää muokattavia lohkoja ja liittimiä. Katso [Piirrä kaavio tekstistä](topic:text-to-diagram).
+- **OLE-kohteet DWG-tiedostossa.** {{cmd:OLELIST}} luettelee DWG-tiedoston OLE-kohteet, joita CadCraft ei osaa sijoittaa itse, ja sijoittaa kuvan kopion siihen kohtaan, jonka ilmoitat. Katso [Kuvat](topic:pictures#objects-from-other-programs-ole).
+- **Laskelmasi pysyvät piirustuksen mukana.** Laskentataulukot ja suunnitteluperustelut säilytetään DWG-tiedostossa luokkataulukon kanssa.
 
-### Plottaus ja tulostus
+### Piirtäminen ilman näköä
 
-- **Lisää plottaustyylitaulukoissa.** Taulukko voi nyt asettaa kullekin värille myös viivatyypin, viivan pään ja liitoksen sekä täyttötyylin, joka tulostaa täytteet viivoituksen viivoina; taulukolla on oma viivanpaksuusluettelonsa ja viivatyyppimittakaava. Katso [Plottaustyylitaulukot](topic:plot-pdf#plot-style-tables).
-- **Tulostus sekä PNG- ja SVG-tiedostot.** Plottaa-valintaikkunassa on {{ui:Tulosta…}}, {{ui:Lataa PNG}} (300 dpi) ja {{ui:Lataa SVG}}. CadCraft Studiossa se luettelee tietokoneen tulostimet, niiden paperin ja kopioiden määrän. Katso [Tulosta](topic:plot-pdf#print) ja [Kuva- ja SVG-tiedostot](topic:plot-pdf#picture-and-svg-files).
+- Kytke {{ui:Piirtäminen ilman näköä}} päälle kohdassa {{ui:Asetukset}} (tai kirjoita {{cmd:ACCESS}} ja vastaa `On`). CadCraft lukee jokaisen komennon ja tuloksen ruudunlukijan kautta, kuvaa piirustuksen ja sen, mitä kohdistimen lähellä on, antaa sinun siirtää kohdistinta ja valita pisteitä näppäimistöllä ja soittaa äänen jokaiselle tartunnalle ja otteelle. Missä selaimesi tunnistaa puheen tietokoneellasi, komennot voi sanoa ääneen. Katso [Piirrä ilman näköä](topic:draft-without-sight).
 
-### 3D ja pistepilvet
+### Kaikissa sovelluksissa
 
-- **3D-kiintokappaleet muista ohjelmista.** Piirustuksen mallitilan kiintokappaleet, alueet ja kappaleet näkyvät 3D-välilehdellä vain luku -tilassa, ja DWG-tallennus kirjoittaa ne takaisin muuttumattomina. Pinnat, joita CadCraft ei vielä piirrä, luetellaan, ei arvata. Katso [Kiintokappaleet muista ohjelmista](topic:3d-solids#solids-from-other-programs).
-- **Rekisteröi useita skannauksia.** {{cmd:REGISTERSCANS}} (`REGSCAN`) sijoittaa eri paikoista otetut skannaukset yhteen koordinaatistoon pisteparien tai kirjoitettujen tähyskoordinaattien avulla, tarkentaa ne ICP:llä, tallentaa rekisteröinnin pieneksi projektitiedostoksi ja kirjoittaa rekisteröidyn pilven yhdeksi LAS- tai E57-tiedostoksi. Katso [Rekisteröi useita skannauksia yhdeksi](topic:register-scans).
-- **USD-vienti.** {{cmd:USDOUT}} tai {{cmd:EXPORT3D}} › {{ui:USD}} kirjoittaa 3D-välilehden kiintokappaleet tiedostoina `.usda`, `.usdc` tai `.usdz`. Katso [Vie 3D-malli USD-muodossa](topic:usd).
-- **Laskutoimitukset 3D-välilehdellä.** Kun 3D-välilehden työkalut kysyvät etäisyyttä, voit kirjoittaa laskutoimituksen kuten komentorivillä. Katso [Laskutoimitukset kirjoitetussa arvossa](topic:coordinate-entry#arithmetic-in-a-typed-value).
+- **Kielet.** 54 kieltä; kymmenen on uutta (liettua, latvia, bosnia, marathi, telugu, albania, afrikaans, filipino, swahili, uzbekki). Muut kuin englanti ovat koneluonnoksia, kunnes äidinkielinen puhuja lukee ne.
+- **Syöttölaitteet.** Kosketuslevy, kynä, 3D-hiiri, peliohjain ja MIDI-ohjaimet.
+- **Työkalurivin rivit ja ominaisuusruudukko.** {{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Työkalurivin rivit}} tarjoaa rivitystä, 2 riviä tai 1 rivi muissa sovelluksissa. CadCraft pitää oman asetuksensa kohdassa {{ui:Asetukset}} › {{ui:CadCraft}} (katso [Työkalurivin rivit](topic:settings#toolbar-rows)). Yhteinen ominaisuusruudukko on kolmessa muussa sovelluksessa, ei CadCraftissa.
+- **Ongelmat, Live ja lisäosat.** Yhteinen Ongelmat-paneeli, joka varoittaa kaikissa sovelluksissa, Live-näkymä siitä, kuka on missäkin CadCraft Studiossa (katso [Työskentely yhdessä piirustuksen parissa](topic:work-live)), sekä lisäosaluettelo.
+- **Yhdistä tekoälysi.** Yksi yhteys CadCraft Studiosta kaikkiin kahdeksaan sovellukseen, jokaisella sovelluksella oma lukutila, ehdotustila tai muokkaustila sekä selkokielinen loki siitä, mitä avustaja teki. CadCraftilla ei ole omaa tekoälyä, ja Kysy kaikissa sovelluksissa käyttää yhdistämääsi tekoälyä.
 
-### Tekeminen
+## Korjattu versiossa 0.8.1
 
-- **Lähetä piirustus laserille.** {{cmd:LASER}} tai {{ui:Näkymä}} › {{ui:Lisää}} › {{ui:Laser…}} avaa paneelin piirustuksen päälle: jokainen taso leikkaa, uurtaa, kaivertaa viivoja, täyttää muotoja, kaivertaa kuvan tai jätetään lähettämättä, tehon, nopeuden ja kierrosten kanssa. Esikatselu seuraa muokkauksiasi, {{ui:Tallenna G-koodi…}} kirjoittaa GRBL-lasertilan G-koodin, ja Chromessa tai Edgessä paneeli voi kehystää työn ja lähettää sen USB:n kautta. Asetukset tallennetaan piirustukseen (DWG ja DXF). Katso [Lähetä piirustus laserille](topic:laser-cutting).
-- **Rakennusasennussymbolit Sähkö-lisäosassa.** Data-, puhelin- ja TV-pistorasiat, avain- ja aikakytkimet, termostaatti, poistumisopaste, ilmaisimet, palohälytin ja sireeni, tuuletin, lämminvesivaraaja, liesi, sähköauton latauspiste, energiamittari ja aliryhmäkeskus sekä RCD- ja RCBO-symbolit. Virtapiirillä voi olla RCD, keskusluettelossa on RCD-sarake, ja tarkastukset nimeävät pistorasiapiirit, joilla ei ole enintään 30 mA:n RCD:tä. Se on suunnittelumuistutus, ei määräystarkastus.
-- **P&ID-lisäosa.** P&ID piirtää prosessikaavioita: symbolit liitäntäpisteineen, prosessi- ja signaalilinjat, tunnisteet, linjanumerot, linja-, laite-, instrumentti- ja venttiililuettelot (CSV tai työkirja) ja tarkastukset. Se tulee CadCraftin mukana ja on pois päältä, kunnes otat sen käyttöön kohdassa {{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Lisäosat}}. Se on piirustusapu, ei suunnittelijan hyväksyntä, ja sen sanat ovat toistaiseksi vain englanniksi.
-
-### Aloitus ja näyttö
-
-- **Ohjattu ensimmäinen piirustus.** {{cmd:TOUR}} (tai {{ui:Käy kierros läpi}} aloituskortissa) vie sinut kuuden vaiheen läpi oikeassa piirustuksessa: viiva, ympyrä, siirto, typistys, poisto ja mitoitus. Se alkaa itsestään ensimmäisellä kerralla, kun CadCraft avataan tyhjänä. Katso [Haluatko opastusta?](topic:getting-started#prefer-to-be-guided)
-- **Pikaohje ja komentokartta.** [Pikaohjeessa](topic:cheat-sheet) on 40 arkikomentoa yhdellä sivulla, myös PDF:nä tulostettavaksi, ja [komentokartta](topic:command-map) luettelee komennot lyhyine nimineen A:sta Ö:hön.
-- **Työkalurivi millä sivulla tahansa.** {{ui:Asetukset}} › {{ui:CadCraft}} › {{ui:Työkalurivin sijainti}}: ylhäällä (kuten ennen), alhaalla, vasemmalla tai oikealla, tai kirjoita {{cmd:TOOLBARDOCK}}. Katso [Työkalurivin sijainti](topic:settings#toolbar-position).
-- **Työkalurivin rivit.** {{ui:Asetukset}} › {{ui:CadCraft}} › {{ui:Työkalurivin rivit}}: rivitä sopimaan, 2 riviä tai 1 rivi, CadCraft-työkalurivillä sekä Drafting classic- ja Ribbon-tyyleissä. {{key:Shift+Ctrl+F1}} kiertää ne läpi, {{key:Ctrl+F1}} sen, mitä painikkeet näyttävät, ja {{cmd:TOOLBARROWS}} ja {{cmd:TOOLBAR}} asettavat ne. Aloitusvihjeessä on sulkemispainike. Kiitos GJoe2:lle, joka lähetti tämän vetopyyntönä. Katso [Työkalurivin rivit](topic:settings#toolbar-rows).
-
-### CadCraft Studiossa
-
-- **Historia.** {{cmd:HISTORY}} (`HIST`) tai {{ui:Näkymä}} › {{ui:Lisää}} › {{ui:Historia…}}: kopiot, joita Studio säilyttää, kun avaat ja tallennat piirustuksen, sekä piirustuksen pilviversiot, kun avasit sen pilvestä. Avaa tai palauta yksi tai vertaa kahta niin, että lisätyt, poistetut ja muutetut näkyvät värillä. Katso [Historia](topic:history).
-- **acad.lsp ja acaddoc.lsp.** Valitse tukikansio komennolla {{cmd:APPLOAD}}: nämä kaksi tiedostoa latautuvat, kun CadCraft käynnistyy (acaddoc.lsp uudelleen jokaiselle uudelle piirustusvälilehdelle), ja `S::STARTUP` suoritetaan niiden jälkeen. Katso [Lataa sovelluksia](topic:load-applications#load-acadlsp-and-acaddoclsp-from-a-support-folder-studio).
-- **Plottaa-valintaikkuna omassa ikkunassaan.** Sen otsikkopalkin painike siirtää sen ikkunaan, jonka voi viedä toiselle näytölle. Katso [Siirrä valintaikkunaa](common:arrange-panels#move-a-dialog).
-
-### Tekoälyavustajille
-
-- **Tiedostot nimellä, valitsemissasi kansioissa.** CadCraft Studiossa avustaja voi avata, tallentaa ja plottata tiedostoja nimellä ja antaa komennolle sen pyytämän tiedoston (INSERT tiedostosta, COUNT-komennon vienti, SAVEAS, PLOT), mutta vain kansioissa, jotka lisäät kohdassa {{ui:Asetukset}} › {{ui:CadCraft}} › {{ui:Avustajat}} › {{ui:Kansiot, joita se saa käyttää}}. Katso [Anna sen käyttää tiedostoja valitsemissasi kansioissa](topic:use-with-ai-assistants#let-it-use-files-in-folders-you-choose).
-- **Vähemmän kutsuja.** Avustaja voi kirjoittaa kokonaisen komentorivin kerralla, pitää komennon auki kutsujensa välillä, laskea kohteet tyypin ja tason mukaan luettelematta niitä ja sijoittaa lohkon attribuuttiarvoineen yhdellä vaiheella.
-- **Ilman ikkunaa.** `cadcraft`-komentorivi kirjoittaa SVG-plottauksia ja muuntaa, plottaa, tarkistaa tai kuvaa monta tiedostoa kerralla. MCP-pakettia ei ole vielä julkaistu. Katso [Työskentele tiedostojen parissa avaamatta CadCraftia](topic:use-with-ai-assistants#work-on-files-without-opening-cadcraft).
-
-## Muutettu
-
-- **Ohjauslevy panoroi.** Liikuta kahta sormea ohjauslevyllä, niin 2D-näkymä seuraa; nipistys ja hiiren rulla zoomaavat. Katso [Hiiri, ohjauslevy ja kosketus](topic:mouse-trackpad-touch).
-- **OLE-kohteet säilyvät.** DXF:n upotetut kohteet näkyvät kuvanaan tai nimettynä kehyksenä, ja DXF 2000 tallentaa ne takaisin. DWG:n kohteet säilytetään ja kirjoitetaan takaisin, kun tallennat DWG:nä, mutta niitä ei vielä näytetä. Ennen ne katosivat tallennettaessa. Katso [Kohteet muista ohjelmista (OLE)](topic:pictures#objects-from-other-programs-ole).
-- **Uuden piirustuksen yksiköt** seuraavat yksikköä, jonka merkitset tähdellä kohdassa {{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Yksiköt}}.
-
-## Korjattu
-
-- Asettelut, jotka avautuivat tyhjinä tai menettivät näkymäruudun ja näyttivät koko mallin sen tilalla, avautuvat nyt oikeine näkymäruutuineen. Asettelu, jolla ei ole linkkiä sisältöönsä, säilytetään, ja avausraportti kertoo sen.
-- Vanhemmilla koodisivuilla olevat DXF-tiedostot näyttivät kyrillisen ja korealaisen tekstin sekavana. Ne luetaan nyt oikein.
-- Muista ohjelmista tuleva kappaleteksti menetti muotoilunsa avattaessa ja tallennettiin takaisin pelkkänä tekstinä.
-
-## Kaikissa sovelluksissa
-
-- **Yksiköt.** {{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Yksiköt}} sisältää yhden luettelon pituudelle, alalle, tilavuudelle, kulmalle ja kaltevuudelle, täsmälleen yksiköiden määritelmien mukaisilla kooilla (Yhdysvaltain maanmittausjalka on oma yksikkönsä). Kytke pois yksiköt, joita et koskaan käytä, niin ne poistuvat yksikköluetteloista; merkitse yksi tähdellä, niin uusi työ alkaa siinä. Tiedosto säilyttää aina oman yksikkönsä. CadCraftissa tähti asettaa uuden piirustuksen yksiköt, kun se on yksikkö, jonka piirustus voi kantaa; CadCraftin oma {{ui:Yksiköt}}-ruutu ei vielä seuraa kytkimiä. Kun piirustuksella on yksiköt, kirjoitettu pituus voi sisältää minkä tahansa yksikön merkin. Katso [Yksiköt, kirjoitetut arvot ja yksikköluettelot](common:unit-lists).
-- **Tiiviimpi asettelu ja paneelit, jotka siirtyvät pois tieltä.** {{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Asettelun tiheys}} › {{ui:Tiivis}} mahduttaa enemmän näytölle (kosketusnäytöt ja puhelimet säilyttävät suuret painikkeensa). Jokaisella sivupaneelilla on kapea otsikkopalkki: vedä sitä kiinnittääksesi paneelin tai irrottaaksesi sen kelluvaksi, pudota se toisen paneelin palkkiin jakaaksesi yhden kehyksen välilehtinä, kiinnitä se liukumaan reunaan tai piilota se ja tuo takaisin reunasta. Katso [Järjestä paneelit](common:arrange-panels#make-the-layout-denser).
-- **Valintaikkunat liikkuvat.** Vedä valintaikkunaa otsikkopalkista pois piirroksen tieltä; se palaa siihen, mihin sen jätit. Kaksoisnapsauta otsikkopalkkia keskittääksesi sen uudelleen. Katso [Siirrä valintaikkunaa](common:arrange-panels#move-a-dialog).
-- **Reseptejä tekoälyavustajille.** Kymmenen läpikäytyä pyyntöä omalle avustajallesi (siivoa piirustus, plottaa sarja, tarkista piirustuksia, kysy malleista, laske määrälaskenta yhteen, kokeile osan varianttia…), kussakin kutsutut työkalut ja tarvittavat oikeudet, ja testeissämme kukin toistettu. Sovellukset eivät sisällä tekoälyä. Katso [Reseptejä tekoälyavustajille](common:assistants-recipes).
-- **Kielet.** **Português (Portugal)** on uusi kohdassa {{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Kieli}}. Se, **Português (Brasil)**, **Español (México)** ja **Bahasa Indonesia** sisältävät nyt jokaisen sovellusten sanan luonnoksina, joita äidinkielinen puhuja ei ole vielä tarkistanut. Ohjeaiheet ovat englanniksi.
-- **CadCraft Studio** kertoo, miksi päivitystarkistus epäonnistui (ei vielä tiedostoa järjestelmällesi, ei verkkoa, virheellinen allekirjoitus) pelkän "Valmis" sijaan, eikä enää tuo takaisin sulkemaasi Uutta-korttia ennen kuin uudempi julkaisu on olemassa.
+- **Ominaisuudet näyttivät 150 eikä 12'-6"** jalka- ja tuumapiirustuksissa. Kentät, jotka sovellus lukee itse, säilyttävät tekstinsä taas.
+- **DWG-tiedostot, joiden luokkaosio luettiin väärällä tyypillä** (GitHub cadcraft#5), avautuvat nyt oikein.
+- **Kohdistusristi ei enää näy ponnahdusikkunoiden takana.**
+- **Studio ja pakatut versiot voivat vaihtaa kieltä ajon aikana.** Aiemmin ne olivat vain englanniksi. Ei vielä testattu kaikilla alustoilla: kerro, jos kieli ei vaihdu.
+- **Tabletit pystysuunnassa** antavat vapaan ruudukkokorkeuden piirtoalueelle, ja arkkitila alkaa 760 px:stä tai vähemmästä.
+- **STRETCH leikkaavalla ikkunalla ja LIMITS** ilmoitettiin Studio 0.8.0:ssa, ja ne olivat jo oikein 0.8:n verkkoversiossa; ilmoittajan asennusohjelma oli vanhempi. Studio 0.8.1 sisältää ne.
 
 ## Ei vielä tässä versiossa
 
-- **Versiota 0.7 ei ole koodiallekirjoitettu.** Allekirjoitus ja Microsoft Store -paketti siirtyivät versioon 0.8, koska varmenteen vahvistus ei ole vielä mennyt läpi. Tarkista SHA-256 kunkin tiedoston vieressä osoitteessa getcadcraft.com/download. Jos SmartScreen pysäyttää asennusohjelman Windowsissa, valitse {{ui:Lisätietoja}} ja sitten {{ui:Suorita silti}}. Macissa napsauta ensimmäisellä kerralla CadCraft Studiota hiiren oikealla painikkeella ja valitse {{ui:Avaa}}. CadCraft Studio ei ole vielä sovelluskaupassa, eikä iPad- tai iPhone-versiota ole vielä.
-- {{ui:Yksiköt}}-kohdan kulma- ja kaltevuusluettelot tallennetaan, mutta mikään kenttä ei vielä lue niitä.
-- DWG:n OLE-kohteet säilytetään mutta niitä ei näytetä, eikä OLE-kohteiden sisällä olevia metatiedostokuvia piirretä.
-- Plottaustyylitaulukoiden (CTB-tiedostot) lukeminen muista ohjelmista odottaa esimerkkitiedostoa.
-- Vanhempi aasialainen teksti, joka on kirjoitettu `\M+`-koodeina, luetaan, mutta sitä ei ole vielä tarkistettu toisen ohjelman tiedostoa vasten.
-- PDF-alustat: sivun sisällä olevat kuvat näytetään näytöllä mutta ei plotata, avustajan plottaus jättää alustat pois, eikä sitä, miten muut ohjelmat lukevat tallennetun rajauksen ja mittakaavan, ole tarkistettu niissä.
-- Historia: CadCraft ei vielä lähetä tallennuksiaan pilveen, joten pilviversiot ovat muilta laitteilta ja verkosta tallennettuja. Historia on vain CadCraft Studiossa.
-- Sitä, säilyttääkö Studio acad.lsp-tukikansion uudelleenkäynnistyksen jälkeen, ei ole vielä tarkistettu; jos se kysyy, valitse kansio uudelleen APPLOAD-komennossa.
-- Laser-paneelia ei ole vielä kokeiltu oikealla laserilla: testaa jokainen asetus hukkamateriaalilla. CadCraft Studiossa ei ole Web Serialia, joten Studiossa paneeli tallentaa vain G-koodia.
-- Skannausten rekisteröintiä on testattu keksityillä skannauksilla, ei vielä oikean skannerin sarjalla.
-- Kahden sormen panorointia on kokeiltu simuloiduilla ohjauslevytapahtumilla, ei vielä oikealla ohjauslevyllä.
-- {{cmd:PEDIT}}ssä ei ole Edit vertex -valintaa (käytä otteita tai Ominaisuuksia). Siirtymä, typistys, pidennys, pyöristys, katkaisu ja yhdistäminen eivät vielä toimi splineille; splinin korkeutta (Z) ei säilytetä.
-- Uudelle kappaleteksille ei voi vielä antaa muotoilukoodeja, ja SVG-plottaukset näyttävät muotoillun tekstin yhdellä värillä.
-- WBLOCKin Entire drawing kirjoittaa vain mallin, ei arkkeja. Nykyistä mitoitustyyliä ei tallenneta tiedostoon: piirustus avautuu niin, että Standard on nykyinen.
-- Valintanauhavalikkotyyleissä ei ole vielä taso-, väri- tai viivatyyppiluetteloita: käytä {{ui:Tasot}}-paneelia ja {{ui:Ominaisuudet}}-paneelia.
-- Pistepilviä ei yhä tallenneta piirustukseen eikä plotata, ja E57-tiedostot avautuvat enintään 6 miljoonaan pisteeseen ja 512 Mt:hen.
-- CadCraftin tallentamia DWG-tiedostoja ei ole vielä tarkistettu itse AutoCADissa.
+- **Versiot 0.8 ja 0.8.1 eivät ole koodilla allekirjoitettuja.** Windows voi varoittaa (valitse {{ui:Lisätietoja}} ja sitten {{ui:Suorita silti}}); Macissa napsauta CadCraft Studiota hiiren oikealla painikkeella ja valitse {{ui:Avaa}}. Kauppaversiot ovat pidossa, eikä iPad- ja iPhone-versiota ole koottu uudelleen versiolle 0.8.1.
+- **Kynäluonnoksia ja luonnoskuvia** on kokeiltu vain keksityillä valokuvilla ja hiirellä, ei vielä oikealla kynällä, kosketusnäytöllä tai käsin paperille piirretyllä luonnoksella.
+- **Piirtäminen ilman näköä** on testattu automaattisilla tarkistuksilla, ei vielä ruudunlukijalla tai sokealla testaajalla.
+- **Detaljien jakamista** ei ole tarkistettu kahden henkilön voimin, eikä Team Cloud Plan -kansiota Asiakirjat-kansiona ole toteutettu.
+- **Yhdistäminen** toimii CadCraftin DWG- ja DXF-tiedostoille; muiden sovellusten tiedostoille sitä ei ole toteutettu.
+- **Kumoaminen ikkunoiden yli:** CadCraft ilmoittaa jokaisen valmistuneen vaiheen, mutta Studiossa ei vielä ole yhtä Kumoa-toimintoa kaikille sovelluksille; kukin sovellus kumoaa omat vaiheensa.
+- **DWG-tiedostojen OLE-kohteet** säilytetään, mutta niitä ei piirretä paikoilleen.
+- **Tulostustyylitaulukoiden (CTB-tiedostojen) lukeminen** muista ohjelmista on toteutettu, mutta sitä ei ole tarkistettu toisen ohjelman tiedostolla.
+- **Yhdistä tekoälysi:** yhden napsautuksen yhdistäminen Studiossa, selaimen tekoälyn isännöity liitin, oma API-avaimesi Studiossa ja julkaistu MCP-paketti eivät ole luvattuja tässä julkaisussa.
 
-Kaikki muu on aiheessa [Ei vielä rakennettu](topic:not-built-yet).
+Versiota ennen tätä koskevat tiedot löytyvät kohdasta [Mitä uutta versiossa 0.7](topic:whats-new-0-7).

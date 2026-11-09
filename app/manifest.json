@@ -36,6 +36,7 @@
   "teamwork": true,
   "totals": true,
   "lessons": true,
+  "docinfo": true,
   "panels": [
     "move",
     "window"
@@ -46,7 +47,7 @@
     "layouts": [
       "docked",
       "toolbox",
-      "autorev"
+      "autorev", "duncan", "vector", "sketch"
     ],
     "adapter": "workspace-cadcraft.js"
   },

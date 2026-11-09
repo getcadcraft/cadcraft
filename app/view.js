@@ -30,6 +30,7 @@ import {
 } from './geom.js';
 import { resolveColor } from './doc.js';
 import { fillRichLine } from './mtext-draw.js';
+import { familyOf, setFontMeasure } from './font.js';
 import { resolveLw } from './linetypes.js';
 import { walk, frozenSet, frozenKey } from './walk.js';
 import { leaderGeometry } from './leader.js';
@@ -44,6 +45,15 @@ const SNAP_PRIORITY = { end: 0, int: 0, mid: 1, cen: 1, quad: 2, node: 0, ins: 1
 export const CURSOR_SIZES = { small: { arm: 20, box: 7, pick: 5 }, medium: { arm: 40, box: 9, pick: 6 }, large: { arm: 90, box: 13, pick: 8 }, full: { arm: 0, box: 9, pick: 6, full: true } };
 /** Drawing text: a Helvetica-metric face, the same one plotted PDFs use. */
 export const DRAWING_FONT = 'Helvetica, Arial, "Liberation Sans", sans-serif';
+/** Other typefaces (0.9 FX.92): the width of a string in one, measured on a canvas at 1000 px so the answer is 1/1000 em. */
+let measureCtx = null;
+setFontMeasure((family, str) => {
+  try {
+    measureCtx ??= (typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(1, 1) : document.createElement('canvas')).getContext('2d');
+    measureCtx.font = '1000px ' + family;
+    return measureCtx.measureText(str).width;
+  } catch { return null; }
+});
 /** The History compare's mark colours (history-ui.js's legend uses the same ones, cadcraft.css). */
 export const COMPARE_COLORS = { added: '#1a9850', removed: '#d73027', changed: '#e08a00' };
 
@@ -379,7 +389,7 @@ export class View {
     return sx >= Math.min(f[0].x, f[2].x) && sx <= Math.max(f[0].x, f[2].x) && sy >= Math.min(f[0].y, f[2].y) && sy <= Math.max(f[0].y, f[2].y);
   }
   /** Layers frozen in the entered viewport (upper case), or null: they are neither drawn nor picked there. */
-  enteredFrozen() { return this.entered ? frozenSet(this.enteredViewport()?.vp) : null; }
+  enteredFrozen() { return this.entered ? frozenSet(this.enteredViewport()?.vp, !!this.doc.meta?.floors) : null; }
   /** Draw the sheet with the entered viewport (renderBase, in the active pane). */
   renderEntered(ctx) {
     const ev = this.enteredViewport();
@@ -796,7 +806,7 @@ export class View {
     if (cache.viewports.length) {
       for (const vp of cache.viewports) {
         if (vp.on === false) continue;   // a viewport turned off (P.7) shows its frame only
-        const model = this.cacheOf(this.doc.model, frozenSet(vp));   // without the layers frozen in this viewport (VP.1)
+        const model = this.cacheOf(this.doc.model, frozenSet(vp, !!this.doc.meta?.floors));   // without the layers frozen in this viewport (VP.1)
         const M = this.vpOverride?.id === vp.id ? this.vpOverride.M : viewportMatrix(vp);   // the entered one as it shows now (VP.4)
         const c = viewportCorners(vp).map((q) => this.toScreen(q.x, q.y));
         ctx.save();
@@ -876,7 +886,7 @@ export class View {
       if (e.obl) ctx.transform(1, 0, -Math.tan(e.obl), 1, 0, 0);   // oblique angle (P.7): the glyphs lean right for a positive angle
       ctx.globalAlpha = alpha ?? 1;
       ctx.fillStyle = this.ink(color);
-      ctx.font = (hpx * FONT_EM).toFixed(2) + 'px ' + DRAWING_FONT;
+      ctx.font = (hpx * FONT_EM).toFixed(2) + 'px ' + (familyOf(e.font, DRAWING_FONT));
       ctx.textBaseline = 'alphabetic';
       ctx.textAlign = e.ha === 'center' ? 'center' : e.ha === 'right' ? 'right' : 'left';
       if (lay.runs) lay.lines.forEach((_, i) => fillRichLine(ctx, lay, i, e, { scale: k, family: DRAWING_FONT, color, paint: (c) => this.ink(c) }));   // inline format codes (mtext.js)
@@ -906,7 +916,8 @@ export class View {
     ctx.setTransform(d, 0, 0, d, d * this.x0, d * this.y0);
     ctx.lineWidth = 1;
     const lim = this.doc.inModel && this.spaceLayout == null ? limitsOf(this.doc.meta) : null;
-    if (lim?.set) {   // D8.2: with drawing limits the grid fills them and nothing else
+    const gridClip = !!(lim?.set && lim.on);   // FX: the grid is held inside the limits only while they are ON; OFF shows the full grid (the outline stays, dashed)
+    if (gridClip) {   // D8.2: with drawing limits ON the grid fills them and nothing else
       ctx.save();
       ctx.beginPath();
       [[lim.x0, lim.y0], [lim.x1, lim.y0], [lim.x1, lim.y1], [lim.x0, lim.y1]].forEach(([x, y], i) => { const q = ap(this.T, x, y); if (i) ctx.lineTo(q.x, q.y); else ctx.moveTo(q.x, q.y); });
@@ -929,8 +940,8 @@ export class View {
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
+    if (gridClip) ctx.restore();
     if (lim?.set) {
-      ctx.restore();
       // the limits' outline (0.8 D8.2 gap closed, cad_PART_3): a line round the rectangle, on while the limits are on, a dashed one while they only show
       ctx.save();
       ctx.strokeStyle = this.colors.ink2; ctx.lineWidth = 1; ctx.globalAlpha = lim.on ? 0.9 : 0.5;
@@ -1001,6 +1012,7 @@ export class View {
 
   renderOver() {
     const ctx = this.octx;
+    this.over.classList.toggle('cc-xhair-on', !!(this.state.cursor && this.state.crosshair && (!this.panes || this.hoverPane === this.panes.active)));   // FX.35 (cadcraft.css)
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, this.over.width, this.over.height);
     if (!this.panes) { this.overPane(ctx, true); return; }

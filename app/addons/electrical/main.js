@@ -296,9 +296,9 @@ export function activate(api) {
     const how = yes(r);
     if (how !== 'A' && how !== 'O') return;
     const per = SL.unitScale(lib.meta?.units);   // the file's own units, when it says
-    const u = yes(await c.keyword(t('ask.symlib.units'), { options: [opt('M', t('opt.mm')), opt('I', t('opt.inches'))], default: per === 25.4 || per === 304.8 ? 'I' : 'M' }));
+    const u = yes(await c.keyword(t('ask.symlib.units'), { options: [opt('M', t('opt.mm')), opt('I', t('opt.inches'))], default: Math.abs(per - 25.4) < 1e-9 || Math.abs(per - 304.8) < 1e-9 ? 'I' : 'M' }));
     if (u !== 'M' && u !== 'I') return;
-    const scale = u === 'I' ? 25.4 : per >= 10 && per !== 25.4 && per !== 304.8 ? per : 1;
+    const scale = u === 'I' ? 25.4 : per >= 10 && !(Math.abs(per - 25.4) < 1e-9) && !(Math.abs(per - 304.8) < 1e-9) ? per : 1;
     const keys = SYMBOLS.map((s) => s.key);
     const chosen = [];
     for (let i = 0; i < found.length; i++) {

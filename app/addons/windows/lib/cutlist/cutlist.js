@@ -82,8 +82,9 @@ export function expand(parts) {
 }
 
 export const groupKey = (part) => part.material + '|' + part.thickness;
+const near = (x, y) => Math.abs(x - y) <= 1e-9 * Math.max(1, Math.abs(x), Math.abs(y));
 const bandKey = (b) => (b ? b.code + '@' + b.thickness : '');
-const sameKind = (a, b) => a.material === b.material && a.thickness === b.thickness && a.length === b.length && a.width === b.width &&
+const sameKind = (a, b) => a.material === b.material && near(a.thickness, b.thickness) && near(a.length, b.length) && near(a.width, b.width) &&
   a.grain === b.grain && SIDES.every((s) => bandKey(a.band[s]) === bandKey(b.band[s])) && !a.outline && !b.outline;
 
 export function cutList(partsIn, { deductBand = true, premill = 0, merge = false, bandWaste = 0, sheet = null, kerfWaste = 0.15 } = {}) {

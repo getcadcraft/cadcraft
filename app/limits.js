@@ -5,7 +5,7 @@
  * `doc.meta.limits = { x0, y0, x1, y1, on }` once a drawing has limits of its own (set with LIMITS, by LISP, or carried by a
  * DWG/DXF whose $LIMMIN / $LIMMAX are not the program defaults, or whose $LIMCHECK is on). Without it the drawing has no
  * limits: the grid is infinite, ZOOM All fits the drawing, nothing is refused. With it:
- *   - the grid is drawn inside the rectangle only,
+ *   - while `on`, the grid is drawn inside the rectangle only; while off the full grid shows (the outline stays, dashed),
  *   - ZOOM All shows the limits and the drawing together,
  *   - while `on`, a point typed or clicked for an object-making command outside the rectangle is refused ("Outside limits").
  * Limits are a rectangle in world coordinates; they never move or hide an object that is already there.

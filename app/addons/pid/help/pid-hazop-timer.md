@@ -16,3 +16,5 @@ Open **HAZOP session timer** in the add-on panel. It lists the nodes you drew wi
 4. **Times (CSV)** saves node, planned, used and over minutes.
 
 The times are kept with the add-on's storage, so a closed page keeps them. A node you draw or rename later joins the list without losing the time already used.
+
+A drafting and study aid, not an engineering approval. A person with the right training checks every result before it is used.

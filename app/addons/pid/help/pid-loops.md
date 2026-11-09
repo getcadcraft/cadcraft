@@ -15,3 +15,5 @@ Open **Loops and faceplates** in the add-on panel. Every controller of the drawi
 3. **To manual** holds the output where it was, and you can type another; **To auto** hands it back. Changing the set point runs the model again.
 
 If the numerical solver cannot follow a loop (a gain too high for the model), the panel says it ran out of steps; lower the gain or lengthen the reset time.
+
+A drafting and study aid, not an engineering approval. A person with the right training checks every result before it is used.

@@ -40,6 +40,7 @@ export function installVaultPanel({ stage, doc, host, el, t, print, focusCommand
         if (!bytes) { H.st.error = t('sx.vault.cmp.err.missing_copy'); return; }
         await openFile(new File([bytes], revisionFileName(rec, r.rev)));   // a plain copy: no doc.meta.vault, so SAVE never touches the vault's file
         H.st.error = ''; H.st.notice = t('sx.vault.opened.copy', { name: rec.path, rev: r.rev }); print(H.st.notice);
+        panel.close();   // a modal dialog: the copy was opened to be seen
       }), 'cc-linkbtn', { vaultOpenRev: r.rev }),
       pick ? btn(t('sx.vault.act.compare'), () => compare(rec, r.rev, pick.value), 'cc-linkbtn', { vaultCompare: r.rev }) : null, pick);
   }

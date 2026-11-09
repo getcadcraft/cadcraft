@@ -1,0 +1,21 @@
+{
+  "id": "chain",
+  "name": "Roller chain sprockets",
+  "version": "0.9.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "settings"
+  ],
+  "description": "Draw a roller-chain sprocket from a chain number (ANSI 25 to 240, ISO 606 A and B series) and a tooth count: the real tooth outline, pitch circle, bore, drawn tooth by tooth from the chain's own pitch and roller size. The chain table lists the catalogues each dimension was read from.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off",
+  "honesty": "The pitch, roller diameter, inner width and plate height are read from public manufacturers' catalogues and kept only where two catalogues agree; they are not copied from ISO 606 or ASME B29.1, which we do not hold. The tooth form (seat clearance, seat angle, tip diameter, tooth width) is our own generator's choice, proved against the chain it is made for, not the standard's tooth form; it is not checked against any catalogue sprocket."
+}

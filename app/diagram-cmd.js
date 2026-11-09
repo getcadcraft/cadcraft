@@ -3,14 +3,14 @@
  * diagram-cmd.js — DIAGRAM: a diagram from text (0.8 SU.883; diagram.js has the languages, the layout and the objects). Registered
  * through commands.js's command registry when this module is imported (cadcraft.js imports it; Node tests too).
  *
- *   DIAGRAM (TEXTDIAGRAM)   paste Mermaid flowchart text, a PlantUML component / deployment subset, D2 or a from-to list
+ *   DIAGRAM (TEXTDIAGRAM)   paste Mermaid flowchart text, a PlantUML component / deployment subset, D2, a from-to list or draw.io XML (positions kept)
  *                           (a box opens in the browser; at the command line a one-line text with ; between statements works too),
  *                           then the top-left corner and the text height. One undo step. The blocks and connectors are ordinary
  *                           objects on the layer "Diagram", selected when it is done: move, edit and erase them like any others.
  */
 import { t } from './i18n.js';
 import { commandRegistry } from './commands.js';
-import { drawDiagramInto, parseDiagram } from './diagram.js';
+import { drawDiagramFrom, inflateDrawio, parseDiagram } from './diagram.js';
 
 const def = commandRegistry.add;
 
@@ -40,6 +40,7 @@ def('DIAGRAM', ['TEXTDIAGRAM', 'T2D'], async (c) => {
   else if (typeof document !== 'undefined' && document.body && !c.host.headless) text = await ask(c);
   else text = await c.string(t('diagram.prompt.text'), { raw: true });
   if (text === null || text === undefined || !String(text).trim()) { c.print(t('diagram.cancelled')); return; }
+  text = await inflateDrawio(text);
   const r0 = parseDiagram(text);
   if (!r0.ok) { c.print(t('diagram.err.' + r0.error)); return; }
   c.print(t('diagram.parsed', { format: t('diagram.format.' + r0.format), blocks: r0.graph.nodes.length, connectors: r0.graph.edges.length }));
@@ -47,7 +48,7 @@ def('DIAGRAM', ['TEXTDIAGRAM', 'T2D'], async (c) => {
   if (!at || at.option) return;
   const def0 = Math.max(c.doc.current?.textHeight || 2.5, 2.5) * 2;
   const th = await c.distance(t('diagram.height'), { default: def0 });
-  const r = drawDiagramInto(c.doc, text, { x: at.x, y: at.y, th: typeof th === 'number' && th > 0 ? th : def0, label: 'DIAGRAM' });
+  const r = await drawDiagramFrom(c.doc, text, { x: at.x, y: at.y, th: typeof th === 'number' && th > 0 ? th : def0, label: 'DIAGRAM' });
   if (!r.ok) { c.print(t('diagram.err.' + r.error)); return; }
   c.host.setSelection(new Set(r.ids));
   c.print(t('diagram.done', { blocks: r.blocks, connectors: r.connectors }));

@@ -1,111 +1,72 @@
 ---
-title: Có gì mới trong 0.7
-summary: Nền PDF và nhập PDF, bản vẽ quét với dò tự động, spline thật với SPLINE, SPLINEDIT và PEDIT, trình quản lý kiểu kích thước, văn bản giữ nguyên định dạng, WBLOCK và tỷ lệ của riêng bạn, khối đặc 3D từ chương trình khác, đăng ký bản quét, bảng Laser, xuất USD, Lịch sử và in trong CadCraft Studio, bản vẽ đầu tiên có hướng dẫn, thanh công cụ ở bất kỳ cạnh nào hoặc ít hàng hơn, và nhiều hơn cho các trợ lý AI.
-keywords: có gì mới, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.7, phiên bản, tính năng mới, pdf, pdfattach, pdfimport, nền, bản quét, scanattach, scantrace, dò theo, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, định dạng, wblock, scalelistedit, danh sách tỷ lệ, acis, khối đặc 3d, registerscans, đăng ký bản quét, icp, e57, las, laser, grbl, g-code, usd, usdout, lịch sử, phiên bản, so sánh, in, máy in, png, svg, kiểu in, kiểu đường, hướng dẫn, bảng tra nhanh, bản đồ lệnh, vị trí thanh công cụ, hàng thanh công cụ, toolbardock, regen, regenall, bàn di chuột, vuốt, bảng mã, kiril, tiếng hàn, tiếng trung, tiếng nhật, điện, rcd, p&id, pid, acad.lsp, acaddoc.lsp, thư mục hỗ trợ, trợ lý, mcp, đơn vị, tiếng bồ đào nha
-from: b9258ca6
+title: Có gì mới trong 0.8 và 0.8.1
+summary: Một bóng mờ hoàn thành bản vẽ của bạn, nét bút phác thảo và ảnh phác thảo chuyển thành hình học, tờ tự bố trí, chi tiết được gợi ý khi bạn vẽ, GRIDMOVE và AUTODIM, thẻ, tệp thân thiện với gộp, đánh dấu chuyển thành bản sửa đổi, vẽ không cần nhìn, giới hạn bản vẽ, góc và hướng, phông SHX, sơ đồ từ văn bản, và các sửa lỗi trong 0.8.1.
+keywords: có gì mới, what's new, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.8, 0.8.1, phiên bản, tính năng mới, tự động hoàn thành, bóng mờ, tab, sketchfix, photosketch, autosheet, chi tiết, gridmove, autodim, thẻ, redline, gộp, git, fossil, truy cập, vẽ không cần nhìn, trình đọc màn hình, giới hạn, hướng, aunits, shx, sơ đồ, ole, lịch sử, so sánh, bằng lời, thuộc tính, feet và inch, kéo giãn, ngôn ngữ, thiết bị nhập, vấn đề, live, trợ lý
+from: 9dd82db5
 ---
 
-Đây là những thay đổi trong CadCraft 0.7 so với 0.6. Nhiều thay đổi được yêu cầu trên Discord. Danh sách được nhóm theo mảng, mục quan trọng nhất ở trước.
+Đây là những thay đổi trong CadCraft 0.8 và 0.8.1, so với 0.7. 0.8 (1 tháng 11 năm 2026) bổ sung các công cụ hỗ trợ vẽ hoạt động từ chính bản vẽ của bạn, theo các quy tắc trên máy tính của bạn và không cần mô hình, còn 0.8.1 (2 tháng 11 năm 2026) sửa các lỗi được báo cáo sau bản 0.8.
 
 ## Mới
 
-### PDF và bản vẽ quét
+### Bản vẽ hoàn thành ý bạn
 
-- **Đặt một trang PDF dưới bản vẽ.** {{cmd:PDFATTACH}} (`PDFATT`) đặt một trang theo kích thước thật hoặc tỷ lệ bạn nhập. Bắt điểm vào các đường của nó, làm mờ, chuyển sang đơn sắc ({{cmd:PDFADJUST}}), cắt xén ({{cmd:PDFCLIP}}) và bật tắt các lớp riêng của PDF ({{cmd:PDFLAYERS}}). Nó được in dưới dạng đường, hình tô và văn bản, và DWG hoặc DXF 2000 giữ nó như một liên kết đến tệp. Mở một PDF bằng {{ui:Mở}} sẽ hỏi nên gắn hay nhập nó. Xem [Nền PDF và nhập PDF](topic:pdf-underlay).
-- **Biến một trang PDF thành đối tượng bản vẽ.** {{cmd:PDFIMPORT}} (`PDFIM`) tạo đường thẳng, đa tuyến, vòng tròn, cung tròn, hình tô đặc và văn bản trên các lớp đặt tên theo PDF, ở kích thước thật, theo tỷ lệ nhập, hoặc theo tỷ lệ từ hai điểm và một khoảng cách thực, trong một bước hoàn tác. Xem [Nhập một trang](topic:pdf-underlay#import-a-page).
-- **Bản vẽ quét.** {{cmd:SCANATTACH}} đưa vào một PNG, JPEG hoặc TIFF (một trang hoặc tất cả) hoặc một trang PDF là hình ảnh. Sau đó chỉnh tỷ lệ từ hai điểm ({{cmd:SCANSCALE}}), căn chỉnh ({{cmd:SCANALIGN}}), nắn thẳng từ các đường dài của chính nó ({{cmd:SCANDESKEW}}), chuyển thành đen trắng và loại bỏ đốm ({{cmd:SCANCLEAN}}), cắt và xóa từng phần. Mỗi bước là một bước hoàn tác và tệp gốc được giữ. Xem [Bản vẽ quét và việc dò theo](topic:scanned-drawings).
-- **Dò bản quét thành đường thẳng và cung tròn.** {{cmd:SCANTRACE}} vẽ các đường của bản quét thành đường thẳng và cung tròn trên một lớp mới, SCAN-TRACE, theo dung sai bạn đặt, và để nguyên văn bản và nét tô. Báo cáo cho biết nó đã tạo gì và bỏ lại gì, và đó không phải là lời khẳng định rằng kết quả đúng: hãy đối chiếu với tờ giấy. {{cmd:RASTERSNAP}} cho phép bắt điểm đối tượng tìm thấy các đầu mút, góc và giao điểm của bản quét. Không có gì được gửi đi đâu và không dùng mô hình đã huấn luyện. Xem [Việc dò theo](topic:scanned-drawings#the-trace).
+- **Bóng mờ cho biết bước tiếp theo.** Khi không có lệnh nào đang chạy, một bóng mờ xám nét đứt cho biết các mẫu của chính bản vẽ dự đoán bước tiếp theo: thanh đứng kế tiếp với cùng khoảng cách, bậc tiếp theo của cầu thang, bức tường còn thiếu của một phòng. Nhấn {{key:Tab}} để vẽ nó thành một bước hoàn tác, hoặc {{key:Esc}} để bỏ qua. Bóng mờ chỉ xét các đối tượng mới nhất, nên vẫn mượt trên bản vẽ lớn. Tắt nó trong {{ui:Cài đặt}} › {{ui:CadCraft}} hoặc bằng {{cmd:AUTOCOMPLETE}} `Off`.
+- **Điểm tiếp theo khi bạn vẽ đường thẳng.** Ở giữa {{cmd:LINE}} hoặc {{cmd:PLINE}}, bóng mờ là điểm tiếp theo: bậc tiếp theo của cầu thang, góc thứ tư của hình chữ nhật, hoặc điểm khép kín nó. Đưa con trỏ lại gần rồi nhấn {{key:Tab}}, như thể bạn đã nhấp chuột ở đó.
+- **Nét bút phác thảo thành hình học chính xác.** {{cmd:SKETCHFIX}}: vẽ các nét phác bằng bút, chuột hoặc ngón tay, và mỗi nét thành một đường thẳng, vòng tròn, cung tròn, hình chữ nhật hoặc đa tuyến sạch, bắt vào những gì đã có trên bản vẽ. Xem [Phác thảo bằng bút và nhận hình học chính xác](topic:sketch-with-a-pen).
+- **Ảnh một bản phác thảo thành bản vẽ.** {{cmd:PHOTOSKETCH}} (`PSK`) tìm tờ giấy trong ảnh, nắn lại phối cảnh, áp dụng khổ giấy và tỷ lệ bạn nhập, rồi vẽ lại các nét bút lên một lớp cho mỗi màu bút. Chữ viết không được vẽ lại.
+- **Kích thước theo quy tắc.** {{cmd:AUTODIM}} (`ADIM`) tạo chuỗi kích thước dọc theo các cạnh bạn chọn, kích thước tổng thể, bề rộng lỗ mở, đường kính lỗ và, với `Grid`, khoảng cách lưới. Nó không bao giờ lặp lại một kích thước đã có.
+- **Di chuyển đường lưới và cả hệ theo sau.** {{cmd:GRIDMOVE}} (`GM`): tường kết thúc tại đường lưới sẽ kéo giãn theo nó, tường nằm dọc theo nó, cột, bong bóng và thẻ của nó được di chuyển, còn kích thước đo trên nó sẽ đo khoảng cách mới. Một bước hoàn tác.
 
-### Vẽ và sửa
+### Tờ, chi tiết và thẻ
 
-- **Spline thật.** {{cmd:SPLINE}} (`SPL`) vẽ một đường cong qua các điểm hoặc từ các điểm điều khiển (bậc 1 đến 5), với tiếp tuyến đầu mút; {{cmd:SPLINEDIT}} (`SPE`) di chuyển, thêm và xóa điểm khớp hoặc điểm điều khiển, đặt trọng số, mở, khép, đảo chiều, hoặc biến spline thành đa tuyến. Spline từ tệp DWG và DXF mở ra dưới dạng spline, và DWG cùng DXF 2000 lưu chúng dưới dạng spline. Xem [Spline và đa tuyến](topic:splines).
-- **PEDIT.** {{cmd:PEDIT}} (`PE`) khép và mở đa tuyến, nối đường thẳng và cung tròn vào chúng, đặt một độ rộng, khớp một đường cong qua các đỉnh hoặc một spline dọc theo chúng và hoàn lại bằng Decurve, đảo chiều, và sửa nhiều đa tuyến cùng lúc. Xem [Sửa một đa tuyến](topic:splines#edit-a-polyline).
-- **WBLOCK.** {{cmd:WBLOCK}} (`W`) ghi một khối, vài đối tượng hoặc cả bản vẽ ra một DWG hoặc DXF mới chỉ chứa các lớp, kiểu và khối mà chúng dùng. Xem [Ghi một khối hoặc đối tượng ra tệp riêng](topic:blocks#write-a-block-or-objects-to-a-file-of-their-own).
-- **REGEN và REGENALL.** {{cmd:REGEN}} (`RE`) vẽ lại thẻ bạn đang ở từ bản vẽ, {{cmd:REGENALL}} (`REA`) vẽ lại mọi thẻ, khung và bản vẽ đang mở. Xem [REGEN và REGENALL](topic:commands#regen-and-regenall).
+- **Tờ tự bố trí.** {{cmd:AUTOSHEET}} lấy các khung nhìn đặt tên của bạn (hoặc các phần rời của mô hình), chọn khổ giấy và tỷ lệ tiêu chuẩn, rồi đặt các khung nhìn lên tờ mới có khung tên và chú thích tên cùng tỷ lệ. Mọi thứ vẫn có thể chỉnh sửa. Xem [Tự bố trí tờ cho tôi](topic:lay-out-sheets-for-me).
+- **Chi tiết của công ty bạn, được gợi ý khi bạn vẽ.** {{cmd:DETAILS}} (`DET`) giữ các khối chi tiết riêng của bạn. Khi những gì bạn chọn khớp với một khối theo các từ trên lớp, tên khối và ghi chú, thanh trạng thái sẽ cho biết; chọn nó và đặt vào. {{cmd:DETAILS}} › Chia sẻ đưa danh sách của bạn vào thư mục Tài liệu và nhận những gì nhóm bạn đã thêm. Cài đặt tắt các gợi ý.
+- **Thẻ trên khối.** {{cmd:TAGS}} định nghĩa một thẻ (loại, các giá trị có thể nhận, các khối được áp dụng), gán nó cho các tham chiếu khối bạn chọn, và liệt kê chúng thành bảng thống kê bạn có thể lưu dưới dạng CSV. Định nghĩa được lưu trong DWG. Xem [Thẻ](topic:tags).
+- **Giới hạn bản vẽ.** {{cmd:LIMITS}} đặt một hình chữ nhật cho bản vẽ: lưới lấp đầy nó và thu phóng Tất cả hiển thị nó. Giới hạn hiện dưới dạng đường viền và được lưu trong DWG và DXF, cùng với giới hạn giấy. Xem [Đặt giới hạn bản vẽ](topic:drawing-limits).
 
-### Văn bản và kích thước
+### Làm việc với người khác và các chương trình khác
 
-- **Văn bản giữ nguyên định dạng.** Văn bản đoạn từ chương trình khác giữ màu theo từng từ, chữ đậm và nghiêng, gạch chân, phân số xếp chồng và chiều cao: chúng được vẽ trên màn hình và trong PDF, được giữ khi bạn sửa các từ, và được lưu trở lại. Xem [Định dạng bên trong văn bản đoạn từ chương trình khác](topic:text#formatting-inside-paragraph-text-from-other-programs).
-- **Trình quản lý kiểu kích thước.** {{cmd:DIMSTYLE}} (`D`) tạo, đổi, so sánh và áp dụng các kiểu kích thước có tên; đổi một kiểu sẽ đổi mọi kích thước dùng nó. {{cmd:DIMEDIT}} (`DED`) đặt văn bản về chỗ cũ, nhập văn bản mới, xoay nó hoặc nghiêng các đường gióng; {{cmd:DIMTEDIT}} di chuyển văn bản sang trái, phải hoặc vào giữa. Xem [Kiểu kích thước có tên](topic:dimension-settings#named-dimension-styles).
-- **Tỷ lệ của riêng bạn.** {{cmd:SCALELISTEDIT}} (`SCALELIST`) thêm các tỷ lệ như 1:75 vào danh sách tỷ lệ khung nhìn và tỷ lệ in; chúng được lưu trong bản vẽ (DWG và DXF 2000), và bản vẽ từ chương trình khác mang theo danh sách riêng. Xem [Tỷ lệ](topic:units-papers-scales#scales).
-- **Văn bản bằng các bảng chữ cái khác.** Tệp DXF lưu theo bảng mã Kiril, Hàn, Trung, Nhật hoặc Việt giờ mở ra cùng văn bản của chúng, và văn bản Trung, Nhật, Hàn được in trong PDF (lệnh in tải một phông lớn hơn vào lần đầu cần đến). Xem [Phông](topic:text#font).
+- **Đánh dấu thành bản sửa đổi.** {{cmd:REDLINE}} đọc gói mà MarkupCraft ghi ra và liệt kê mọi thay đổi. Chấp nhận hoặc từ chối từng thay đổi kèm ghi chú; các thay đổi được chấp nhận nhận đám mây sửa đổi và nhật ký sửa đổi trong một bước hoàn tác, và bạn lưu tệp câu trả lời để đóng các đánh dấu trong MarkupCraft. Xem [Chuyển đánh dấu thành bản sửa đổi](topic:redline-to-revision).
+- **Bản vẽ mà git và Fossil có thể gộp.** Khi {{ui:Tệp thân thiện với gộp}} được bật trong {{ui:Cài đặt}} › {{ui:CadCraft}}, mỗi đối tượng nhận một khóa không bao giờ thay đổi (tệp lớn hơn khoảng 10 phần trăm). Lệnh `cadcraft merge base ours theirs` khi đó gộp hai bản chỉnh sửa của hai người trên một đối tượng DWG hoặc DXF theo từng đối tượng, và chỉ báo cáo những chỗ hai người cùng thay đổi một thứ. Xem [Gộp hai bản chỉnh sửa của một bản vẽ](topic:merge-drawings).
+- **Thay đổi gì, bằng lời.** Trong Lịch sử, So sánh đưa ra danh sách đơn giản: những chỗ nào đã thay đổi, các vùng đó lớn đến đâu, cái gì được thêm, bỏ hoặc thay đổi, và đoạn văn bản nào đã được sửa. Xem [Nói bằng lời điều gì đã thay đổi](topic:changes-in-words).
+- **Hướng và góc.** Nhập một hướng theo kiểu phương vị của người đo đạc, chẳng hạn N45°23'30"E, hoặc theo độ, phút và giây, ở bất cứ chỗ nào được yêu cầu một góc; AUNITS đặt cách hiển thị góc. Xem [Nhập và hiển thị hướng và góc](topic:bearings-and-angles).
+- **Phông SHX của riêng bạn.** Đưa cho CadCraft một thư mục phông SHX, và các kiểu văn bản có tên của chúng sẽ được vẽ bằng các phông đó, trên màn hình và khi in. Xem [Vẽ văn bản bằng phông SHX của bạn](topic:shx-fonts).
+- **Sơ đồ từ văn bản.** {{cmd:DIAGRAM}} đọc một lưu đồ Mermaid, sơ đồ thành phần PlantUML, D2 hoặc danh sách từ-đến, rồi vẽ các khối và đường nối mà bạn có thể chỉnh sửa. Xem [Vẽ sơ đồ từ văn bản](topic:text-to-diagram).
+- **Đối tượng OLE trong DWG.** {{cmd:OLELIST}} liệt kê các đối tượng OLE mà một DWG mang theo và CadCraft không tự đặt được, rồi đặt một bản sao của hình ảnh vào vị trí bạn chỉ định. Xem [Hình ảnh](topic:pictures#objects-from-other-programs-ole).
+- **Phép tính của bạn đi kèm bản vẽ.** Các tờ tính toán và lý do thiết kế được lưu trong DWG cùng bảng lớp.
 
-### In
+### Vẽ không cần nhìn
 
-- **Thêm trong bảng kiểu in.** Với mỗi màu, một bảng giờ còn đặt được kiểu đường, đầu đường và chỗ nối đường, cùng kiểu tô in hình tô đặc thành các đường tô bóng; bảng có danh sách độ dày nét riêng và một tỷ lệ kiểu đường. Xem [Bảng kiểu in](topic:plot-pdf#plot-style-tables).
-- **In, và tệp PNG và SVG.** Hộp thoại In có {{ui:In…}}, {{ui:Tải xuống PNG}} (300 dpi) và {{ui:Tải xuống SVG}}. Trong CadCraft Studio, nó liệt kê các máy in của máy tính, khổ giấy của chúng và số bản sao. Xem [In](topic:plot-pdf#print) và [Tệp ảnh và SVG](topic:plot-pdf#picture-and-svg-files).
+- Bật {{ui:Vẽ không cần nhìn}} trong {{ui:Cài đặt}} (hoặc gõ {{cmd:ACCESS}} và trả lời `On`). CadCraft đọc to mọi lệnh và kết quả qua trình đọc màn hình của bạn, mô tả bản vẽ và những gì ở gần con trỏ, cho phép bạn di chuyển con trỏ và chọn điểm bằng bàn phím, và phát âm thanh cho mỗi điểm bắt và mỗi grip. Khi trình duyệt của bạn có thể nhận diện giọng nói trên máy tính, bạn có thể đọc lệnh thành tiếng. Xem [Vẽ không cần nhìn](topic:draft-without-sight).
 
-### 3D và đám điểm
+### Trong mọi ứng dụng
 
-- **Khối đặc 3D từ chương trình khác.** Khối đặc, vùng (region) và thân (body) trong không gian mô hình của bản vẽ hiện trên thẻ 3D, chỉ để đọc, và lưu thành DWG sẽ ghi chúng trở lại không đổi. Các mặt trên bề mặt mà CadCraft chưa vẽ được sẽ được liệt kê, không đoán mò. Xem [Khối đặc từ chương trình khác](topic:3d-solids#solids-from-other-programs).
-- **Đăng ký nhiều bản quét.** {{cmd:REGISTERSCANS}} (`REGSCAN`) đặt các bản quét chụp từ những vị trí khác nhau vào một hệ khung, bằng các cặp điểm hoặc tọa độ mục tiêu nhập tay, tinh chỉnh bằng ICP, lưu việc đăng ký thành một tệp dự án nhỏ, và ghi đám điểm đã đăng ký thành một tệp LAS hoặc E57. Xem [Đăng ký nhiều bản quét thành một](topic:register-scans).
-- **Xuất USD.** {{cmd:USDOUT}}, hoặc {{cmd:EXPORT3D}} › {{ui:USD}}, ghi các khối đặc của thẻ 3D thành `.usda`, `.usdc` hoặc `.usdz`. Xem [Xuất mô hình 3D thành USD](topic:usd).
-- **Tính toán trên thẻ 3D.** Nơi các công cụ của thẻ 3D hỏi một khoảng cách, bạn có thể gõ một phép tính, như trên dòng lệnh. Xem [Phép tính trong giá trị đã gõ](topic:coordinate-entry#arithmetic-in-a-typed-value).
+- **Ngôn ngữ.** 54 ngôn ngữ; mười ngôn ngữ mới (tiếng Litva, tiếng Latvia, tiếng Bosnia, tiếng Marathi, tiếng Telugu, tiếng Albania, tiếng Afrikaans, tiếng Filipino, tiếng Swahili, tiếng Uzbek). Các ngôn ngữ ngoài tiếng Anh là bản nháp máy cho đến khi có người bản ngữ đọc lại.
+- **Thiết bị nhập.** Điều khiển bàn di chuột, bút, chuột 3D, tay cầm trò chơi và MIDI.
+- **Số dòng thanh công cụ và lưới thuộc tính.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Số dòng thanh công cụ}} đưa ra Xuống dòng, 2 dòng hoặc 1 dòng trong các ứng dụng khác. CadCraft giữ cài đặt riêng trong {{ui:Cài đặt}} › {{ui:CadCraft}} (xem [Số dòng thanh công cụ](topic:settings#toolbar-rows)). Lưới thuộc tính dùng chung có trong ba ứng dụng khác, không có trong CadCraft.
+- **Vấn đề, Live và tiện ích bổ sung.** Một bảng Vấn đề dùng chung cảnh báo trong mọi ứng dụng, một khung nhìn Live cho biết ai đang ở đâu trong CadCraft Studio (xem [Cùng làm việc trên một bản vẽ](topic:work-live)), và danh sách tiện ích bổ sung.
+- **Kết nối trợ lý AI của bạn.** Một kết nối từ CadCraft Studio đến cả tám ứng dụng, với mức chỉ đọc, gợi ý hoặc chỉnh sửa cho từng ứng dụng, và một nhật ký bằng lời ghi lại những gì trợ lý đã làm. CadCraft không có AI riêng, còn Hỏi trong mọi ứng dụng dùng AI mà bạn kết nối.
 
-### Chế tạo
+## Đã sửa trong 0.8.1
 
-- **Gửi bản vẽ đến máy laser.** {{cmd:LASER}}, hoặc {{ui:Xem}} › {{ui:Thêm}} › {{ui:Laser…}}, mở một bảng phía trên bản vẽ: mỗi lớp cắt, vạch, khắc đường, tô hình, khắc một ảnh hoặc không được gửi, với công suất, tốc độ và số lượt của nó. Bản xem trước theo các chỉnh sửa của bạn, {{ui:Lưu G-code…}} ghi G-code chế độ laser GRBL, và trong Chrome hoặc Edge bảng có thể căn khung công việc và gửi qua USB. Các cài đặt được lưu trong bản vẽ (DWG và DXF). Xem [Gửi bản vẽ đến máy laser](topic:laser-cutting).
-- **Ký hiệu lắp đặt công trình trong tiện ích bổ sung Điện.** Ổ cắm dữ liệu, điện thoại và TV, công tắc khóa và hẹn giờ, bộ điều nhiệt, biển báo lối thoát, đầu báo, nút báo cháy và còi, quạt, máy nước nóng, bếp, điểm sạc xe điện, đồng hồ đo điện năng và tủ phụ, cùng ký hiệu RCD và RCBO. Một mạch có thể mang RCD, bảng thống kê tủ điện có cột RCD, và các kiểm tra chỉ ra các mạch ổ cắm không có RCD từ 30 mA trở xuống. Đây là lời nhắc khi lập kế hoạch, không phải kiểm tra theo quy chuẩn.
-- **Tiện ích bổ sung P&ID.** P&ID vẽ sơ đồ quy trình: ký hiệu có điểm nối, đường quy trình và tín hiệu, thẻ gắn, số đường ống, danh sách đường ống, thiết bị, dụng cụ đo và van (CSV hoặc sổ làm việc) và các kiểm tra. Nó đi kèm CadCraft và tắt cho đến khi bạn bật trong {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Tiện ích bổ sung}}. Đây là công cụ hỗ trợ vẽ, không phải phê duyệt kỹ thuật, và hiện chữ của nó chỉ có tiếng Anh.
-
-### Bắt đầu và màn hình
-
-- **Bản vẽ đầu tiên có hướng dẫn.** {{cmd:TOUR}} (hoặc {{ui:Xem hướng dẫn}} trên thẻ bắt đầu) dẫn bạn qua sáu bước trong chính bản vẽ thật: một đường thẳng, một vòng tròn, một lần di chuyển, một lần cắt, một lần xóa và một kích thước. Nó tự bắt đầu vào lần đầu CadCraft mở mà chưa có gì trong đó. Xem [Thích được hướng dẫn?](topic:getting-started#prefer-to-be-guided)
-- **Bảng tra nhanh và bản đồ lệnh.** [Bảng tra nhanh](topic:cheat-sheet) có 40 lệnh hằng ngày trên một trang, cũng có dạng PDF để in, và [bản đồ lệnh](topic:command-map) liệt kê các lệnh cùng tên viết tắt, từ A đến Z.
-- **Thanh công cụ ở bất kỳ cạnh nào.** {{ui:Cài đặt}} › {{ui:CadCraft}} › {{ui:Vị trí thanh công cụ}}: trên (như trước), dưới, trái hoặc phải, hoặc gõ {{cmd:TOOLBARDOCK}}. Xem [Vị trí thanh công cụ](topic:settings#toolbar-position).
-- **Hàng của thanh công cụ.** {{ui:Cài đặt}} › {{ui:CadCraft}} › {{ui:Số dòng thanh công cụ}}: xuống dòng cho vừa, 2 hàng hoặc 1 hàng, cho thanh công cụ CadCraft và các kiểu Vẽ kiểu cổ điển và Dải lệnh. {{key:Shift+Ctrl+F1}} chuyển lần lượt qua chúng, {{key:Ctrl+F1}} qua những gì các nút hiển thị, và {{cmd:TOOLBARROWS}} cùng {{cmd:TOOLBAR}} đặt chúng. Gợi ý bắt đầu có nút đóng. Cảm ơn GJoe2, người đã gửi mục này dưới dạng pull request. Xem [Hàng của thanh công cụ](topic:settings#toolbar-rows).
-
-### Trong CadCraft Studio
-
-- **Lịch sử.** {{cmd:HISTORY}} (`HIST`), hoặc {{ui:Xem}} › {{ui:Thêm}} › {{ui:Lịch sử…}}: các bản sao mà Studio giữ khi bạn mở và lưu một bản vẽ, và các phiên bản đám mây của bản vẽ khi bạn mở nó từ đám mây. Mở hoặc khôi phục một bản, hoặc so sánh hai bản, với phần được thêm, bị xóa và đã đổi hiển thị bằng màu. Xem [Lịch sử](topic:history).
-- **acad.lsp và acaddoc.lsp.** Chọn một thư mục hỗ trợ trong {{cmd:APPLOAD}}: hai tệp đó tải khi CadCraft khởi động (acaddoc.lsp lại tải cho mỗi thẻ bản vẽ mới), và `S::STARTUP` chạy sau chúng. Xem [Tải ứng dụng](topic:load-applications#load-acadlsp-and-acaddoclsp-from-a-support-folder-studio).
-- **Hộp thoại In trong cửa sổ riêng.** Một nút trên thanh tiêu đề của nó chuyển nó vào một cửa sổ bạn có thể đặt trên màn hình khác. Xem [Di chuyển hộp thoại](common:arrange-panels#move-a-dialog).
-
-### Cho trợ lý AI
-
-- **Tệp theo tên, trong các thư mục bạn chọn.** Trong CadCraft Studio, một trợ lý có thể mở, lưu và in tệp theo tên, và đưa cho một lệnh tệp mà lệnh đó yêu cầu (INSERT từ một tệp, xuất của COUNT, SAVEAS, PLOT), nhưng chỉ trong các thư mục bạn thêm tại {{ui:Cài đặt}} › {{ui:CadCraft}} › {{ui:Trợ lý}} › {{ui:Thư mục được phép dùng}}. Xem [Cho phép nó dùng tệp trong các thư mục bạn chọn](topic:use-with-ai-assistants#let-it-use-files-in-folders-you-choose).
-- **Ít lần gọi hơn.** Một trợ lý có thể gõ cả một dòng lệnh trong một lần, giữ một lệnh mở giữa các lần gọi, đếm đối tượng theo loại và lớp mà không cần liệt kê, và đặt một khối cùng giá trị thuộc tính của nó trong một bước.
-- **Không cần cửa sổ.** Dòng lệnh `cadcraft` ghi bản in SVG và chuyển đổi, in, kiểm tra hoặc mô tả nhiều tệp cùng lúc. Gói MCP chưa được phát hành. Xem [Làm việc trên tệp mà không mở CadCraft](topic:use-with-ai-assistants#work-on-files-without-opening-cadcraft).
-
-## Đã thay đổi
-
-- **Bàn di chuột di chuyển khung nhìn.** Di hai ngón tay trên bàn di chuột và khung nhìn 2D đi theo; chụm ngón tay và con lăn chuột thì thu phóng. Xem [Chuột, bàn di chuột và cảm ứng](topic:mouse-trackpad-touch).
-- **Đối tượng OLE được giữ lại.** Các đối tượng nhúng của DXF hiện thành ảnh của chúng hoặc thành khung có nhãn và được DXF 2000 lưu trở lại. Của DWG được giữ và ghi trở lại khi bạn lưu thành DWG, nhưng chưa hiển thị. Trước đây chúng bị mất khi lưu. Xem [Đối tượng từ chương trình khác (OLE)](topic:pictures#objects-from-other-programs-ole).
-- **Đơn vị của bản vẽ mới** theo đơn vị bạn gắn sao trong {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Đơn vị}}.
-
-## Đã sửa
-
-- Các bố cục mở ra trống, hoặc mất khung nhìn và hiện cả mô hình thay vào đó, giờ mở ra với các khung nhìn thật của chúng. Một bố cục không có liên kết đến nội dung của nó được giữ lại và báo cáo mở tệp ghi rõ điều đó.
-- Tệp DXF theo bảng mã cũ hiện văn bản Kiril và Hàn bị lỗi chữ. Giờ chúng đọc đúng.
-- Văn bản đoạn từ chương trình khác mất định dạng khi mở và được lưu trở lại ở dạng trơn.
-
-## Trong mọi ứng dụng
-
-- **Đơn vị.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Đơn vị}} có một danh sách riêng cho chiều dài, diện tích, thể tích, góc và độ dốc, với các cỡ chính xác theo định nghĩa của đơn vị (feet khảo sát Mỹ là một đơn vị riêng). Tắt những đơn vị bạn không bao giờ dùng và chúng rời khỏi danh sách đơn vị; gắn sao một đơn vị và công việc mới bắt đầu bằng nó. Một tệp luôn giữ đơn vị riêng của nó. Trong CadCraft, dấu sao đặt đơn vị của bản vẽ mới khi đó là đơn vị mà bản vẽ mang được; ô {{ui:Đơn vị}} riêng của CadCraft chưa theo các công tắc. Khi bản vẽ đã có đơn vị, một chiều dài bạn gõ có thể mang ký hiệu của bất kỳ đơn vị nào. Xem [Đơn vị, giá trị nhập và các danh sách đơn vị](common:unit-lists).
-- **Bố cục dày hơn và các bảng tự gọn lại.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Mật độ bố cục}} › {{ui:Gọn}} chứa được nhiều hơn trên màn hình (màn hình cảm ứng và điện thoại giữ các nút lớn). Mỗi bảng bên có một thanh tiêu đề mảnh: kéo nó để neo hoặc cho bảng nổi, thả nó lên thanh của bảng khác để dùng chung một khung dưới dạng các thẻ, ghim nó để trượt ra mép, hoặc ẩn nó và gọi lại từ mép. Xem [Sắp xếp các bảng](common:arrange-panels#make-the-layout-denser).
-- **Hộp thoại di chuyển được.** Kéo một hộp thoại bằng thanh tiêu đề để tránh khỏi bản vẽ; nó trở lại nơi bạn để. Nhấp đúp thanh tiêu đề để căn giữa lại. Xem [Di chuyển hộp thoại](common:arrange-panels#move-a-dialog).
-- **Công thức cho trợ lý AI.** Mười yêu cầu mẫu cho trợ lý của riêng bạn (dọn bản vẽ, in một bộ, kiểm tra bản vẽ, hỏi mô hình, cộng một bản bóc tách, thử một biến thể chi tiết…), mỗi yêu cầu kèm các công cụ nó gọi và quyền nó cần, và mỗi yêu cầu được các bài kiểm thử của chúng tôi chạy lại. Các ứng dụng không chứa AI. Xem [Công thức cho trợ lý AI](common:assistants-recipes).
-- **Ngôn ngữ.** **Português (Portugal)** là mới trong {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Ngôn ngữ}}. Nó, **Português (Brasil)**, **Español (México)** và **Bahasa Indonesia** giờ có đủ mọi chữ của các ứng dụng, dưới dạng bản nháp chưa được người bản ngữ xem xét. Các chủ đề trợ giúp bằng tiếng Anh.
-- **CadCraft Studio** nói rõ vì sao kiểm tra cập nhật thất bại (chưa có tệp cho hệ thống của bạn, không có mạng, chữ ký sai) thay vì chỉ "Done", và ngừng đưa lại thẻ Có gì mới mà bạn đã đóng cho đến khi có bản phát hành mới hơn.
+- **Thuộc tính hiển thị 150 thay vì 12'-6"** trong các bản vẽ theo feet và inch. Các trường mà ứng dụng tự đọc lại giữ đúng văn bản của chúng.
+- **Các tệp DWG có phần lớp bị đọc sai kiểu** (GitHub cadcraft#5) giờ mở đúng.
+- **Con trỏ chữ thập không còn hiện phía sau cửa sổ bật lên.**
+- **Studio và các bản đóng gói có thể đổi ngôn ngữ khi đang chạy.** Trước đây chỉ có tiếng Anh. Chưa thử trên mọi nền tảng: hãy cho chúng tôi biết nếu ngôn ngữ không đổi.
+- **Máy tính bảng ở chế độ dọc** dành thêm chiều cao lưới cho vùng vẽ, và chế độ tờ bắt đầu ở 760 px hoặc thấp hơn.
+- **STRETCH với cửa sổ chọn cắt, và LIMITS,** đã được báo cáo trên Studio 0.8.0 và đã đúng trong bản web 0.8; trình cài đặt của người báo cáo là bản cũ hơn. Studio 0.8.1 đã có các sửa này.
 
 ## Chưa có trong phiên bản này
 
-- **0.7 chưa được ký mã.** Việc ký, và gói Microsoft Store, đã chuyển sang 0.8 vì việc xác thực chứng chỉ chưa xong. Hãy kiểm tra SHA-256 bên cạnh mỗi tệp trên getcadcraft.com/download. Trên Windows, nếu SmartScreen chặn trình cài đặt, chọn {{ui:Thông tin thêm}}, rồi {{ui:Vẫn chạy}}. Trên Mac, lần đầu, nhấp chuột phải vào CadCraft Studio và chọn {{ui:Mở}}. CadCraft Studio chưa có trên cửa hàng ứng dụng nào, và chưa có bản cho iPad hay iPhone.
-- Các danh sách góc và độ dốc trong {{ui:Đơn vị}} được lưu, nhưng chưa có ô nào đọc chúng.
-- Đối tượng OLE của DWG được giữ nhưng chưa hiển thị, và ảnh metafile bên trong đối tượng OLE không được vẽ.
-- Việc đọc bảng kiểu in (tệp CTB) từ chương trình khác đang chờ một tệp mẫu.
-- Văn bản châu Á cũ viết bằng mã `\M+` được đọc, nhưng chưa được đối chiếu với tệp từ chương trình khác.
-- Nền PDF: ảnh bên trong trang hiện trên màn hình nhưng không được in, bản in của một trợ lý bỏ qua nền, và cách các chương trình khác đọc phần cắt xén và tỷ lệ đã lưu chưa được kiểm tra trong chúng.
-- Lịch sử: CadCraft chưa gửi các bản lưu của nó lên đám mây, nên các phiên bản đám mây là những bản lưu từ thiết bị khác và từ web. Lịch sử chỉ có trong CadCraft Studio.
-- Việc Studio có giữ thư mục hỗ trợ acad.lsp sau khi khởi động lại hay không chưa được kiểm tra; nếu nó hỏi, hãy chọn lại thư mục trong APPLOAD.
-- Bảng Laser chưa được thử trên máy laser thật: hãy thử mọi cài đặt trên vật liệu thừa. CadCraft Studio không có Web Serial, nên trong Studio bảng chỉ lưu G-code.
-- Việc đăng ký bản quét đã được thử trên các bản quét tự tạo, chưa thử trên bộ quét từ máy quét thật.
-- Việc di chuyển khung nhìn bằng hai ngón tay đã được thử với sự kiện bàn di chuột mô phỏng, chưa thử trên bàn di chuột thật.
-- {{cmd:PEDIT}} không có tùy chọn Edit vertex (dùng grip hoặc Thuộc tính). Dời song song, cắt, kéo dài, bo góc, ngắt và nối chưa nhận spline; chiều cao (Z) của spline không được giữ.
-- Văn bản đoạn mới chưa gán được mã định dạng, và bản in SVG hiện văn bản có định dạng bằng một màu.
-- Tùy chọn Entire drawing của WBLOCK chỉ ghi mô hình, không ghi các tờ. Kiểu kích thước hiện hành không được lưu trong tệp: bản vẽ mở ra với Standard là hiện hành.
-- Các kiểu menu dải lệnh chưa có danh sách lớp, màu hay kiểu đường: hãy dùng bảng {{ui:Lớp}} và {{ui:Thuộc tính}}.
-- Đám điểm vẫn chưa được lưu trong bản vẽ hay in, và tệp E57 mở được đến 6 triệu điểm và 512 MB.
-- Các tệp DWG đã lưu của CadCraft chưa được kiểm tra trong chính AutoCAD.
+- **0.8 và 0.8.1 chưa được ký mã.** Windows có thể cảnh báo (chọn {{ui:Thêm thông tin}}, rồi {{ui:Vẫn chạy}}); trên Mac, nhấp chuột phải vào CadCraft Studio và chọn {{ui:Mở}}. Các bản phát hành lên cửa hàng ứng dụng đang tạm dừng, và bản dựng cho iPad và iPhone chưa được dựng lại cho 0.8.1.
+- **Nét bút phác thảo và ảnh phác thảo** mới chỉ được thử với ảnh giả lập và chuột, chưa thử với bút thật, màn hình cảm ứng hoặc nét phác tay trên giấy.
+- **Vẽ không cần nhìn** mới được kiểm tra bằng các bước kiểm tra tự động, chưa kiểm tra với trình đọc màn hình hoặc người thử nghiệm khiếm thị.
+- **Chia sẻ chi tiết** chưa được hai người kiểm tra, và thư mục Tài liệu là thư mục của gói Team Cloud Plan chưa được xây dựng.
+- **Gộp** hoạt động với tệp DWG và DXF của CadCraft; tệp của các ứng dụng khác chưa được xây dựng.
+- **Hoàn tác giữa các cửa sổ:** CadCraft báo cáo từng bước đã hoàn tất, nhưng Studio chưa có một lệnh Hoàn tác chung cho mọi ứng dụng; mỗi ứng dụng hoàn tác các bước của chính nó.
+- **Đối tượng OLE của một DWG** được giữ lại nhưng chưa được vẽ tại chỗ.
+- **Đọc bảng kiểu nét in (tệp CTB)** từ các chương trình khác đã được xây dựng nhưng chưa được kiểm tra với một tệp từ chương trình khác.
+- **Kết nối trợ lý AI:** kết nối một chạm trong Studio, trình kết nối lưu trữ cho AI trên trình duyệt, khóa API riêng của bạn bên trong Studio và gói MCP đã công bố chưa được hứa trong bản phát hành này.
 
-Mọi thứ còn lại nằm trong [Chưa xây dựng](topic:not-built-yet).
+Về phiên bản trước, xem [Có gì mới trong 0.7](topic:whats-new-0-7).

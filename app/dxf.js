@@ -28,6 +28,10 @@ import { keptFromDxf, SOLID_TYPES } from './acis-cad.js';   // 0.7 D7.25: other 
 import { fromFile as splineFromFile, polyline as splinePolyline, valid as splineValid } from './spline.js';
 import { hasFormatting, plainOf } from './mtext.js';
 import { underlayParts } from './pdfmodel.js';   // PDF underlays (0.7 D7.24)
+
+/** Append every item of `items` to `arr`. `arr.push(...items)` puts each item on the call stack and throws
+ *  "Maximum call stack size exceeded" from about 70,000 entities (a 15 MB DXF): 0.9 FX.142. */
+function pushAll(arr, items) { for (let i = 0; i < items.length; i++) arr.push(items[i]); return arr; }
 import { TAU, normAngle, ellipsePoints, rad, deg, textLayout, mMul, mTranslate, mRotate, mApply, viewportCorners, explodeEntity, entityBounds, emptyBounds, validBounds, clipInfinite, attdefHidden, vpModelCentre, vpDcsCentre } from './geom.js';
 import { t } from './i18n.js';
 import { readDxfModel } from './dxf-model.js';
@@ -46,7 +50,7 @@ import { dimGeometry, dimTextPoint, dimLinePoints, angularFromLines, DIM_DEFAULT
 import { matchPaper } from './sheets.js';
 import { forFile3d, read3dText, read3dView, isM3dBlock, M3D_BLOCK, split3d } from './model3d.js';
 import { vportRecords, vportsFrom } from './dwg-vports.js';
-import { trFrom, trWord, propsFromXdata, propsXdata, stFromCodes, stFromVars, ccDimFrom, dstyleItems, ccDimItems, dimstylePairs } from './dwg-props.js';
+import { trFrom, trWord, propsFromXdata, propsXdata, stFromCodes, stFromVars, ccDimFrom, dstyleItems, ccDimItems, r12DimstyleItems } from './dwg-props.js';
 import { pictureRefs } from './pictures.js';
 import { clipFromFilter } from './xclip.js';
 import { planMatrix, toPlan, isFlipped } from './ocs.js';   // 0.6 DF.1: objects in their own coordinate system
@@ -54,6 +58,8 @@ import { planMatrix, toPlan, isFlipped } from './ocs.js';   // 0.6 DF.1: objects
 const UNITS = { 0: '', 1: 'inches', 2: 'feet', 3: 'miles', 4: 'millimeters', 5: 'centimeters', 6: 'meters', 7: 'kilometers', 8: 'microinches', 9: 'mils', 10: 'yards' };
 const UNIT_CODES = Object.fromEntries(Object.entries(UNITS).filter(([, v]) => v).map(([k, v]) => [v, +k]));
 /** Dimension variables: DXF group code (DIMSTYLE table and ACAD DSTYLE overrides) → style key. */
+/** Dimension style extras R12 has no variable for: one POINT per style, CADCRAFT xdata strings "CCDIMNAME:<style name>" then "CCDIMST:…" (0.9 FX.130). */
+const DIMSTYLES_BLOCK = 'CADCRAFT_DIMSTYLES', DIMNAME_TAG = 'CCDIMNAME:';
 const DIMVAR_CODES = { 40: 'scale', 41: 'asz', 42: 'exo', 43: 'dli', 44: 'exe', 140: 'txt', 147: 'gap', 77: 'tad', 78: 'zin', 271: 'dec', 179: 'adec', 277: 'lunit', 270: 'unit' };
 const HEADER_DIMVARS = { $DIMSCALE: 'scale', $DIMASZ: 'asz', $DIMEXO: 'exo', $DIMDLI: 'dli', $DIMEXE: 'exe', $DIMTXT: 'txt', $DIMGAP: 'gap', $DIMTAD: 'tad', $DIMZIN: 'zin', $DIMDEC: 'dec', $DIMADEC: 'adec', $DIMLUNIT: 'lunit', $DIMUNIT: 'unit' };
 
@@ -97,7 +103,7 @@ export function readDxf(text) {
       if (name === 'HEADER') readHeader();
       else if (name === 'TABLES') readTables();
       else if (name === 'BLOCKS') readBlocks();
-      else if (name === 'ENTITIES') { const r = readEntityList(out.report, true); out.entities.push(...r.model); paperRaw = r.paper; }
+      else if (name === 'ENTITIES') { const r = readEntityList(out.report, true); pushAll(out.entities, r.model); paperRaw = r.paper; }
       else if (name === 'OBJECTS') readObjects();
       else skipSection();
     } else if (c === 0 && v.trim() === 'EOF') break;
@@ -157,10 +163,10 @@ export function readDxf(text) {
     for (const t of EXTRA_TYPES) delete out.report.skipped[t];
     const names = new Set(out.blocks.map((b) => b.name.toUpperCase()));
     for (const b of x.anon) if (!names.has(b.name.toUpperCase())) out.blocks.push(b);
-    out.entities.push(...x.model);
-    for (const [name, list] of x.blocks) out.blocks.find((b) => b.name.toUpperCase() === name.toUpperCase())?.entities.push(...list);
-    for (const [name, list] of x.layouts) out.layouts.find((l) => l.name === name)?.entities.push(...list);
-    out.report.notes.push(...x.notes);
+    pushAll(out.entities, x.model);
+    for (const [name, list] of x.blocks) { const b = out.blocks.find((b) => b.name.toUpperCase() === name.toUpperCase()); if (b) pushAll(b.entities, list); }
+    for (const [name, list] of x.layouts) { const l = out.layouts.find((l) => l.name === name); if (l) pushAll(l.entities, list); }
+    pushAll(out.report.notes, x.notes);
   }
 
   function skipSection() { while (i < pairs.length && !(at()[0] === 0 && at()[1].trim() === 'ENDSEC')) i++; i++; }
@@ -273,6 +279,15 @@ export function readDxf(text) {
         if (isStyleBlock(name)) { const ps = payloadFrom(ents); if (ps) out.plotStyles = ps; continue; }   // plot style tables (0.6 DC.14)
         if (isLaserBlock(name)) { const lz = laserFromPayload(ents); if (lz) out.laser = lz; continue; }   // the Laser panel's settings (0.7 SU.772)
         if (isAddonsBlock(name)) { const ad = addonsFromPayload(ents); if (ad) out.addons = ad; continue; }   // 0.8 AL.6
+        if (name.toUpperCase() === DIMSTYLES_BLOCK) {   // the styles' extras (0.9 FX.130); older files carry them as xdata in the DIMSTYLE record, read above
+          for (const e of ents) {
+            const strs = (e.cc || []).map((x) => decodeText(String(x)));
+            const nm = strs.find((x) => x.startsWith(DIMNAME_TAG));
+            const st = nm && dimStyles.get(nm.slice(DIMNAME_TAG.length).toUpperCase());
+            if (st) fixStyle(ccDimFrom(strs, st));
+          }
+          continue;
+        }
         if (isClassesBlock(name)) { const cl = classesFromPayload(ents); if (cl) out.classes = cl; continue; }   // classes (0.8 SU.912)
         if (isGeoBlock(name)) { geoOwn = geoFromPayload(ents); continue; }   // the coordinate system and map layers (0.6 GEO-DWG)
         if (isM3dBlock(name)) { const t = read3dText(ents); if (t) out.model3d = t; const v = read3dView(ents); if (v) out.view3d = v; continue; }   // CadCraft's 3D model and its view (model3d.js)
@@ -465,7 +480,7 @@ export function readDxf(text) {
       const lim = mn && mx ? { min: { x: +mn[10], y: +mn[20] }, max: { x: +mx[10], y: +mx[20] } } : null;
       out.layouts.push(fromList('Layout1', paperRaw, lim && lim.max.x > lim.min.x ? lim : null, guessUnit()));
     }
-    out.layouts.push(...own);
+    pushAll(out.layouts, own);
     if (out.layouts.length) out.report.layouts = out.layouts.length;
     if (out.views) out.views = out.views.filter((v) => !v.paper || out.layouts.length).map(({ paper, ...v }) => (paper ? { ...v, layout: out.layouts[0].name } : v));
     // AutoCAD never plots DEFPOINTS; CadCraft's own R12 files list their no-plot layers
@@ -1206,12 +1221,13 @@ export function writeDxf(doc) {
   for (const [n, s2] of doc.dimStyles || []) if (!/^standard$/i.test(n)) dimStyleOut.set(r12Name(n), s2);
   for (const e of everything) if (e.type === 'dim' && e.dimstyle && !/^standard$/i.test(e.dimstyle) && !dimStyleOut.has(r12Name(e.dimstyle))) dimStyleOut.set(r12Name(e.dimstyle), st);
   w(0, 'TABLE'); w(2, 'DIMSTYLE'); w(70, dimStyleOut.size);
+  const dimPts = [];   // what R12 has no variable for (decimals, arrowheads, …), for CadCraft: block CADCRAFT_DIMSTYLES, never xdata in the table (AutoCAD: "Unknown group 1001 for table")
   for (const [n, s2] of dimStyleOut) {
     w(0, 'DIMSTYLE'); w(2, n); w(70, 0);
-    for (const [code, v] of dimstylePairs(s2, { r12: true })) w(code, typeof v === 'string' ? encodeText(v) : Number.isInteger(v) && ![40, 41, 42, 43, 44, 45, 47, 48, 140, 142, 143, 144, 146, 147].includes(code) ? v : f(+v));
-    w(141, f(((s2.asz ?? st.asz) || 2.5) / 2));
-    const cc = ccDimItems(s2, { r12: true });   // what R12 has no variable for (decimals, arrowheads, …), for CadCraft
-    if (cc.length) { w(1001, 'CADCRAFT'); for (const [, v] of cc) w(1000, encodeText(v)); }
+    // every group R12 lists, in its order (a missing one is "Omitted group 4" in AutoCAD); strings are the only non-numbers
+    for (const [code, v] of r12DimstyleItems(s2, ((s2.asz ?? st.asz) || 2.5) / 2)) w(code, typeof v === 'string' ? encodeText(v) : Number.isInteger(v) && ![40, 41, 42, 43, 44, 45, 46, 47, 48, 140, 141, 142, 143, 144, 145, 146, 147].includes(code) ? v : f(+v));
+    const cc = ccDimItems(s2, { r12: true });
+    if (cc.length) dimPts.push([DIMNAME_TAG + n, ...cc.map(([, v]) => v)]);
   }
   w(0, 'ENDTAB');
   w(0, 'ENDSEC');
@@ -1226,6 +1242,9 @@ export function writeDxf(doc) {
     for (const d of attdefs || []) attribute('ATTDEF', { type: 'text', ...d, s: d.def || '' }, {}, d);
     w(0, 'ENDBLK'); w(8, '0');
   };
+  if (dimPts.length) block(DIMSTYLES_BLOCK, { x: 0, y: 0 }, [], () => {   // first, so the dimensions in the blocks after it read their styles whole
+    for (const strs of dimPts) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, encodeText(t)); }
+  });
   for (const b of doc.blocks.values()) {
     if (!blockNames.has(b.name)) continue;
     const link = isXrefRoot(b) && !b.entities.length ? b.xref.path || b.name : null;

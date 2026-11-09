@@ -1,111 +1,72 @@
 ---
-title: Perkara baharu dalam 0.7
-summary: Underlay PDF dan import PDF, lukisan imbasan dengan surih automatik, splin sebenar dengan SPLINE, SPLINEDIT dan PEDIT, pengurus gaya dimensi, teks yang mengekalkan pemformatannya, WBLOCK dan skala anda sendiri, pepejal 3D daripada program lain, pendaftaran imbasan, panel Laser, eksport USD, Sejarah dan cetakan dalam CadCraft Studio, lukisan pertama yang dipandu, bar alat di mana-mana sisi atau dalam beberapa baris, dan lebih banyak untuk pembantu AI.
-keywords: perkara baharu, apa yang baharu, nota keluaran, log perubahan, perubahan, 0.7, versi, ciri baharu, pdf, pdfattach, pdfimport, underlay, imbasan, scanattach, scantrace, surih, raster, rastersnap, splin, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, pemformatan, wblock, scalelistedit, senarai skala, acis, pepejal 3d, registerscans, daftar imbasan, icp, e57, las, laser, grbl, g-code, usd, usdout, sejarah, versi, bandingkan, cetak, pencetak, png, svg, gaya plot, jenis garisan, panduan, helaian rujukan pantas, peta arahan, kedudukan bar alat, baris bar alat, toolbardock, regen, regenall, pad jejak, leret, laman kod, sirilik, korea, cina, jepun, elektrik, rcd, p&id, pid, acad.lsp, acaddoc.lsp, folder sokongan, pembantu, mcp, unit, portugis
-from: b9258ca6
+title: Perkara baharu dalam 0.8 dan 0.8.1
+summary: Hantu yang melengkapkan lukisan anda, lakaran pen dan foto lakaran ditukar kepada geometri, helaian yang tersusun sendiri, butiran yang ditawarkan semasa melukis, GRIDMOVE dan AUTODIM, tag, fail mesra gabungan, markup ditukar kepada semakan, lukisan tanpa penglihatan, had lukisan, bearing, fon SHX, rajah daripada teks, dan pembetulan dalam 0.8.1.
+keywords: perkara baharu, apa yang baharu, nota keluaran, log perubahan, perubahan, 0.8, 0.8.1, versi, ciri baharu, autolengkap, hantu, tab, sketchfix, photosketch, autosheet, butiran, gridmove, autodim, tag, redline, gabungan, git, fossil, akses, lukisan tanpa penglihatan, pembaca skrin, had, bearing, aunits, shx, rajah, ole, sejarah, bandingkan, dalam perkataan, sifat, kaki dan inci, regang, bahasa, peranti input, masalah, live, pembantu
+from: 9dd82db5
 ---
 
-Ini ialah perkara yang berubah dalam CadCraft 0.7, berbanding 0.6. Banyak daripadanya diminta di Discord. Senarai ini dikumpulkan mengikut bidang, dengan yang paling penting dahulu.
+Ini yang berubah dalam CadCraft 0.8 dan 0.8.1, berbanding 0.7. 0.8 (1 November 2026) menambah pembantu lukisan yang berfungsi daripada lukisan anda sendiri, mengikut peraturan pada komputer anda dan tanpa model, dan 0.8.1 (2 November 2026) membetulkan pepijat yang dilaporkan selepasnya.
 
 ## Baharu
 
-### PDF dan lukisan imbasan
+### Lukisan yang melengkapkan fikiran anda
 
-- **Letakkan halaman PDF di bawah lukisan.** {{cmd:PDFATTACH}} (`PDFATT`) meletakkan halaman pada saiz sebenarnya atau skala yang anda taip. Snap ke garisnya, pudarkannya, jadikannya monokrom ({{cmd:PDFADJUST}}), klipkannya ({{cmd:PDFCLIP}}) dan tukar lapisan PDF itu sendiri ({{cmd:PDFLAYERS}}). Ia diplot sebagai garisan, isian dan teks, dan DWG atau DXF 2000 menyimpannya sebagai pautan kepada fail itu. Membuka PDF dengan {{ui:Buka}} bertanya sama ada hendak melampirkan atau mengimportnya. Lihat [Underlay PDF dan import PDF](topic:pdf-underlay).
-- **Tukar halaman PDF menjadi objek lukisan.** {{cmd:PDFIMPORT}} (`PDFIM`) membuat garisan, polygaris, bulatan, lengkok, hatch pepejal dan teks pada lapisan yang dinamakan mengikut PDF, pada saiz sebenar, skala yang ditaip, atau diskalakan daripada dua titik dan jarak sebenar, dalam satu langkah buat asal. Lihat [Import halaman](topic:pdf-underlay#import-a-page).
-- **Lukisan imbasan.** {{cmd:SCANATTACH}} membawa masuk PNG, JPEG atau TIFF (satu halaman atau semuanya) atau halaman PDF yang berupa gambar. Kemudian skalakannya daripada dua titik ({{cmd:SCANSCALE}}), jajarkannya ({{cmd:SCANALIGN}}), tegakkannya daripada garisan panjangnya sendiri ({{cmd:SCANDESKEW}}), jadikannya hitam dan putih serta buang bintik ({{cmd:SCANCLEAN}}), potongnya dan padamkan sebahagian daripadanya. Setiap langkah ialah satu langkah buat asal dan fail asal dikekalkan. Lihat [Lukisan imbasan dan surih](topic:scanned-drawings).
-- **Surih imbasan kepada garisan dan lengkok.** {{cmd:SCANTRACE}} melukis garisan imbasan sebagai garisan dan lengkok pada lapisan baharu, SCAN-TRACE, dengan toleransi yang anda tetapkan, dan membiarkan teks serta hatch seperti sedia ada. Laporan menyatakan apa yang dihasilkan dan apa yang ditinggalkan, dan ia bukan dakwaan bahawa hasilnya betul: semak dengan helaian. {{cmd:RASTERSNAP}} membolehkan snap objek mencari hujung, bucu dan persilangan imbasan. Tiada apa yang dihantar ke mana-mana dan tiada model terlatih digunakan. Lihat [Surih](topic:scanned-drawings#the-trace).
+- **Hantu menunjukkan apa yang seterusnya.** Tanpa arahan berjalan, hantu kelabu putus-putus menunjukkan apa yang dikatakan oleh corak lukisan anda sendiri sebagai seterusnya: kayu tegak seterusnya pada jarak yang sama, anak tangga seterusnya bagi sebuah tangga, dinding yang hilang bagi sebuah bilik. Tekan {{key:Tab}} untuk melukisnya sebagai satu langkah buat asal, atau {{key:Esc}} untuk mengetepikannya. Ia hanya melihat objek yang terbaharu, jadi ia kekal lancar pada lukisan yang besar. Matikan dalam {{ui:Tetapan}} › {{ui:CadCraft}} atau dengan {{cmd:AUTOCOMPLETE}} `Off`.
+- **Titik seterusnya semasa anda melukis garisan.** Di tengah-tengah {{cmd:LINE}} atau {{cmd:PLINE}}, hantu ialah titik seterusnya: anak tangga seterusnya, bucu keempat segi empat tepat, atau titik yang menutupnya. Dekatkan kursor kepadanya dan tekan {{key:Tab}}, seolah-olah anda telah mengklik di situ.
+- **Lakaran pen menjadi geometri tepat.** {{cmd:SKETCHFIX}}: lukis garisan kasar dengan pen, tetikus atau jari dan setiap satunya menjadi garisan, bulatan, lengkok, segi empat tepat atau polygaris yang kemas, disnap kepada apa yang sudah dilukis. Lihat [Lakar dengan pen dan dapatkan geometri tepat](topic:sketch-with-a-pen).
+- **Foto lakaran menjadi lukisan.** {{cmd:PHOTOSKETCH}} (`PSK`) mencari kertas dalam foto, meluruskan perspektif, menggunakan saiz kertas dan skala yang anda berikan, dan menjejak garisan pen ke atas satu lapisan bagi setiap warna pen. Tulisan tidak dijejak.
+- **Dimensikan mengikut peraturan.** {{cmd:AUTODIM}} (`ADIM`) membuat rantaian dimensi sepanjang sisi yang anda pilih, saiz keseluruhan, lebar bukaan, diameter lubang dan, dengan `Grid`, jarak grid. Ia tidak pernah mengulang dimensi yang sudah ada.
+- **Alihkan garisan grid dan set akan mengikutinya.** {{cmd:GRIDMOVE}} (`GM`): dinding yang berakhir pada garisan grid akan teregang bersamanya, dinding di sepanjangnya, tiang, bulatan dan tagnya turut beralih, dan dimensi di atasnya mengukur jarak yang baharu. Satu langkah buat asal.
 
-### Melukis dan menyunting
+### Helaian, butiran dan tag
 
-- **Splin sebenar.** {{cmd:SPLINE}} (`SPL`) melukis lengkung melalui titik atau daripada titik kawalan (darjah 1 hingga 5), dengan tangen hujung; {{cmd:SPLINEDIT}} (`SPE`) mengalih, menambah dan memadam titik suai atau titik kawalan, menetapkan berat, membuka, menutup, membalikkan, atau menukar splin menjadi polygaris. Splin daripada fail DWG dan DXF dibuka sebagai splin, dan DWG serta DXF 2000 menyimpannya sebagai splin. Lihat [Splin dan polygaris](topic:splines).
-- **PEDIT.** {{cmd:PEDIT}} (`PE`) menutup dan membuka polygaris, mencantumkan garisan dan lengkok kepadanya, menetapkan satu lebar, memadankan lengkung melalui bucu atau splin di sepanjangnya dan membatalkannya dengan Decurve, membalikkan, dan menyunting beberapa sekaligus. Lihat [Sunting polygaris](topic:splines#edit-a-polyline).
-- **WBLOCK.** {{cmd:WBLOCK}} (`W`) menulis blok, beberapa objek atau keseluruhan lukisan ke DWG atau DXF baharu yang hanya mengandungi lapisan, gaya dan blok yang digunakannya. Lihat [Tulis blok atau objek ke fail sendiri](topic:blocks#write-a-block-or-objects-to-a-file-of-their-own).
-- **REGEN dan REGENALL.** {{cmd:REGEN}} (`RE`) melukis semula tab yang anda sedang gunakan daripada lukisan, {{cmd:REGENALL}} (`REA`) setiap tab, anak tetingkap dan lukisan yang dibuka. Lihat [REGEN dan REGENALL](topic:commands#regen-and-regenall).
+- **Helaian yang tersusun sendiri.** {{cmd:AUTOSHEET}} mengambil pandangan bernama anda (atau bahagian berasingan model), memilih saiz kertas dan skala piawai, dan meletakkan pandangan pada helaian baharu dengan blok tajuk dan kapsyen nama dan skala. Semuanya kekal boleh disunting. Lihat [Susun helaian untuk saya](topic:lay-out-sheets-for-me).
+- **Butiran firma anda, ditawarkan semasa anda melukis.** {{cmd:DETAILS}} (`DET`) menyimpan blok butiran anda sendiri. Apabila apa yang anda pilih sepadan dengannya melalui perkataan pada lapisan, nama blok dan nota, bar status akan memaklumkannya; pilih dan letakkannya. {{cmd:DETAILS}} › Kongsi meletakkan senarai anda dalam folder Dokumen anda dan membawa masuk apa yang telah ditambah oleh pasukan anda. {{ui:Tetapan}} mematikan tawaran.
+- **Tag pada blok.** {{cmd:TAGS}} mentakrifkan tag (jenisnya, nilai yang boleh diambilnya, blok yang digunakan padanya), menetapkannya pada rujukan blok yang anda pilih, dan menyenaraikannya sebagai jadual yang boleh anda simpan sebagai CSV. Takrifan disimpan dalam DWG. Lihat [Tag](topic:tags).
+- **Had lukisan.** {{cmd:LIMITS}} menetapkan segi empat tepat untuk lukisan: grid memenuhinya dan zum Semua memaparkannya. Had dipaparkan sebagai garis luar dan disimpan dalam DWG dan DXF, bersama had kertas. Lihat [Tetapkan had lukisan](topic:drawing-limits).
 
-### Teks dan dimensi
+### Bekerja dengan orang lain dan program lain
 
-- **Teks mengekalkan pemformatannya.** Teks perenggan daripada program lain mengekalkan warnanya bagi setiap perkataan, tebal dan condong, garis bawah, pecahan bertindan dan ketinggian: ia dilukis pada skrin dan dalam PDF, dikekalkan apabila anda menyunting perkataan, dan disimpan semula. Lihat [Pemformatan dalam teks perenggan daripada program lain](topic:text#formatting-inside-paragraph-text-from-other-programs).
-- **Pengurus gaya dimensi.** {{cmd:DIMSTYLE}} (`D`) membuat, menukar, membandingkan dan menggunakan gaya dimensi yang dinamakan; menukar satu gaya menukar setiap dimensi yang menggunakannya. {{cmd:DIMEDIT}} (`DED`) mengembalikan teks, menaip teks baharu, memusingkannya atau mencondongkan garisan lanjutan; {{cmd:DIMTEDIT}} mengalihkan teks ke kiri, kanan atau ke tengah. Lihat [Gaya dimensi yang dinamakan](topic:dimension-settings#named-dimension-styles).
-- **Skala anda sendiri.** {{cmd:SCALELISTEDIT}} (`SCALELIST`) menambah skala seperti 1:75 pada senarai skala viewport dan plot; ia disimpan dalam lukisan (DWG dan DXF 2000), dan lukisan daripada program lain membawa senarainya sendiri. Lihat [Skala](topic:units-papers-scales#scales).
-- **Teks dalam abjad lain.** Fail DXF yang disimpan dalam laman kod Sirilik, Korea, Cina, Jepun atau Vietnam kini dibuka dengan teksnya, dan teks Cina, Jepun serta Korea dicetak dalam PDF (plot mengambil fon yang lebih besar kali pertama ia memerlukannya). Lihat [Fon](topic:text#font).
+- **Tukar markup menjadi semakan.** {{cmd:REDLINE}} membaca pakej yang ditulis oleh MarkupCraft dan menyenaraikan setiap perubahan. Terima atau tolak setiap satu dengan nota; yang diterima mendapat awan semakan dan log semakan dalam satu langkah buat asal, dan anda menyimpan fail jawapan yang menutup markup dalam MarkupCraft. Lihat [Tukar markup menjadi semakan](topic:redline-to-revision).
+- **Lukisan yang boleh digabungkan oleh git dan Fossil.** Dengan {{ui:Fail mesra gabungan}} dihidupkan dalam {{ui:Tetapan}} › {{ui:CadCraft}}, setiap objek mendapat kunci yang tidak pernah berubah (fail kira-kira 10 peratus lebih besar). `cadcraft merge base ours theirs` kemudian menggabungkan suntingan dua orang pada satu objek DWG atau DXF demi objek dan hanya melaporkan tempat dua orang mengubah perkara yang sama. Lihat [Gabungkan suntingan dua orang pada satu lukisan](topic:merge-drawings).
+- **Apa yang berubah, dalam perkataan.** Dalam {{ui:Sejarah}}, Bandingkan memberikan senarai yang mudah: di mana perkara berubah, sebesar mana kawasan itu, apa yang ditambah, dialih keluar atau diubah, dan teks yang disunting. Lihat [Nyatakan dalam perkataan apa yang berubah](topic:changes-in-words).
+- **Bearing dan sudut.** Taip arah sebagai bearing juruukur seperti N45°23'30"E, atau dalam darjah, minit dan saat, di mana-mana sahaja sudut diminta; AUNITS menetapkan cara sudut dipaparkan. Lihat [Taip dan paparkan bearing dan sudut](topic:bearings-and-angles).
+- **Fon SHX anda sendiri.** Berikan CadCraft folder fon SHX dan gaya teks yang menamakannya akan dilukis dengannya, pada skrin dan dalam plot. Lihat [Lukis teks dengan fon SHX anda sendiri](topic:shx-fonts).
+- **Rajah daripada teks.** {{cmd:DIAGRAM}} membaca carta alir Mermaid, rajah komponen PlantUML, D2 atau senarai dari-ke dan melukis blok serta penyambung yang boleh anda sunting. Lihat [Lukis rajah daripada teks](topic:text-to-diagram).
+- **Objek OLE dalam DWG.** {{cmd:OLELIST}} menyenaraikan objek OLE yang dibawa oleh DWG dan yang CadCraft tidak dapat letakkan sendiri, dan meletakkan salinan gambar di tempat yang anda nyatakan. Lihat [Gambar](topic:pictures#objects-from-other-programs-ole).
+- **Pengiraan anda kekal bersama lukisan.** Helaian kira dan sebab reka bentuk disimpan dalam DWG bersama jadual kelas.
 
-### Plot dan cetakan
+### Lukisan tanpa penglihatan
 
-- **Lebih banyak dalam jadual gaya plot.** Bagi setiap warna, jadual kini juga boleh menetapkan jenis garisan, hujung garisan dan sambungan garisan, serta gaya isian yang mencetak isian pepejal sebagai garisan hatch; jadual itu mempunyai senarai ketebalan garisannya sendiri dan skala jenis garisan. Lihat [Jadual gaya plot](topic:plot-pdf#plot-style-tables).
-- **Cetak, dan fail PNG serta SVG.** Kotak dialog Plot mempunyai {{ui:Cetak…}}, {{ui:Muat turun PNG}} (300 dpi) dan {{ui:Muat turun SVG}}. Dalam CadCraft Studio ia menyenaraikan pencetak komputer, kertasnya dan bilangan salinan. Lihat [Cetak](topic:plot-pdf#print) dan [Fail gambar dan SVG](topic:plot-pdf#picture-and-svg-files).
+- Hidupkan {{ui:Lukisan tanpa penglihatan}} dalam {{ui:Tetapan}} (atau taip {{cmd:ACCESS}} dan jawab `On`). CadCraft menyebut setiap arahan dan hasil melalui pembaca skrin anda, menerangkan lukisan dan apa yang berdekatan kursor, membolehkan anda menggerakkan kursor dan memilih titik dengan papan kekunci, dan memainkan bunyi bagi setiap snap dan grip. Jika pelayar anda boleh mengenali pertuturan pada komputer anda, arahan boleh dituturkan. Lihat [Lukis tanpa penglihatan](topic:draft-without-sight).
 
-### 3D dan awan titik
+### Dalam setiap aplikasi
 
-- **Pepejal 3D daripada program lain.** Pepejal, rantau dan jasad dalam ruang model lukisan dipaparkan pada tab 3D, baca sahaja, dan menyimpan sebagai DWG menulisnya semula tanpa diubah. Muka pada permukaan yang CadCraft belum lukis disenaraikan, bukan diagak. Lihat [Pepejal daripada program lain](topic:3d-solids#solids-from-other-programs).
-- **Daftar beberapa imbasan.** {{cmd:REGISTERSCANS}} (`REGSCAN`) meletakkan imbasan yang diambil dari kedudukan berbeza dalam satu bingkai, mengikut pasangan titik atau koordinat sasaran yang ditaip, memperhalusinya dengan ICP, menyimpan pendaftaran sebagai fail projek kecil, dan menulis awan yang didaftarkan sebagai satu fail LAS atau E57. Lihat [Daftar beberapa imbasan menjadi satu](topic:register-scans).
-- **Eksport USD.** {{cmd:USDOUT}}, atau {{cmd:EXPORT3D}} › {{ui:USD}}, menulis pepejal tab 3D sebagai `.usda`, `.usdc` atau `.usdz`. Lihat [Eksport model 3D sebagai USD](topic:usd).
-- **Pengiraan pada tab 3D.** Di mana alat tab 3D meminta jarak, anda boleh menaip pengiraan, seperti pada baris arahan. Lihat [Aritmetik dalam nilai yang ditaip](topic:coordinate-entry#arithmetic-in-a-typed-value).
+- **Bahasa.** 54 bahasa; sepuluh baharu (Lituania, Latvia, Bosnia, Marathi, Telugu, Albania, Afrikaans, Filipino, Swahili, Uzbek). Bahasa selain Inggeris ialah draf mesin sehingga penutur asli membacanya.
+- **Peranti input.** Pad jejak, pen, tetikus 3D, pengawal permainan dan kawalan MIDI.
+- **Baris bar alat dan grid sifat.** {{ui:Tetapan}} › {{ui:Umum}} › {{ui:Baris bar alat}} menawarkan Balut, 2 baris atau 1 baris dalam aplikasi lain. CadCraft menyimpan tetapannya sendiri dalam {{ui:Tetapan}} › {{ui:CadCraft}} (lihat [Baris bar alat](topic:settings#toolbar-rows)). Grid sifat yang dikongsi terdapat dalam tiga aplikasi lain, bukan dalam CadCraft.
+- **Masalah, Live dan add-on.** Panel Masalah dikongsi yang memberi amaran dalam setiap aplikasi, paparan Live tentang siapa berada di mana dalam CadCraft Studio (lihat [Bekerja pada satu lukisan bersama](topic:work-live)), dan senarai add-on.
+- **Sambungkan AI anda.** Satu sambungan dari CadCraft Studio ke kesemua lapan aplikasi, dengan tahap baca sahaja, cadang atau sunting bagi setiap aplikasi dan log dalam bahasa mudah tentang apa yang dilakukan pembantu. CadCraft tidak mempunyai AI sendiri, dan Tanya dalam setiap aplikasi menggunakan AI yang anda sambungkan.
 
-### Membuat sesuatu
+## Diperbaiki dalam 0.8.1
 
-- **Hantar lukisan ke laser.** {{cmd:LASER}}, atau {{ui:Pandangan}} › {{ui:Lagi}} › {{ui:Laser…}}, membuka panel di atas lukisan: setiap lapisan dipotong, dicalar, mengukir garisan, mengisi bentuk, mengukir gambar atau tidak dihantar, dengan kuasa, kelajuan dan laluannya. Pratonton mengikut suntingan anda, {{ui:Simpan G-code…}} menulis G-code mod laser GRBL, dan dalam Chrome atau Edge panel itu boleh membingkaikan kerja dan menghantarnya melalui USB. Tetapan disimpan dalam lukisan (DWG dan DXF). Lihat [Hantar lukisan ke laser](topic:laser-cutting).
-- **Simbol pemasangan bangunan dalam add-on Elektrik.** Soket data, telefon dan TV, suis kunci dan masa, termostat, tanda keluar, pengesan, titik panggilan dan penggera, kipas, pemanas air, dapur, titik cas EV, meter tenaga dan sub-papan, serta simbol RCD dan RCBO. Satu litar boleh membawa RCD, jadual panel mempunyai lajur RCD, dan semakan menamakan litar soket tanpa RCD 30 mA atau kurang. Ia ialah peringatan perancangan, bukan semakan kod.
-- **Add-on P&ID.** P&ID melukis gambar rajah proses: simbol dengan titik sambungan, garisan proses dan isyarat, tag, nombor garisan, senarai garisan, peralatan, instrumen dan injap (CSV atau buku kerja) serta semakan. Ia disertakan bersama CadCraft dan dimatikan sehingga anda menghidupkannya dalam {{ui:Tetapan}} › {{ui:Umum}} › {{ui:Add-on}}. Ia alat bantuan lukisan, bukan kelulusan kejuruteraan, dan perkataannya dalam Bahasa Inggeris sahaja buat masa ini.
-
-### Bermula dan skrin
-
-- **Lukisan pertama yang dipandu.** {{cmd:TOUR}} (atau {{ui:Ikuti panduan}} pada kad mula) membimbing anda melalui enam langkah dalam lukisan sebenar: garisan, bulatan, alih, pangkas, padam dan dimensi. Ia bermula sendiri kali pertama CadCraft dibuka tanpa apa-apa di dalamnya. Lihat [Lebih suka dipandu?](topic:getting-started#prefer-to-be-guided)
-- **Helaian rujukan pantas dan peta arahan.** [Helaian rujukan pantas](topic:cheat-sheet) mempunyai 40 arahan harian dalam satu halaman, juga sebagai PDF untuk dicetak, dan [peta arahan](topic:command-map) menyenaraikan arahan dengan nama pendeknya, A hingga Z.
-- **Bar alat di mana-mana sisi.** {{ui:Tetapan}} › {{ui:CadCraft}} › {{ui:Kedudukan bar alat}}: atas (seperti sebelum ini), bawah, kiri atau kanan, atau taip {{cmd:TOOLBARDOCK}}. Lihat [Kedudukan bar alat](topic:settings#toolbar-position).
-- **Baris bar alat.** {{ui:Tetapan}} › {{ui:CadCraft}} › {{ui:Baris bar alat}}: balut mengikut muat, 2 baris atau 1 baris, untuk bar alat CadCraft dan gaya Drafting klasik dan Reben. {{key:Shift+Ctrl+F1}} bertukar antara baris, {{key:Ctrl+F1}} antara apa yang ditunjukkan butang, dan {{cmd:TOOLBARROWS}} serta {{cmd:TOOLBAR}} menetapkannya. Petunjuk mula mempunyai butang tutup. Terima kasih kepada GJoe2, yang menghantar ini sebagai permintaan tarik (pull request). Lihat [Baris bar alat](topic:settings#toolbar-rows).
-
-### Dalam CadCraft Studio
-
-- **Sejarah.** {{cmd:HISTORY}} (`HIST`), atau {{ui:Pandangan}} › {{ui:Lagi}} › {{ui:Sejarah…}}: salinan yang Studio simpan apabila anda membuka dan menyimpan lukisan, dan versi awan lukisan apabila anda membukanya daripada awan. Buka atau pulihkan satu, atau bandingkan dua, dengan apa yang ditambah, dialih keluar dan diubah ditunjukkan dalam warna. Lihat [Sejarah](topic:history).
-- **acad.lsp dan acaddoc.lsp.** Pilih folder sokongan dalam {{cmd:APPLOAD}}: kedua-dua fail itu dimuatkan apabila CadCraft bermula (acaddoc.lsp sekali lagi bagi setiap tab lukisan baharu), dan `S::STARTUP` dijalankan selepasnya. Lihat [Muat aplikasi](topic:load-applications#load-acadlsp-and-acaddoclsp-from-a-support-folder-studio).
-- **Kotak dialog Plot dalam tetingkapnya sendiri.** Satu butang pada bar tajuknya memindahkannya ke tetingkap yang boleh anda letakkan pada monitor lain. Lihat [Alih kotak dialog](common:arrange-panels#move-a-dialog).
-
-### Untuk pembantu AI
-
-- **Fail mengikut nama, dalam folder yang anda pilih.** Dalam CadCraft Studio pembantu boleh membuka, menyimpan dan memplot fail mengikut nama, dan memberikan arahan fail yang diminta (INSERT daripada fail, eksport COUNT, SAVEAS, PLOT), tetapi hanya di dalam folder yang anda tambah di bawah {{ui:Tetapan}} › {{ui:CadCraft}} › {{ui:Pembantu}} › {{ui:Folder yang boleh digunakannya}}. Lihat [Benarkan ia menggunakan fail dalam folder yang anda pilih](topic:use-with-ai-assistants#let-it-use-files-in-folders-you-choose).
-- **Panggilan yang lebih sedikit.** Pembantu boleh menaip keseluruhan baris arahan sekaligus, mengekalkan arahan terbuka antara panggilannya, mengira objek mengikut jenis dan lapisan tanpa menyenaraikannya, dan meletakkan blok dengan nilai atributnya dalam satu langkah.
-- **Tanpa tetingkap.** Baris arahan `cadcraft` menulis plot SVG dan menukar, memplot, menyemak atau menerangkan banyak fail sekaligus. Pakej MCP belum diterbitkan lagi. Lihat [Bekerja pada fail tanpa membuka CadCraft](topic:use-with-ai-assistants#work-on-files-without-opening-cadcraft).
-
-## Diubah
-
-- **Pad jejak melakukan pan.** Alihkan dua jari pada pad jejak dan paparan 2D mengikutinya; cubit dan roda tetikus untuk zum. Lihat [Tetikus, pad jejak dan sentuh](topic:mouse-trackpad-touch).
-- **Objek OLE dikekalkan.** Objek terbenam DXF dipaparkan sebagai gambarnya atau sebagai bingkai berlabel dan disimpan semula oleh DXF 2000. Objek DWG dikekalkan dan ditulis semula apabila anda menyimpan sebagai DWG, tetapi belum ditunjukkan. Sebelum ini, ia hilang semasa simpanan. Lihat [Objek daripada program lain (OLE)](topic:pictures#objects-from-other-programs-ole).
-- **Unit lukisan baharu** mengikut unit yang anda tandakan dengan bintang dalam {{ui:Tetapan}} › {{ui:Umum}} › {{ui:Unit}}.
-
-## Dibetulkan
-
-- Layout yang dibuka kosong, atau kehilangan viewport dan menunjukkan keseluruhan model di tempatnya, kini dibuka dengan viewport sebenar. Layout tanpa pautan kepada kandungannya dikekalkan dan laporan buka menyatakannya.
-- Fail DXF dalam laman kod lama menunjukkan teks Sirilik dan Korea yang rosak. Kini ia dibaca dengan betul.
-- Teks perenggan daripada program lain kehilangan pemformatannya apabila dibuka dan disimpan semula sebagai teks biasa.
-
-## Dalam setiap aplikasi
-
-- **Unit.** {{ui:Tetapan}} › {{ui:Umum}} › {{ui:Unit}} mempunyai satu senarai bagi setiap panjang, luas, isi padu, sudut dan kecerunan, dengan saiz tepat yang diberikan oleh takrif unit (kaki tinjauan AS ialah unitnya sendiri). Matikan unit yang tidak pernah anda gunakan dan ia keluar daripada senarai unit; tandakan satu dengan bintang dan kerja baharu bermula dalamnya. Sebuah fail sentiasa mengekalkan unitnya sendiri. Dalam CadCraft, bintang menetapkan unit lukisan baharu apabila ia ialah unit yang boleh dibawa oleh lukisan; kotak {{ui:Unit}} milik CadCraft sendiri belum mengikut suis. Apabila lukisan mempunyai unit, panjang yang anda taip boleh membawa tanda mana-mana unit. Lihat [Unit, nilai yang ditaip dan senarai unit](common:unit-lists).
-- **Layout lebih padat dan panel yang boleh dikemas simpan.** {{ui:Tetapan}} › {{ui:Umum}} › {{ui:Ketumpatan reka letak}} › {{ui:Padat}} memuatkan lebih banyak pada skrin (skrin sentuh dan telefon mengekalkan butang besarnya). Setiap panel sisi mempunyai bar tajuk yang nipis: seret untuk melekapkan atau menerapungkan panel, lepaskan pada bar panel lain untuk berkongsi satu bingkai sebagai tab, pin untuk menggelongsor ke tepi, atau sorokkan dan bawa balik dari tepi. Lihat [Susun panel](common:arrange-panels#make-the-layout-denser).
-- **Kotak dialog boleh dialihkan.** Seret kotak dialog mengikut bar tajuknya ke luar daripada lukisan; ia kembali di tempat anda meninggalkannya. Klik dua kali bar tajuk untuk meletakkannya di tengah semula. Lihat [Alih kotak dialog](common:arrange-panels#move-a-dialog).
-- **Resipi untuk pembantu AI.** Sepuluh permintaan yang telah dikerjakan untuk pembantu anda sendiri (kemaskan lukisan, plot satu set, semak lukisan, tanya model soalan, jumlahkan pengukuran kuantiti, cuba varian bahagian…), setiap satu dengan alat yang dipanggilnya dan kebenaran yang diperlukannya, dan setiap satu dimainkan semula oleh ujian kami. Aplikasi tidak mengandungi AI. Lihat [Resipi untuk pembantu AI](common:assistants-recipes).
-- **Bahasa.** **Português (Portugal)** ialah baharu dalam {{ui:Tetapan}} › {{ui:Umum}} › {{ui:Bahasa}}. Ia, **Português (Brasil)**, **Español (México)** dan **Bahasa Indonesia** kini mempunyai setiap perkataan aplikasi, sebagai draf yang belum disemak oleh penutur asli. Topik bantuan dalam Bahasa Inggeris.
-- **CadCraft Studio** memberitahu sebab semakan kemas kini gagal (belum ada fail untuk sistem anda, tiada rangkaian, tandatangan rosak) dan bukannya hanya "Selesai", dan berhenti memaparkan semula kad Perkara baharu yang anda tutup sehingga ada keluaran yang lebih baharu.
+- **Sifat menunjukkan 150 dan bukannya 12'-6"** dalam lukisan kaki dan inci. Medan yang dibaca sendiri oleh aplikasi mengekalkan teksnya semula.
+- **Fail DWG yang bahagian kelasnya dibaca sebagai jenis yang salah** (GitHub cadcraft#5) kini dibuka dengan betul.
+- **Silang tidak lagi dipaparkan di belakang tetingkap timbul.**
+- **Studio dan edisi berpek boleh menukar bahasa semasa larian.** Sebelum ini, hanya Inggeris. Belum diuji pada setiap platform: beritahu kami jika bahasa tidak berubah.
+- **Tablet dalam potret** memberikan ruang tinggi grid tambahan kepada kanvas, dan mod helaian bermula pada 760 px atau kurang.
+- **STRETCH dengan tetingkap silang, dan LIMITS,** telah dilaporkan pada Studio 0.8.0 dan sudah betul dalam binaan web 0.8; pemasang pelapor adalah lebih lama. Studio 0.8.1 membawanya.
 
 ## Belum ada dalam versi ini
 
-- **0.7 tidak ditandatangani kod.** Penandatanganan, dan pakej Microsoft Store, dipindahkan ke 0.8 kerana pengesahan sijil belum selesai. Semak SHA-256 di sebelah setiap fail pada getcadcraft.com/download. Pada Windows, jika SmartScreen menghentikan pemasang, pilih {{ui:Maklumat lanjut}}, kemudian {{ui:Jalankan juga}}. Pada Mac, kali pertama, klik kanan CadCraft Studio dan pilih {{ui:Buka}}. CadCraft Studio belum berada dalam kedai aplikasi, dan belum ada binaan iPad atau iPhone.
-- Senarai sudut dan kecerunan dalam {{ui:Unit}} disimpan, tetapi belum ada kotak yang membacanya.
-- Objek OLE DWG dikekalkan tetapi tidak ditunjukkan, dan gambar metafail dalam objek OLE tidak dilukis.
-- Membaca jadual gaya plot (fail CTB) daripada program lain menunggu fail sampel.
-- Teks Asia lama yang ditulis sebagai kod `\M+` dibaca, tetapi belum disemak dengan fail daripada program lain.
-- Underlay PDF: gambar dalam halaman dipaparkan pada skrin tetapi tidak diplot, plot pembantu mengecualikan underlay, dan cara program lain membaca klip dan skala yang disimpan belum disemak dalam program tersebut.
-- Sejarah: CadCraft belum menghantar simpanannya ke awan, jadi versi awan ialah yang disimpan daripada peranti dan web lain. Sejarah hanya ada dalam CadCraft Studio.
-- Sama ada Studio mengekalkan folder sokongan acad.lsp selepas dimulakan semula belum disemak; jika ia bertanya, pilih folder semula dalam APPLOAD.
-- Panel Laser belum diuji pada laser sebenar: uji setiap tetapan pada bahan buangan. CadCraft Studio tiada Web Serial, jadi dalam Studio panel hanya menyimpan G-code.
-- Pendaftaran imbasan telah diuji pada imbasan rekaan, belum lagi pada set pengimbas sebenar.
-- Pan dua jari telah dicuba dengan peristiwa pad jejak simulasi, belum lagi pada pad jejak sebenar.
-- {{cmd:PEDIT}} tidak mempunyai pilihan Edit vertex (gunakan grip atau {{ui:Sifat}}). Ofset, pangkas, panjangkan, fillet, pecah dan cantum belum menerima splin; ketinggian splin (Z) tidak dikekalkan.
-- Teks perenggan baharu belum boleh diberikan kod pemformatan, dan plot SVG menunjukkan teks yang diformat dalam satu warna.
-- Seluruh lukisan WBLOCK hanya menulis model, bukan helaian. Gaya dimensi semasa tidak disimpan dalam fail: lukisan dibuka dengan Standard sebagai semasa.
-- Gaya menu reben belum mempunyai senarai lapisan, warna atau jenis garisan: gunakan panel {{ui:Lapisan}} dan {{ui:Sifat}}.
-- Awan titik masih tidak disimpan dalam lukisan atau diplot, dan fail E57 dibuka sehingga 6 juta titik dan 512 MB.
-- Fail DWG yang disimpan CadCraft belum disemak dalam AutoCAD sendiri lagi.
+- **0.8 dan 0.8.1 tidak ditandatangani kod.** Windows mungkin memberi amaran (pilih {{ui:Maklumat lanjut}}, kemudian {{ui:Tetap jalankan}}); pada Mac, klik kanan CadCraft Studio dan pilih {{ui:Buka}}. Binaan Store ditangguhkan, dan binaan iPad serta iPhone belum dibina semula untuk 0.8.1.
+- **Lakaran pen dan foto lakaran** hanya dicuba pada foto rekaan dan tetikus, belum dengan pen sebenar, skrin sentuh atau lakaran tangan di atas kertas.
+- **Lukisan tanpa penglihatan** telah diuji dengan semakan automatik, belum dengan pembaca skrin atau penguji yang tidak dapat melihat.
+- **Perkongsian butiran** belum disemak oleh dua orang, dan folder Pelan Awan Pasukan sebagai folder Dokumen belum dibina.
+- **Penggabungan** berfungsi untuk fail DWG dan DXF CadCraft; bagi fail aplikasi lain, belum dibina.
+- **Buat asal merentas tetingkap:** CadCraft melaporkan setiap langkah yang selesai, tetapi Studio belum mempunyai satu Buat asal untuk semua aplikasi; setiap aplikasi membuat asal langkahnya sendiri.
+- **Objek OLE DWG** disimpan tetapi tidak dilukis di tempatnya.
+- **Pembacaan jadual gaya plot (fail CTB)** daripada program lain telah dibina tetapi belum disemak dengan fail daripada program lain.
+- **Sambungkan AI anda:** sambungan satu klik dalam Studio, penyambung dihoskan untuk AI pelayar, kunci API anda sendiri dalam Studio dan pakej MCP yang diterbitkan tidak dijanjikan dalam keluaran ini.
 
-Yang lain terdapat dalam [Belum dibina](topic:not-built-yet).
+Untuk versi sebelum ini, lihat [Perkara baharu dalam 0.7](topic:whats-new-0-7).

@@ -1,111 +1,72 @@
 ---
-title: Újdonságok a 0.7-ben
-summary: PDF-aláképek és PDF-importálás, beolvasott rajzok automatikus nyomkövetéssel, valódi spline-ok a SPLINE, SPLINEDIT és PEDIT paranccsal, méretezési stílus kezelő, formázását megtartó szöveg, WBLOCK és saját léptékek, 3D testek más programokból, letapogatások regisztrálása, Lézer panel, USD-exportálás, Előzmények és nyomtatás a CadCraft Studióban, vezetett első rajz, az eszköztár bármely oldalon vagy kevesebb sorban, valamint további lehetőségek az MI-asszisztensekhez.
-keywords: újdonságok, kiadási jegyzet, változásnapló, változások, 0.7, verzió, új funkciók, pdf, pdfattach, pdfimport, alákép, beolvasás, scanattach, scantrace, nyomkövetés, raszter, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formázás, wblock, scalelistedit, léptéklista, acis, 3d testek, registerscans, letapogatások regisztrálása, icp, e57, las, lézer, grbl, g-kód, usd, usdout, előzmények, verziók, összehasonlítás, nyomtatás, nyomtató, png, svg, plottolási stílus, vonaltípus, bemutató, puska, parancstérkép, eszköztár helye, eszköztársorok, toolbardock, regen, regenall, trackpad, elhúzás, kódlap, cirill, koreai, kínai, japán, elektromos, rcd, p&id, pid, acad.lsp, acaddoc.lsp, támogatási mappa, asszisztensek, mcp, mértékegységek, portugál
-from: b9258ca6
+title: Újdonságok a 0.8 és 0.8.1 verzióban
+summary: Szellemkép, amely befejezi a rajzot, tollas vázlatok és vázlatfotók geometriává alakítva, magukat elrendező lapok, rajzolás közben felajánlott részletek, GRIDMOVE és AUTODIM, címkék, egyesítésbarát fájlok, jelölésekből revíziók, rajzolás látás nélkül, rajzhatárok, irányszögek, SHX betűtípusok, diagramok szövegből, és javítások a 0.8.1 verzióban.
+keywords: újdonságok, what's new, kiadási jegyzetek, változásnapló, változások, 0.8, 0.8.1, verzió, új funkciók, automatikus kiegészítés, szellemkép, tab, sketchfix, photosketch, autosheet, részletek, gridmove, autodim, címkék, revízió, egyesítés, git, fossil, hozzáférés, rajzolás látás nélkül, képernyőolvasó, határok, irányszögek, aunits, shx, diagram, ole, előzmények, összehasonlítás, szavakban, tulajdonságok, láb és hüvelyk, nyújtás, nyelvek, beviteli eszközök, problémák, live, asszisztensek
+from: 9dd82db5
 ---
 
-Ez változott a CadCraft 0.7-ben a 0.6-hoz képest. Sokat közülük a Discordon kértek. A lista területenként csoportosított, a legfontosabbak elöl.
+Ez azt mutatja, mi változott a CadCraft 0.8 és 0.8.1 verziójában a 0.7-hez képest. A 0.8 (2026. november 1.) olyan rajzsegédeket ad, amelyek a saját rajzából dolgoznak, a számítógépen lévő szabályok alapján és modell nélkül, a 0.8.1 (2026. november 2.) pedig a megjelenés után jelentett hibákat javítja.
 
-## Újdonságok
+## Új
 
-### PDF-ek és beolvasott rajzok
+### Rajzolás, amely befejezi a gondolatot
 
-- **PDF-oldal a rajz alá.** A {{cmd:PDFATTACH}} (`PDFATT`) egy oldalt valódi méretben vagy a beírt léptékben helyez el. Fogjon a vonalaihoz, halványítsa el, tegye egyszínűvé ({{cmd:PDFADJUST}}), vágja ki ({{cmd:PDFCLIP}}), és kapcsolgassa a PDF saját rétegeit ({{cmd:PDFLAYERS}}). Vonalként, kitöltésként és szövegként plottolódik, a DWG vagy DXF 2000 pedig a fájlra mutató hivatkozásként őrzi meg. A PDF megnyitása a {{ui:Megnyitás}} paranccsal rákérdez, hogy csatolja vagy importálja. Lásd: [PDF-aláképek és PDF-importálás](topic:pdf-underlay).
-- **PDF-oldal átalakítása rajzobjektumokká.** A {{cmd:PDFIMPORT}} (`PDFIM`) vonalakat, polivonalakat, köröket, íveket, tömör sraffozásokat és szöveget készít a PDF után elnevezett rétegeken, valódi méretben, beírt léptékkel, vagy két pontból és egy valós távolságból skálázva, egyetlen visszavonási lépésben. Lásd: [Oldal importálása](topic:pdf-underlay#import-a-page).
-- **Beolvasott rajzok.** A {{cmd:SCANATTACH}} PNG-t, JPEG-et vagy TIFF-et (egy oldalt vagy mindet), illetve képként lévő PDF-oldalt hoz be. Utána két pontból lépték szerint beállítható ({{cmd:SCANSCALE}}), igazítható ({{cmd:SCANALIGN}}), a saját hosszú vonalaiból kiegyenesíthető ({{cmd:SCANDESKEW}}), fekete-fehérré tehető és megtisztítható a foltoktól ({{cmd:SCANCLEAN}}), körülvágható, és részei kitörölhetők. Minden lépés egy visszavonási lépés, és az eredeti fájl megmarad. Lásd: [Beolvasott rajzok és a nyomkövetés](topic:scanned-drawings).
-- **Beolvasás követése vonalakká és ívekké.** A {{cmd:SCANTRACE}} a beolvasás vonalait vonalként és ívként rajzolja egy új, SCAN-TRACE rétegre, az Ön által megadott tűréssel, a szöveget és a sraffozást pedig érintetlenül hagyja. A jelentés megmondja, mit készített és mit hagyott ki, és nem állítja, hogy az eredmény helyes: ellenőrizze a rajzlappal szemben. A {{cmd:RASTERSNAP}} lehetővé teszi, hogy az objektumfogások megtalálják a beolvasás végeit, sarkait és keresztezéseit. Semmi nem megy sehová, és nem használ betanított modellt. Lásd: [A nyomkövetés](topic:scanned-drawings#the-trace).
+- **Szellemkép mutatja, mi következik.** Ha nincs futó parancs, egy szürke, szaggatott szellemkép mutatja, mit jeleznek a rajz saját mintái következőnek: a következő pillért ugyanolyan távolságra, a lépcső következő fokát, egy helyiség hiányzó falát. Nyomja meg a {{key:Tab}} billentyűt, hogy egyetlen visszavonási lépésben megrajzolja, vagy az {{key:Esc}} billentyűt az elvetéshez. Csak a legújabb objektumokat nézi, így nagy rajzon is gördülékeny marad. Kikapcsolható a {{ui:Beállítások}} › {{ui:CadCraft}} menüpontban, vagy a(z) {{cmd:AUTOCOMPLETE}} `Off` paranccsal.
+- **A következő pont vonal rajzolásakor.** A {{cmd:LINE}} vagy a {{cmd:PLINE}} parancs közben a szellemkép a következő pont: a lépcső következő foka, a téglalap negyedik sarka, vagy az a pont, amely lezárja. Közelítse hozzá a kurzort, és nyomja meg a {{key:Tab}} billentyűt, mintha oda kattintott volna.
+- **Tollvázlatokból pontos geometria.** {{cmd:SKETCHFIX}}: rajzoljon durva vonalakat tollal, egérrel vagy ujjal, és mindegyikből tiszta vonal, kör, ív, téglalap vagy polivonal lesz, a már meglévő rajzhoz igazítva. Lásd: [Vázlatrajzolás tollal és pontos geometria](topic:sketch-with-a-pen).
+- **Vázlat fotójából rajz.** {{cmd:PHOTOSKETCH}} (`PSK`) megtalálja a papírt a fényképen, kiegyenesíti a perspektívát, alkalmazza az Ön által megadott papírméretet és méretarányt, és minden tollszínhez külön rétegre követi a tollvonalakat. A feliratokat nem követi le.
+- **Méretezés szabályok szerint.** {{cmd:AUTODIM}} (`ADIM`) méretláncokat készít az Ön által kiválasztott oldalak mentén, egész méretet, nyílásszélességeket, furatátmérőket, és a `Grid` opcióval rácstávolságokat. Soha nem ismétel meg meglévő méretet.
+- **Rácsvonal mozgatása, és a többi követi.** {{cmd:GRIDMOVE}} (`GM`): a rácsvonalon végződő falak vele együtt nyúlnak, a mellette lévő falak, oszlopok, jelölőkör és címke mozog, a rajta lévő méretek pedig az új távolságot mérik. Egyetlen visszavonási lépés.
 
-### Rajzolás és szerkesztés
+### Lapok, részletek és címkék
 
-- **Valódi spline-ok.** A {{cmd:SPLINE}} (`SPL`) pontokon át vagy vezérlőpontokból rajzol görbét (1–5. fokszám), végérintőkkel; a {{cmd:SPLINEDIT}} (`SPE`) illesztő- vagy vezérlőpontokat mozgat, ad hozzá és töröl, súlyokat állít, nyit, zár, megfordít, vagy a spline-t polivonallá alakítja. A DWG- és DXF-fájlokból származó spline-ok spline-ként nyílnak meg, a DWG és a DXF 2000 pedig spline-ként menti őket. Lásd: [Spline-ok és polivonalak](topic:splines).
-- **PEDIT.** A {{cmd:PEDIT}} (`PE`) zár és nyit polivonalakat, vonalakat és íveket fűz hozzájuk, egy szélességet állít be, görbét illeszt a csúcsokon át vagy spline-t vezet mentükön, és a Decurve (görbe megszüntetése) paranccsal visszaveszi, megfordít, és egyszerre többet szerkeszt. Lásd: [Polivonal szerkesztése](topic:splines#edit-a-polyline).
-- **WBLOCK.** A {{cmd:WBLOCK}} (`W`) egy blokkot, néhány objektumot vagy az egész rajzot új DWG-be vagy DXF-be írja, amely csak a használt rétegeket, stílusokat és blokkokat tartalmazza. Lásd: [Blokk vagy objektumok írása saját fájlba](topic:blocks#write-a-block-or-objects-to-a-file-of-their-own).
-- **REGEN és REGENALL.** A {{cmd:REGEN}} (`RE`) a rajzból újrarajzolja az aktuális lapot, a {{cmd:REGENALL}} (`REA`) minden lapot, panelt és nyitott rajzot. Lásd: [REGEN és REGENALL](topic:commands#regen-and-regenall).
+- **Lapok, amelyek maguktól elrendeződnek.** A {{cmd:AUTOSHEET}} veszi a megnevezett nézeteit (vagy a modell különálló részeit), kiválaszt egy papírméretet és szabványos méretarányt, és a nézeteket új lapokra helyezi rajzfejjel és név- és méretarány-felirattal. Minden szerkeszthető marad. Lásd: [Lapok elrendezése helyettem](topic:lay-out-sheets-for-me).
+- **A cég részletei, rajzolás közben felajánlva.** A {{cmd:DETAILS}} (`DET`) a saját részletblokkjait tartja nyilván. Ha a kijelölt elem rétegneveinek, blokkneveinek és megjegyzéseinek szavai alapján egyezik valamelyikkel, az állapotsor ezt jelzi; válassza ki és helyezze el. A {{cmd:DETAILS}} › Megosztás a listáját a Dokumentumok mappába helyezi, és behozza, amit a csapata hozzáadott. A Beállításokban kikapcsolható a felajánlás.
+- **Címkék blokkokon.** A {{cmd:TAGS}} definiál egy címkét (fajtáját, felvehető értékeit, azokat a blokkokat, amelyekre vonatkozik), beállítja a kijelölt blokkhivatkozásokra, és kimutatásként listázza őket, amelyet CSV-ként menthet. A definíciók a DWG-ben maradnak. Lásd: [Címkék](topic:tags).
+- **Rajzhatárok.** A {{cmd:LIMITS}} téglalapot állít be a rajznak: a rács kitölti, a Nagyítás Mind (A) pedig megmutatja. A határok körvonalként jelennek meg, és DWG és DXF fájlba mentődnek a papírhatárokkal együtt. Lásd: [A rajzhatárok beállítása](topic:drawing-limits).
 
-### Szöveg és méretek
+### Munka másokkal és más programokkal
 
-- **A szöveg megtartja a formázását.** A más programokból érkező bekezdésszöveg megtartja a szavankénti színeket, a félkövért és dőltet, az aláhúzást, az egymásra helyezett törteket és a magasságokat: a képernyőn és a PDF-ekben ki vannak rajzolva, a szavak szerkesztésekor megmaradnak, és visszamentődnek. Lásd: [Formázás más programokból érkező bekezdésszövegen belül](topic:text#formatting-inside-paragraph-text-from-other-programs).
-- **Méretezési stílus kezelő.** A {{cmd:DIMSTYLE}} (`D`) elnevezett méretezési stílusokat készít, módosít, hasonlít össze és alkalmaz; egy stílus módosítása az azt használó összes méretet módosítja. A {{cmd:DIMEDIT}} (`DED`) visszaállítja a szöveget, új szöveget ír be, elforgatja, vagy megdönti a segédvonalakat; a {{cmd:DIMTEDIT}} a szöveget balra, jobbra vagy középre mozgatja. Lásd: [Elnevezett méretezési stílusok](topic:dimension-settings#named-dimension-styles).
-- **Saját léptékek.** A {{cmd:SCALELISTEDIT}} (`SCALELIST`) az 1:75-höz hasonló léptékeket ad a nézetablak- és plottolási léptéklistákhoz; ezek a rajzban mentődnek (DWG és DXF 2000), és a más programból származó rajz hozza a saját listáját. Lásd: [Léptékek](topic:units-papers-scales#scales).
-- **Szöveg más ábécékkel.** A cirill, koreai, kínai, japán vagy vietnami kódlapokkal mentett DXF-fájlok már a szövegükkel nyílnak meg, és a kínai, japán és koreai szöveg PDF-ben is nyomtatódik (a plottolás az első alkalommal nagyobb betűtípust tölt le, ha szüksége van rá). Lásd: [Betűtípus](topic:text#font).
+- **Jelölésből revízió.** A {{cmd:REDLINE}} beolvassa a MarkupCraft által írt csomagot, és felsorol minden változást. Mindegyiket megjegyzéssel fogadhatja el vagy utasíthatja el; az elfogadottak revíziófelhőt és revízionaplót kapnak egyetlen visszavonási lépésben, és el kell mentenie a válaszfájlt, amely lezárja a jelöléseket a MarkupCraftban. Lásd: [Jelölés átalakítása revízióvá](topic:redline-to-revision).
+- **Rajzok, amelyeket a git és a Fossil egyesíteni tud.** Ha a {{ui:Egyesítésbarát fájlok}} be van kapcsolva a {{ui:Beállítások}} › {{ui:CadCraft}} menüben, minden objektum kap egy kulcsot, amely soha nem változik (a fájlok körülbelül 10 százalékkal nagyobbak). A `cadcraft merge base ours theirs` parancs két személy egy DWG vagy DXF rajzon végzett szerkesztéseit objektumonként egyesíti, és csak azt jelzi, ahol két személy ugyanazt módosította. Lásd: [Egy rajz két személy szerkesztéseinek egyesítése](topic:merge-drawings).
+- **Mi változott, szavakban.** Az Előzmények között az Összehasonlítás egyszerű listát ad: hol változott valami, mekkora a terület, mi került hozzá, mi lett eltávolítva vagy módosítva, és a szerkesztett szöveg. Lásd: [Szavakban leírni a változásokat](topic:changes-in-words).
+- **Irányszögek és szögek.** Írjon irányt földmérői irányszögként, például N45°23'30"E, vagy fokban, percben és másodpercben, bárhol, ahol szöget kérnek; az AUNITS állítja be a szögek megjelenítését. Lásd: [Irányszögek gépelése és megjelenítése](topic:bearings-and-angles).
+- **Saját SHX betűtípusok.** Adjon meg a CadCraftnak egy SHX betűtípusokat tartalmazó mappát, és a szövegstílusok, amelyek nevükkel hivatkoznak rájuk, ezekkel rajzolódnak ki, a képernyőn és a kinyomtatott rajzon egyaránt. Lásd: [Szöveg rajzolása saját SHX betűtípusokkal](topic:shx-fonts).
+- **Diagram szövegből.** A {{cmd:DIAGRAM}} beolvassa a Mermaid folyamatábrát, a PlantUML komponensdiagramot, a D2-t vagy egy honnan-hová listát, és szerkeszthető blokkokat és összekötőket rajzol. Lásd: [Diagram rajzolása szövegből](topic:text-to-diagram).
+- **OLE-objektumok DWG-ben.** A {{cmd:OLELIST}} felsorolja a DWG-ben lévő OLE-objektumokat, amelyeket a CadCraft maga nem tud elhelyezni, és ott helyez el egy másolatot a képből, ahol megadja. Lásd: [Képek](topic:pictures#objects-from-other-programs-ole).
+- **Számításai a rajzzal maradnak.** A számítólapok és a tervezési indoklások a DWG-ben maradnak az osztálytáblával együtt.
 
-### Plottolás és nyomtatás
+### Rajzolás látás nélkül
 
-- **Több a plottolási stílustáblákban.** A táblázat mostantól minden színhez vonaltípust, vonalvéget és vonalcsatlakozást, valamint olyan kitöltési stílust is beállíthat, amely a tömör kitöltéseket sraffvonalként nyomtatja; a táblának saját vonalvastagság-listája és vonaltípus-léptéke van. Lásd: [Plottolási stílustáblák](topic:plot-pdf#plot-style-tables).
-- **Nyomtatás, valamint PNG- és SVG-fájlok.** A Plottolás párbeszédpanelen van {{ui:Nyomtatás…}}, {{ui:PNG letöltése}} (300 dpi) és {{ui:SVG letöltése}}. A CadCraft Studióban felsorolja a számítógép nyomtatóit, azok papírját és a példányszámot. Lásd: [Nyomtatás](topic:plot-pdf#print) és [Kép- és SVG-fájlok](topic:plot-pdf#picture-and-svg-files).
+- Kapcsolja be a {{ui:Rajzolás látás nélkül}} opciót a {{ui:Beállítások}} menüben (vagy írja be a {{cmd:ACCESS}} parancsot, és válaszoljon `On`-nal). A CadCraft a képernyőolvasón keresztül felolvassa minden parancsot és eredményt, leírja a rajzot és a kurzor közelében lévő elemeket, lehetővé teszi, hogy a billentyűzettel mozgassa a kurzort és pontokat válasszon, és minden fogáshoz és fogópont-találathoz hangot ad. Ahol a böngészője felismeri a beszédet, a parancsokat ki lehet mondani. Lásd: [Rajzolás látás nélkül](topic:draft-without-sight).
 
-### 3D és pontfelhők
+### Minden alkalmazásban
 
-- **3D testek más programokból.** A rajz modelltérében lévő testek, régiók és testobjektumok a 3D lapon látszanak, csak olvashatóan, és a DWG-ként mentés változatlanul visszaírja őket. A CadCraft által még nem rajzolt felületek lapjait felsorolja, nem találgatja. Lásd: [Testek más programokból](topic:3d-solids#solids-from-other-programs).
-- **Több letapogatás regisztrálása.** A {{cmd:REGISTERSCANS}} (`REGSCAN`) különböző helyzetekből készült letapogatásokat helyez egy keretbe pontpárokkal vagy beírt illesztőpont-koordinátákkal, ICP-vel finomítja őket, a regisztrációt kis projektfájlként menti, a regisztrált felhőt pedig egyetlen LAS- vagy E57-fájlba írja. Lásd: [Több letapogatás regisztrálása eggyé](topic:register-scans).
-- **USD-exportálás.** Az {{cmd:USDOUT}}, vagy az {{cmd:EXPORT3D}} › {{ui:USD}} a 3D lap testeit `.usda`, `.usdc` vagy `.usdz` formában írja. Lásd: [A 3D modell exportálása USD-be](topic:usd).
-- **Számítások a 3D lapon.** Ahol a 3D lap eszközei távolságot kérnek, számítást is beírhat, mint a parancssorban. Lásd: [Számtani műveletek a beírt értékben](topic:coordinate-entry#arithmetic-in-a-typed-value).
+- **Nyelvek.** 54 nyelv; tíz új (litván, lett, bosnyák, maráthi, telugu, albán, afrikaans, filippínó, szuahéli, üzbég). Az angolon kívüli nyelvek gépi piszkozatok, amíg egy anyanyelvi beszélő el nem olvassa őket.
+- **Beviteli eszközök.** Érintőpad, toll, 3D egér, játékvezérlő és MIDI-vezérlők.
+- **Eszköztársorok és a tulajdonságrács.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Eszköztársorok}} a többi alkalmazásban a Tördelés, a 2 sor vagy az 1 sor lehetőséget kínálja. A CadCraft saját beállítását a {{ui:Beállítások}} › {{ui:CadCraft}} menüben tartja (lásd: [Eszköztársorok](topic:settings#toolbar-rows)). A közös tulajdonságrács három másik alkalmazásban van, a CadCraftban nincs.
+- **Problémák, Live és bővítmények.** Közös Problémák panel, amely minden alkalmazásban figyelmeztet, egy Live nézet arról, ki hol van a CadCraft Studióban (lásd: [Együttes munka egy rajzon](topic:work-live)), és egy bővítménylista.
+- **Csatlakoztassa az AI-ját.** Egy kapcsolat a CadCraft Studiótól mind a nyolc alkalmazásig, alkalmazásonként olvasási, javaslási vagy szerkesztési szinttel, és egyszerű szavakkal írt naplóval arról, mit tett az asszisztens. A CadCraftnak nincs saját AI-ja, az Alkalmazásokban kérdezés pedig az Ön által csatlakoztatott AI-t használja.
 
-### Készítés
+## Javítva a 0.8.1 verzióban
 
-- **Rajz küldése lézerre.** A {{cmd:LASER}}, vagy a {{ui:Nézet}} › {{ui:Továbbiak}} › {{ui:Lézer…}} a rajz fölött panelt nyit: minden réteg vág, karcol, vonalakat gravíroz, alakzatokat tölt ki, képet gravíroz, vagy nem lesz elküldve, a teljesítményével, sebességével és menetszámával. Az előnézet követi a szerkesztéseit, a {{ui:G-kód mentése…}} GRBL lézermódú G-kódot ír, Chrome-ban vagy Edge-ben pedig a panel be tudja keretezni a munkát és USB-n elküldeni. A beállítások a rajzban mentődnek (DWG és DXF). Lásd: [Rajz küldése lézerre](topic:laser-cutting).
-- **Épületgépészeti jelek az Elektromos bővítményben.** Adat-, telefon- és tévéaljzatok, kulcsos és időkapcsolók, termosztát, kijáratjelző, érzékelők, kézi jelzésadó és hangjelző, ventilátor, vízmelegítő, tűzhely, elektromosautó-töltőpont, energiamérő és alelosztó, valamint RCD- és RCBO-jelek. Egy áramkör hordozhat RCD-t, a kapcsolószekrény-kimutatásban van RCD oszlop, az ellenőrzések pedig megnevezik azokat az aljzatáramköröket, amelyeken nincs legfeljebb 30 mA-es RCD. Tervezési emlékeztető, nem előírás-ellenőrzés.
-- **P&ID bővítmény.** A P&ID technológiai ábrákat rajzol: csatlakozási pontokkal ellátott jeleket, technológiai és jelvonalakat, címkéket, vezetékszámokat, vezeték-, berendezés-, műszer- és szelepkimutatásokat (CSV vagy munkafüzet) és ellenőrzéseket. A CadCraft része, és ki van kapcsolva, amíg be nem kapcsolja itt: {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Bővítmények}}. Rajzolási segédeszköz, nem mérnöki jóváhagyás, és a szövegei egyelőre csak angolul vannak.
-
-### Első lépések és a képernyő
-
-- **Vezetett első rajz.** A {{cmd:TOUR}} (vagy a kezdőkártyán a {{ui:Bemutató indítása}}) hat lépésben végigvezeti a valódi rajzon: egy vonal, egy kör, egy mozgatás, egy vágás, egy törlés és egy méret. Magától az első alkalommal indul, amikor a CadCraft üresen nyílik meg. Lásd: [Szeretné, ha vezetnék?](topic:getting-started#prefer-to-be-guided)
-- **Puska és parancstérkép.** A [puska](topic:cheat-sheet) egy oldalon tartalmazza a 40 mindennapi parancsot, nyomtatható PDF-ként is, a [parancstérkép](topic:command-map) pedig A-tól Z-ig felsorolja a parancsokat a rövid nevükkel.
-- **Az eszköztár bármely oldalon.** {{ui:Beállítások}} › {{ui:CadCraft}} › {{ui:Az eszköztár helye}}: fent (mint korábban), lent, balra vagy jobbra, vagy írja be: {{cmd:TOOLBARDOCK}}. Lásd: [Az eszköztár helye](topic:settings#toolbar-position).
-- **Eszköztársorok.** {{ui:Beállítások}} › {{ui:CadCraft}} › {{ui:Eszköztársorok}}: törés a méretre, 2 sor vagy 1 sor, a CadCraft eszköztárhoz és a Klasszikus rajzoló és Szalag stílusokhoz. A {{key:Shift+Ctrl+F1}} lépked közöttük, a {{key:Ctrl+F1}} azon, amit a gombok mutatnak, a {{cmd:TOOLBARROWS}} és a {{cmd:TOOLBAR}} pedig beállítja őket. A kezdőtippnek van bezárás gombja. Köszönet GJoe2-nek, aki ezt pull requestként küldte. Lásd: [Eszköztársorok](topic:settings#toolbar-rows).
-
-### A CadCraft Studióban
-
-- **Előzmények.** A {{cmd:HISTORY}} (`HIST`), vagy a {{ui:Nézet}} › {{ui:Továbbiak}} › {{ui:Előzmények…}}: a Studio által a rajz megnyitásakor és mentésekor őrzött másolatok, és a rajz felhőbeli verziói, ha a felhőből nyitotta meg. Nyisson meg vagy állítson vissza egyet, vagy hasonlítson össze kettőt, a hozzáadott, eltávolított és módosított dolgokat színnel jelölve. Lásd: [Előzmények](topic:history).
-- **acad.lsp és acaddoc.lsp.** Válasszon támogatási mappát az {{cmd:APPLOAD}} parancsban: ez a két fájl a CadCraft indításakor betöltődik (az acaddoc.lsp minden új rajzlapra újra), és az `S::STARTUP` ezek után fut. Lásd: [Alkalmazások betöltése](topic:load-applications#load-acadlsp-and-acaddoclsp-from-a-support-folder-studio).
-- **A Plottolás párbeszédpanel saját ablakban.** A címsorában lévő gomb egy olyan ablakba viszi, amelyet másik monitorra tehet. Lásd: [Párbeszédpanel mozgatása](common:arrange-panels#move-a-dialog).
-
-### MI-asszisztensekhez
-
-- **Fájlok név szerint, az Ön által választott mappákban.** A CadCraft Studióban az asszisztens név szerint nyithat, menthet és plottolhat fájlokat, és átadhat egy parancsnak a kért fájlt (INSERT fájlból, a COUNT exportja, SAVEAS, PLOT), de csak azokon a mappákon belül, amelyeket a {{ui:Beállítások}} › {{ui:CadCraft}} › {{ui:Asszisztensek}} › {{ui:Használható mappák}} alatt ad hozzá. Lásd: [Fájlok használatának engedélyezése a választott mappákban](topic:use-with-ai-assistants#let-it-use-files-in-folders-you-choose).
-- **Kevesebb hívás.** Az asszisztens egyszerre beírhat egy egész parancssort, nyitva tarthat egy parancsot a hívásai között, típus és réteg szerint megszámolhatja az objektumokat felsorolás nélkül, és egy lépésben elhelyezhet egy blokkot az attribútumértékeivel.
-- **Ablak nélkül.** A `cadcraft` parancssor SVG-plottolásokat ír, és egyszerre sok fájlt konvertál, plottol, ellenőriz vagy ír le. Az MCP-csomag még nincs közzétéve. Lásd: [Munka fájlokon a CadCraft megnyitása nélkül](topic:use-with-ai-assistants#work-on-files-without-opening-cadcraft).
-
-## Módosult
-
-- **A trackpad eltol.** Mozgasson két ujjat a trackpaden, és a 2D nézet követi őket; a csippentés és az egérgörgő nagyít. Lásd: [Egér, trackpad és érintés](topic:mouse-trackpad-touch).
-- **Az OLE-objektumok megmaradnak.** A DXF beágyazott objektumai a képükként vagy feliratozott keretként látszanak, és a DXF 2000 visszamenti őket. A DWG-é megmarad, és DWG-ként mentéskor visszaíródik, de még nem látszik. Korábban mentéskor elvesztek. Lásd: [Más programok objektumai (OLE)](topic:pictures#objects-from-other-programs-ole).
-- **Az új rajz mértékegységei** a {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Mértékegységek}} alatt csillagozott mértékegységet követik.
-
-## Javítva
-
-- Az üresen megnyíló, vagy egy nézetablakot elvesztő és helyette az egész modellt mutató elrendezések most a valódi nézetablakaikkal nyílnak meg. A tartalmához nem kapcsolódó elrendezés megmarad, és a megnyitási jelentés ezt kimondja.
-- A régebbi kódlapú DXF-fájlokban a cirill és a koreai szöveg torzan látszott. Most helyesen olvashatók.
-- A más programokból érkező bekezdésszöveg megnyitáskor elvesztette a formázását, és egyszerűen mentődött vissza.
-
-## Minden alkalmazásban
-
-- **Mértékegységek.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Mértékegységek}} hossznak, területnek, térfogatnak, szögnek és lejtésnek külön listát ad, a mértékegységek definíciói szerinti pontos méretekkel (az amerikai geodéziai láb külön mértékegység). Kapcsolja ki a soha nem használtakat, és kikerülnek a listákból; csillagozzon meg egyet, és az új munka azzal indul. A fájl mindig megtartja a saját mértékegységét. A CadCraftban a csillag az új rajz mértékegységét állítja, ha az olyan mértékegység, amelyet a rajz hordozhat; a CadCraft saját {{ui:Mértékegységek}} mezője még nem követi a kapcsolókat. Ha a rajznak már van mértékegysége, a beírt hosszon bármely mértékegység jele szerepelhet. Lásd: [Mértékegységek, beírt értékek és a mértékegységlisták](common:unit-lists).
-- **Sűrűbb elrendezés és eltűnő panelek.** A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés sűrűsége}} › {{ui:Kompakt}} több mindent elhelyez a képernyőn (az érintőképernyők és a telefonok megtartják a nagy gombjaikat). Minden oldalpanelnek van egy karcsú címsora: húzza a panel dokkolásához vagy lebegtetéséhez, ejtse egy másik panel sávjára, hogy egy keretben osztozzanak lapokként, rögzítse, hogy a szélre csússzon, vagy rejtse el, és hozza vissza a szélről. Lásd: [A panelek elrendezése](common:arrange-panels#make-the-layout-denser).
-- **A párbeszédpanelek mozognak.** Húzza a párbeszédpanelt a címsoránál fogva a rajz elől; oda tér vissza, ahol hagyta. A címsorra duplán kattintva újra középre kerül. Lásd: [Párbeszédpanel mozgatása](common:arrange-panels#move-a-dialog).
-- **Receptek MI-asszisztensekhez.** Tíz kidolgozott kérés a saját asszisztensének (rajz rendbetétele, rajzkészlet plottolása, rajzok ellenőrzése, kérdések egy modellről, mennyiségkimutatás összesítése, alkatrészváltozat kipróbálása…), mindegyikhez a hívott eszközökkel és a szükséges engedélyekkel, és mindegyiket lejátszották a tesztjeink. Az alkalmazások nem tartalmaznak MI-t. Lásd: [Receptek MI-asszisztensekhez](common:assistants-recipes).
-- **Nyelvek.** Új a **Português (Portugal)** a {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Nyelv}} alatt. Ez, a **Português (Brasil)**, az **Español (México)** és a **Bahasa Indonesia** most már az alkalmazások minden szavát tartalmazza, anyanyelvi beszélő által még nem ellenőrzött piszkozatként. A súgótémakörök angolul vannak.
-- **A CadCraft Studio** megmondja, miért hiúsult meg egy frissítésellenőrzés (még nincs fájl az Ön rendszeréhez, nincs hálózat, hibás aláírás), a puszta „Kész” helyett, és nem hozza vissza a bezárt Újdonságok kártyát, amíg nincs újabb kiadás.
+- **A tulajdonságok 150-et mutattak 12'-6" helyett** láb és hüvelyk mértékegységű rajzokon. Az alkalmazás által olvasott mezők újra megtartják a szövegüket.
+- **A DWG-fájlok, amelyek osztályszakaszát rossz típusként olvasták** (GitHub cadcraft#5), most helyesen nyílnak meg.
+- **A kereszthajszál többé nem látszik a felugró ablakok mögött.**
+- **A Studio és a csomagolt kiadások futás közben tudnak nyelvet váltani.** Korábban csak angolul voltak. Még nincs minden platformon tesztelve: jelezze, ha a nyelv nem változik.
+- **Álló tableteken** a szabad rácsmagasság a vászonnak jut, a lapmód pedig 760 px-es vagy annál kisebb magasságnál indul.
+- **A STRETCH keresztező ablakkal és a LIMITS** a Studio 0.8.0-n jelentett hibák voltak, de a 0.8-as webes verzióban már helyesek voltak; a bejelentő telepítője régebbi volt. A Studio 0.8.1 ezeket már tartalmazza.
 
 ## Ebben a verzióban még nincs
 
-- **A 0.7 nincs kódaláírással ellátva.** Az aláírás és a Microsoft Store csomag átkerült a 0.8-ba, mert a tanúsítvány érvényesítése még nem érkezett meg. Ellenőrizze a getcadcraft.com/download oldalon az egyes fájlok melletti SHA-256 értéket. Windowson, ha a SmartScreen megállítja a telepítőt, válassza a {{ui:További információ}}, majd a {{ui:Futtatás mindenképp}} lehetőséget. Macen az első alkalommal kattintson jobb gombbal a CadCraft Studióra, és válassza a {{ui:Megnyitás}} parancsot. A CadCraft Studio még nincs alkalmazásboltban, és iPad- vagy iPhone-verzió sincs még.
-- A {{ui:Mértékegységek}} szög- és lejtéslistái mentődnek, de mező még nem olvassa őket.
-- A DWG OLE-objektumai megmaradnak, de nem látszanak, és az OLE-objektumokon belüli metafájlképek nincsenek kirajzolva.
-- A más programok plottolási stílustábláinak (CTB-fájlok) olvasása mintafájlra vár.
-- A `\M+` kódokkal írt régebbi ázsiai szöveget beolvassa, de más programból származó fájllal még nem ellenőrizték.
-- PDF-aláképek: az oldalon belüli képek a képernyőn látszanak, de nem plottolódnak, az asszisztens plottolása kihagyja az aláképeket, és azt, hogy más programok hogyan olvassák a mentett kivágást és léptéket, nem ellenőrizték bennük.
-- Előzmények: a CadCraft még nem küldi a mentéseit a felhőbe, így a felhőbeli verziók a más eszközökről és a webről mentettek. Az Előzmények csak a CadCraft Studióban van.
-- Azt, hogy a Studio újraindítás után megtartja-e az acad.lsp támogatási mappát, még nem ellenőrizték; ha rákérdez, válassza ki újra a mappát az APPLOAD parancsban.
-- A Lézer panelt valódi lézeren még nem próbálták ki: minden beállítást hulladékon teszteljen. A CadCraft Studióban nincs Web Serial, így a Studióban a panel csak G-kódot ment.
-- A letapogatások regisztrálását kitalált letapogatásokon tesztelték, valódi lézerszkenner készletén még nem.
-- A kétujjas eltolást szimulált trackpad-eseményekkel próbálták ki, valódi trackpaden még nem.
-- A {{cmd:PEDIT}} parancsnak nincs Csúcs szerkesztése (Edit vertex) opciója (használjon fogópontokat vagy a Tulajdonságokat). A párhuzamos, vágás, nyújtás, lekerekítés, törés és egyesítés még nem fogad spline-okat; a spline magassága (Z) nem marad meg.
-- Az új bekezdésszövegnek még nem adhatók formázási kódok, az SVG-plottolások pedig a formázott szöveget egy színnel mutatják.
-- A WBLOCK Egész rajz (Entire drawing) opciója csak a modellt írja, a rajzlapokat nem. Az aktuális méretezési stílus nem mentődik a fájlba: a rajz Standard aktuális stílussal nyílik meg.
-- A szalagos menüstílusokban még nincs réteg-, szín- vagy vonaltípus-lista: használja a {{ui:Rétegek}} panelt és a {{ui:Tulajdonságok}} panelt.
-- A pontfelhők továbbra sem mentődnek a rajzban és nem plottolódnak, az E57-fájlok pedig legfeljebb 6 millió pontig és 512 MB-ig nyílnak meg.
-- A CadCraft mentett DWG-fájljait magában az AutoCADben még nem ellenőrizték.
+- **A 0.8 és 0.8.1 nincs kódaláírással.** A Windows figyelmeztethet (válassza a {{ui:További információ}}, majd a {{ui:Futtatás mindenképp}} lehetőséget); Macen kattintson jobb gombbal a CadCraft Studióra, és válassza a {{ui:Megnyitás}} lehetőséget. A Store-verziók szünetelnek, az iPad- és iPhone-verzió pedig nem lett újraépítve a 0.8.1-hez.
+- **A tollvázlatok és a vázlatfotók** csak kitalált fényképeken és egéren lettek kipróbálva, valódi tollal, érintőképernyővel vagy papíron készült kézi vázlattal még nem.
+- **A Rajzolás látás nélkül** automatikus ellenőrzésekkel lett tesztelve, képernyőolvasóval vagy vak tesztelővel még nem.
+- **A részletek megosztása** nem esett át két személyes ellenőrzésen, és a Team Cloud Plan mappa mint Dokumentumok mappa nincs megépítve.
+- **Egyesítés** a CadCraft DWG és DXF fájljaival működik; a többi alkalmazás fájljaira nincs megépítve.
+- **Visszavonás ablakokon át:** a CadCraft jelenti minden befejezett lépést, de a Studiónak még nincs egyetlen Visszavonás funkciója minden alkalmazásra; minden alkalmazás a saját lépéseit vonja vissza.
+- **Egy DWG OLE-objektumai** megmaradnak, de nem a helyükön rajzolódnak ki.
+- **A plot stílustáblák (CTB-fájlok) olvasása** más programokból megépült, de még nincs ellenőrizve másik programból származó fájllal.
+- **Csatlakoztassa az AI-ját:** az egykattintásos csatlakozás a Studióban, a böngészős AI hosztolt összekötője, a Studión belüli saját API-kulcs és a közzétett MCP-csomag ebben a kiadásban nincs ígérve.
 
-Minden más a [Mi nincs még elkészítve](topic:not-built-yet) témakörben van.
+A korábbi verzióhoz lásd: [Újdonságok a 0.7 verzióban](topic:whats-new-0-7).

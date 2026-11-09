@@ -3330,7 +3330,7 @@ function defToJSON(d) {
     verts: [...d.verts].map(([id, p]) => [id, p[0], p[1], p[2]]),
     edges: [...d.edges].map(([id, e]) => (e.hidden ? [id, e.a, e.b, e.soft ? 1 : 0, e.curve || 0, 1] : e.curve ? [id, e.a, e.b, e.soft ? 1 : 0, e.curve] : e.soft ? [id, e.a, e.b, 1] : [id, e.a, e.b])),
     faces: [...d.faces].map(([id, f]) => { const o = { id, loops: f.loops }; if (f.color) o.color = f.color; if (f.hidden) o.hidden = true; return o; }),
-    insts: [...d.insts].map(([id, i]) => { const o = { id, def: i.def, m: i.m }; if (i.name) o.name = i.name; if (i.color) o.color = i.color; if (i.hidden) o.hidden = true; if (i.tag) o.tag = i.tag; if (i.rule) o.rule = { ...i.rule }; return o; }),
+    insts: [...d.insts].map(([id, i]) => { const o = { id, def: i.def, m: i.m }; if (i.name) o.name = i.name; if (i.color) o.color = i.color; if (i.hidden) o.hidden = true; if (i.tag) o.tag = i.tag; if (i.link) o.link = i.link; if (i.rule) o.rule = { ...i.rule }; return o; }),
     ...(d.splines.size ? { splines: [...d.splines].map(([id, sp]) => ({ id, pts: sp.pts, closed: !!sp.closed, segs: sp.segs })) } : {}),
   };
 }
@@ -3417,6 +3417,7 @@ function defFromJSON(d, j, fail = (m) => { throw new Error(m); }) {
     if (isPaint(i.color)) ins.color = i.color.toLowerCase();
     if (i.hidden === true) ins.hidden = true;
     if (typeof i.tag === 'string' && cleanText(i.tag, 80)) ins.tag = cleanText(i.tag, 80);
+    if (typeof i.link === 'string' && /^[A-Za-z0-9_.:{}-]{1,200}$/.test(i.link)) ins.link = i.link;   // 0.9 SU.810b: what a live link brought (link-mc.js)
     if (i.rule && typeof i.rule === 'object') {
       // 0.4 M26: how a part follows when its component stretches
       const r = {};

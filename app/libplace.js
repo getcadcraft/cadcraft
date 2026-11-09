@@ -26,7 +26,7 @@ import { attdef, defaultAttrs } from './attrs.js';
 import { mmPerUnit } from './blockcopy.js';
 
 import { t } from './i18n.js';
-export const LIB_TAGS = { item: 'CC-ITEM', qty: 'CC-QTY', uuid: 'CC-ITEM-UUID', ver: 'CC-ITEM-VER', name: 'CC-ITEM-NAME', library: 'CC-LIBRARY', sha: 'CC-SHA256', license: 'CC-LICENSE', attrib: 'CC-ATTRIB', licenseUrl: 'CC-LICENSE-URL', maker: 'CC-MAKER', model: 'CC-MODEL', category: 'CC-CATEGORY', kind: 'CC-KIND', source: 'CC-SOURCE-FILE' };
+export const LIB_TAGS = { item: 'CC-ITEM', qty: 'CC-QTY', uuid: 'CC-ITEM-UUID', ver: 'CC-ITEM-VER', name: 'CC-ITEM-NAME', library: 'CC-LIBRARY', sha: 'CC-SHA256', license: 'CC-LICENSE', attrib: 'CC-ATTRIB', licenseUrl: 'CC-LICENSE-URL', maker: 'CC-MAKER', model: 'CC-MODEL', category: 'CC-CATEGORY', kind: 'CC-KIND', source: 'CC-SOURCE-FILE', stretch: 'CC-STRETCH' };
 const MAX_ENTITIES = 50000, LIM = 1e7;
 const fin = (v) => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= LIM;
 const str = (v, n = 500) => (typeof v === 'string' ? v : v === null || v === undefined ? '' : String(v)).replace(/[\u0000-\u001f\u007f]+/g, ' ').trim().slice(0, n);
@@ -142,7 +142,7 @@ export function attributionOf(item) {
   return '“' + str(item.name, 200) + '”' + (holder ? ' by ' + holder : '') + (id ? ', ' + id : '');
 }
 
-export function blockFromItem(doc, item, { slug = null, library = 'librarycraft' } = {}) {
+export function blockFromItem(doc, item, { slug = null, library = 'librarycraft', stretch = [] } = {}) {
   const why = itemProblem(item);
   if (why) throw new Error(why);
   const mm = mmPerUnit(doc.meta?.units);
@@ -173,6 +173,7 @@ export function blockFromItem(doc, item, { slug = null, library = 'librarycraft'
     [LIB_TAGS.license, str(lic.id, 40)], [LIB_TAGS.attrib, attributionOf(item)], [LIB_TAGS.licenseUrl, str(lic.url, 255)],
     [LIB_TAGS.maker, str(item.maker, 200)], [LIB_TAGS.model, str(item.model, 200)], [LIB_TAGS.category, str(item.category, 120)],
     [LIB_TAGS.kind, str(item.kind, 40)], [LIB_TAGS.source, str(pv.source_file, 255)],
+    [LIB_TAGS.stretch, stretchValue(stretch)],   // 2026-11-02: the axes it may be stretched along, 'none' unless its Library entry allows some
     ...paramAttrs(item.params),
     ...partAttrs(item.source_attrs),
   ];
@@ -191,6 +192,24 @@ export function libraryFieldsOfBlock(blk) {
 }
 
 /** Define the item's block (once per uuid@version; a different item with the same name gets "-2", "-3"). */
+/** 'x,y' for the allowed axes, 'none' for none. */
+export function stretchValue(axes) { const a = ['x', 'y', 'z'].filter((k) => Array.isArray(axes) && axes.includes(k)); return a.length ? a.join(',') : 'none'; }
+/**
+ * 2026-11-02: the axes a placed reference may be stretched along: a Library item's (CC-STRETCH; a reference placed before then, or one
+ * that says nothing, may not be stretched at all) → ['x', …]; anything that is not a Library item → null (no rule).
+ */
+export function stretchAllowed(e) {
+  if (e?.type !== 'insert' || !e.attrs || !(e.attrs[LIB_TAGS.uuid] || e.attrs[LIB_TAGS.name])) return null;
+  const v = String(e.attrs[LIB_TAGS.stretch] ?? 'none').toLowerCase();
+  return ['x', 'y', 'z'].filter((k) => v.split(',').map((x) => x.trim()).includes(k));
+}
+/** True when `next` changes the size of Library reference `cur` along an axis it may not be stretched along (a mirror is not a stretch). */
+export function stretchRefused(cur, next) {
+  const ok = stretchAllowed(cur);
+  if (!ok || next?.type !== 'insert') return false;
+  const same = (a, b) => Math.abs(Math.abs(a ?? 1) - Math.abs(b ?? 1)) <= 1e-9 * Math.max(1, Math.abs(a ?? 1));
+  return (!ok.includes('x') && !same(cur.sx, next.sx)) || (!ok.includes('y') && !same(cur.sy, next.sy)) || (!ok.includes('z') && !same(cur.sz, next.sz));
+}
 export function ensureLibraryBlock(doc, item, opts = {}) {
   const made = blockFromItem(doc, item, opts);
   let name = made.name;

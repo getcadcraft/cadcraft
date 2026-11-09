@@ -32,6 +32,8 @@
 
 import { Doc, TYPE_NAMES, aciHex } from './doc.js';
 import { View, SNAP_LABELS, DRAWING_FONT } from './view.js';
+import { fontName, familyOf } from './font.js';
+import { fillBox, formatBar, runsToMtext, buildRuns } from './mtext-edit.js';
 import { switchState } from './visedit.js';
 import { describe as describeEntity, Engine, lookup, commandList, namedBlocks, setLengthFormat, lengthFormatLabel, lengthFormatName, qsTypeLabel, qsPropLabel, closeBlockEdit, closeRefEdit, isAttdefText, commandRegistry } from './commands.js';
 import { QS_PROPS, propsFor, valuesOf, quickSelect as qsCount } from './qselect.js';
@@ -49,9 +51,11 @@ import { openHistory } from './history-ui.js';           // 0.7 D7.31: the Histo
 import { LocalHistory, CloudHistory } from './drawing-history.js';
 import { installShortcuts } from './keys-ui.js';
 import { installAlignPanel } from './align-ui.js';   // 0.6 DF.2: the Align and distribute panel
+import { installCmdLine } from './cmdline.js';   // 0.9 SU.1083: the command line docks or floats, one line + the F2 history
 import { installAttEdit } from './attedit-ui.js';   // 0.6 DF.5: EATTEDIT, BATTMAN, the REFEDIT banner
 import { installPlotStyles } from './plotstyle-ui.js';   // 0.6 DC.14: the plot style table editor
 import { installDimStyles } from './dimstyle-ui.js';
+import { installTextStyles } from './textstyle-ui.js';
 import { installTour, appTourAutoOn, setAppTourAuto } from './tour.js';   // 0.7 D7.06: the first-drawing tour   // 0.7 D7.14: the dimension style manager
 import { BUILTIN as PLOT_BUILTIN, builtinTable, findTable, styleNameFor } from './plotstyle.js';
 import { hasAttributes } from './attedit.js';
@@ -72,7 +76,7 @@ import { PAPERS, paperByKey, makePaper, scaleList, scaleLabel, sOf, nOf, aimView
 import { layoutSheet, modelSheet, displayList, toPdf, toSvg, toPngBlob, matchPaper, drawPreview, extentsOf, PEN_WIDTHS, pdfPending, readPdfUnderlays } from './plot.js';
 import { el, fillDl, bytes, num, fmt, frame } from './ui-util.js';
 import { attrRows, oneLine } from './attrs.js';
-import { LIB_TAGS } from './libplace.js';
+import { LIB_TAGS, libraryUses } from './libplace.js';
 import { createLibraryPanel } from './libpanel.js';
 import { createSheetSetPanel } from './sheetset-panel.js';
 import { handoffParam, takeHandoff, sendHandoff } from './handoff.js';
@@ -110,12 +114,18 @@ import './access-cmd.js';   // ACCESS, DESCRIBE, WHEREAMI, NEARBY, SAYSEL, VOICE
 import { mountAccess } from './access-ui.js';
 import './autodim-cmd.js';   // AUTODIM (0.8 EG.20)
 import './redline-cmd.js';   // REDLINE (RDL): redline to revision (0.8 EG.19)
+import './credits-cmd.js';   // CREDITS: the Library credits as a table in the drawing
 import './tags-cmd.js';   // TAGS: block attributes as tags that feed schedules (0.8 SU.915)
 import './photosketch-cmd.js';   // PHOTOSKETCH (0.8 EG.36)
 import { offerFor } from './details-cmd.js';   // DETAILS (0.8 EG.57)
 import './scan-cmd.js';   // SCANATTACH … SCANTRACE, RASTERSNAP: scanned drawings (0.7 LC.6, session trace)
 import { installScanUi } from './scan-ui.js';
 import './asbuilt.js';        // ASBUILT: as-built points compared with the drawing's (0.6 LC.22, lc-structure)
+import './walls-tools.js';   // the wall tool's recipes in plan walls (0.9 WT.2/3/4/7, walls-plan-09)
+import './mline-cmd.js';   // MLINE (0.9 FX.94)
+import { installWalls, wallGripClick, wallGripPreview } from './walls-cmd.js';   // WALL, DOOR, WINDOW (0.9 PLAN2D.4)
+import { installPlan } from './plan2d-cmd.js';   // FLOORS, LAYGROUP, HATCHEDIT, the hatch link (0.9 PLAN2D.1–3)
+import { grouped, setGroupOpen, groupSwitch, setLayerGroup, groupsOf, deleteGroup } from './layergroups.js';   // 0.9 PLAN2D.2
 import { installClasses } from './classes-cmd.js';   // CLASSES, CLASS, Properties › Class (0.8 SU.912, sx-classes)
 import './vault-cmd.js';   // DOCUMENTS (DOCS): the project document manager (0.8 SU.1058, sx-vault)
 import { CloudAttach, attachFile, CLOUD_ACCEPT, CLOUD_READ, isCloudFile } from './cloud-cad.js';
@@ -142,7 +152,7 @@ function init(root) {
     base: $('[data-base]'), over: $('[data-over]'), stage: $('[data-stage]'),
     history: $('[data-history]'), prompt: $('[data-prompt]'), input: $('[data-cmd-input]'), form: $('[data-cmd-form]'), suggest: $('[data-suggest]'),
     coords: $('[data-coords]'), status: $('[data-status]'), hint: $('[data-hint]'), drop: $('[data-drop]'), busy: $('[data-busy]'), busyText: $('[data-busy-text]'),
-    layers: $('[data-layer-list]'), layerNew: $('[data-layer-new]'), layerForm: $('[data-layer-form]'), layerName: $('[data-layer-name]'),
+    layers: $('[data-layer-list]'), layerFilter: $('[data-layer-filter]'), layerGroupPick: $('[data-layer-group-pick]'), layerNew: $('[data-layer-new]'), layerForm: $('[data-layer-form]'), layerName: $('[data-layer-name]'),
     info: $('[data-info]'), report: $('[data-report]'), props: $('[data-props]'), propsH: $('[data-props-h]'),
     file: $('[data-file]'), snapKinds: $('[data-snap-kinds]'),
     blocks: $('[data-block-list]'), blocksEmpty: $('[data-blocks-empty]'), tabs: $('[data-tabs]'),
@@ -152,7 +162,7 @@ function init(root) {
   // ---- settings (per viewer conveniences only) ----
   const saved = (() => { try { return JSON.parse(localStorage.getItem('cadcraft.settings') || '{}'); } catch { return {}; } })();
   const settings = {
-    grid: saved.grid ?? true, ortho: saved.ortho ?? false, osnap: saved.osnap ?? true,
+    grid: saved.grid ?? true, gsnap: saved.gsnap ?? false, ortho: saved.ortho ?? false, osnap: saved.osnap ?? true,
     polar: saved.polar ?? false, otrack: saved.otrack ?? false, dyn: saved.dyn ?? false, lwt: saved.lwt ?? false, polarInc: saved.polarInc > 0 && saved.polarInc <= 180 ? saved.polarInc : 90,   // polar and object snap tracking (tracking.js)
     kinds: new Set(saved.kinds || ['end', 'mid', 'cen', 'quad', 'int', 'perp', 'node', 'ins']),
     cursor: ['small', 'medium', 'large', 'full'].includes(saved.cursor) ? saved.cursor : 'medium',
@@ -165,6 +175,7 @@ function init(root) {
     trimDrag: saved.trimDrag === 'window' ? 'window' : 'path',   // TRIM / EXTEND, a drag on an empty spot: a freehand path or a window (0.6 DF.13)
     toolbarRows: ['auto', '2', '1'].includes(saved.toolbarRows) ? saved.toolbarRows : 'auto',   // toolbar rows: wrap to fit, two rows, or one that scrolls (CP.1, GJoe2 getcadcraft/cadcraft#2)
     toolbarDock: ['top', 'bottom', 'left', 'right'].includes(saved.toolbarDock) ? saved.toolbarDock : 'top',   // which side the toolbar sits on (0.7 D7.02; top = how it always was)
+    topArea: saved.topArea === 'compact' ? 'compact' : 'standard',   // the bars above the drawing: as they were, or compact (0.9 SU.1083; .cc-top-compact)
     fileKeys: saved.fileKeys === 'off' ? 'off' : 'on',   // a key on every object so a git/Fossil merge can tell objects apart (file-keys.js, 0.8 DC.27)
     details: saved.details === 'off' ? 'off' : 'on',   // offer the firm's details for a selection that matches (details.js, 0.8 EG.57)
     autocomplete: saved.autocomplete === 'off' ? 'off' : 'on',   // drawing autocomplete: ghost geometry from the drawing's own patterns (autocomplete.js, 0.8 EG.54)
@@ -190,7 +201,7 @@ function init(root) {
     settingsDlg?.querySelectorAll('input[name="ccCursor"]').forEach((r) => { r.checked = r.value === size; });
   };
   // Paste point and what a click does to the selection: two radio groups in the same panel.
-  const RADIO_SETTINGS = { ccPaste: 'pasteBase', ccPick: 'pick', ccCorner: 'corner', ccLasso: 'lasso', ccTabs: 'tabs', ccSelTotals: 'selTotals', ccTrimDrag: 'trimDrag', ccEmptyClick: 'emptyClick', ccAutocomplete: 'autocomplete', ccDetails: 'details', ccFileKeys: 'fileKeys', ccToolbarRows: 'toolbarRows', ccToolbarDock: 'toolbarDock' };
+  const RADIO_SETTINGS = { ccPaste: 'pasteBase', ccPick: 'pick', ccCorner: 'corner', ccLasso: 'lasso', ccTabs: 'tabs', ccSelTotals: 'selTotals', ccTrimDrag: 'trimDrag', ccEmptyClick: 'emptyClick', ccAutocomplete: 'autocomplete', ccDetails: 'details', ccFileKeys: 'fileKeys', ccToolbarRows: 'toolbarRows', ccToolbarDock: 'toolbarDock', ccTopArea: 'topArea' };
   const setRadio = (name, value) => {
     settings[RADIO_SETTINGS[name]] = value; persist();
     settingsDlg?.querySelectorAll('input[name="' + name + '"]').forEach((r) => { r.checked = r.value === value; });
@@ -208,8 +219,9 @@ function init(root) {
       if (e.target.name === 'ccAutocomplete') { auto.on = settings.autocomplete !== 'off'; auto.forget(); refreshCursor(); }
       if (e.target.name === 'ccToolbarRows') applyToolbarRows();
       if (e.target.name === 'ccToolbarDock') applyToolbarDock();
+      if (e.target.name === 'ccTopArea') applyTopArea();
     });
-    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); setRadio('ccSelTotals', 'on'); setRadio('ccTrimDrag', 'path'); setRadio('ccEmptyClick', 'clear'); setRadio('ccAutocomplete', 'on'); setRadio('ccDetails', 'on'); setRadio('ccFileKeys', 'on'); Doc.fileKeys = true; setRadio('ccToolbarRows', 'auto'); applyToolbarRows(); setRadio('ccToolbarDock', 'top'); applyToolbarDock(); applyCorner(); renderTabs(); renderSelTotals(); });
+    settingsDlg.addEventListener('cc-settings-reset', () => { setCursor('medium'); setRadio('ccPaste', 'lower-left'); setRadio('ccPick', 'add'); setRadio('ccCorner', 'auto'); setRadio('ccLasso', 'lasso'); setRadio('ccTabs', 'full'); setRadio('ccSelTotals', 'on'); setRadio('ccTrimDrag', 'path'); setRadio('ccEmptyClick', 'clear'); setRadio('ccAutocomplete', 'on'); setRadio('ccDetails', 'on'); setRadio('ccFileKeys', 'on'); Doc.fileKeys = true; setRadio('ccToolbarRows', 'auto'); applyToolbarRows(); setRadio('ccToolbarDock', 'top'); applyToolbarDock(); setRadio('ccTopArea', 'standard'); applyTopArea(); applyCorner(); renderTabs(); renderSelTotals(); });
   }
 
   // The clipboard: this tab's copy + localStorage, so another tab can paste (storage may be off: memory only).
@@ -321,6 +333,7 @@ function init(root) {
     };
     if (window.ccProblems) go(); else document.addEventListener('cc-problems-ready', go, { once: true });
   }
+  (window.ccLibraryCreditSources ||= []).push(() => ({ app: 'cadcraft', source: doc.meta.name || '', items: libraryUses(doc).map((u) => ({ uuid: u.uuid, version: u.version, name: u.name, license: u.license, attribution: u.attribution, url: u.licenseUrl })) }));   // a host's report binder asks for these (lib/report/credits.js)
   window.cadcraft = { doc, view, engine, host, commands: commandRegistry, control: getHost({ app: 'cadcraft' }).control };   // commands: Studio Live's LIVELOCK (live.js)
 
   // ---- history and prompt ----
@@ -389,6 +402,9 @@ function init(root) {
       return;
     }
     if (e.key === ' ' && engine.expects !== 'string' && !host.lispTyping?.(ui.input.value)) { e.preventDefault(); submit(); return; }   // inside "(…" a space is a space (appload.js)
+    if (drop.open && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); drop.move(e.key === 'ArrowDown' ? 1 : -1); return; }   // FX.94: the command drop-down list
+    if (drop.open && e.key === 'Enter' && drop.at >= 0) { ui.input.value = drop.items[drop.at].name; drop.hide(); return; }   // the form's own submit runs it
+    if (drop.open && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); drop.hide(); return; }
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       if (!typed.length) return;
       e.preventDefault();
@@ -415,11 +431,34 @@ function init(root) {
     engine.text(v);
   }
 
+  // FX.94 (lab pass 37): every command that starts with the letters typed, in a drop-down list above the command line (a click or Enter on the marked one runs it)
+  const drop = (() => {
+    const ul = el('ul', { className: 'cc-cmd-drop', role: 'listbox', hidden: true, 'aria-label': t('app.cmd_list'), dataset: { cmdDrop: '' } });
+    ui.form.append(ul);
+    const d = { items: [], at: -1, open: false, ul };
+    const mark = () => { [...ul.children].forEach((li, i) => { li.setAttribute('aria-selected', String(i === d.at)); if (i === d.at) li.scrollIntoView({ block: 'nearest' }); }); };
+    d.hide = () => { d.open = false; d.at = -1; d.items = []; ul.hidden = true; ul.textContent = ''; ui.input.removeAttribute('aria-activedescendant'); };
+    d.move = (n) => { const k = d.items.length + 1; d.at = ((d.at + 1 + n + k) % k) - 1; mark(); };   // -1 = none marked
+    d.show = (items) => {
+      d.items = items; d.at = -1; d.open = items.length > 0; ul.hidden = !d.open; ul.textContent = '';
+      if (d.open) { const r = ui.input.getBoundingClientRect(); ul.style.left = Math.max(4, r.left) + 'px'; ul.style.bottom = Math.max(4, innerHeight - r.top + 4) + 'px'; }
+      items.forEach((c, i) => {
+        const li = el('li', { role: 'option', id: 'cc-cmd-opt-' + i, 'aria-selected': 'false' }, el('b', {}, c.name), c.aliases.length ? el('span', { className: 'cc-cmd-alias' }, ' (' + c.aliases[0] + ')') : '', c.help ? el('span', { className: 'cc-cmd-help' }, ' — ' + c.help) : '');
+        li.addEventListener('mousedown', (ev) => { ev.preventDefault(); ui.input.value = c.name; d.hide(); submit(); });
+        ul.append(li);
+      });
+    };
+    ui.input.addEventListener('blur', () => setTimeout(() => d.hide(), 120));
+    return d;
+  })();
+
   function suggest() {
     const typed = ui.input.value.trim().toUpperCase();
     ui.suggest.textContent = '';
     delete ui.suggest.dataset.cmd;
+    drop.hide();
     if (!typed || engine.waiting) return;
+    if (!/\s/.test(typed)) drop.show(commandList().filter((c) => c.name.startsWith(typed) || c.aliases.some((a) => a.startsWith(typed))).slice(0, 40));
     const exact = lookup(typed);
     const list = commandList();
     const hits = exact ? [list.find((c) => c.name === exact.name)] : list.filter((c) => c.name.startsWith(typed) || c.aliases.some((a) => a.startsWith(typed))).slice(0, 4);
@@ -479,6 +518,7 @@ function init(root) {
     if (name === 'lwt') { view.lwDisplay = settings.lwt; view.invalidate(true); status(t(settings.lwt ? 'status.lwt.on' : 'status.lwt.off')); }
     else if (name === 'dyn') { dyn.reset(settings.dyn && engine.expects === 'point' ? (engine.base ? 'polar' : 'xy') : null); renderDyn(); status(t(settings.dyn ? 'status.dyn.on' : 'status.dyn.off')); }
     else if (name === 'polar' || name === 'otrack') status(t(name === 'polar' ? (settings.polar ? 'status.polar.on' : 'status.polar.off') : (settings.otrack ? 'status.otrack.on' : 'status.otrack.off'), { inc: fmt(settings.polarInc) }));
+    else if (name === 'gsnap') status(t(settings.gsnap ? 'status.gsnap.on' : 'status.gsnap.off'));
     else status(({ grid: 'Grid', ortho: 'Ortho', osnap: t('app.object_snap') })[name] + (settings[name] ? ' on' : ' off'));
     persist();
     refreshCursor();
@@ -488,6 +528,28 @@ function init(root) {
     box.addEventListener('change', () => { if (box.checked) settings.kinds.add(k); else settings.kinds.delete(k); persist(); });
     ui.snapKinds.append(el('label', {}, box, SNAP_LABELS[k]));
   }
+  // the snap menu opens from the chevron, a right-click on Snap (as in AutoCAD) and the OSNAP / DDOSNAP commands
+  const snapMenu = ui.snapKinds.closest('details');
+  host.openSnapKinds = () => {
+    ui.snapKinds.querySelectorAll('input').forEach((box, i) => { box.checked = settings.kinds.has(SNAP_KINDS[i]); });
+    snapMenu.open = true;
+    ui.snapKinds.querySelector('input')?.focus();
+  };
+  toggles.osnap.addEventListener('contextmenu', (e) => { e.preventDefault(); host.openSnapKinds(); });
+  // FX: the ribbon / status-bar layouts clip anything inside them (overflow hidden), so the list is placed on the screen itself, up or down as there is room
+  const snapBox = ui.snapKinds;
+  const placeSnapMenu = () => {
+    if (!snapMenu.open) { snapBox.style.cssText = ''; return; }
+    const r = snapMenu.querySelector('summary').getBoundingClientRect();
+    snapBox.style.position = 'fixed'; snapBox.style.right = 'auto'; snapBox.style.zIndex = '100000';
+    const w = snapBox.offsetWidth || 200, h = snapBox.offsetHeight || 300;
+    snapBox.style.left = Math.max(4, Math.min(innerWidth - w - 4, r.right - w)) + 'px';
+    const up = r.top - h - 6 >= 4, top = up ? r.top - h - 6 : Math.min(r.bottom + 6, Math.max(4, innerHeight - h - 4));
+    snapBox.style.top = top + 'px'; snapBox.style.bottom = 'auto';
+  };
+  snapMenu.addEventListener('toggle', placeSnapMenu);
+  addEventListener('resize', placeSnapMenu);
+  document.addEventListener('pointerdown', (e) => { if (snapMenu.open && !snapMenu.contains(e.target)) snapMenu.open = false; });
 
   let statusTimer = 0;
   function status(s) { ui.status.textContent = s; clearTimeout(statusTimer); statusTimer = setTimeout(() => { ui.status.textContent = ''; }, 4000); }
@@ -805,6 +867,7 @@ function init(root) {
   function editText(e) {
     return new Promise((resolve) => {
       const st = { h: e.h, ls: e.ls || 1, ww: e.ww > 0 ? e.ww : 0, ha: e.ha || 'left', va: e.va || 'baseline' };
+      const baseFont = fontName(e.font);
       const lenBox = (id, label, v, title) => { const i = el('input', { type: 'text', className: 'cc-input', id, value: fmtL(v), title: title || '' }); return [el('label', { htmlFor: id }, label), i]; };
       const [hl, hIn] = lenBox('cc-te-h', t('tedit.height'), st.h);
       const sIn = el('input', { type: 'text', inputMode: 'decimal', className: 'cc-input', id: 'cc-te-ls', value: fmt(st.ls) });
@@ -814,55 +877,95 @@ function init(root) {
         ...Object.keys(JUSTS).map((k) => el('option', { value: k, selected: k === jKey }, t('tedit.just.' + k.toLowerCase()))));
       const ok = el('button', { type: 'button', className: 'cc-te-btn is-primary', title: t('tedit.ok.title') }, t('tedit.ok'));
       const no = el('button', { type: 'button', className: 'cc-te-btn', title: t('tedit.cancel.title') }, t('tedit.cancel'));
-      const ta = el('textarea', { className: 'cc-te-ta', spellcheck: true, 'aria-label': t('tedit.label'), dataset: { textEdit: '' } });
-      ta.value = e.s || '';
-      const bar = el('div', { className: 'cc-te-bar' }, hl, hIn, el('label', { htmlFor: 'cc-te-ls' }, t('tedit.spacing')), sIn, wl, wIn, el('label', { htmlFor: 'cc-te-j' }, t('tedit.just')), jSel, ok, no);
-      const box = el('div', { className: 'cc-te', role: 'group', 'aria-label': t('tedit.label') }, bar, ta);
+      const ta = el('div', { className: 'cc-te-ta', contentEditable: 'true', role: 'textbox', 'aria-multiline': 'true', spellcheck: true, 'aria-label': t('tedit.label'), dataset: { textEdit: '' } });
+      fillBox(ta, e);
+      let dirty = false, unit = 1;   // unit: screen pixels per drawing unit of text height, as place() last set it
+      const touch = () => { dirty = true; place(); };
+      const bar = el('div', { className: 'cc-te-bar' }, hl, hIn, el('label', { htmlFor: 'cc-te-ls' }, t('tedit.spacing')), sIn, wl, wIn, el('label', { htmlFor: 'cc-te-j' }, t('tedit.just')), jSel);
+      const fb = formatBar({
+        box: ta, base: baseFont, t, el, ha: st.ha, onChange: touch,
+        onAlign: (k) => { st.ha = k; const jk = Object.keys(JUSTS).find((q) => JUSTS[q][0] === st.ha && JUSTS[q][1] === st.va); jSel.value = jk || ''; dirty = true; place(); },
+        sizeUnits: (v, sel) => {   // a selection gets its own size (\H, relative to the text's height); no selection = the whole text
+          if (lastRange && !lastRange.collapsed) {   // the size box has the focus now, which drops the selection: put the text's selection back first (FX.94)
+            ta.focus();
+            sel = document.getSelection(); sel.removeAllRanges(); sel.addRange(lastRange);
+          }
+          if (sel && !sel.isCollapsed && ta.contains(sel.anchorNode)) {
+            document.execCommand('styleWithCSS', false, false);
+            document.execCommand('fontSize', false, '7');
+            for (const f of ta.querySelectorAll('font[size="7"]')) { f.removeAttribute('size'); f.style.fontSize = ((v / st.h) * 100).toFixed(1) + '%'; }
+            for (const f of ta.querySelectorAll('[style*="xxx-large"]')) f.style.fontSize = ((v / st.h) * 100).toFixed(1) + '%';
+            touch();
+          } else if (v > 0) { st.h = v; hIn.value = fmtL(v); touch(); }
+        },
+      });
+      let lastRange = null;   // the selection last made inside the text (the format bar's boxes take the focus and with it the selection)
+      const keepRange = () => { const sl = document.getSelection(); if (sl?.rangeCount && ta.contains(sl.anchorNode)) lastRange = sl.getRangeAt(0).cloneRange(); };
+      ta.addEventListener('focusout', keepRange);   // the selection as it stands the moment a bar box takes the focus (selectionchange can arrive after)
+      const setSizeBox = () => {
+        keepRange();
+        const n = document.getSelection()?.anchorNode, host = n && (n.nodeType === 3 ? n.parentNode : n);
+        if (!host || !ta.contains(host) || !unit) return;
+        const px = parseFloat(getComputedStyle(host).fontSize);
+        if (px && document.activeElement !== fb.size) fb.size.value = fmtL(Math.round((px / unit) * 1000) / 1000);
+      };
+      document.addEventListener('selectionchange', setSizeBox);
+      const box = el('div', { className: 'cc-te', role: 'group', 'aria-label': t('tedit.label') }, fb.bar, bar, ta, el('div', { className: 'cc-te-actions' }, ok, no));
       ui.stage.append(box);
       // place it: the text's top-left corner (its own frame, horizontal on screen), at the drawing's size where readable
       const place = () => {
         const z = view.zoom, real = st.h * z * FONT_EM;
         const font = Math.min(160, Math.max(12, real)), k = font / real;
-        const lay = textLayout({ ...e, h: st.h, ls: st.ls, ww: st.ww, ha: st.ha, va: st.va, s: ta.value || ' ' });
+        unit = st.h > 0 ? font / st.h : 1;
+        const lay = textLayout({ ...e, h: st.h, ls: st.ls, ww: st.ww, ha: st.ha, va: st.va, s: plainNow() || ' ', mt: undefined });
         const W = st.ww > 0 ? st.ww : Math.max(lay.box.w, st.h * 12);
         const left = st.ha === 'center' ? -W / 2 : st.ha === 'right' ? -W : 0;
         const top = lay.box.y + lay.box.h;
         const p0 = view.toScreen(e.x + Math.cos(e.rot || 0) * left - Math.sin(e.rot || 0) * top, e.y + Math.sin(e.rot || 0) * left + Math.cos(e.rot || 0) * top);
         const p = { x: p0.x + view.x0, y: p0.y + view.y0 };   // split screen: from the pane to the stage
-        Object.assign(ta.style, { fontFamily: DRAWING_FONT, fontSize: font.toFixed(2) + 'px', lineHeight: (st.h * LINE_SPACING * st.ls * z * k).toFixed(2) + 'px', width: Math.max(80, W * z * k).toFixed(0) + 'px' });
+        Object.assign(ta.style, { fontFamily: familyOf(e.font, DRAWING_FONT), fontSize: font.toFixed(2) + 'px', lineHeight: (st.h * LINE_SPACING * st.ls * z * k).toFixed(2) + 'px', width: Math.max(80, W * z * k).toFixed(0) + 'px', textAlign: st.ha });
         const sw = ui.stage.clientWidth, sh = ui.stage.clientHeight;
         box.style.left = Math.max(4, Math.min(sw - 200, p.x)).toFixed(0) + 'px';
-        box.style.top = Math.max(4, Math.min(sh - 80, p.y - bar.offsetHeight - 4)).toFixed(0) + 'px';
+        box.style.top = Math.max(4, Math.min(sh - 80, p.y - fb.bar.offsetHeight - bar.offsetHeight - 8)).toFixed(0) + 'px';
         ta.style.height = 'auto'; ta.style.height = Math.max(ta.scrollHeight, font * 1.6) + 'px';
       };
+      const plainNow = () => runsToMtext(buildRuns(ta, { font: baseFont }), { font: baseFont }).s;
       place();
       let done = false;
       const finish = (save) => {
         if (done) return;
         done = true;
         cancelEdit = null;
+        document.removeEventListener('selectionchange', setSizeBox);
+        const out = save ? (() => {
+          const v = runsToMtext(buildRuns(ta, { font: baseFont }), { font: baseFont });
+          return { s: v.s, ...(dirty ? { mt: v.mt } : {}), h: st.h, ls: st.ls, ww: st.ww, ha: st.ha, va: st.va };   // unchanged text keeps its own codes (nothing is rewritten)
+        })() : null;
         box.remove();
         focusCommandLine();
-        resolve(save ? { s: ta.value.replace(/\r/g, ''), h: st.h, ls: st.ls, ww: st.ww, ha: st.ha, va: st.va } : null);
+        resolve(out);
       };
-      const len = (inp, set) => inp.addEventListener('change', () => { const v = parseLength(inp.value, doc.meta.lunits, doc.meta.units); if (v !== null && v >= 0) { set(v); place(); } inp.value = fmtL(inp === hIn ? st.h : st.ww); });
+      const len = (inp, set) => inp.addEventListener('change', () => { const v = parseLength(inp.value, doc.meta.lunits, doc.meta.units); if (v !== null && v >= 0) { set(v); touch(); } inp.value = fmtL(inp === hIn ? st.h : st.ww); });
       len(hIn, (v) => { if (v > 0) st.h = v; });
       len(wIn, (v) => { st.ww = v; });
       sIn.addEventListener('change', () => { const r = readNumber(sIn.value), v = r.ok ? r.value : NaN; if (v >= 0.25 && v <= 4) st.ls = v; sIn.value = fmt(st.ls); place(); });
-      jSel.addEventListener('change', () => { if (JUSTS[jSel.value]) [st.ha, st.va] = JUSTS[jSel.value]; place(); });
-      ta.addEventListener('input', place);
+      jSel.addEventListener('change', () => { if (JUSTS[jSel.value]) { [st.ha, st.va] = JUSTS[jSel.value]; for (const x of fb.bar.querySelectorAll('[data-te-align]')) x.setAttribute('aria-pressed', String(x.dataset.teAlign === st.ha)); } place(); });
+      ta.addEventListener('input', touch);
+      ta.addEventListener('paste', (ev) => { ev.preventDefault(); document.execCommand('insertText', false, (ev.clipboardData?.getData('text/plain') || '').replace(/\r/g, '')); });   // text only: no foreign fonts or colours
       ok.addEventListener('click', () => finish(true));
       no.addEventListener('click', () => finish(false));
       box.addEventListener('keydown', (ev) => {
         ev.stopPropagation();
         if (ev.key === 'Escape') { ev.preventDefault(); finish(false); }
         else if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); finish(true); }
-        else if (ev.key === 'Enter' && ev.target !== ta) { ev.preventDefault(); ev.target.dispatchEvent(new Event('change')); }
+        else if (ev.key === 'Enter' && ev.target === ta) { ev.preventDefault(); document.execCommand('insertLineBreak'); }   // a new line, the same in every browser
+        else if (ev.key === 'Enter' && ev.target.tagName !== 'BUTTON') { ev.preventDefault(); ev.target.dispatchEvent(new Event('change')); }
+        else if (ev.ctrlKey && /^[biu]$/i.test(ev.key)) { dirty = true; }
       });
       // a click outside the editor keeps the text, as in AutoCAD
       box.addEventListener('focusout', () => setTimeout(() => { if (!box.contains(document.activeElement)) finish(true); }, 0));
       cancelEdit = () => finish(false);
-      setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 0);
+      setTimeout(() => { ta.focus(); const r = document.createRange(); r.selectNodeContents(ta); r.collapse(false); const sel = document.getSelection(); sel.removeAllRanges(); sel.addRange(r); }, 0);
     });
   }
 
@@ -874,16 +977,24 @@ function init(root) {
     view.invalidate();
   }
 
+  let snapOnceKind = null;   // FX.34: an object snap typed at a point prompt ('mid', 'end' …), for the next pick only
+  host.snapOnce = (k) => { if (snapOnceKind === (k || null)) return; snapOnceKind = k || null; view.invalidate(); };
   /** The point a click or a move stands for: object snap, then object snap tracking, polar tracking, else ortho from the base point. */
   function pointFor(raw) {
     const base = gripEdit ? gripEdit.from : engine.base;
     view.state.track = acquired.length ? { rays: [], acquired } : null;
-    if (settings.osnap && !host.shift) {
-      const s = view.snap(raw, { kinds: settings.kinds, base });
+    if (snapOnceKind === 'none') view.state.snap = null;   // FX.34: typed "none" for this pick
+    else if ((settings.osnap || snapOnceKind) && !host.shift) {
+      const s = view.snap(raw, { kinds: snapOnceKind ? new Set([snapOnceKind]) : settings.kinds, base });
       view.state.snap = s;
       if (s) { watchAcquire(s); return s.defer ? { x: s.x, y: s.y, tan: { c: s.defer, near: { x: raw.x, y: raw.y } } } : { x: s.x, y: s.y }; }   // a deferred tangent travels with the point (DR.3)
     } else view.state.snap = null;
     watchAcquire(null);
+    if (settings.gsnap && !host.shift && view.gridStep) {   // FX: snap to grid (F9): the nearest grid point of the UCS, when no object snap took the point
+      const a = view.ucsAngle(), o = view.ucsOrigin(), c = Math.cos(a), s = Math.sin(a), g = view.gridStep;
+      const dx = raw.x - o.x, dy = raw.y - o.y, u = Math.round((c * dx + s * dy) / g) * g, v = Math.round((-s * dx + c * dy) / g) * g;
+      raw = { x: o.x + c * u - s * v, y: o.y + s * u + c * v };
+    }
     const tol = 8 / view.zoom;
     if (settings.otrack && settings.osnap && !host.shift && acquired.length) {
       const r = trackPoint(acquired, raw, { inc: settings.polarInc, tol, base, polarAll: settings.polar, start: activeUcs(doc)?.ang || 0 });
@@ -932,7 +1043,8 @@ function init(root) {
     view.state.hover = !wantsPoint() && !view.state.box ? (cycle ? cycle.ids[cycle.i] : view.pick(raw)) : null;
     if (gripEdit) {
       const e = doc.get(gripEdit.id);
-      view.state.preview = e ? [gripMove(e, gripEdit.key, p)] : [];
+      const moved = e ? gripMove(e, gripEdit.key, p) : null;
+      view.state.preview = moved ? (wallGripPreview(moved) || [moved]) : [];
     } else if (engine.busy) view.state.preview = withNextGhost(engine.preview(p), raw);
     else view.state.preview = autoGhosts(raw);
     const base = gripEdit ? gripEdit.from : engine.base;
@@ -1131,6 +1243,7 @@ function init(root) {
   let dynMenu = null;
   function closeDynMenu() { if (dynMenu) { dynMenu.remove(); dynMenu = null; } }
   function onDynGrip(g) {
+    if (wallGripClick(doc, g)) { refreshGrips(); scheduleProps(); view.invalidate(); return; }   // a wall's flip arrows (0.9 PLAN2D.4)
     if (!dynGripActs(g.key)) { status(t('dyn.grip.not_yet', { name: g.name || g.kind })); return; }
     const e = doc.get(g.id), info = e && visibilityOf(doc, e);
     if (!info) return;
@@ -1193,7 +1306,7 @@ function init(root) {
     const t = e.target;
     const inField = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') && t !== ui.input;
     const mod = e.ctrlKey || e.metaKey;
-    if (['F3', 'F7', 'F8', 'F10', 'F11', 'F12'].includes(e.key)) { e.preventDefault(); toggle({ F3: 'osnap', F7: 'grid', F8: 'ortho', F10: 'polar', F11: 'otrack', F12: 'dyn' }[e.key]); return; }
+    if (['F3', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12'].includes(e.key)) { e.preventDefault(); toggle({ F3: 'osnap', F7: 'grid', F9: 'gsnap', F8: 'ortho', F10: 'polar', F11: 'otrack', F12: 'dyn' }[e.key]); return; }
     if (e.key === 'Tab' && !e.shiftKey && !mod && !inField && !e.defaultPrevented && acceptGhost()) { e.preventDefault(); return; }
     if (e.key === 'Escape') {
       if (inField) return;
@@ -1348,7 +1461,47 @@ function init(root) {
     vpCtxKey = vctx ? vctx.vp.id + ':' + (vctx.vp.frz || []).join('\n') : '';
     root.querySelector('[data-vpfrz-note]')?.toggleAttribute('hidden', !vctx);
     const list = [...doc.layers.values()].sort((a, b) => (a.name === '0' ? -1 : b.name === '0' ? 1 : a.name.localeCompare(b.name, undefined, { numeric: true })));
-    ui.layers.replaceChildren(...list.map((l) => {
+    const byName = new Map(list.map((l) => [l.name, l]));
+    const needle = (ui.layerFilter?.value || '').trim().toLowerCase();
+    const shownNames = list.map((l) => l.name).filter((n) => !needle || n.toLowerCase().includes(needle));
+    const rows = [];
+    for (const { group, names } of grouped(doc, shownNames)) {
+      if (group) {
+        if (needle && !names.length) continue;
+        rows.push(groupRow(group, names));
+        if (!group.open && !needle) continue;
+      }
+      for (const n of names) { const li = layerRow(byName.get(n)); if (group) li.classList.add('is-grouped'); rows.push(li); }
+    }
+    ui.layers.replaceChildren(...rows);
+    if (ui.layerGroupPick) {   // which group the current layer is in; rows can also be dragged onto a group
+      const on = groupsOf(doc).length > 0;
+      ui.layerGroupPick.parentElement.hidden = !on;
+      if (on) {
+        ui.layerGroupPick.replaceChildren(el('option', { value: '' }, t('plan2d.group.none')), ...groupsOf(doc).map((g) => el('option', { value: g.name }, g.name)));
+        ui.layerGroupPick.value = groupsOf(doc).find((g) => g.layers.includes(doc.current.layer))?.name || '';
+      }
+    }
+    function groupRow(g, names) {
+      const members = names.map((n) => byName.get(n));
+      const allOff = members.length > 0 && members.every((m) => !m.on), allFrozen = members.length > 0 && members.every((m) => m.frozen), allLocked = members.length > 0 && members.every((m) => m.locked);
+      const sw = (key, on, icon, offIcon, label, value) => {
+        const b = el('button', { type: 'button', className: 'cc-flag', 'aria-pressed': String(on), title: label, 'aria-label': t('plan2d.group.flag', { label, name: g.name }), dataset: { groupFlag: key } }, el('i', { className: 'bi bi-' + (on ? icon : offIcon), 'aria-hidden': 'true' }));
+        b.addEventListener('click', () => { groupSwitch(doc, g.name, key, value); renderLayers(); });
+        return b;
+      };
+      const name = el('button', { type: 'button', className: 'cc-layer-gname', 'aria-expanded': String(g.open), title: g.name, dataset: { layerGroup: g.name }, onClick: () => { setGroupOpen(doc, g.name, !g.open); renderLayers(); } },
+        el('i', { className: 'bi bi-chevron-' + (g.open ? 'down' : 'right'), 'aria-hidden': 'true' }), el('i', { className: 'bi bi-folder2' + (g.open ? '-open' : ''), 'aria-hidden': 'true' }), ' ', g.name, ' ', el('span', { className: 'cc-muted' }, String(g.layers.filter((n) => doc.layers.has(n)).length)));
+      const del = el('button', { type: 'button', className: 'cc-flag', title: t('plan2d.group.delete'), 'aria-label': t('plan2d.group.delete') + ' ' + g.name, dataset: { groupDelete: g.name } }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' }));
+      del.addEventListener('click', () => { deleteGroup(doc, g.name); renderLayers(); });
+      const dropIn = (ev) => { ev.preventDefault(); const n = ev.dataTransfer.getData('application/x-cc-layer'); if (n) { setLayerGroup(doc, n, g.name); renderLayers(); } };
+      return el('li', { className: 'cc-layer-grp' + (allOff || allFrozen ? ' is-off' : ''), dataset: { groupRow: g.name }, onDragover: (ev) => ev.preventDefault(), onDrop: dropIn }, name,
+        el('span', { className: 'cc-layer-flags' },
+          sw('on', allOff, 'eye-slash', 'eye', allOff ? t('plan2d.group.on') : t('plan2d.group.off'), allOff),
+          sw('frozen', allFrozen, 'snow', 'snow', allFrozen ? t('plan2d.group.thaw') : t('plan2d.group.freeze'), !allFrozen),
+          sw('locked', allLocked, 'lock', 'unlock', allLocked ? t('plan2d.group.unlock') : t('plan2d.group.lock'), !allLocked), del));
+    }
+    function layerRow(l) {
       const cur = doc.current.layer === l.name;
       const colorIn = el('input', { type: 'color', value: toHex6(swatch(l.color)), 'aria-label': t('app.layer.colour', { name: l.name }) });
       colorIn.addEventListener('change', () => doc.setLayer(l.name, { color: nearestBasic(colorIn.value) }));
@@ -1360,7 +1513,7 @@ function init(root) {
         });
         return b;
       };
-      const li = el('li', { className: (cur ? 'is-current ' : '') + (!l.on || l.frozen ? 'is-off' : '') },
+      const li = el('li', { className: (cur ? 'is-current ' : '') + (!l.on || l.frozen ? 'is-off' : ''), dataset: { layerRow: l.name }, draggable: groupsOf(doc).length ? 'true' : null, onDragstart: (ev) => ev.dataTransfer.setData('application/x-cc-layer', l.name) },
         el('button', { type: 'button', className: 'cc-layer-cur', title: cur ? t('app.current_layer') : t('app.make_current'), 'aria-label': t(cur ? 'app.layer.current_aria' : 'app.layer.make_current_aria', { name: l.name }), onClick: () => setCurrent(l.name) }),
         el('span', { className: 'cc-swatch', style: 'background:' + swatch(l.color), title: colorLabel(l.color) }, colorIn),
         el('button', { type: 'button', className: 'cc-layer-name', title: l.name, onClick: () => setCurrent(l.name) }, l.name),
@@ -1377,7 +1530,7 @@ function init(root) {
           })()] : [])),
       );
       return li;
-    }));
+    }
   }
   function setCurrent(name) {
     doc.setLayer(name, {}, { current: true });   // turns it on and thaws it too; one undo step
@@ -1385,6 +1538,8 @@ function init(root) {
     renderLayers();
     scheduleProps();
   }
+  ui.layerFilter?.addEventListener('input', () => renderLayers());   // 0.9 PLAN2D.2
+  ui.layerGroupPick?.addEventListener('change', () => { setLayerGroup(doc, doc.current.layer, ui.layerGroupPick.value || null); renderLayers(); });
   ui.layerNew.addEventListener('click', () => { ui.layerForm.hidden = !ui.layerForm.hidden; if (!ui.layerForm.hidden) ui.layerName.focus(); });
   ui.layerForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -1537,6 +1692,19 @@ function init(root) {
   function applyToolbarDock() { root.dataset.toolbarDock = settings.toolbarDock; applyToolbarRows(); view.resize?.(); }
   host.setToolbarDock = (side) => { if (!['top', 'bottom', 'left', 'right'].includes(side)) return false; setRadio('ccToolbarDock', side); applyToolbarDock(); return true; };
   host.getToolbarDock = () => settings.toolbarDock;
+  // ---- the top area (0.9 SU.1083): compact = the toolbar's and the ribbon's words under the icons and group names go (tooltips and
+  // screen readers keep them) and the bars are tighter; cadcraft.css `.cc.cc-top-compact` (the short-window fit's compact step, kept on) ----
+  function applyTopArea() { root.classList.toggle('cc-top-compact', settings.topArea === 'compact'); applyToolbarRows(); }
+  host.setTopArea = (mode) => { if (mode !== 'compact' && mode !== 'standard') return false; setRadio('ccTopArea', mode); applyTopArea(); return true; };
+  host.getTopArea = () => settings.topArea;
+  applyTopArea();
+  // ---- the command line (0.9 SU.1083, cmdline.js): docked or floating, its height in history lines, F2 = the history pop-up ----
+  const cmdLine = installCmdLine({ root, bar: root.querySelector('[data-cmd-bar]'), history: ui.history, form: ui.form, input: ui.input, settingsDlg,
+    slug: settingsDlg?.getAttribute('data-app') || 'cadcraft', t, status, focus: () => focusCommandLine(),
+    shortcutTaken: (k) => !!host.shortcuts && new Map(host.shortcuts.keys()).has(k) });
+  host.cmdline = cmdLine;
+  host.setCmdLines = (n) => cmdLine.lines(n);   // the layout-fit prompt (app-fit.js) asks for one line when the drawing is still short
+  host.getCmdLines = () => cmdLine.state().lines;
   // Settings › General › Reset the layout is the shell's: it calls ccInput.resetLayout, so the toolbar goes back to the top with it
   // (until the shell announces a reset itself — see the log: For the owner)
   const hookShellReset = () => {   // the shell's script may load after this one: try again a few times
@@ -1544,7 +1712,7 @@ function init(root) {
     if (!ci || typeof ci.resetLayout !== 'function') return false;
     if (ci.resetLayout.cadcraftDock) return true;
     const shellReset = ci.resetLayout;
-    ci.resetLayout = function () { host.setToolbarDock('top'); return shellReset.apply(this, arguments); };
+    ci.resetLayout = function () { host.setToolbarDock('top'); cmdLine.reset(); return shellReset.apply(this, arguments); };   // 0.9 SU.1083: the command line docks again
     ci.resetLayout.cadcraftDock = true;
     return true;
   };
@@ -1692,6 +1860,9 @@ function init(root) {
   host.laserPanel = async () => { if (!host.laserUi) { const { installLaser } = await import('./laser-cad.js'); host.laserUi = installLaser({ stage: ui.stage, doc, host, el, t, print, ask, focusCommandLine }); } host.laserUi.open(); };
   // classes (0.8 SU.912, sx-classes; CLASSES, View › More): commands + Properties › Class now, the panel (classes-ui.js) on first use
   installClasses();
+  installPlan();   // after the class hook: floors stamp what it stamped
+  installWalls();
+  host.floorsPanel = async () => { if (!host.floorsUi) { const { installFloorsPanel } = await import('./floors-ui.js'); host.floorsUi = installFloorsPanel({ stage: ui.stage, doc, host, el, t, print, ask, focusCommandLine }); } host.floorsUi.open(); };
   host.classesPanel = async () => { if (!host.classesUi) { const { installClassesPanel } = await import('./classes-ui.js'); host.classesUi = installClassesPanel({ stage: ui.stage, doc, host, el, t, print, ask, focusCommandLine }); } host.classesUi.open(); };
   // the Documents panel (0.8 SU.1058, sx-vault; DOCUMENTS): vault-ui.js + lib/vault's copy in vault/, loaded on first use
   host.vaultPanel = async () => { if (!host.vaultUi) { const { installVaultPanel } = await import('./vault-ui.js'); host.vaultUi = installVaultPanel({ stage: ui.stage, doc, host, el, t, print, ask, focusCommandLine, fileHost, openFile: (f) => openLocal(f), currentBytes }); } await host.vaultUi.open(); };
@@ -1704,6 +1875,7 @@ function init(root) {
   installTour({ root, stage: ui.stage, doc, host, el, t, print, focusCommandLine });
   // dimension styles (0.7 D7.14): DIMSTYLE's manager, its Modify form is the Properties panel's dimension fields
   installDimStyles({ root, doc, host, el, t, print, props, focusCommandLine });
+  installTextStyles({ root, doc, host, el, t, print, focusCommandLine });   // 0.9 FX.92: STYLE's dialog
   // the menu styles (0.5 IP.3, input-cadcraft.js + the shell's app-input-ui.js): their messages go to the status bar, and
   // letters stay CadCraft's while a command runs or something is typed at the command line
   window.ccInputHooks = { status: (text) => status(text || ''), busy: () => engine.busy || ui.input.value !== '' };
@@ -2780,6 +2952,8 @@ function init(root) {
       if (l) { if (host.ws3d?.active) host.ws3d.hide(); doc.setSpace(l); applyCorner(); renderTabs(); view.fit(); }
     },
   });
+  // 0.9 ED.1 (live-follow.js): a follower opens the leader's sheet — a layout object, or null for model space
+  host.showSpace = (l) => { if (host.ws3d?.active) host.ws3d.hide(); doc.setSpace(l || null); applyCorner(); renderTabs(); view.invalidate(); };
 
   // ---- constraints and parameters (params-panel.js: the panel, glyphs, dimensional constraint labels) ----
   const params = createParamsPanel({ root, doc, view, engine, host, print, status, ask, focusCommandLine });

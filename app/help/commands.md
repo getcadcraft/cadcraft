@@ -750,6 +750,14 @@ Aliases: `TUTORIAL`. Starts the six-step first-drawing tour again. See [Getting 
 
 Aliases: `TBDOCK`. `Toolbar position [Top/Bottom/Left/Right]`. See [Settings](topic:settings#toolbar-position).
 
+### COMMANDLINE
+
+Aliases: `CMDLINE`. `Command line [Docked at the bottom/Floating/One line/History lines shown/Command history (F2)]`: docks or floats the command line, makes it one line, asks how many history lines to show (0 to 12), or opens the history. See [Settings](topic:settings#command-line).
+
+### TOPAREA
+
+`Top area [Standard/Compact]`: the bars above the drawing as they were, or compact. See [Settings](topic:settings#top-area).
+
 ### POLARANG
 
 `Enter polar angle step in degrees <90>`: the step {{ui:Polar}} tracking lines up at (more than 0, up to 180). Kept in this browser.

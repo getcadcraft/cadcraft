@@ -53,6 +53,7 @@ const FONT_TTF = path.join(ROOT, 'public_html/assets/vendor/liberation-sans/curr
 Pl.setPdfFont(async () => new Uint8Array(fs.readFileSync(FONT_TTF)));
 const U = await load('units.js');
 const Ht = await load('hatch.js');
+const Pf = await load('patfile.js');
 const Tk = await load('tracking.js');
 const Qs = await load('qselect.js');
 const { DynInput } = await load('dynin.js');
@@ -1769,6 +1770,21 @@ section('Paragraph text (MTEXT, TEXTEDIT)');
 }
 
 // ---------------------------------------------------------------------------
+section('Hatch pattern files (.pat, patfile.js)');
+{
+  const txt = ';; a comment\r\n*MYDIAG, my diagonal\r\n45, 0,0, 0,5\r\n*MYDASH\r\n0, 0,0, 0,4, 3,-1 ; dashed\r\n*BAD, no spacing\r\n0,0,0,1,0\r\n*WORSE\r\nnot,a,line,at,all\r\n';
+  const r = Pf.parsePat(txt);
+  ok(r.patterns.length === 2 && r.skipped === 2, 'two good patterns read, the two unreadable ones skipped', r);
+  ok(r.patterns[0].name === 'MYDIAG' && r.patterns[0].description === 'my diagonal' && r.patterns[0].lines[0].dy === 5, 'name, description and line read');
+  ok(r.patterns[1].lines[0].dashes.join() === '3,-1', 'dashes read, comment dropped');
+  const sq = [[0, 0, 10, 0, 10, 10, 0, 10]];
+  const tot = (ps) => ps.reduce((s, q) => s + Math.hypot(q.x2 - q.x1, q.y2 - q.y1), 0);
+  const a = Ht.hatchLines({ type: 'hatch', loops: sq, pattern: 'MYDIAG', patdef: r.patterns[0].lines });
+  const b = Ht.hatchLines({ type: 'hatch', loops: sq, pattern: 'MYDIAG', patdef: r.patterns[0].lines, pscale: 2 });
+  ok(a && near(tot(a), 100 / 5, 3), 'a .pat pattern draws, in drawing units (no metric conversion)', a && tot(a));
+  ok(b && tot(b) / tot(a) > 0.3 && tot(b) / tot(a) < 0.7, 'scale 2 doubles its spacing', tot(b) / tot(a));
+  ok(Pf.parsePat('garbage').patterns.length === 0 && Pf.parsePat(null).patterns.length === 0, 'text that is not a pattern file gives nothing');
+}
 section('Hatch (HATCH, hatch.js)');
 {
   const sq = (x, y, w) => [x, y, x + w, y, x + w, y + w, x, y + w];
@@ -3779,6 +3795,25 @@ section('Properties fields in files (cad-props P.3–P.7, part 2; dwg-props.js)'
     const txt = new TextDecoder('latin1').decode(pdf.bytes);
     ok(lst.views[0].strokes.some((x) => Math.abs(x.alpha - 0.5) < 1e-9) && /\/ExtGState << \/GA0 << \/Type \/ExtGState \/CA 0\.5 \/ca 0\.5/.test(txt), 'plot: 50 % transparency → an ExtGState alpha in the PDF', txt.match(/ExtGState[^>]*>/)?.[0]);
   }
+  {   // 0.9 FX.130: AutoCAD refuses an R12 DIMSTYLE record that has xdata ("Unknown group 1001 for table") or leaves a group out ("Omitted group 4")
+    const t12 = writeDxf(d).text.split(/\r?\n/);
+    const tab = []; let inDim = false;
+    for (let k = 0; k + 1 < t12.length; k += 2) {
+      const c = t12[k].trim(), v = t12[k + 1];
+      if (c === '2' && v === 'DIMSTYLE') { inDim = true; continue; }
+      if (inDim && c === '0' && v === 'ENDTAB') break;
+      if (inDim) tab.push([+c, v]);
+    }
+    const recs = []; for (const [c, v] of tab) { if (c === 0) recs.push([]); else recs[recs.length - 1]?.push([c, v]); }
+    const R12_ORDER = [2, 70, 3, 4, 40, 41, 42, 43, 44, 45, 46, 47, 48, 140, 141, 142, 143, 144, 145, 146, 147, 71, 72, 73, 74, 75, 76, 77, 78, 170, 171, 172, 173, 174, 175, 176, 177, 178];
+    ok(recs.length >= 2 && recs.every((g) => g.map(([c]) => c).join() === R12_ORDER.join()), 'R12 DXF: every DIMSTYLE record has all the groups R12 lists, once each, in its order (no 1001, no 270)', JSON.stringify(recs.map((g) => g.map(([c]) => c).join())));
+    const back = readDxf(writeDxf(d).text);
+    const arch = new Map(back.dimStyles || []).get('ARCH');
+    ok(arch && arch.blk1 === 'ARCHTICK' && arch.dec === 3 && arch.tih === true && near6(arch.txt, 4), 'R12 DXF: what R12 has no variable for (arrowhead, decimals) comes back from the CADCRAFT_DIMSTYLES block', JSON.stringify(arch));
+    const old = writeDxf(d).text.replace(/\r?\n/g, '\n').replace(/(\n  0\nDIMSTYLE\n  2\nARCH\n[\s\S]*?)(\n  0\n)/, (m, a, b) => a + '\n1001\nCADCRAFT\n1000\nCCDIMST:' + JSON.stringify({ blk1: 'DOT', dec: 5 }) + b).replace(/CADCRAFT_DIMSTYLES/g, 'XX_IGNORED_BLOCK');
+    const oldArch = new Map(readDxf(old).dimStyles || []).get('ARCH');
+    ok(oldArch && oldArch.blk1 === 'DOT' && oldArch.dec === 5, 'R12 DXF written before 0.9 (extras as xdata in the DIMSTYLE record) still reads', JSON.stringify(oldArch));
+  }
   // other programs read them too: ezdxf on both DXFs (audit clean, thickness, transparency, widths, oblique, styles)
   const py = path.join(ROOT, 'tools/cadcraft-test/venv/bin/python');
   if (fs.existsSync(py)) {
@@ -5542,6 +5577,41 @@ section('Plot to PDF: Chinese, Japanese and Korean text (0.7 D7.16; cjk-sans, lo
   Pl.setPdfCjkFont(null);
 }
 
+section('Plot to PDF: Thai text (FX.3; thai-sans, loaded only when a plot has Thai)');
+{
+  const THAI_TTF = path.join(ROOT, 'public_html/assets/vendor/thai-sans/current/NotoSansThai-VF.ttf');
+  const lines = { title: 'บ้านพักอาศัย 2 ชั้น', sheet: 'ผังพื้นที่ชั้น 1 และชั้น 2', area: '7.86 ตร.ม. พื้นที่ใช้สอย 54.89 ตร.ม.', marks: 'ที่ นี้ ผู้ ก็ ป่า น้ำ ห้องน้ำ', mixed: 'Rozdzielnica ผัง A-02 ⌀120 ±5' };
+  const plotOf = async (texts, o = {}) => {
+    const d = new Doc();
+    d.change('t', () => texts.forEach((s, i) => d.add({ type: 'text', x: 10, y: 10 + i * 12, h: 5, rot: 0, s, ha: 'left', va: 'baseline' })));
+    return Pl.toPdf(Pl.displayList(d, Pl.modelSheet(d, { area: Pl.extentsOf(d), paper: 'iso-a3', n: 1 })), { title: 'Test', ...o });
+  };
+  let loads = 0;
+  Pl.setPdfThaiFont(async () => { loads++; return new Uint8Array(fs.readFileSync(THAI_TTF)); });
+  const lat = await plotOf(['Съешь же ещё этих мягких французских булок']);
+  ok(loads === 0 && /\+LiberationSans$/.test(lat.report.font), 'Cyrillic: Liberation Sans, the Thai font is not read', lat.report.font + ' loads=' + loads);
+  const all = Object.values(lines);
+  const { bytes, report } = await plotOf(all);
+  ok(loads === 1 && /^[A-Z]{6}\+NotoSansThai$/.test(report.font) && !report.fontError, 'Thai text: the Thai font embedded', JSON.stringify(report));
+  ok(report.missing === 1, 'only the characters the Thai font lacks print "?" and are counted (the ± stays: 1)', JSON.stringify(report));
+  const noSign = await plotOf(all.slice(0, 4).concat(['Rozdzielnica ผัง A-02']));
+  ok(noSign.report.missing === 0, 'Thai with Latin letters, digits and punctuation: nothing printed as "?"', JSON.stringify(noSign.report));
+  const txt = pdftotext(noSign.bytes);
+  if (txt !== null) ok(txt.includes(lines.area) && txt.includes('ที่ นี้ ผู้ ก็ ป่า'), 'pdftotext reads the lines whose marks sit in place back exactly (it files a raised mark under the line)', JSON.stringify(lines.area));
+  const pjsT = path.join(ROOT, 'tools/markupcraft-test/node_modules/pdfjs-dist/legacy/build/pdf.mjs');
+  if (fs.existsSync(pjsT)) {
+    const pdfjs = await import(pathToFileURL(pjsT).href);
+    const pd = await pdfjs.getDocument({ data: noSign.bytes.slice(), isEvalSupported: false, verbosity: 0 }).promise;
+    const items = (await (await pd.getPage(1)).getTextContent()).items.map((i) => i.str).join('\n');
+    ok(['title', 'sheet', 'area', 'marks'].every((k) => items.includes(lines[k])), 'pdf.js reads every Thai line back exactly (the ToUnicode map holds the marks)', JSON.stringify(items.slice(0, 160)));
+  }
+  Pl.setPdfThaiFont(async () => { throw new Error('offline'); });
+  const off = await plotOf([lines.title]);
+  ok(/LiberationSans/.test(off.report.font) && off.report.fontError && off.report.missing === [...'บ้านพักอาศัยชั้น'].length, 'no Thai font to load: Liberation Sans, each Thai character counted as "?", the report says why', JSON.stringify(off.report));
+  Pl.setPdfThaiFont(null);
+  if (process.env.THAI_PDF_OUT) fs.writeFileSync(process.env.THAI_PDF_OUT, noSign.bytes);
+}
+
 section('Properties › Custom for dynamic block references (0.5 DB.3; propdefs.js)');
 {
   const { readDwg } = await load('dwg/read.js');
@@ -5982,6 +6052,33 @@ function fixtureItem(version = 1, wide = 2286) {
   ok(doc.blocks.size === 1 && doc.all().pop().attrs['CC-ITEM'] === '2', 'placed again: the same block, the next item number by default');
   await type('I', 'L', 'R', '90', '400,0', 'K7');
   ok(doc.all().pop().attrs['CC-ITEM'] === 'K7' && near(doc.all().pop().rot, Math.PI / 2), 'R rotates; a typed item number is kept');
+  // 2026-11-02 (BIMBro): stretching is off unless the Library entry allows it; a truck is not stretched because someone wants to
+  ok(a['CC-STRETCH'] === 'none', 'a Library item placed with no stretch allowed says CC-STRETCH none', a['CC-STRETCH']);
+  {
+    const P = await load('propdefs.js');
+    const truckIns = doc.all().find((e) => e.type === 'insert' && e.attrs?.['CC-ITEM'] === '1');
+    host.selection = new Set([truckIns.id]);
+    await type('SC', '0,0', '2');
+    ok(near(doc.get(truckIns.id).sx ?? 1, 1) && near(doc.get(truckIns.id).sy ?? 1, 1) && log.some((l) => /kept its size/.test(l)), 'SCALE leaves a no-stretch Library item at its size and says so', String(doc.get(truckIns.id).sx));
+    const usDef = P.defsFor('insert', [doc.get(truckIns.id)], { doc }).find((d) => d.key === 'us');
+    const r = usDef ? P.applyValue(doc, usDef, [doc.get(truckIns.id)], 3, { doc }) : { ok: true, error: 'no Scale field' };
+    ok(!r.ok && /doesn't allow stretching/.test(r.error) && near(doc.get(truckIns.id).sx ?? 1, 1), 'Properties › Scale is refused with the reason', r.error);
+    const mir = doc.all().find((e) => e.type === 'insert' && e.attrs?.['CC-ITEM'] === '2');
+    ok(Lp.stretchRefused(mir, { ...mir, sx: -(mir.sx ?? 1) }) === false && Lp.stretchRefused(mir, { ...mir, sx: 2 }) === true && Lp.stretchRefused({ type: 'insert', block: 'X', sx: 1, sy: 1 }, { type: 'insert', block: 'X', sx: 2, sy: 2 }) === false,
+       'a mirror is not a stretch; a block that is not a Library item has no rule');
+  }
+  {
+    const h2 = harness();
+    h2.doc.meta.units = 'inches';
+    h2.host.library = async () => ({ item: { ...fixtureItem(1), uuid: '4f2b8c1e-7d4a-4b6e-9a51-0c2d3e4f5a6c', name: 'Generic stretchy table' }, stretch: ['x', 'y'] });
+    await h2.type('I', 'L', '800,0', '');
+    const st = h2.doc.all().pop();
+    ok(st.attrs['CC-STRETCH'] === 'x,y', 'placed from a Library entry that allows X and Y: CC-STRETCH x,y', st.attrs['CC-STRETCH']);
+    h2.host.selection = new Set([st.id]);
+    await h2.type('SC', '800,0', '2');
+    ok(near(h2.doc.get(st.id).sx, 2) && near(h2.doc.get(st.id).sy, 2), 'SCALE stretches it (X and Y allowed)');
+    ok(Lp.stretchRefused(h2.doc.get(st.id), { ...h2.doc.get(st.id), sz: 3 }) === true, 'but not in Z');
+  }
   const uses = Lp.libraryUses(doc);
   ok(uses.length === 1 && uses[0].count === 3 && uses[0].numbers.join(',') === '1,2,K7' && uses[0].license === 'CC-BY-4.0', 'library uses: one item, three placements', JSON.stringify(uses));
   const csv = Lp.creditsCsv(uses);
@@ -5994,6 +6091,37 @@ function fixtureItem(version = 1, wide = 2286) {
   const back = readDxf(text);
   const bu = Lp.libraryUses({ everyEntity: function* () { yield* back.entities; } });
   ok(bu.length === 1 && bu[0].count === 3 && bu[0].attribution === uses[0].attribution && bu[0].uuid === UUID1, 'saved as DXF and read back, the library uses and attribution are the same', JSON.stringify(bu[0]).slice(0, 200));
+  {  // CREDITS: the credits as a table in the drawing, a block that saves and can be updated
+    await import(new URL('../public_html/assets/apps/cadcraft/dev/credits-cmd.js', import.meta.url));
+    const h3 = harness();
+    await h3.type('CREDITS');
+    ok(h3.log.some((l) => /no Library|library items/i.test(l)) && !h3.doc.blocks.has('CC-CREDITS'), 'CREDITS with no Library items says so and draws nothing', h3.log.join(' | '));
+    const h5 = harness();
+    h5.host.library = async () => ({ item: { ...fixtureItem(1) } });
+    await h5.type('I', 'L', '800,0', '');
+    await h5.type('CREDITS', '100,200', '3');
+    const blk = h5.doc.blocks.get('CC-CREDITS'), ins = h5.doc.all().find((e) => e.type === 'insert' && e.block === 'CC-CREDITS');
+    ok(blk && ins && ins.x === 100 && ins.y === 200, 'CREDITS places one block where it is asked', h5.log.join(' | '));
+    const texts = blk ? blk.entities.filter((e) => e.type === 'text') : [];
+    ok(texts.length >= 3 && texts.every((e) => e.h === 3) && texts.some((e) => /Generic/.test(e.s)), 'the table holds the credit at the text height asked for', JSON.stringify(texts.map((e) => e.s)));
+    ok(texts.every((e) => e.s.length <= 70), 'long credits are wrapped');
+    ok(Lp.libraryUses(h5.doc).length === 1, 'the table is not itself a Library item in the credits');
+    const dx = writeDxf(h5.doc).text, back5 = readDxf(dx);
+    ok(back5.blocks && [...(back5.blocks.values?.() || Object.values(back5.blocks))].some((b) => /CC.CREDITS/.test(b.name)), 'it saves to DXF as a block');
+    const n0 = h5.doc.all().length;
+    h5.host.library = async () => ({ item: { ...fixtureItem(1), uuid: '4f2b8c1e-7d4a-4b6e-9a51-0c2d3e4f5a6d', name: 'Another thing', license: { id: 'CC0-1.0', holder: 'X', attribution: 'Another thing by X', url: '' } } });
+    await h5.type('I', 'L', '900,0', '');
+    await h5.type('CREDITS');
+    const blk2 = h5.doc.blocks.get('CC-CREDITS');
+    ok(blk2.entities.some((e) => e.type === 'text' && /Another thing by X/.test(e.s)) && blk2.entities.filter((e) => e.type === 'text').every((e) => e.h === 3), 'run again it updates the table and keeps the height', h5.log.slice(-2).join(' | '));
+    ok(h5.doc.all().filter((e) => e.type === 'insert' && e.block === 'CC-CREDITS').length === 1 && h5.doc.all().length === n0 + 1, 'and adds no second copy');
+    h5.eng.undo?.();
+  }
+  {  // the report binder reads the same file without opening it (lib/report/credits.js)
+    const { fromDxfText } = await import(new URL('../lib/report/credits.js', import.meta.url));
+    const cr = fromDxfText(text, 'x.dxf');
+    ok(cr.length === 3 && cr.every((e) => e.uuid === UUID1 && e.attribution === uses[0].attribution && e.license === 'CC-BY-4.0'), 'the credits kit reads this DXF (curly quotes included)', JSON.stringify(cr[0]));
+  }
   const au = ezdxfAudit(text);
   if (au) ok(au.errors === 0 && au.attribs.length === 3 && au.attribs[0].attribs.some((a) => a[0] === 'CC-ITEM-UUID' && a[1] === UUID1 && a[2] === true), 'ezdxf audit of the library block: no errors, invisible CC-ITEM-UUID', JSON.stringify(au.messages));
 
@@ -6104,7 +6232,7 @@ section('Standard tab: steel sections and standard parts (stdlib.js, shapes/; 0.
   const M3 = await load('model3d.js');
   const { commandRegistry } = await load('commands.js');
   const Li = await load('libitem.js');
-  ok(Sd.FAMILIES.length === 20 && Sd.FAMILIES.filter((f) => f.group === 'sections').length === 10, '20 families on the tab: 10 of sections, 10 of parts', Sd.FAMILIES.length);
+  ok(Sd.FAMILIES.length === 31 && Sd.FAMILIES.filter((f) => f.group === 'sections').length === 21, '31 families on the tab: 21 of sections, 10 of parts', Sd.FAMILIES.length);
   const w12 = Sd.standardCards('sec:W', 'w12', 100);
   ok(w12.total === 29 && w12.cards.every((c) => /^W12x/.test(c.name)), 'searching W shapes for "w12" finds the 29 W12 sizes', w12.total + ' ' + w12.cards.map((c) => c.name).join(','));
   ok(Sd.standardCards('part:iso15', '6205').total === 1 && Sd.standardCards('part:iso15', '').total === 33, 'bearings: 33 sizes, "6205" finds one');
@@ -7384,6 +7512,33 @@ section('Text to diagram: Mermaid, PlantUML, D2, a from-to list → blocks and c
     ok(bounds(de) > 0 && bounds(de) < 400, 'the drawing is of a sensible size (symbols scaled to the text height)');
     doc.undo();
     ok(doc.count() === 0, 'undo removes symbols and connectors together');
+    // draw.io XML (0.9 SU.drawio): the file's own positions, containers, waypoints, compressed saves
+    const zl = await import('node:zlib');
+    const mx = '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>'
+      + '<mxCell id="lane" value="Plant" style="swimlane;startSize=20" vertex="1" parent="1"><mxGeometry x="20" y="20" width="520" height="200" as="geometry"/></mxCell>'
+      + '<mxCell id="a" value="&lt;b&gt;Pump&lt;/b&gt;&lt;br&gt;P-101" style="rounded=1;html=1;" vertex="1" parent="lane"><mxGeometry x="30" y="60" width="120" height="60" as="geometry"/></mxCell>'
+      + '<mxCell id="b" value="Open?" style="rhombus;html=1;" vertex="1" parent="lane"><mxGeometry x="240" y="50" width="100" height="80" as="geometry"/></mxCell>'
+      + '<UserObject label="Tank" id="c"><mxCell style="ellipse;html=1;" vertex="1" parent="lane"><mxGeometry x="400" y="60" width="100" height="60" as="geometry"/></mxCell></UserObject>'
+      + '<mxCell id="e1" value="water" style="endArrow=classic;" edge="1" parent="1" source="a" target="b"><mxGeometry relative="1" as="geometry"/></mxCell>'
+      + '<mxCell id="e2" style="dashed=1;endArrow=none;startArrow=classic;" edge="1" parent="1" source="b" target="c"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="370" y="30"/></Array></mxGeometry></mxCell>'
+      + '<mxCell id="e3" edge="1" parent="1" source="a"><mxGeometry relative="1" as="geometry"/></mxCell></root></mxGraphModel>';
+    const dx = Dg.parseDiagram('<mxfile><diagram name="P1">' + mx + '</diagram></mxfile>');
+    ok(dx.ok && dx.format === 'drawio' && dx.graph.nodes.length === 3 && dx.graph.edges.length === 2 && dx.graph.groups.length === 1 && dx.skipped === 1, 'draw.io: three blocks, two connectors, one container; a connector with a loose end is skipped and counted', JSON.stringify(dx.graph.groups) + dx.skipped);
+    ok(dx.graph.nodes[0].label === 'Pump\nP-101' && dx.graph.nodes[0].box.x === 50 && dx.graph.nodes[0].box.y === 80 && dx.graph.nodes[1].shape === 'diamond' && dx.graph.nodes[2].shape === 'ellipse' && dx.graph.nodes[2].label === 'Tank', 'draw.io: HTML labels become text, a child sits relative to its container, rhombus and ellipse shapes, <UserObject label>');
+    ok(dx.graph.edges[1].arrow === 'start' && dx.graph.edges[1].dashed && dx.graph.edges[1].via.length === 1 && dx.graph.edges[0].arrow === 'end', 'draw.io: arrow ends, dashed and waypoints are read');
+    const dlay = Dg.layoutGraph(dx.graph, { th: 6 });
+    ok(near(dlay.nodes[0].x, 110 * 0.5, 1e-9) && near(dlay.nodes[1].x - dlay.nodes[0].x, 200 * 0.5, 1e-9) && dlay.edges[1].pts.length === 3, 'draw.io: positions are the file\'s, scaled so 12 px = the text height (6 → 0.5)');
+    const dd = Dg.drawDiagramInto(doc, '<mxfile><diagram>' + mx + '</diagram></mxfile>', { x: 0, y: 0, th: 6, label: 'DIAGRAM' });
+    ok(dd.ok && dd.blocks === 3 && dd.connectors === 2 && doc.undoStack.length === 1 && doc.all().some((e) => e.type === 'text' && e.s === 'Plant') && doc.all().some((e) => e.type === 'poly' && e.closed && e.pts.length === 36), 'draw.io: drawn as ordinary objects in one undo step (container title, 36-sided ellipse)');
+    doc.undo();
+    const cmp = Buffer.from(zl.deflateRawSync(encodeURIComponent(mx))).toString('base64');
+    const cf = '<mxfile><diagram name="P1" id="x">' + cmp + '</diagram></mxfile>';
+    ok(Dg.parseDiagram(cf).error === 'compressed', 'draw.io: a compressed diagram is named, not misread');
+    ok(Dg.parseDiagram(await Dg.inflateDrawio(cf)).graph.nodes.length === 3, 'draw.io: inflateDrawio opens the compressed save');
+    const df = await Dg.drawDiagramFrom(doc, cf, { x: 0, y: 0, th: 6 });
+    ok(df.ok && df.blocks === 3, 'drawDiagramFrom: the one door that opens a compressed file and draws it');
+    doc.undo();
+    ok(Dg.parseDiagram('<mxGraphModel><root><mxCell id="0"/></root></mxGraphModel>').error === 'nothing' && Dg.parseDiagram('<mxGraphModel>' + Array.from({ length: 450 }, (_, i) => '<mxCell id="v' + i + '" vertex="1" parent="1"><mxGeometry width="1" height="1"/></mxCell>').join('') + '</mxGraphModel>').error === 'too_many', 'draw.io: an empty model is "nothing"; hostile sizes are refused');
   }
 }
 
@@ -7421,6 +7576,51 @@ section('GDSII viewer spike: a layout read, flattened and drawn (0.8 SU.752; gds
   const area = h.doc.all().find((x) => x.type === 'poly' && x.closed);
   ok(area && near(Math.abs(Dm0(area)), 32, 1e-6), 'a placed shape measures as the layout says: the first boundary is 4 × 8 µm = 32 µm²', String(area && Dm0(area)));
   function Dm0(p) { let s = 0; for (let i = 0; i < p.pts.length; i++) { const a = p.pts[i], c = p.pts[(i + 1) % p.pts.length]; s += a.x * c.y - c.x * a.y; } return s / 2; }
+}
+
+section('Typed object snap words at a point prompt (0.9 FX.34; commands.js snapWord)');
+{
+  const C = await load('commands.js');
+  ok(C.snapWord('mid')?.kind === 'mid' && C.snapWord('MIDpoint')?.kind === 'mid' && C.snapWord('end')?.kind === 'end' && C.snapWord('cen')?.kind === 'cen' && C.snapWord('qua')?.kind === 'quad'
+    && C.snapWord('int')?.kind === 'int' && C.snapWord('per')?.kind === 'perp' && C.snapWord('tan')?.kind === 'tan' && C.snapWord('nea')?.kind === 'near' && C.snapWord('nod')?.kind === 'node' && C.snapWord('ins')?.kind === 'ins' && C.snapWord('none')?.kind === 'none', 'three letters of each snap name are a snap word');
+  ok(C.snapWord('mi') === null && C.snapWord('e') === null && C.snapWord('mids') === null && C.snapWord('12') === null && C.snapWord('0,0') === null && C.snapWord('') === null, 'two letters, a longer word, numbers and coordinates are not');
+  const h = harness();
+  const once = [];
+  h.host.snapOnce = (k) => once.push(k);
+  await h.type('L'); await h.type('0,0'); await h.type('mid');
+  ok(once.includes('mid') && h.log.some((l) => /midpoint of/.test(l)) && !h.log.some((l) => /Point or option keyword required/.test(l)), 'a snap word at the LINE point prompt is taken (host.snapOnce), not refused');
+  await h.type('5,5');
+  ok(once[once.length - 1] === null, 'the next point clears the one-shot snap');
+}
+
+section('The command line: dock or float, its lines, COMMANDLINE / TOPAREA (0.9 SU.1083; cmdline.js)');
+{
+  const Cl = await load('cmdline.js');
+  const d = Cl.cleanState(null);
+  ok(d.dock === 'bottom' && d.lines === null && d.w === null && Cl.storedForm(d) === null, 'the default: docked, standard height, nothing stored');
+  const s = Cl.cleanState({ dock: 'float', lines: 0, fx: 0.25, fy: 1.7, w: 40.26 });
+  ok(s.dock === 'float' && s.lines === 0 && s.fx === 0.25 && s.fy === 1 && s.w === 40.5, 'a stored value is read back clamped (fy ≤ 1, width to half a rem)', JSON.stringify(s));
+  const junk = Cl.cleanState({ dock: 'left', lines: 99, fx: 'x', fy: NaN, w: 3, extra: '<b>' });
+  ok(junk.dock === 'bottom' && junk.lines === null && junk.fx === 0.5 && junk.w === 24 && !('extra' in junk), 'junk falls back to the defaults (an unknown dock, 99 lines, text), a tiny width to the least', JSON.stringify(junk));
+  ok(Cl.cleanState({ lines: 2.5 }).lines === null && Cl.cleanState({ lines: 12 }).lines === 12 && Cl.cleanState({ lines: -1 }).lines === null, 'lines: whole numbers 0–12 only');
+  ok(JSON.stringify(Cl.storedForm(s)) === JSON.stringify({ dock: 'float', lines: 0, fx: 0.25, fy: 1, w: 40.5 }), 'stored form');
+  ok(Cl.stepLines(null, 'ArrowUp') === 5 && Cl.stepLines(0, 'ArrowDown') === 0 && Cl.stepLines(12, 'ArrowUp') === 12 && Cl.stepLines(3, 'Home') === 0 && Cl.stepLines(3, 'End') === 12 && Cl.stepLines(3, 'x') === 3, 'the height handle\'s keys');
+  const h = harness();
+  const calls = [];
+  let st = { dock: 'bottom', lines: null };
+  h.host.cmdline = { state: () => st, dock: (m) => { calls.push('dock:' + m); st = { ...st, dock: m }; }, lines: (n) => calls.push('lines:' + n), history: (v) => calls.push('history:' + v) };
+  await h.type('COMMANDLINE'); await h.type('F');
+  await h.type('CMDLINE'); await h.type('D');
+  await h.type('CMDLINE'); await h.type('O');
+  await h.type('CMDLINE'); await h.type('L'); await h.type('3');
+  await h.type('CMDLINE'); await h.type('L'); await h.type('30');
+  await h.type('CMDLINE'); await h.type('H');
+  ok(calls.join() === 'dock:float,dock:bottom,lines:0,lines:3,history:true', 'COMMANDLINE / CMDLINE: Float, Dock, One line, Lines 3, History; 30 lines refused', calls.join());
+  ok(h.log.some((l) => /whole number from 0 to 12/.test(l)), 'and says why');
+  let top = 'standard';
+  h.host.setTopArea = (m) => { top = m; return true; }; h.host.getTopArea = () => top;
+  await h.type('TOPAREA'); await h.type('C');
+  ok(top === 'compact' && h.log.some((l) => /Top area: Compact/.test(l)), 'TOPAREA C → compact, and says so');
 }
 
 section('DWG / DXF files');
@@ -7483,6 +7683,126 @@ for (const f of files) {
   }
 }
 if (!files.length) console.log('  (no DWG/DXF files at ' + DWG + ')');
+
+section('Text styles and fonts (0.9 FX.92; textstyles.js, mtext-edit.js, font.js)');
+{
+  const TS = await load('textstyles.js');
+  const Fn = await load('font.js');
+  const Me = await load('mtext-edit.js');
+  const Mt = await load('mtext.js');
+  const { textLayout } = await load('geom.js');
+  ok(Fn.fontName('C:\\Windows\\Fonts\\Arial.ttf') === null && Fn.fontName('txt.shx') === null && Fn.fontName('Courier New') === 'Courier New', 'font names: paths and .shx / built-in names mean the built-in face');
+  ok(Fn.familyOf('Courier New').includes('monospace') && Fn.familyOf('Georgia').includes('serif') && Fn.familyOf('', 'X') === 'X', 'a font name becomes a CSS family with its generic fallback');
+  const mono = { type: 'text', x: 0, y: 0, h: 2.5, s: 'iiii', ha: 'left', va: 'baseline', wf: 1, font: 'Courier New' };
+  const plain = { ...mono, font: undefined };
+  ok(textLayout(mono).box.w > textLayout(plain).box.w * 1.5, 'a monospace font is measured wider than Helvetica for narrow letters', textLayout(mono).box.w + ' vs ' + textLayout(plain).box.w);
+  const d = new Doc();
+  ok(TS.currentName(d) === 'Standard' && TS.listStyles(d).length === 1, 'a new drawing has the Standard style, current');
+  ok(TS.newStyle(d, 'Notes').ok && TS.currentName(d) === 'Notes', 'New makes a style and sets it current');
+  ok(TS.newStyle(d, 'notes').error === 'exists' && TS.newStyle(d, 'a/b').error === 'name', 'a duplicate (any case) or a bad name is refused');
+  TS.modifyStyle(d, 'Notes', { font: 'Courier New', wf: 0.8, obl: 0.2, h: 3 });
+  const np = TS.newTextProps(d);
+  ok(np.style === 'Notes' && np.font === 'Courier New' && np.wf === 0.8 && np.obl === 0.2, 'new text takes the current style\'s font, width, slant and name', JSON.stringify(np));
+  d.change('T', () => d.add({ type: 'text', layer: '0', x: 0, y: 0, h: 2.5, s: 'hello', ha: 'left', va: 'baseline', wf: 1, rot: 0, ...np }));
+  const id = [...d.all()].find((e) => e.type === 'text').id;
+  ok(TS.deleteStyle(d, 'Notes').error === 'used' && TS.deleteStyle(d, 'Standard').error === 'standard', 'a style in use, and Standard, cannot be deleted');
+  const r = TS.modifyStyle(d, 'Notes', { font: 'Georgia' });
+  ok(r.n === 1 && d.get(id).font === 'Georgia', 'changing a style changes the text that uses it', JSON.stringify(d.get(id)));
+  d.undo();
+  ok(d.get(id).font === 'Courier New' && d.textStyles.get('Notes').font === 'Courier New', 'the change is one undo step');
+  TS.setCurrent(d, 'Standard');
+  ok(TS.applyStyle(d, [id], 'Standard').n === 1 && !d.get(id).font && !d.get(id).style, 'Apply puts a style on selected text (Standard: no font, no style name)');
+  // the formatted editor's serializer: a round trip through mtext.js
+  const runs = [{ text: 'Multiline ', st: { font: 'Courier New' } }, { text: 'Text', st: { font: 'Courier New', b: true, u: true, rel: 1.5, color: '#ff0000' } }, { para: true }, { text: 'a{b}\\c', st: { font: 'Courier New' } }];
+  const v = Me.runsToMtext(runs, { font: 'Courier New' });
+  const back = Mt.parse(v.mt);
+  ok(v.s === 'Multiline Text\na{b}\\c' && back.plain === v.s, 'the editor\'s runs become mt + plain text that mtext.js reads back identically', JSON.stringify(v));
+  const bt = back.segs.find((g) => g.text === 'Text');
+  ok(bt.st.b && bt.st.u && bt.st.h.rel === 1.5 && bt.st.color.rgb === '#ff0000' && bt.st.font === 'Courier New', 'bold, underline, size, colour and font are kept per run', JSON.stringify(bt.st));
+  ok(Me.runsToMtext([{ text: 'plain', st: {} }, { para: true }, { text: 'text', st: {} }], {}).mt === null, 'text with no formatting stays plain (no mt)');
+  const rich = { type: 'text', x: 0, y: 0, h: 2.5, s: v.s, mt: v.mt, ha: 'left', va: 'baseline', wf: 1 };
+  ok(textLayout(rich).runs && textLayout(rich).runs[0][0].w > 0, 'the layout measures the runs of a formatted text');
+}
+
+section('ARC: the eleven methods (0.9 FX.137; lib/arcs, arcs.js)');
+{
+  const last = (d) => d.all().pop();
+  const isArc = (a, cx, cy, r, a0, a1) => a && a.type === 'arc' && near(a.cx, cx, 1e-6) && near(a.cy, cy, 1e-6) && near(a.r, r, 1e-6) && near(a.a0, a0, 1e-6) && near(a.a1, a1, 1e-6);
+  const PI = Math.PI;
+  let h = harness();
+  await h.type('ARC', '5,0', 'C', '0,0', '0,9');
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI / 2), 'ARC start, Center, End');
+  h = harness();
+  await h.type('ARC', '5,0', 'C', '0,0', 'A', '90');
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI / 2), 'ARC start, Center, Angle 90');
+  h = harness();
+  await h.type('ARC', '5,0', 'C', '0,0', 'L', String(5 * Math.SQRT2));
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI / 2), 'ARC start, Center, Length (chord)');
+  h = harness();
+  await h.type('ARC', '1,0', 'E', '0,1', 'A', '90');
+  ok(isArc(last(h.doc), 0, 0, 1, 0, PI / 2), 'ARC start, End, Angle');
+  h = harness();
+  await h.type('ARC', '1,0', 'E', '0,1', 'A', '-90');
+  ok(isArc(last(h.doc), 1, 1, 1, PI, 3 * PI / 2), 'ARC start, End, negative Angle bulges the other way');
+  h = harness();
+  await h.type('ARC', '0,0', 'E', '1,1', 'D', '0');
+  ok(isArc(last(h.doc), 0, 1, 1, 3 * PI / 2, 0), 'ARC start, End, Direction (tangent east at the start)');
+  h = harness();
+  await h.type('ARC', '1,0', 'E', '0,1', 'R', '1');
+  ok(isArc(last(h.doc), 0, 0, 1, 0, PI / 2), 'ARC start, End, Radius');
+  h = harness();
+  await h.type('ARC', '1,0', 'E', '0,1', 'R', '-1');
+  ok(isArc(last(h.doc), 1, 1, 1, 3 * PI / 2, PI), 'ARC start, End, negative Radius is the major arc');
+  h = harness();
+  await h.type('ARC', 'C', '0,0', '5,0', '0,9');
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI / 2), 'ARC Center, Start, End');
+  h = harness();
+  await h.type('ARC', 'C', '0,0', '5,0', 'A', '180');
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI), 'ARC Center, Start, Angle');
+  h = harness();
+  await h.type('ARC', 'C', '0,0', '5,0', 'L', '10');
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI), 'ARC Center, Start, Length');
+  // the toolbar feeds the method as a word at the first prompt
+  for (const [m, inputs, want] of [
+    ['SCE', ['5,0', '0,0', '0,9'], [0, 0, 5, 0, PI / 2]], ['SCA', ['5,0', '0,0', '90'], [0, 0, 5, 0, PI / 2]], ['SCL', ['5,0', '0,0', '10'], [0, 0, 5, 0, PI]],
+    ['SEA', ['1,0', '0,1', '90'], [0, 0, 1, 0, PI / 2]], ['SED', ['0,0', '1,1', '0'], [0, 1, 1, 3 * PI / 2, 0]], ['SER', ['1,0', '0,1', '1'], [0, 0, 1, 0, PI / 2]],
+    ['CSE', ['0,0', '5,0', '0,9'], [0, 0, 5, 0, PI / 2]], ['CSA', ['0,0', '5,0', '90'], [0, 0, 5, 0, PI / 2]], ['CSL', ['0,0', '5,0', '10'], [0, 0, 5, 0, PI]], ['3P', ['5,0', '0,5', '-5,0'], [0, 0, 5, 0, PI]],
+  ]) {
+    h = harness();
+    await h.type('ARC', m, ...inputs);
+    ok(isArc(last(h.doc), ...want), 'ARC ' + m + ' from the toolbar', JSON.stringify(last(h.doc)));
+  }
+  // Continue: a line heading east, then an arc that leaves it tangent
+  h = harness();
+  await h.type('LINE', '0,0', '10,0', '');
+  await h.type('ARC', 'CON', '11,1');
+  ok(isArc(last(h.doc), 10, 1, 1, 3 * PI / 2, 0), 'ARC Continue from a line is tangent to it', JSON.stringify(last(h.doc)));
+  await h.type('ARC', '');   // Enter at the start prompt = Continue, from the arc just drawn (it ends at 11,1 heading north)
+  await h.type('10,2');
+  ok(last(h.doc).type === 'arc' && h.doc.all().length === 3, 'ARC Enter continues from the last arc');
+  h = harness();
+  await h.type('ARC', 'CON');
+  ok(h.doc.all().length === 0 && h.log.includes(EN('cmd.arc.nothing_to_continue')), 'ARC Continue with nothing drawn says so');
+  h = harness();
+  await h.type('ARC', '0,0', 'E', '5,0', 'D', '0');
+  ok(h.doc.all().length === 0 && h.log.includes(EN('cmd.arc.err.direction')), 'ARC Direction along the chord is refused, not drawn');
+  h = harness();
+  await h.type('ARC', '5,0', 'C', '0,0', 'L', '11');
+  ok(h.doc.all().length === 0 && h.log.includes(EN('cmd.arc.err.chord')), 'ARC chord longer than the diameter is refused');
+  h = harness();
+  await h.type('ARC', '5,0', 'C', '0,0', 'L', '10');
+  h = harness();
+  await h.type('ARC', '5,0', 'C', '0,0');
+  await h.click(0, 5);   // a pointer click at the end point prompt
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI / 2), 'ARC a click ends Start, Center, End');
+  h = harness();
+  await h.type('ARC', 'SCA', '5,0', '0,0');
+  await h.click(0, 5);   // a click where the angle is asked = the angle swept to it
+  ok(isArc(last(h.doc), 0, 0, 5, 0, PI / 2), 'ARC Start, Center, Angle by pointer');
+  h = harness();
+  await h.type('ARC', '5,0', 'C', '0,0', 'A', '90');
+  ok(h.doc.all().length === 1, 'one undo step per arc');
+}
 
 // DWG saving, read back by three other programs' readers (LibreDWG, libdxfrw, ODA) and by CadCraft again
 if (!args.includes('--no-readers') && fs.existsSync(path.join(APP, 'dwg-save.js'))) {

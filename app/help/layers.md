@@ -109,3 +109,11 @@ Each is one undo step. All three are in {{ui:Tools}} at the top of the {{ui:Laye
 - **The layer still prints in another program.** DXF R12 cannot store "do not plot". CadCraft keeps the setting for itself when the drawing has a sheet, but other programs will plot that layer.
 - **Layer names in capitals after saving.** DXF R12 stores names in capitals, so `Walls` comes back as `WALLS`, and spaces become `_`. A saved DWG keeps names as you typed them.
 - **Renaming, merging or deleting a layer.** Use {{cmd:RENAME}}, {{cmd:LAYMRG}} or {{cmd:LAYDEL}} (also in {{ui:Tools}}): see below.
+
+## Group layers
+
+Keep the list short by putting layers in folders, such as Existing, Proposed and Services. Each folder folds, and its switches turn all its layers on or off, freeze them or lock them together. The current layer is never turned off.
+
+In {{ui:Tools}} on the Layers panel, choose {{ui:Add ready-made groups}} for a set made for small residential work, {{ui:Group by name}} to group layers that share a prefix (`E-Walls`, `E-Doors`), or {{ui:New group}}. Drag a layer onto a folder, or use the list above the layers for the current layer. Type in {{ui:Find a layer}} to narrow the list. `LAYGROUP` (`LG`) does the same at the command line.
+
+The layers themselves don't change, so other CAD programs see them as an ordinary flat list. CadCraft keeps the groups in the file.

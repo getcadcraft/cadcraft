@@ -184,7 +184,7 @@ export function split3d(input) {
   };
   const kept = [];
   strip(input.entities, kept);
-  faces.push(...kept);
+  for (let i = 0; i < kept.length; i++) faces.push(kept[i]);   // not push(...kept): a spread of 200k faces overflows the call stack (0.9 FX.142)
   let flat = 0, placed = 0;
   const blocks = Array.isArray(input.blocks) ? input.blocks : [];
   for (let i = blocks.length - 1; i >= 0; i--) if (isM3dBlock(blocks[i]?.name)) blocks.splice(i, 1);
@@ -210,7 +210,7 @@ export function split3d(input) {
     const out = [];
     walk(input.entities, [1, 0, 0, 1, 0, 0], 0, out);
     placed = Math.min(out.length, MAX_PLACED);
-    faces.push(...out.slice(0, MAX_PLACED));
+    for (let i = 0; i < placed; i++) faces.push(out[i]);   // Plans.dwg: 200k placed faces threw "Maximum call stack size exceeded" here (0.9 FX.142)
   }
   const toOutlines = (list) => {
     if (!Array.isArray(list)) return;

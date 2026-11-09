@@ -31,6 +31,7 @@ import { readDexpi, writeDexpi } from './lib/interop/dexpi.js';
 import { bringOver } from './lib/interop/bring.js';
 import { stash as streamStash } from './lib/interop/feeds.js';
 import { install4 } from './lib/draw4.js';   // 0.8 chem-draw_PART_4: PFD, HEN grid, HAZOP nodes, live labels, tube sheet, plume, loops, totals
+import { installCapeOpen } from './lib/capeopen-ui.js';   // 0.9 IND.3 (cape-open-09): PIDCAPEOPEN + Export › CAPE-OPEN package
 
 export const DEFAULTS = { toolbar: false, sym: { in: 4, mm: 100 }, textH: { in: 0.6, mm: 15 }, lineFormat: DEFAULT_FORMAT, symbol: 'gate', act: 'none', svc: '', size: '', spec: '', arrow: 'end', fn: 'PI' };
 export const LAYERS = {
@@ -524,7 +525,7 @@ export function activate(api) {
   if (calcBody) mountCalc(calcBody, { t, publish: publishCalc, onRun: (id, input, r) => { lastInputs[id] = input; lastCalc = r; lastCalc.id = id; if (draw4) draw4.noteRun(id, r); }, drawingItems: () => (api.doc ? drawingItems(api.doc) : null) });
 
   // ---------------------------------------------------------------------------------------------- toolbar, panel, settings
-  const ACTIONS = [['PIDSYMBOL', 'ui.symbol', 'bi-diagram-3'], ['PIDLINE', 'ui.line', 'bi-bezier2'], ['PIDTAG', 'ui.tag', 'bi-tag'], ['PIDLN', 'ui.ln', 'bi-hash'], ['PIDLIST', 'ui.list', 'bi-table'], ['PIDCHECK', 'ui.check', 'bi-check2-square'], ['PIDCALC', 'ui.calc', 'bi-calculator'], ['PIDZONE', 'ui.zone', 'bi-bullseye'], ['PIDSOURCES', 'ui.sources', 'bi-geo'], ['PIDCONSEQ', 'ui.conseq', 'bi-record-circle'], ['PIDRELIEF', 'ui.relief', 'bi-shield-exclamation'], ['PIDHAZOP', 'ui.hazop', 'bi-clipboard-check'], ['PIDFEEDS', 'ui.feeds', 'bi-box-arrow-in-right'], ['PIDPFD', 'ui.pfd', 'bi-diagram-2'], ['PIDHEN', 'ui.hen', 'bi-grid-3x3'], ['PIDNODE', 'ui.node', 'bi-bounding-box'], ['PIDLIVE', 'ui.live', 'bi-activity'], ['PIDTUBESHEET', 'ui.tubes', 'bi-circle-square'], ['PIDPLUME', 'ui.plume', 'bi-wind']];
+  const ACTIONS = [['PIDSYMBOL', 'ui.symbol', 'bi-diagram-3'], ['PIDLINE', 'ui.line', 'bi-bezier2'], ['PIDTAG', 'ui.tag', 'bi-tag'], ['PIDLN', 'ui.ln', 'bi-hash'], ['PIDLIST', 'ui.list', 'bi-table'], ['PIDCHECK', 'ui.check', 'bi-check2-square'], ['PIDCALC', 'ui.calc', 'bi-calculator'], ['PIDZONE', 'ui.zone', 'bi-bullseye'], ['PIDSOURCES', 'ui.sources', 'bi-geo'], ['PIDCONSEQ', 'ui.conseq', 'bi-record-circle'], ['PIDRELIEF', 'ui.relief', 'bi-shield-exclamation'], ['PIDHAZOP', 'ui.hazop', 'bi-clipboard-check'], ['PIDFEEDS', 'ui.feeds', 'bi-box-arrow-in-right'], ['PIDPFD', 'ui.pfd', 'bi-diagram-2'], ['PIDHEN', 'ui.hen', 'bi-grid-3x3'], ['PIDNODE', 'ui.node', 'bi-bounding-box'], ['PIDLIVE', 'ui.live', 'bi-activity'], ['PIDTUBESHEET', 'ui.tubes', 'bi-circle-square'], ['PIDPLUME', 'ui.plume', 'bi-wind'], ['PIDCAPEOPEN', 'ui.capeopen', 'bi-plug']];
   let bar = null;
   function showToolbar(on) {
     if (bar) { for (const x of bar) x?.remove?.(); bar = null; }
@@ -621,6 +622,7 @@ export function activate(api) {
 
   proc = installProcess(api, { readModel, ensureLayers, sizes, cmd, choose, cleanLine, cleanSymbol, writeXlsx, perUnit, layerOf: (kind, d) => (kind === 'pidline' ? LAYER_OF[d.style] : LAYER_FOR[SYMBOLS[d.sym].group]) });
   draw4 = install4(api, { readModel, ensureLayers, sizes, cmd, perUnit, proc, writeXlsx, lastInputs, publishCalc, describe: describePid });
+  installCapeOpen(api, { cmd, choose, proc });
   api.log('P&ID ready');   // i18n-ignore (developer log)
 }
 

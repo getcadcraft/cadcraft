@@ -23,6 +23,7 @@
  */
 import { cleanClasses, cleanClass, ensureUsed, NONE } from './classes.js';
 import { cleanVpClass } from './vpclass.js';
+import { cleanFloors } from './floors.js';   // 0.9 PLAN2D.3
 import { cleanTagDefs } from './tags.js';   // 0.8 SU.915
 
 export const CLASSES_BLOCK = 'CADCRAFT_CLASSES';
@@ -40,6 +41,21 @@ export function cleanDesign(v) {
     if (Number.isFinite(o.scale) && o.scale > 0 && o.scale <= 1e6) r.scale = o.scale;
     if (Number.isFinite(o.elev) && Math.abs(o.elev) <= 1e9) r.elev = o.elev;
     if (Object.keys(r).length) { out[k] = r; if (++n >= 5000) break; }
+  }
+  return out;
+}
+
+/** layergroups.js cleanGroups, without pulling the layer tools into doc.js. */
+function cleanGroupsData(v) {
+  if (!Array.isArray(v)) return [];
+  const names = new Set(), used = new Set(), out = [];
+  for (const g of v.slice(0, 500)) {
+    const name = typeof g?.name === 'string' ? g.name.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, 64) : '';
+    if (!name || names.has(name.toLowerCase())) continue;
+    names.add(name.toLowerCase());
+    const layers = (Array.isArray(g.layers) ? g.layers : []).filter((n) => typeof n === 'string' && n && !used.has(n)).slice(0, 5000);
+    for (const n of layers) used.add(n);
+    out.push({ name, open: g.open !== false, layers });
   }
   return out;
 }
@@ -66,7 +82,11 @@ export function classesPayload(doc) {
   }
   const tags = cleanTagDefs(doc?.meta?.tagDefs).defs;   // 0.8 SU.915: CadCraft_TagDefs, kept with the classes
   const shell = {};   // 0.8 EG.18 / EG.34: the calc sheets and the design reasons (the shell modules clean them on load)
-  for (const k of ['calcs', 'reasons']) if (doc?.meta?.[k] && typeof doc.meta[k] === 'object') shell[k] = doc.meta[k];
+  for (const k of ['calcs', 'reasons', 'layerGroups', 'floors']) if (doc?.meta?.[k] && typeof doc.meta[k] === 'object') shell[k] = doc.meta[k];
+  { const di = (typeof window !== 'undefined' && window.ccDocInfo ? window.ccDocInfo.save() : null) || doc?.meta?.docinfo; if (di && typeof di === 'object') shell.docinfo = di; }   // 0.9 DI.1: the drawing details, stamped with this save   // + 0.9 PLAN2D.2/.3
+  const vfl = [];   // 0.9 PLAN2D.3: the floor each viewport shows
+  for (const l of doc?.layouts || []) viewportsOf(l).forEach((e, i) => { if (e.flr && vfl.length < MAX_VP) vfl.push({ layout: l.name, i, x: e.x, y: e.y, w: e.w, h: e.h, flr: String(e.flr).slice(0, 16) }); });
+  if (vfl.length) shell.vfl = vfl;
   if (!classes.length && !Object.keys(design).length && !vp.length && !tags.length && !Object.keys(shell).length && !vn.length && !vf.length) return null;
   const data = { format: PAYLOAD, version: 1, classes, ...(Object.keys(design).length ? { design } : {}), ...(vp.length ? { vp } : {}), ...(vn.length ? { vn } : {}), ...(vf.length ? { vf } : {}), ...(tags.length ? { tags } : {}), ...shell };
   const text = JSON.stringify(data).replace(/[^\x20-\x7e]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
@@ -91,7 +111,7 @@ export function classesFromPayload(ents) {
       classes: cleanClasses(o.classes),
       design: cleanDesign(o.design),
       tags: cleanTagDefs(o.tags).defs,
-      ...(o.calcs && typeof o.calcs === 'object' ? { calcs: o.calcs } : {}), ...(o.reasons && typeof o.reasons === 'object' ? { reasons: o.reasons } : {}),
+      ...(o.calcs && typeof o.calcs === 'object' ? { calcs: o.calcs } : {}), ...(o.reasons && typeof o.reasons === 'object' ? { reasons: o.reasons } : {}), ...(o.docinfo && typeof o.docinfo === 'object' ? { docinfo: o.docinfo } : {}), ...(Array.isArray(o.layerGroups) ? { layerGroups: o.layerGroups } : {}), ...(o.floors && typeof o.floors === 'object' ? { floors: o.floors } : {}), ...(Array.isArray(o.vfl) ? { vfl: o.vfl.slice(0, MAX_VP).filter((v) => v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 && typeof v.flr === 'string') } : {}),
       vn: (Array.isArray(o.vn) ? o.vn : []).slice(0, MAX_VP).filter((v) => v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 && typeof v.name === 'string').map((v) => ({ layout: v.layout, i: v.i, x: +v.x, y: +v.y, w: +v.w, h: +v.h, name: v.name.slice(0, 255) })),
       vf: (Array.isArray(o.vf) ? o.vf : []).slice(0, MAX_VP).filter((v) => v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 && Number.isFinite(+v.x) && Number.isFinite(+v.y)).map((v) => ({ layout: v.layout, x: +v.x, y: +v.y, i: v.i })),
       vp: (Array.isArray(o.vp) ? o.vp : []).slice(0, MAX_VP).map((v) => (v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 ? { layout: v.layout, i: v.i, x: +v.x, y: +v.y, w: +v.w, h: +v.h, ovr: cleanVpClass(v.ovr) } : null)).filter((v) => v && v.ovr),
@@ -110,9 +130,15 @@ export function applyClassData(doc, data, design = null) {
   const d = Array.isArray(data) ? { classes: data, design: design || {}, vp: [] } : data && typeof data === 'object' ? data : { classes: [], design: design || {}, vp: [] };
   delete doc.meta.classes;
   delete doc.meta.designLayers;
-  const priorShell = { calcs: doc.meta.calcs, reasons: doc.meta.reasons };
-  delete doc.meta.calcs; delete doc.meta.reasons;
-  for (const k of ['calcs', 'reasons']) { const v = d[k] ?? priorShell[k]; if (v && typeof v === 'object') doc.meta[k] = v; }
+  const priorShell = { calcs: doc.meta.calcs, reasons: doc.meta.reasons, docinfo: doc.meta.docinfo };
+  delete doc.meta.calcs; delete doc.meta.reasons; delete doc.meta.docinfo;
+  const priorPlan = { layerGroups: doc.meta.layerGroups, floors: doc.meta.floors };   // 0.9 PLAN2D.2/.3: untrusted, cleaned here
+  delete doc.meta.layerGroups; delete doc.meta.floors;
+  const groups = cleanGroupsData(d.layerGroups ?? priorPlan.layerGroups);
+  if (groups.length) doc.meta.layerGroups = groups;
+  const floors = cleanFloors(d.floors ?? priorPlan.floors);
+  if (floors) doc.meta.floors = floors;
+  for (const k of ['calcs', 'reasons', 'docinfo']) { const v = d[k] ?? priorShell[k]; if (v && typeof v === 'object') doc.meta[k] = v; }
   const prior = doc.meta.tagDefs;   // a drawing passed between CadCraft's own docs carries it in meta
   delete doc.meta.tagDefs;
   const tagDefs = cleanTagDefs(d.tags ?? prior).defs;
@@ -133,6 +159,7 @@ export function applyClassData(doc, data, design = null) {
   }
   // 0.8 VP-NAME: view names, then the labels that follow them (matched by the viewport's place, then the label's place)
   const findVp = (v) => { const l = (doc.layouts || []).find((x) => x.name === v.layout) || (doc.layouts || []).find((x) => x.name.toLowerCase() === String(v.layout).toLowerCase()); if (!l) return null; const vps = viewportsOf(l); return { l, e: (vps[v.i] && sameFrame(vps[v.i], v) ? vps[v.i] : null) || vps[v.i] || null }; };
+  for (const v of d.vfl || []) { const f = findVp(v); if (f?.e && !f.e.flr) f.e.flr = v.flr; }   // 0.9 PLAN2D.3
   for (const v of d.vn || []) { const f = findVp(v); if (f?.e && !f.e.vname) f.e.vname = v.name; }
   for (const v of d.vf || []) {
     const l = (doc.layouts || []).find((x) => x.name === v.layout) || (doc.layouts || []).find((x) => x.name.toLowerCase() === String(v.layout).toLowerCase());

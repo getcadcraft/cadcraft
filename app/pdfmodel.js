@@ -133,5 +133,5 @@ export function underlayFields(p, z = 0) {
     flags: (clip ? 1 | 16 : 0) | (p.on ? 2 : 0) | (p.mono ? 4 : 0) | 8, contrast: p.contrast, fade: p.fade, clip: clip || [],
   };
 }
-const isAxisRect = (c) => c.length === 4 && ((c[0].x === c[1].x && c[1].y === c[2].y && c[2].x === c[3].x && c[3].y === c[0].y) || (c[0].y === c[1].y && c[1].x === c[2].x && c[2].y === c[3].y && c[3].x === c[0].x));
+const isAxisRect = (c) => { const eq = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)); return c.length === 4 && ((eq(c[0].x, c[1].x) && eq(c[1].y, c[2].y) && eq(c[2].x, c[3].x) && eq(c[3].y, c[0].y)) || (eq(c[0].y, c[1].y) && eq(c[1].x, c[2].x) && eq(c[2].y, c[3].y) && eq(c[3].x, c[0].x))); };
 const rectCorners = (c) => [{ x: Math.min(...c.map((p) => p.x)), y: Math.min(...c.map((p) => p.y)) }, { x: Math.max(...c.map((p) => p.x)), y: Math.max(...c.map((p) => p.y)) }];

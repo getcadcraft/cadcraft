@@ -35,6 +35,7 @@ import { faceTris, faceNormal, edgeFaces, solidInfo, meshDef, edgesDef, smoothNo
 const xp = (c) => (isImagePaint(c) ? paintHex(c) : c);
 import { parseXML, child, kids, walkXML } from './xml.js';
 import { textStrokes, cleanDxfText, cleanMtext } from './strokefont.js';
+import { xmlText, fx, ncName, nameExtra, geometryXml, instanceGeometryXml, nodeXml, documentXml } from './collada-write.js';   // cc-collada (lib/collada, 0.9 SU.1125)
 import { t } from "./i18n.js";
 
 const MAX_VERTS = 2000000;
@@ -1287,7 +1288,7 @@ function cadScene(model) {
       if (!child) continue;
       const wm = mmul(m, inst.m), ins = insertOf(wm, k), cc = inst.color || pc;
       if (ins) { out.push({ t: 'insert', block: blockOf(child, cc), ...ins }); report.inserts++; }
-      else { report.flattened++; out.push(...entsOf(child, wm, cc)); }
+      else { report.flattened++; for (const e of entsOf(child, wm, cc)) out.push(e); }   // no spread: a flattened component of many faces overflowed the stack (0.9 FX.142)
     }
     return out;
   };
@@ -1370,19 +1371,8 @@ export function toDwgModel(model, { created } = {}) {
 // <unit meter> are applied. A node placed by instance_node comes in as a component, so does a
 // geometry used by more than one node; other nodes come in as groups. Not read: textures,
 // skins/morphs, cameras and lights, lookat/skew transforms, references to other files.
-
-const xmlText = (s) => String(s).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f￾￿]/g, '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const fx = (x) => { let v = +(+x).toPrecision(12); if (Object.is(v, -0) || Math.abs(v) < 1e-12) v = 0; return String(v); };
-/** Collada 1.4.1 `name` attributes are NCNames: no spaces or punctuation, no leading digit. */
-const ncName = (s) => {
-  let t = String(s || '').replace(/[^\p{L}\p{N}._-]+/gu, '_');
-  if (!/^[\p{L}_]/u.test(t)) t = '_' + t;
-  return t;
-};
-/** The exact name, kept for ModelCraft in a node's <extra> (other readers use the NCName). */
-const nameExtra = (s) => `<extra><technique profile="ModelCraft"><name>${xmlText(s)}</name></technique></extra>`;
-const rowMajor = (m) => [0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((c) => fx(m[c * 4 + r])).join(' ')).join(' ');
+// The XML is written by cc-collada (collada-write.js, a copy of lib/collada: tools/collada/sync.mjs); exportDAE is ModelCraft's
+// adapter (definitions → geometries, placements → nodes). Its output is byte-identical to 0.8.1's (tools/collada/test.mjs).
 
 /** Is a one-loop face convex (every turn the same way, seen from its front)? */
 function convexFace(def, f, n) {
@@ -1401,7 +1391,6 @@ function convexFace(def, f, n) {
 }
 
 export function exportDAE(model, { name = 'ModelCraft model', date = new Date() } = {}) {
-  const iso = date.toISOString().replace(/\.\d+Z$/, 'Z');
   // materials: one per colour (faces' own, and placement colours filling faces that have none — M8), in the order met
   const colorIdx = new Map();
   model.walk((d, wm, path, pc) => { for (const f of d.faces.values()) { const c = xp(f.color || pc); if (c && !colorIdx.has(c)) colorIdx.set(c, colorIdx.size); } });
@@ -1431,20 +1420,12 @@ export function exportDAE(model, { name = 'ModelCraft model', date = new Date() 
     const lines = [];
     for (const e of d.edges.values()) if (!ef.has(e.a < e.b ? e.a + '|' + e.b : e.b + '|' + e.a)) lines.push(V(e.a), V(e.b));
     if (!sets.size && !lines.length) return null;
-    const src = (sid, arr) => `<source id="${sid}"><float_array id="${sid}-array" count="${arr.length}">${arr.map(fx).join(' ')}</float_array>` +
-      `<technique_common><accessor source="#${sid}-array" count="${arr.length / 3}" stride="3"><param name="X" type="float"/><param name="Y" type="float"/><param name="Z" type="float"/></accessor></technique_common></source>`;
-    const parts = [src(gid + '-pos', pos)];
-    if (nrm.length) parts.push(src(gid + '-nrm', nrm));
-    parts.push(`<vertices id="${gid}-vtx"><input semantic="POSITION" source="#${gid}-pos"/></vertices>`);
-    const mats = [];
+    const mats = [], prims = [];
     for (const [k, set] of sets) {
-      const mat = k ? ' material="mat-' + colorIdx.get(k) + '"' : '';
       if (k) mats.push(colorIdx.get(k));
-      parts.push(`<polylist count="${set.vcount.length}"${mat}><input semantic="VERTEX" source="#${gid}-vtx" offset="0"/><input semantic="NORMAL" source="#${gid}-nrm" offset="1"/>` +
-        `<vcount>${set.vcount.join(' ')}</vcount><p>${set.p.join(' ')}</p></polylist>`);
+      prims.push({ material: k ? 'mat-' + colorIdx.get(k) : null, vcount: set.vcount, p: set.p });
     }
-    if (lines.length) parts.push(`<lines count="${lines.length / 2}"><input semantic="VERTEX" source="#${gid}-vtx" offset="0"/><p>${lines.join(' ')}</p></lines>`);
-    geoms.push(`<geometry id="${gid}" name="${xmlText(ncName(d.name))}"><mesh>${parts.join('')}</mesh></geometry>`);
+    geoms.push(geometryXml({ id: gid, name: d.name, pos, nrm, sets: prims, lines }));
     const info = { id: gid, mats };
     geomInfo.set(key, info);
     return info;
@@ -1455,9 +1436,7 @@ export function exportDAE(model, { name = 'ModelCraft model', date = new Date() 
   const compSeen = new Set();
   const instGeom = (d, dflt) => {
     const g = geomFor(d, dflt);
-    if (!g) return '';
-    const bind = g.mats.length ? '<bind_material><technique_common>' + g.mats.map((i) => `<instance_material symbol="mat-${i}" target="#mat-${i}"/>`).join('') + '</technique_common></bind_material>' : '';
-    return `<instance_geometry url="#${g.id}">${bind}</instance_geometry>`;
+    return g ? instanceGeometryXml(g.id, g.mats.map((i) => 'mat-' + i)) : '';
   };
   const content = (d, dflt = null, depth = 0) => instGeom(d, dflt) + (depth > 32 ? '' : [...d.insts.values()].map((i) => instNode(i, dflt, depth + 1)).join(''));
   function instNode(inst, dflt, depth) {
@@ -1465,36 +1444,24 @@ export function exportDAE(model, { name = 'ModelCraft model', date = new Date() 
     if (!d) return '';
     const cc = inst.color || dflt || null;
     const nm = inst.name || d.name;
-    const head = `<node id="node-${++nodeN}" name="${xmlText(ncName(nm))}" type="NODE"><matrix sid="transform">${rowMajor(inst.m)}</matrix>`;
+    const id = 'node-' + ++nodeN;
     if (d.kind === 'component') {
       const cid = 'comp-' + d.id + (cc ? '-c' + colorIdx.get(cc) : '');
       if (!compSeen.has(cid)) { compSeen.add(cid); compsWanted.push({ d, cc, cid }); }
-      return head + `<instance_node url="#${cid}"/>` + nameExtra(nm) + '</node>';
+      return nodeXml({ id, name: nm, matrix: inst.m, body: `<instance_node url="#${cid}"/>`, extra: nameExtra(nm) });
     }
-    return head + content(d, cc, depth) + nameExtra(nm) + '</node>';
+    return nodeXml({ id, name: nm, matrix: inst.m, body: content(d, cc, depth), extra: nameExtra(nm) });
   }
-  const scene = `<visual_scene id="scene" name="${xmlText(ncName(name))}"><node id="model" name="${xmlText(ncName(model.root.name || 'Model'))}" type="NODE">${content(model.root)}</node></visual_scene>`;
+  const scene = `<visual_scene id="scene" name="${xmlText(ncName(name))}">` + nodeXml({ id: 'model', name: model.root.name || 'Model', body: content(model.root) }) + '</visual_scene>';
   const libNodes = [];
   for (let i = 0; i < compsWanted.length; i++) {   // grows while component nodes place other components
     const { d, cc, cid } = compsWanted[i];
-    libNodes.push(`<node id="${cid}" name="${xmlText(ncName(d.name))}" type="NODE">${content(d, cc)}${nameExtra(d.name)}</node>`);
+    libNodes.push(nodeXml({ id: cid, name: d.name, body: content(d, cc), extra: nameExtra(d.name) }));
   }
   const colors = [...colorIdx.keys()];
-  const out = ['<?xml version="1.0" encoding="utf-8"?>',
-    '<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">',
-    `<asset><contributor><authoring_tool>ModelCraft</authoring_tool></contributor><created>${iso}</created><modified>${iso}</modified><unit name="meter" meter="1"/><up_axis>Z_UP</up_axis></asset>`];
-  if (colors.length) {
-    out.push('<library_effects>' + colors.map((c, i) => {
-      const h = paintHex(c), rgb = [1, 3, 5].map((o) => fx(parseInt(h.slice(o, o + 2), 16) / 255)).join(' ');
-      return `<effect id="eff-${i}"><profile_COMMON><technique sid="common"><lambert><diffuse><color sid="diffuse">${rgb} 1</color></diffuse></lambert></technique></profile_COMMON></effect>`;
-    }).join('') + '</library_effects>');
-    out.push('<library_materials>' + colors.map((c, i) => `<material id="mat-${i}" name="${isMaterialPaint(c) ? 'Material_' + c.slice(4) : 'Colour_' + c.slice(1)}"><instance_effect url="#eff-${i}"/></material>`).join('') + '</library_materials>');
-  }
-  if (geoms.length) out.push('<library_geometries>' + geoms.join('\n') + '</library_geometries>');
-  if (libNodes.length) out.push('<library_nodes>' + libNodes.join('\n') + '</library_nodes>');
-  out.push('<library_visual_scenes>' + scene + '</library_visual_scenes>');
-  out.push('<scene><instance_visual_scene url="#scene"/></scene>', '</COLLADA>', '');
-  return out.join('\n');
+  const effects = colors.map((c, i) => { const h = paintHex(c); return { id: 'eff-' + i, rgb: [1, 3, 5].map((o) => parseInt(h.slice(o, o + 2), 16) / 255) }; });
+  const materials = colors.map((c, i) => ({ id: 'mat-' + i, name: isMaterialPaint(c) ? 'Material_' + c.slice(4) : 'Colour_' + c.slice(1), effect: 'eff-' + i }));
+  return documentXml({ tool: 'ModelCraft', date, effects, materials, geometries: geoms, libraryNodes: libNodes, scene });
 }
 
 export function importDAE(model, text, name = 'Collada import') {

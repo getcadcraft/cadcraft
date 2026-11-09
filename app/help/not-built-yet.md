@@ -27,7 +27,7 @@ CadCraft is in development. This page lists what the current build does not do, 
 
 | Not built yet | Instead, today |
 |---|---|
-| Hatches tied to their boundary (associative), gradient fills, and patterns beyond the standard set | Hatch again after changing the outline. Opened hatches with other patterns show as a tone. See [Hatch and fill areas](topic:hatch). |
+| Gradient fills | Opened hatches with patterns CadCraft does not have show as a tone. Patterns load from a `.pat` file, and a hatch can be linked to its boundary and then follows it: see [Hatch and fill areas](topic:hatch). |
 | Linetypes with shapes or text in them, and lineweights in a saved DXF R12 | Shapes and text in a file's linetype are left out of its dashes; save as DWG to keep lineweights. |
 | Patterned hatches in a saved DXF | R12 has no hatch: they are saved as their outlines. Save as DWG to keep the pattern. |
 | Associative arrays (edited later as one object) and arrays along a path | {{cmd:ARRAY}} makes plain copies: undo and run it again to change it. |
@@ -53,12 +53,11 @@ CadCraft is in development. This page lists what the current build does not do, 
 | Drawing the Fit choices, and the horizontal text position and text below the line on dimensions other than linear and aligned | They are kept on the object, shown in Properties and saved; CadCraft places the text by its own rule. |
 | Materials that other programs see | A saved file keeps the material name for CadCraft; other programs show the layer's material. |
 | Transparency in DWG 2000 and DXF files | Other programs show those objects solid; CadCraft keeps the transparency. Save as DWG 2004 or later for everyone. |
-| An associative hatch in other programs | The hatch is saved; CadCraft keeps the setting, other programs see a hatch that does not follow its boundary. |
+| A hatch link made in another program | CadCraft saves its own link in DWG and DXF 2000 files; links made in other programs are not read. Use `HATCHEDIT` and Link: see [Hatch and fill areas](topic:hatch). |
 | Coordinates in Properties in the UCS | Properties shows world coordinates; the status bar and {{cmd:ID}} show UCS ones. See [Turn the view and use your own coordinates](topic:ucs-and-turned-view). |
 | Annotative scaling | The annotative setting is kept with text; the annotation scale is always 1:1. (The drawing's scale list is edited with SCALELISTEDIT and saved; it does not drive annotation yet.) |
 | Changing a dynamic block's distances, angles or flips; dynamic blocks kept dynamic when you save in another DWG version or as DXF | Switch its visibility state in Properties › {{ui:Custom}}; its other values show there read only. It stays dynamic when you save it as DWG in the version the drawing came in. See [Dynamic blocks](topic:dynamic-blocks). |
 | Spline fit tolerance, spline degree 6 and above, 3D splines | Fit and control points, degree 1 to 5 and weights are built: see [Splines and polylines](topic:splines). A spline's height (Z) is not kept. |
-| A hatch that follows its boundary (associative) | The associative setting is kept and saved; hatch again after changing the outline. |
 ## Precision aids
 
 | Not built yet | Instead, today |

@@ -25,6 +25,10 @@
  *   PlantUML @startuml … @enduml; [Component], component / node / database / cloud / actor / rectangle / package-less names, `as` aliases,
  *            A --> B : label, -> .. ..> -- ..; `left to right direction`. A sequence diagram (participant / actor lines, -> messages) is drawn as lifelines and messages. Skipped: notes, skinparam, packages.
  *   CSV      header from,to[,label[,type]] (any order, comma, semicolon or tab); without a header the first columns are from, to, label.
+ *   Draw.io  (0.9 SU.drawio) the XML draw.io / diagrams.net saves or a model writes: <mxfile> or a bare <mxGraphModel>; boxes (rectangle, rounded, ellipse, rhombus, text), swimlane / container
+ *            boxes (dashed, titled), connectors with their waypoints, arrow ends and dashed lines. UNLIKE the other languages it keeps the positions in the file (no layout
+ *            pass), scaled so a 12-pixel font is the text height. A file whose diagram is compressed (draw.io's default save) is opened by `inflateDrawio(text)` first
+ *            (async: it uses the browser's / Node's DecompressionStream). Skipped and counted: images, shapes of any other kind drawn as boxes, connectors with a loose end, second pages.
  * Limits: 400 blocks, 1200 connectors, 200 characters per name (a diagram is untrusted text).
  */
 
@@ -58,7 +62,7 @@ class Builder {
     if (this.edges.length >= MAX_EDGES) throw new Error('too_many');
     this.edges.push({ from, to, label: o.label ? clean(o.label) : '', arrow: o.arrow || 'end', dashed: !!o.dashed });
   }
-  graph() { return { dir: this.dir, nodes: [...this.nodes.values()], edges: this.edges, ...(this.groups.length ? { groups: this.groups } : {}), ...(this.sequence ? { sequence: true } : {}) }; }
+  graph() { return { dir: this.dir, ...(this.drawio ? { drawio: true } : {}), nodes: [...this.nodes.values()], edges: this.edges, ...(this.groups.length ? { groups: this.groups } : {}), ...(this.sequence ? { sequence: true } : {}) }; }
 }
 
 // ---- symbols ----
@@ -369,8 +373,124 @@ function parseCsv(text, b) {
   return notes;
 }
 
+
+// ---- draw.io / diagrams.net XML ----
+const XML_ENT = { lt: '<', gt: '>', amp: '&', quot: '"', apos: "'", nbsp: ' ' };
+const unent = (v) => String(v).replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => { if (e[0] === '#') { const c = e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10); return c > 0 && c < 0x110000 ? String.fromCodePoint(c) : ''; } return XML_ENT[e.toLowerCase()] ?? m; });
+/** A small tolerant XML reader (no DOM, no entities beyond the five, no DTD): → { tag, a: {attr}, kids: [] } */
+function xmlTree(src) {
+  const root = { tag: '#', a: {}, kids: [] }, stack = [root];
+  const re = /<!--[\s\S]*?-->|<\?[\s\S]*?\?>|<!\[CDATA\[[\s\S]*?\]\]>|<!DOCTYPE[^>]*>|<(\/?)([A-Za-z_][\w:.-]*)((?:\s+[\w:.-]+\s*=\s*(?:"[^"]*"|'[^']*'))*)\s*(\/?)>/g;
+  let m, n = 0, text = '';
+  while ((m = re.exec(src))) {
+    if (!m[2]) continue;
+    if (++n > 60000) throw new Error('too_many');
+    if (m[1]) { if (stack.length > 1) stack.pop(); continue; }
+    const a = {};
+    m[3].replace(/([\w:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g, (_, k, v1, v2) => { a[k] = unent(v1 ?? v2); return ''; });
+    const el = { tag: m[2], a, kids: [] };
+    stack[stack.length - 1].kids.push(el);
+    if (!m[4]) { if (stack.length > 64) throw new Error('too_many'); stack.push(el); }
+  }
+  void text;
+  return root;
+}
+const walkXml = (el, f) => { for (const k of el.kids) { f(k); walkXml(k, f); } };
+const styleOf = (st) => { const o = {}; for (const part of String(st || '').split(';')) { if (!part) continue; const i = part.indexOf('='); if (i < 0) o[part.trim()] = '1'; else o[part.slice(0, i).trim()] = part.slice(i + 1).trim(); } return o; };
+const drawioText = (v) => unent(String(v || '').replace(/<\s*br\s*\/?>|<\/(?:div|p|li|tr)>/gi, '\n').replace(/<[^>]*>/g, '')).replace(/ /g, ' ').replace(/\n{2,}/g, '\n').trim();
+
+/** Draw.io's default save is <diagram> text: base64 of a raw-deflated, URL-encoded <mxGraphModel>. Returns the text with that inflated → the XML (async), or the text itself. */
+export async function inflateDrawio(text) {
+  const src = String(text ?? '');
+  const m = /<diagram\b[^>]*>\s*([A-Za-z0-9+/=\s]{20,})\s*<\/diagram>/.exec(src);
+  if (!m || typeof DecompressionStream === 'undefined') return src;
+  try {
+    const bin = typeof atob === 'function' ? atob(m[1].replace(/\s+/g, '')) : Buffer.from(m[1], 'base64').toString('binary');
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    const ds = new DecompressionStream('deflate-raw');
+    const out = await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();
+    const xml = decodeURIComponent(new TextDecoder().decode(out));
+    return src.replace(m[0], (open) => open.replace(m[1], () => xml));
+  } catch { return src; }
+}
+
+function parseDrawio(src, b) {
+  let tree;
+  try { tree = xmlTree(src); } catch (e) { if (e.message === 'too_many') throw e; return 0; }
+  let skipped = 0;
+  const models = [];
+  walkXml(tree, (el) => { if (el.tag === 'mxGraphModel') models.push(el); });
+  const pages = []; walkXml(tree, (el) => { if (el.tag === 'diagram') pages.push(el); });
+  if (!models.length) { if (pages.length && pages.every((p) => !p.kids.length)) throw new Error('compressed'); return 0; }
+  skipped += Math.max(0, models.length - 1);   // second and later pages
+  // the cells: <mxCell>, or <object|UserObject label id> wrapping one
+  const cells = [];
+  const collect = (el) => {
+    for (const k of el.kids) {
+      if (k.tag === 'mxCell') cells.push({ a: k.a, el: k, id: k.a.id, value: k.a.value });
+      else if (k.tag === 'object' || k.tag === 'UserObject') { const c = k.kids.find((x) => x.tag === 'mxCell'); if (c) cells.push({ a: { ...c.a, id: k.a.id ?? c.a.id }, el: c, id: k.a.id ?? c.a.id, value: k.a.label ?? c.a.value ?? '' }); }
+      else if (k.tag === 'root') collect(k);
+    }
+  };
+  collect(models[0]);
+  const byId = new Map(cells.map((c) => [String(c.id), c]));
+  const geom = (c) => { const g = c.el.kids.find((x) => x.tag === 'mxGeometry'); if (!g) return null; const f = (k) => { const v = parseFloat(g.a[k]); return Number.isFinite(v) ? v : 0; }; return { x: f('x'), y: f('y'), w: f('width'), h: f('height'), el: g }; };
+  const kidsOf = new Map();
+  for (const c of cells) { const p = String(c.a.parent ?? ''); if (!kidsOf.has(p)) kidsOf.set(p, []); kidsOf.get(p).push(c); }
+  // absolute boxes: a child's x, y are relative to its parent vertex
+  const box = new Map();
+  const abs = (c, depth = 0) => {
+    const id = String(c.id);
+    if (box.has(id)) return box.get(id);
+    const g = geom(c); if (!g || depth > 40) return null;
+    let ox = 0, oy = 0;
+    const par = byId.get(String(c.a.parent ?? ''));
+    if (par && par.a.vertex === '1') { const pb = abs(par, depth + 1); if (pb) { ox = pb.x; oy = pb.y; } }
+    const r = { x: g.x + ox, y: g.y + oy, w: g.w, h: g.h };
+    box.set(id, r);
+    return r;
+  };
+  const isContainer = (c) => { const st = styleOf(c.a.style); return (kidsOf.get(String(c.id)) || []).some((k) => k.a.vertex === '1') && (st.swimlane !== undefined || st.container === '1' || st.group !== undefined || 'childLayout' in st || (c.a.style || '').startsWith('group')); };
+  const nodeIds = new Set(), groupIds = new Set();
+  const edgesAt = new Set(); for (const c of cells) if (c.a.edge === '1') { if (c.a.source) edgesAt.add(String(c.a.source)); if (c.a.target) edgesAt.add(String(c.a.target)); }
+  for (const c of cells) {
+    if (c.a.vertex !== '1') continue;
+    const bx = abs(c); const st = styleOf(c.a.style);
+    if (!bx || (c.a.visible === '0')) { skipped++; continue; }
+    if (isContainer(c) && !edgesAt.has(String(c.id))) {
+      b.groups.push({ id: String(c.id), label: clean(drawioText(c.value)) || '', parent: null, box: bx });
+      groupIds.add(String(c.id));
+      continue;
+    }
+    if (st.shape === 'image' || st.image || /^image[;=]/.test(c.a.style || '')) { skipped++; continue; }
+    const shape = st.rhombus !== undefined || st.shape === 'rhombus' || /^rhombus/.test(c.a.style || '') ? 'diamond' : st.ellipse !== undefined || /^ellipse/.test(c.a.style || '') || st.shape === 'ellipse' || st.shape === 'doubleEllipse' ? 'ellipse' : st.text !== undefined || /^text[;=]?/.test(c.a.style || '') && st.fillColor === undefined && st.strokeColor === undefined ? 'text' : st.rounded === '1' || st.shape === 'terminator' || st.arcSize ? 'round' : 'rect';
+    if (b.nodes.size >= MAX_NODES) throw new Error('too_many');
+    const label = clean(drawioText(c.value));
+    const n = { id: String(c.id), label, shape, box: bx };
+    b.nodes.set(n.id, n);
+    nodeIds.add(n.id);
+  }
+  for (const c of cells) {
+    if (c.a.edge !== '1') continue;
+    const s = String(c.a.source ?? ''), t = String(c.a.target ?? '');
+    if (!nodeIds.has(s) || !nodeIds.has(t)) { skipped++; continue; }
+    const st = styleOf(c.a.style);
+    const g = geom(c);
+    const via = [];
+    if (g) { const arr = g.el.kids.find((x) => x.tag === 'Array' && x.a.as === 'points'); if (arr) for (const p of arr.kids) if (p.tag === 'mxPoint') { const x = parseFloat(p.a.x), y = parseFloat(p.a.y); if (Number.isFinite(x) && Number.isFinite(y)) via.push({ x, y }); } }
+    const endArrow = st.endArrow ?? 'classic', startArrow = st.startArrow ?? 'none';
+    const hasEnd = endArrow !== 'none', hasStart = startArrow !== 'none';
+    if (b.edges.length >= MAX_EDGES) throw new Error('too_many');
+    b.edges.push({ from: s, to: t, label: clean(drawioText(c.value)), arrow: hasEnd && hasStart ? 'both' : hasStart ? 'start' : hasEnd ? 'end' : 'none', dashed: st.dashed === '1', via, ortho: /orthogonal|elbow/i.test(st.edgeStyle || '') });
+  }
+  for (const c of cells) if (c.a.vertex === '1' && !nodeIds.has(String(c.id)) && !groupIds.has(String(c.id)) && c.a.visible !== '0' && !abs(c)) skipped++;
+  b.drawio = true;
+  return skipped;
+}
+
 export function detectFormat(text) {
   const t = String(text);
+  if (/<mxfile\b|<mxGraphModel\b/.test(t)) return 'drawio';
   if (/^\s*(%%.*\n\s*)*(flowchart|graph|sequenceDiagram)\b/i.test(t)) return 'mermaid';
   if (/@startuml/i.test(t)) return 'plantuml';
   const first = t.split(/\r?\n/).find((l) => l.trim()) || '';
@@ -385,7 +505,7 @@ export function parseDiagram(text, format = 'auto') {
   const fmt = format === 'auto' || !format ? detectFormat(src) : format;
   const b = new Builder();
   let skipped = 0;
-  try { skipped = fmt === 'mermaid' ? (/^\s*(%%.*\n\s*)*sequenceDiagram\b/i.test(src) ? parseSequence(src, b, false) : parseMermaid(src, b)) : fmt === 'plantuml' ? (/^\s*(participant|activate|autonumber|alt|loop|opt)\b|-{1,2}>>|\bparticipant\b/im.test(src) ? parseSequence(src, b, true) : parsePlant(src, b)) : fmt === 'csv' ? parseCsv(src, b) : parseD2(src, b); } catch (e) { if (e.message === 'too_many') return { ok: false, error: 'too_many' }; throw e; }
+  try { skipped = fmt === 'mermaid' ? (/^\s*(%%.*\n\s*)*sequenceDiagram\b/i.test(src) ? parseSequence(src, b, false) : parseMermaid(src, b)) : fmt === 'plantuml' ? (/^\s*(participant|activate|autonumber|alt|loop|opt)\b|-{1,2}>>|\bparticipant\b/im.test(src) ? parseSequence(src, b, true) : parsePlant(src, b)) : fmt === 'csv' ? parseCsv(src, b) : fmt === 'drawio' ? parseDrawio(src, b) : parseD2(src, b); } catch (e) { if (e.message === 'too_many' || e.message === 'compressed') return { ok: false, error: e.message }; throw e; }
   if (!b.nodes.size) return { ok: false, error: 'nothing', format: fmt };
   return { ok: true, format: fmt, graph: b.graph(), skipped };
 }
@@ -405,7 +525,49 @@ export function nodeSize(n, th) {
   return { w: Math.max(dia ? 10 * th : 8 * th, dia ? w * 1.5 : w), h: dia ? h * 1.6 : h };
 }
 
+
+/** Draw.io: the file's own positions, scaled so 12 px is the text height `th`; connectors from block edge to block edge through their waypoints. y grows down. */
+function layoutDrawio(graph, th) {
+  const k = th / 12, byId = new Map(graph.nodes.map((n) => [n.id, n]));
+  const nodes = graph.nodes.map((n) => ({ id: n.id, x: (n.box.x + n.box.w / 2) * k, y: (n.box.y + n.box.h / 2) * k, w: n.box.w * k, h: n.box.h * k }));
+  const at = new Map(nodes.map((n) => [n.id, n]));
+  const edge = (a, p) => {   // where the line from a block's centre toward p leaves its outline
+    const dx = p.x - a.x, dy = p.y - a.y;
+    if (!dx && !dy) return { x: a.x, y: a.y };
+    const t = Math.min(a.w / 2 / (Math.abs(dx) || 1e-9), a.h / 2 / (Math.abs(dy) || 1e-9));
+    return { x: a.x + dx * Math.min(t, 1), y: a.y + dy * Math.min(t, 1) };
+  };
+  const edges = graph.edges.map((e, i) => {
+    const a = at.get(e.from), c = at.get(e.to);
+    if (!a || !c) return { i, pts: [], label: null };
+    let pts;
+    const via = (e.via || []).map((p) => ({ x: p.x * k, y: p.y * k }));
+    if (a === c) { const r = a.x + a.w / 2, d = th * 1.2; pts = [{ x: r, y: a.y - a.h * 0.2 }, { x: r + d, y: a.y - a.h * 0.2 }, { x: r + d, y: a.y + a.h * 0.2 }, { x: r, y: a.y + a.h * 0.2 }]; }
+    else if (via.length) pts = [edge(a, via[0]), ...via, edge(c, via[via.length - 1])];
+    else if (e.ortho && Math.abs(c.x - a.x) > 1e-6 && Math.abs(c.y - a.y) > 1e-6 && Math.abs(c.x - a.x) > (a.w + c.w) / 2 * 0.05 && Math.abs(c.y - a.y) > (a.h + c.h) / 2 * 0.05) {
+      const horiz = Math.abs(c.x - a.x) - (a.w + c.w) / 2 >= Math.abs(c.y - a.y) - (a.h + c.h) / 2;
+      if (horiz) { const sx = a.x + Math.sign(c.x - a.x) * a.w / 2, tx = c.x - Math.sign(c.x - a.x) * c.w / 2, mx = (sx + tx) / 2; pts = [{ x: sx, y: a.y }, { x: mx, y: a.y }, { x: mx, y: c.y }, { x: tx, y: c.y }]; }
+      else { const sy = a.y + Math.sign(c.y - a.y) * a.h / 2, ty = c.y - Math.sign(c.y - a.y) * c.h / 2, my = (sy + ty) / 2; pts = [{ x: a.x, y: sy }, { x: a.x, y: my }, { x: c.x, y: my }, { x: c.x, y: ty }]; }
+    } else pts = [edge(a, c), edge(c, a)];
+    let label = null;
+    if (e.label && pts.length >= 2) {
+      let best = 0, ix = 0;
+      for (let j = 0; j + 1 < pts.length; j++) { const len = Math.hypot(pts[j + 1].x - pts[j].x, pts[j + 1].y - pts[j].y); if (len > best) { best = len; ix = j; } }
+      const p0 = pts[ix], p1 = pts[ix + 1];
+      label = { x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2, vertical: Math.abs(p0.x - p1.x) < Math.abs(p0.y - p1.y) };
+    }
+    return { i, pts, label };
+  });
+  // containers: nested ones (their box inside another's) get a depth
+  const gs = (graph.groups || []).map((g) => ({ id: g.id, label: g.label, x0: g.box.x * k, x1: (g.box.x + g.box.w) * k, y0: g.box.y * k, y1: (g.box.y + g.box.h) * k, depth: 0 }));
+  void byId;
+  const xs = [...nodes.flatMap((n) => [n.x - n.w / 2, n.x + n.w / 2]), ...edges.flatMap((e) => e.pts.map((p) => p.x)), ...gs.flatMap((g) => [g.x0, g.x1])];
+  const ys = [...nodes.flatMap((n) => [n.y - n.h / 2, n.y + n.h / 2]), ...edges.flatMap((e) => e.pts.map((p) => p.y)), ...gs.flatMap((g) => [g.y0, g.y1])];
+  return { nodes, edges, ...(gs.length ? { groups: gs } : {}), bounds: { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) } };
+}
+
 export function layoutGraph(graph, { th = 5 } = {}) {
+  if (graph.drawio) return layoutDrawio(graph, th);
   if (graph.sequence) return layoutSequence(graph, th);
   const N = graph.nodes.length, idx = new Map(graph.nodes.map((n, i) => [n.id, i]));
   const horiz = graph.dir === 'LR' || graph.dir === 'RL';
@@ -582,7 +744,7 @@ export function diagramEntities(graph, layout, { x = 0, y = 0, th = 5, layer = '
   for (const g of layout.groups || []) {
     const gx0 = X(g.x0), gx1 = X(g.x1), gy0 = Y(g.y1), gy1 = Y(g.y0);
     ents.push({ type: 'poly', layer, color: null, closed: true, linetype: 'DASHED', pts: [{ x: gx0, y: gy0, b: 0 }, { x: gx1, y: gy0, b: 0 }, { x: gx1, y: gy1, b: 0 }, { x: gx0, y: gy1, b: 0 }], diagram: 'group:' + g.id });
-    ents.push({ type: 'text', layer, color: null, x: gx0 + th * 0.8, y: gy1 - th * 1.2, h: th * 0.9, rot: 0, s: g.label, ha: 'left', va: 'middle', wf: 1 });
+    if (g.label) ents.push({ type: 'text', layer, color: null, x: gx0 + th * 0.8, y: gy1 - th * 1.2, h: th * 0.9, rot: 0, s: g.label, ha: 'left', va: 'middle', wf: 1 });
   }
   for (const l of layout.lifelines || []) ents.push({ type: 'poly', layer, color: null, closed: false, linetype: 'DASHED', pts: [{ x: X(l.x), y: Y(l.y0), b: 0 }, { x: X(l.x), y: Y(l.y1), b: 0 }] });
   graph.nodes.forEach((n, i) => {
@@ -595,11 +757,13 @@ export function diagramEntities(graph, layout, { x = 0, y = 0, th = 5, layer = '
       return;
     }
     let pts;
-    if (n.shape === 'diamond') pts = [{ x: x0, y: cy, b: 0 }, { x: cx, y: y0, b: 0 }, { x: x1, y: cy, b: 0 }, { x: cx, y: y1, b: 0 }];
+    if (n.shape === 'text') { if (n.label) ents.push({ type: 'text', layer, color: null, x: cx, y: cy, h: th, rot: 0, s: n.label, ha: 'center', va: 'middle', wf: 1 }); return; }
+    if (n.shape === 'ellipse') { const N = 36; pts = Array.from({ length: N }, (_, j) => ({ x: cx + Math.cos(j / N * 2 * Math.PI) * p.w / 2, y: cy + Math.sin(j / N * 2 * Math.PI) * p.h / 2, b: 0 })); }
+    else if (n.shape === 'diamond') pts = [{ x: x0, y: cy, b: 0 }, { x: cx, y: y0, b: 0 }, { x: x1, y: cy, b: 0 }, { x: cx, y: y1, b: 0 }];
     else if (n.shape === 'round') { const r = Math.min(p.h / 2, p.w / 2); pts = [{ x: x0 + r, y: y0, b: 0 }, { x: x1 - r, y: y0, b: 1 }, { x: x1 - r, y: y1, b: 0 }, { x: x0 + r, y: y1, b: 1 }]; }   // semicircle ends: bulge 1
     else pts = [{ x: x0, y: y0, b: 0 }, { x: x1, y: y0, b: 0 }, { x: x1, y: y1, b: 0 }, { x: x0, y: y1, b: 0 }];
     ents.push({ type: 'poly', layer, color: null, closed: true, pts, diagram: n.id });
-    ents.push({ type: 'text', layer, color: null, x: cx, y: cy, h: th, rot: 0, s: n.label, ha: 'center', va: 'middle', wf: 1 });
+    if (n.label) ents.push({ type: 'text', layer, color: null, x: cx, y: cy, h: th, rot: 0, s: n.label, ha: 'center', va: 'middle', wf: 1 });
   });
   graph.edges.forEach((e, i) => {
     const r = layout.edges[i];
@@ -639,3 +803,6 @@ export function drawDiagramInto(doc, text, opts = {}) {
   });
   return { ok: true, format: r.format, blocks: r.graph.nodes.length, connectors: r.graph.edges.length, ids, skipped: r.skipped, th };
 }
+
+/** drawDiagramInto after opening a compressed draw.io file (async): the one door for the command, the assistant tool and the headless twin. */
+export async function drawDiagramFrom(doc, text, opts = {}) { return drawDiagramInto(doc, await inflateDrawio(text), opts); }

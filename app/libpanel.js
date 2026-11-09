@@ -20,6 +20,8 @@
 import { el } from './ui-util.js';
 import { LibraryClient, LIBRARYCRAFT, feedUrl, isUuid } from './library.js';
 import { itemProblem, itemEntities, libraryUses, updateLibraryBlock, creditsText, creditsCsv } from './libplace.js';
+/** 2026-11-02: the axes ('x' | 'y' | 'z') the Library lets an item be stretched along ([] = none, the default). */
+const stretchOf = (v) => (Array.isArray(v) ? ['x', 'y', 'z'].filter((a) => v.includes(a)) : []);
 import { prims, entityBounds, validBounds, emptyBounds, growPt } from './geom.js';
 import * as Li from './libitem.js';
 import { entryFromItem, addEntry } from './details.js';
@@ -189,7 +191,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     try {
       const r = await client(source).items({ q: $.q.value.trim(), category: $.cat.value });
       if (my !== loading) return;
-      cards = r.items.map((x) => ({ key: x.uuid + '@' + x.version, uuid: x.uuid, slug: typeof x.slug === 'string' ? x.slug : '', name: String(x.name || ''), maker: String(x.maker || ''), model: String(x.model || ''), license: String(x.license || ''), version: +x.version || 1, category: String(x.category || ''), preview_url: x.preview_url, from: source }));
+      cards = r.items.map((x) => ({ key: x.uuid + '@' + x.version, uuid: x.uuid, slug: typeof x.slug === 'string' ? x.slug : '', name: String(x.name || ''), maker: String(x.maker || ''), model: String(x.model || ''), license: String(x.license || ''), version: +x.version || 1, category: String(x.category || ''), preview_url: x.preview_url, from: source, stretch: stretchOf(x.stretch) }));
       fillCategories(r.items.map((x) => x.category));
       sayAfterEnd(r.total ? r.total + ' item' + (r.total === 1 ? '' : 's') + (r.total > cards.length ? ', showing ' + cards.length : '') + '.' : t('lib.panel.nothing_found'));
     } catch (err) { if (my === loading) { cards = []; say(err.message); } }
@@ -210,7 +212,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
       const it = await client().item(uuid);
       const cur = (Array.isArray(it.versions) ? it.versions : []).filter((v) => v && Number.isInteger(+v.version)).sort((a, b) => b.version - a.version);
       const live = cur.find((v) => v.status === 'published') || cur[0];
-      cards = [{ key: uuid, uuid, slug: typeof it.slug === 'string' ? it.slug : '', name: String(it.name || ''), maker: String(it.maker || ''), model: String(it.model || ''), license: String(live?.license || it.license || ''), version: +(live?.version || it.version || 1), category: String(it.category || ''), preview_url: live?.preview_url || it.preview_url, withdrawn: live && /withdrawn/.test(String(live.status)) ? String(live.withdrawn_reason || 'Withdrawn') : '', from: 'librarycraft' }];
+      cards = [{ key: uuid, uuid, slug: typeof it.slug === 'string' ? it.slug : '', name: String(it.name || ''), maker: String(it.maker || ''), model: String(it.model || ''), license: String(live?.license || it.license || ''), version: +(live?.version || it.version || 1), category: String(it.category || ''), preview_url: live?.preview_url || it.preview_url, withdrawn: live && /withdrawn/.test(String(live.status)) ? String(live.withdrawn_reason || 'Withdrawn') : '', from: 'librarycraft', stretch: stretchOf(live?.stretch ?? it.stretch) }];
       say('');
     } catch (err) { cards = []; say(err.message); }
     render();
@@ -300,7 +302,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
       if (k !== 'go') return;
     }
     // 0.6 WL.7: name and description in the page's language; the block keeps a name from the item's own (one block per item)
-    pending = { item: Li.localizedItem(item, locale()), slug: slug || String(item.name || '') };
+    pending = { item: Li.localizedItem(item, locale()), slug: slug || String(item.name || ''), stretch: card.stretch || [] };   // 2026-11-02: what the Library lets it be stretched along
     if (pickResolve) { $.dlg.close(); return; }       // INSERT is waiting: hand it over
     $.dlg.close();
     const p = pending; pending = null;
@@ -477,7 +479,10 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
       const a = el('a', { href: URL.createObjectURL(new Blob([creditsCsv(uses)], { type: 'text/csv' })), download: t('lib.panel.credits_file', { name: doc.meta.name || 'Drawing1' }) });
       document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000);
     });
-    $.body.replaceChildren(el('h3', { className: 'cc-props-sub' }, t('lib.panel.library_credits')), el('ul', { className: 'cc-lib-rows cc-lib-credits' }, ...rows), el('p', { className: 'cc-lib-actions' }, all, csv, back));
+    const onSheet = doc.blocks.has('CC-CREDITS') && doc.blockUses('CC-CREDITS');
+    const table = el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-lib-credits-table': '' }, t(onSheet ? 'credits.table.update' : 'credits.table.place'));
+    table.addEventListener('click', async () => { if (engine.busy) { engine.escape(); await engine.done; } engine.run('CREDITS'); });
+    $.body.replaceChildren(el('h3', { className: 'cc-props-sub' }, t('lib.panel.library_credits')), el('ul', { className: 'cc-lib-rows cc-lib-credits' }, ...rows), el('p', { className: 'cc-lib-actions' }, table, all, csv, back));
   }
 
   /** Show the option fields the chosen family takes, with this family's defaults as placeholders. */

@@ -1,111 +1,72 @@
 ---
-title: Novinky v 0.7
-summary: Podklady PDF a import PDF, naskenované výkresy s automatickým obkreslením, skutečné spliny s SPLINE, SPLINEDIT a PEDIT, správce stylů kót, text, který zachovává formátování, WBLOCK a vlastní měřítka, 3D tělesa z jiných programů, registrace skenů, panel Laser, export USD, Historie a tisk v CadCraft Studiu, provedení prvním výkresem, panel nástrojů na libovolné straně nebo v méně řádcích a další funkce pro asistenty s umělou inteligencí.
-keywords: novinky, co je nového, poznámky k vydání, seznam změn, změny, 0.7, verze, nové funkce, pdf, pdfattach, pdfimport, podklad, sken, scanattach, scantrace, obkreslení, rastr, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formátování, wblock, scalelistedit, seznam měřítek, acis, 3d tělesa, registerscans, registrace skenů, icp, e57, las, laser, grbl, g-code, usd, usdout, historie, verze, porovnání, tisk, tiskárna, png, svg, styl tisku, typ čáry, prohlídka, tahák, mapa příkazů, poloha panelu nástrojů, řádky panelu nástrojů, toolbardock, regen, regenall, trackpad, přejetí, kódová stránka, azbuka, korejština, čínština, japonština, elektro, rcd, p&id, pid, acad.lsp, acaddoc.lsp, složka podpory, asistenti, mcp, jednotky, portugalština
-from: b9258ca6
+title: Novinky ve verzích 0.8 a 0.8.1
+summary: Duch, který dokončí váš výkres, náčrty perem a fotky náčrtů převedené na geometrii, listy, které se rozvrhnou samy, detaily nabízené během kreslení, GRIDMOVE a AUTODIM, štítky, soubory vhodné pro sloučení, poznámky převedené na revize, rýsování bez zraku, limity výkresu, směrníky, písma SHX, diagramy z textu a opravy ve verzi 0.8.1.
+keywords: novinky, co je nového, poznámky k vydání, seznam změn, změny, 0.8, 0.8.1, verze, nové funkce, automatické doplňování, duch, karta, sketchfix, photosketch, autosheet, detaily, gridmove, autodim, štítky, poznámky, sloučení, git, fossil, přístup, rýsování bez zraku, čtečka obrazovky, limity, směrníky, aunits, shx, diagram, ole, historie, porovnat, slovy, vlastnosti, stopy a palce, natáhnout, jazyky, vstupní zařízení, problémy, živě, asistenti
+from: 9dd82db5
 ---
 
-Zde je přehled změn v CadCraftu 0.7 oproti 0.6. Velká část z toho byla požadována na Discordu. Seznam je seskupen podle oblastí, nejdůležitější nahoře.
+Toto se změnilo v CadCraft 0.8 a 0.8.1 oproti verzi 0.7. Verze 0.8 (1. listopadu 2026) přidává pomocníky kreslení, které pracují z vašeho vlastního výkresu, podle pravidel na vašem počítači a bez modelu. Verze 0.8.1 (2. listopadu 2026) opravuje chyby nahlášené po jejím vydání.
 
-## Nové
+## Novinky
 
-### PDF a naskenované výkresy
+### Výkres, který dokončí váš záměr
 
-- **Podložení strany PDF pod výkres.** {{cmd:PDFATTACH}} (`PDFATT`) umístí stranu ve skutečné velikosti nebo v zadaném měřítku. Uchopujte její čáry, zesvětlete ji, udělejte ji jednobarevnou ({{cmd:PDFADJUST}}), ořízněte ji ({{cmd:PDFCLIP}}) a přepínejte vlastní vrstvy PDF ({{cmd:PDFLAYERS}}). Vykresluje se jako čáry, výplně a text a DWG nebo DXF 2000 ji zachová jako odkaz na soubor. Otevření PDF pomocí {{ui:Otevřít}} se zeptá, zda ho připojit, nebo importovat. Viz [Podklady PDF a import PDF](topic:pdf-underlay).
-- **Proměna strany PDF v objekty výkresu.** {{cmd:PDFIMPORT}} (`PDFIM`) vytvoří úsečky, mnohočáry, kružnice, oblouky, plné šrafy a text na vrstvách pojmenovaných podle PDF, ve skutečné velikosti, v zadaném měřítku nebo v měřítku podle dvou bodů a skutečné vzdálenosti, v jednom kroku zpět. Viz [Import strany](topic:pdf-underlay#import-a-page).
-- **Naskenované výkresy.** {{cmd:SCANATTACH}} přinese PNG, JPEG nebo TIFF (jednu stranu nebo všechny) nebo stranu PDF, která je obrázkem. Potom změňte její měřítko ze dvou bodů ({{cmd:SCANSCALE}}), zarovnejte ({{cmd:SCANALIGN}}), srovnejte podle jejích vlastních dlouhých čar ({{cmd:SCANDESKEW}}), udělejte černobílou a odstraňte šum ({{cmd:SCANCLEAN}}), ořízněte ji a vymažte její části. Každý krok je jeden krok zpět a původní soubor se zachová. Viz [Naskenované výkresy a obkreslení](topic:scanned-drawings).
-- **Obkreslení skenu na úsečky a oblouky.** {{cmd:SCANTRACE}} nakreslí čáry skenu jako úsečky a oblouky na novou vrstvu SCAN-TRACE s nastavenou tolerancí a text a šrafování ponechá, jak jsou. Zpráva říká, co vytvořila a co ponechala, a není tvrzením, že výsledek je správný: zkontrolujte jej podle listu. {{cmd:RASTERSNAP}} umožní uchopením najít konce, rohy a průsečíky skenu. Nic se nikam neodesílá a nepoužívá se žádný natrénovaný model. Viz [Obkreslení](topic:scanned-drawings#the-trace).
+- **Duch ukazuje, co přijde dál.** Když neběží žádný příkaz, šedý čárkovaný duch ukazuje, co podle vzorů vašeho výkresu přijde dál: další stojinu se stejnou roztečí, další stupeň schodiště, chybějící stěnu místnosti. Stiskněte {{key:Tab}} pro nakreslení jako jeden krok, který lze vrátit zpět, nebo {{key:Esc}} pro zavření. Sleduje jen nejnovější objekty, takže zůstává plynulý i u velkého výkresu. Vypněte ho v {{ui:Nastavení}} › {{ui:CadCraft}} nebo příkazem {{cmd:AUTOCOMPLETE}} `Off`.
+- **Další bod při kreslení úsečky.** Uprostřed {{cmd:LINE}} nebo {{cmd:PLINE}} je duch další bod: další krok schodiště, čtvrtý roh obdélníku nebo bod, který jej uzavře. Přibližte k němu kurzor a stiskněte {{key:Tab}}, jako byste tam klikli.
+- **Náčrty perem se mění na přesnou geometrii.** {{cmd:SKETCHFIX}}: nakreslete perem, myší nebo prstem hrubé tahy a každý se stane čistou úsečkou, kružnicí, obloukem, obdélníkem nebo mnohočárou, přichycenou k tomu, co je již nakresleno. Viz [Kreslení perem a získání přesné geometrie](topic:sketch-with-a-pen).
+- **Fotka náčrtu se mění na výkres.** {{cmd:PHOTOSKETCH}} (`PSK`) najde papír na fotce, narovná perspektivu, použije formát papíru a měřítko, které zadáte, a obkreslí tahy pera na vrstvu pro každou barvu pera. Nápisy se neobkreslují.
+- **Okótujte podle pravidel.** {{cmd:AUTODIM}} (`ADIM`) vytvoří řetězce kót podél stran, které zvolíte, celkový rozměr, šířky otvorů, průměry otvorů a s `Grid` také rozteč mřížky. Nikdy nezopakuje kótu, která tam již je.
+- **Posuňte osu mřížky a soustava ji následuje.** {{cmd:GRIDMOVE}} (`GM`): stěny končící na ose mřížky se natáhnou spolu s ní, stěny podél ní, sloupy, její bublina a štítek se přesunou a kóty na ní měří novou rozteč. Jeden krok zpět.
 
-### Kreslení a úpravy
+### Listy, detaily a štítky
 
-- **Skutečné spliny.** {{cmd:SPLINE}} (`SPL`) nakreslí křivku body nebo z řídicích bodů (stupeň 1 až 5), s koncovými tečnami; {{cmd:SPLINEDIT}} (`SPE`) přesouvá, přidává a maže proložené nebo řídicí body, nastavuje váhy, otevírá, uzavírá, obrací nebo mění spline na mnohočáru. Spliny ze souborů DWG a DXF se otevřou jako spliny a DWG a DXF 2000 je ukládají jako spliny. Viz [Spliny a mnohočáry](topic:splines).
-- **PEDIT.** {{cmd:PEDIT}} (`PE`) uzavírá a otevírá mnohočáry, připojuje k nim úsečky a oblouky, nastavuje jednu šířku, proloží křivku vrcholy nebo spline podél nich a vrátí ji pomocí Decurve, obrací a upravuje několik najednou. Viz [Úprava mnohočáry](topic:splines#edit-a-polyline).
-- **WBLOCK.** {{cmd:WBLOCK}} (`W`) zapíše blok, některé objekty nebo celý výkres do nového DWG nebo DXF, který obsahuje jen vrstvy, styly a bloky, které používají. Viz [Zápis bloku nebo objektů do vlastního souboru](topic:blocks#write-a-block-or-objects-to-a-file-of-their-own).
-- **REGEN a REGENALL.** {{cmd:REGEN}} (`RE`) překreslí kartu, na které jste, z výkresu, {{cmd:REGENALL}} (`REA`) každou kartu, okno a otevřený výkres. Viz [REGEN a REGENALL](topic:commands#regen-and-regenall).
+- **Listy se rozvrhnou samy.** {{cmd:AUTOSHEET}} vezme vaše pojmenované pohledy (nebo jednotlivé části modelu), zvolí formát papíru a standardní měřítko a umístí pohledy na nové listy s razítkem a popiskou názvu a měřítka. Vše zůstává upravitelné. Viz [Rozvrhněte listy za mě](topic:lay-out-sheets-for-me).
+- **Detaily vaší firmy nabízené během kreslení.** {{cmd:DETAILS}} (`DET`) uchovává vaše vlastní detailní bloky. Když výběr odpovídá některému podle slov na jeho vrstvách, názvech bloků a poznámkách, stavový řádek to oznámí. Vyberte jej a umístěte. {{cmd:DETAILS}} › Sdílet uloží váš seznam do složky Dokumenty a načte to, co přidal váš tým. V {{ui:Nastavení}} se nabídky vypnou.
+- **Štítky na blocích.** {{cmd:TAGS}} definuje štítek (jeho druh, hodnoty, kterých může nabývat, bloky, na které se vztahuje), nastaví jej na vybrané odkazy na bloky a vypíše je jako tabulku, kterou můžete uložit jako CSV. Definice se uchovávají v DWG. Viz [Štítky](topic:tags).
+- **Limity výkresu.** {{cmd:LIMITS}} nastaví obdélník pro výkres: mřížka jej vyplní a zoom Vše jej zobrazí. Limity se zobrazují jako obrys a ukládají se do DWG a DXF spolu s limity papíru. Viz [Nastavení limitů výkresu](topic:drawing-limits).
 
-### Text a kóty
+### Práce s ostatními lidmi a jinými programy
 
-- **Text zachovává formátování.** Odstavcový text z jiných programů si zachovává barvy po slovech, tučné písmo a kurzívu, podtržení, skládané zlomky a výšky: kreslí se na obrazovce i v PDF, zachovává se při úpravě slov a ukládá se zpět. Viz [Formátování uvnitř odstavcového textu z jiných programů](topic:text#formatting-inside-paragraph-text-from-other-programs).
-- **Správce stylů kót.** {{cmd:DIMSTYLE}} (`D`) vytváří, mění, porovnává a používá pojmenované styly kót; změna stylu změní každou kótu, která jej používá. {{cmd:DIMEDIT}} (`DED`) vrátí text na původní místo, zadá nový text, otočí jej nebo nakloní vynášecí čáry; {{cmd:DIMTEDIT}} přesune text doleva, doprava nebo na střed. Viz [Pojmenované styly kót](topic:dimension-settings#named-dimension-styles).
-- **Vlastní měřítka.** {{cmd:SCALELISTEDIT}} (`SCALELIST`) přidá měřítka jako 1:75 do seznamů měřítek výřezů a vykreslení; ukládají se do výkresu (DWG a DXF 2000) a výkres z jiného programu přináší svůj vlastní seznam. Viz [Měřítka](topic:units-papers-scales#scales).
-- **Text v jiných písmech.** Soubory DXF uložené v azbuce, korejštině, čínštině, japonštině nebo vietnamštině v kódových stránkách se nyní otevírají se svým textem a čínský, japonský a korejský text se tiskne v PDF (vykreslení při první potřebě stáhne větší písmo). Viz [Písmo](topic:text#font).
+- **Proměňte poznámku v revizi.** {{cmd:REDLINE}} načte balíček, který zapisuje MarkupCraft, a vypíše každou změnu. Každou přijměte nebo zamítněte s poznámkou. Přijaté dostanou oblak revize a záznam revizí v jednom kroku zpět. Uložte soubor odpovědí, který uzavře poznámky v MarkupCraft. Viz [Proměňte poznámku v revizi](topic:redline-to-revision).
+- **Výkresy, které git a Fossil umějí sloučit.** Když je v {{ui:Nastavení}} › {{ui:CadCraft}} zapnuto {{ui:Soubory vhodné pro sloučení}}, každý objekt dostane klíč, který se nikdy nemění (soubory jsou asi o 10 procent větší). `cadcraft merge base ours theirs` pak sloučí úpravy dvou lidí v jednom souboru DWG nebo DXF objekt po objektu a hlásí jen místa, kde dvě osoby změnily totéž. Viz [Sloučení úprav jednoho výkresu od dvou lidí](topic:merge-drawings).
+- **Co se změnilo, slovy.** V {{ui:Historie}} dává Porovnat jednoduchý seznam: kde se věci změnily, jak velká jsou místa, co bylo přidáno, odebráno nebo změněno a text, který se upravil. Viz [Vyjádřete slovy, co se změnilo](topic:changes-in-words).
+- **Směrníky a úhly.** Zadejte směr jako geodetický směrník, například N45°23'30"E, nebo ve stupních, minutách a sekundách, kdekoli se žádá úhel. AUNITS nastavuje, jak se úhly zobrazují. Viz [Zadávání a zobrazení směrníků a úhlů](topic:bearings-and-angles).
+- **Vlastní písma SHX.** Přidejte složku s písmy SHX. Texty se stylem, který je pojmenuje, se v nich kreslí, na obrazovce i ve výtiscích. Viz [Kreslení textu ve vlastních písmech SHX](topic:shx-fonts).
+- **Diagram z textu.** {{cmd:DIAGRAM}} načte vývojový diagram Mermaid, diagram komponent PlantUML, D2 nebo seznam od-do a nakreslí bloky a spojnice, které můžete upravovat. Viz [Kreslení diagramu z textu](topic:text-to-diagram).
+- **Objekty OLE v DWG.** {{cmd:OLELIST}} vypíše objekty OLE, které DWG obsahuje a které CadCraft sám umístit nemůže, a umístí kopii obrázku tam, kam řeknete. Viz [Obrázky](topic:pictures#objects-from-other-programs-ole).
+- **Vaše výpočty zůstávají s výkresem.** Listy výpočtů a důvody návrhu se uchovávají v DWG spolu s tabulkou tříd.
 
-### Vykreslování a tisk
+### Rýsování bez zraku
 
-- **Více v tabulkách stylů tisku.** Pro každou barvu může nyní tabulka nastavit také typ čáry, zakončení a spojení čar a styl výplně, který vytiskne plné výplně jako šrafovací čáry; tabulka má vlastní seznam tlouštěk čar a měřítko typu čáry. Viz [Tabulky stylů tisku](topic:plot-pdf#plot-style-tables).
-- **Tisk a soubory PNG a SVG.** Dialog Vykreslit má {{ui:Tisk…}}, {{ui:Stáhnout PNG}} (300 dpi) a {{ui:Stáhnout SVG}}. V CadCraft Studiu uvádí tiskárny počítače, jejich papír a počet kopií. Viz [Tisk](topic:plot-pdf#print) a [Soubory obrázků a SVG](topic:plot-pdf#picture-and-svg-files).
+- Zapněte {{ui:Rýsování bez zraku}} v {{ui:Nastavení}} (nebo napište {{cmd:ACCESS}} a odpovězte `On`). CadCraft předčítá každý příkaz a výsledek přes čtečku obrazovky, popisuje výkres a to, co je blízko kurzoru, umožňuje posouvat kurzor a vybírat body klávesnicí a přehrává zvuk pro každé uchopení a úchyt. Tam, kde váš prohlížeč umí na počítači rozpoznávat řeč, lze příkazy vyslovovat. Viz [Rýsování bez zraku](topic:draft-without-sight).
 
-### 3D a mračna bodů
+### Ve všech aplikacích
 
-- **3D tělesa z jiných programů.** Tělesa, oblasti a těla v prostoru modelu výkresu se zobrazí na kartě 3D, jen pro čtení, a uložení jako DWG je zapíše zpět beze změny. Plochy na površích, které CadCraft zatím nekreslí, se uvedou, nehádají se. Viz [Tělesa z jiných programů](topic:3d-solids#solids-from-other-programs).
-- **Registrace více skenů.** {{cmd:REGISTERSCANS}} (`REGSCAN`) umístí skeny pořízené z různých stanovišť do jednoho rámce, podle dvojic bodů nebo zadaných cílových souřadnic, zpřesní je pomocí ICP, uloží registraci jako malý soubor projektu a zapíše registrované mračno jako jeden soubor LAS nebo E57. Viz [Registrace několika skenů do jednoho](topic:register-scans).
-- **Export USD.** {{cmd:USDOUT}} nebo {{cmd:EXPORT3D}} › {{ui:USD}} zapíše tělesa karty 3D jako `.usda`, `.usdc` nebo `.usdz`. Viz [Export modelu 3D jako USD](topic:usd).
-- **Výpočty na kartě 3D.** Kde nástroje karty 3D žádají vzdálenost, můžete napsat výpočet, jako na příkazovém řádku. Viz [Aritmetika v zadané hodnotě](topic:coordinate-entry#arithmetic-in-a-typed-value).
+- **Jazyky.** 54 jazyků; deset je nových (litevština, lotyština, bosenština, maráthí, telugština, albánština, afrikánština, filipínština, svahilština, uzbečtina). Jazyky kromě angličtiny jsou strojové koncepty, dokud je neprečte rodilý mluvčí.
+- **Vstupní zařízení.** Touchpad, pero, 3D myš, herní ovladač a ovládání MIDI.
+- **Panely nástrojů a mřížka vlastností.** {{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Řádky panelu nástrojů}} nabízí Zalamovat, 2 řádky nebo 1 řádek v ostatních aplikacích. CadCraft má vlastní nastavení v {{ui:Nastavení}} › {{ui:CadCraft}} (viz [Řádky panelu nástrojů](topic:settings#toolbar-rows)). Sdílená mřížka vlastností je ve třech dalších aplikacích, ne v aplikaci CadCraft.
+- **Problémy, Živě a doplňky.** Sdílený panel Problémy, který varuje ve všech aplikacích, zobrazení Živě, které ukazuje, kdo je kde v CadCraft Studio (viz [Práce na jednom výkresu společně](topic:work-live)), a seznam doplňků.
+- **Připojte svou AI.** Jedno připojení z CadCraft Studio ke všem osmi aplikacím, s úrovní jen pro čtení, návrhy nebo úpravy pro každou aplikaci a srozumitelným záznamem toho, co asistent udělal. CadCraft nemá vlastní AI a Zeptat se ve všech aplikacích používá AI, kterou připojíte.
 
-### Výroba
+## Opraveno ve verzi 0.8.1
 
-- **Odeslání výkresu laseru.** {{cmd:LASER}} nebo {{ui:Pohled}} › {{ui:Více}} › {{ui:Laser…}} otevře nad výkresem panel: každá vrstva řeže, rýhuje, gravíruje čáry, vyplňuje tvary, gravíruje obrázek nebo se neodesílá, s výkonem, rychlostí a počtem průchodů. Náhled sleduje Vaše úpravy, {{ui:Uložit G-code…}} zapíše G-code v režimu laseru GRBL a v Chromu nebo Edgi může panel projet obrys úlohy a odeslat ji přes USB. Nastavení se ukládají do výkresu (DWG a DXF). Viz [Odeslání výkresu laseru](topic:laser-cutting).
-- **Symboly instalací budov v doplňku Elektro.** Datové, telefonní a televizní zásuvky, tlačítkové a časové spínače, termostat, nouzové označení východu, hlásiče, tlačítkový hlásič a siréna, ventilátor, ohřívač vody, sporák, nabíjecí místo pro elektromobily, elektroměr a podrozvaděč a symboly RCD a RCBO. Obvod může nést RCD, rozpis rozvaděče má sloupec RCD a kontroly uvádějí zásuvkové obvody bez RCD 30 mA nebo méně. Jde o plánovací připomínku, ne kontrolu souladu s předpisy.
-- **Doplněk P&ID.** P&ID kreslí procesní schémata: symboly s připojovacími body, procesní a signální čáry, značky, čísla potrubí, seznamy potrubí, zařízení, přístrojů a armatur (CSV nebo sešit) a kontroly. Je součástí CadCraftu a je vypnutý, dokud jej nezapnete v {{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Doplňky}}. Je to pomůcka pro kreslení, ne schválení projektantem, a jeho texty jsou zatím jen anglicky.
+- **Vlastnosti ukazovaly 150 místo 12'-6"** ve výkresech v stopách a palcích. Pole, která čte aplikace sama, znovu zachovávají svůj text.
+- **Soubory DWG, jejichž sekce tříd se četla jako špatný typ** (GitHub cadcraft#5), se nyní otevírají správně.
+- **Zaměřovací kříž se už nezobrazuje za vyskakovacími okny.**
+- **Studio a balené verze mohou přepínat jazyk za běhu.** Dříve byly jen v angličtině. Zatím není otestováno na každé platformě: dejte nám vědět, pokud se jazyk nezmění.
+- **Tablety na výšku** uvolněnou výšku mřížky přidávají plátnu a režim listů začíná při 760 px nebo méně.
+- **STRETCH s křížovým oknem a LIMITS** byly nahlášeny ve Studiu 0.8.0, ale ve webovém sestavení 0.8 už byly správně. Instalátor hlásícího byl starší. Studio 0.8.1 je obsahuje.
 
-### Začínáme a obrazovka
+## Zatím není v této verzi
 
-- **Provedení prvním výkresem.** {{cmd:TOUR}} (nebo {{ui:Absolvovat prohlídku}} na úvodní kartě) Vás provede šesti kroky ve skutečném výkresu: úsečka, kružnice, přesun, oříznutí, smazání a kóta. Sama se spustí při prvním otevření CadCraftu, když v něm nic není. Viz [Chcete být provedeni?](topic:getting-started#prefer-to-be-guided)
-- **Tahák a mapa příkazů.** [Tahák](topic:cheat-sheet) obsahuje 40 každodenních příkazů na jedné straně, také jako PDF k tisku, a [mapa příkazů](topic:command-map) uvádí příkazy s jejich zkratkami od A do Z.
-- **Panel nástrojů na libovolné straně.** {{ui:Nastavení}} › {{ui:CadCraft}} › {{ui:Poloha panelu nástrojů}}: nahoře (jako dříve), dole, vlevo nebo vpravo, nebo napište {{cmd:TOOLBARDOCK}}. Viz [Poloha panelu nástrojů](topic:settings#toolbar-position).
-- **Řádky panelu nástrojů.** {{ui:Nastavení}} › {{ui:CadCraft}} › {{ui:Řádky panelu nástrojů}}: zalamovat podle místa, 2 řádky nebo 1 řádek, pro panel nástrojů CadCraftu a styly Klasické kreslení a Pás karet. {{key:Shift+Ctrl+F1}} je prochází, {{key:Ctrl+F1}} prochází to, co tlačítka zobrazují, a {{cmd:TOOLBARROWS}} a {{cmd:TOOLBAR}} je nastavují. Úvodní nápověda má tlačítko zavřít. Děkujeme GJoe2, který to poslal jako pull request. Viz [Řádky panelu nástrojů](topic:settings#toolbar-rows).
+- **Verze 0.8 a 0.8.1 nejsou podepsány kódem.** Windows může varovat (zvolte {{ui:Další informace}}, pak {{ui:Spustit i přesto}}). Na Macu klikněte pravým tlačítkem na CadCraft Studio a zvolte {{ui:Otevřít}}. Verze pro obchody jsou pozastaveny a sestavení pro iPad a iPhone nebylo pro 0.8.1 znovu vytvořeno.
+- **Náčrty perem a fotky náčrtů** byly zkoušeny jen na smyšlených fotkách a s myší, zatím ne s reálným perem, dotykovou obrazovkou nebo ručním náčrtem na papíře.
+- **Rýsování bez zraku** bylo testováno automatickými kontrolami, zatím ne s čtečkou obrazovky nebo s nevidomým testerem.
+- **Sdílení detailů** nebylo ověřeno dvěma osobami a složka Team Cloud Plan jako složka Dokumenty zatím není hotová.
+- **Sloučení** funguje pro soubory DWG a DXF z aplikace CadCraft. Pro soubory ostatních aplikací ještě není hotovo.
+- **Zpět napříč okny:** CadCraft hlásí každý dokončený krok, ale Studio zatím nemá jedno společné Zpět pro všechny aplikace. Každá aplikace vrací zpět své vlastní kroky.
+- **OLE objekty v DWG** se uchovávají, ale nekreslí se na místě.
+- **Čtení tabulek stylů vykreslení (soubory CTB)** z jiných programů je hotové, ale nebylo ověřeno na souboru z jiného programu.
+- **Připojte svou AI:** připojení jedním kliknutím ve Studiu, hostovaný konektor pro AI v prohlížeči, váš vlastní API klíč uvnitř Studia a zveřejněný balíček MCP nejsou v této verzi slíbeny.
 
-### V CadCraft Studiu
-
-- **Historie.** {{cmd:HISTORY}} (`HIST`) nebo {{ui:Pohled}} › {{ui:Více}} › {{ui:Historie…}}: kopie, které Studio uchovává při otevření a uložení výkresu, a cloudové verze výkresu, pokud jste jej otevřeli z cloudu. Otevřete nebo obnovte jednu, nebo porovnejte dvě, s barevně zobrazeným přidaným, odebraným a změněným. Viz [Historie](topic:history).
-- **acad.lsp a acaddoc.lsp.** Zvolte složku podpory v {{cmd:APPLOAD}}: tyto dva soubory se načtou při spuštění CadCraftu (acaddoc.lsp znovu pro každou novou kartu výkresu) a po nich se spustí `S::STARTUP`. Viz [Načtení acad.lsp a acaddoc.lsp ze složky podpory](topic:load-applications#load-acadlsp-and-acaddoclsp-from-a-support-folder-studio).
-- **Dialog Vykreslit ve vlastním okně.** Tlačítko v jeho záhlaví jej přesune do okna, které můžete umístit na jiný monitor. Viz [Přesunutí dialogu](common:arrange-panels#move-a-dialog).
-
-### Pro asistenty s umělou inteligencí
-
-- **Soubory podle názvu ve složkách, které zvolíte.** V CadCraft Studiu může asistent otevírat, ukládat a vykreslovat soubory podle názvu a předat příkazu soubor, který žádá (INSERT ze souboru, export COUNT, SAVEAS, PLOT), ale jen uvnitř složek, které přidáte v {{ui:Nastavení}} › {{ui:CadCraft}} › {{ui:Asistenti}} › {{ui:Složky, které smí použít}}. Viz [Povolení používat soubory ve složkách, které zvolíte](topic:use-with-ai-assistants#let-it-use-files-in-folders-you-choose).
-- **Méně volání.** Asistent může napsat celý příkazový řádek najednou, ponechat příkaz otevřený mezi voláními, počítat objekty podle typu a vrstvy bez jejich vypisování a umístit blok s hodnotami atributů v jednom kroku.
-- **Bez okna.** Příkazový řádek `cadcraft` zapisuje vykreslení do SVG a převádí, vykresluje, kontroluje nebo popisuje mnoho souborů najednou. Balíček MCP zatím není zveřejněn. Viz [Práce se soubory bez otevření CadCraftu](topic:use-with-ai-assistants#work-on-files-without-opening-cadcraft).
-
-## Změněno
-
-- **Trackpad posouvá.** Pohybujte dvěma prsty po trackpadu a 2D pohled je následuje; sevření a kolečko myši přibližují. Viz [Myš, trackpad a dotyk](topic:mouse-trackpad-touch).
-- **Objekty OLE se zachovávají.** Vložené objekty DXF se zobrazí jako jejich obrázek nebo popsaný rámeček a DXF 2000 je ukládá zpět. Objekty DWG se zachovají a při uložení jako DWG se zapíší zpět, ale zatím se nezobrazují. Dříve se při uložení ztratily. Viz [Objekty z jiných programů (OLE)](topic:pictures#objects-from-other-programs-ole).
-- **Jednotky nového výkresu** se řídí jednotkou, kterou označíte hvězdičkou v {{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Jednotky}}.
-
-## Opraveno
-
-- Rozvržení, která se otevřela prázdná nebo ztratila výřez a zobrazila místo něj celý model, se nyní otevírají se skutečnými výřezy. Rozvržení bez vazby na svůj obsah se zachová a zpráva o otevření to uvede.
-- Soubory DXF ve starších kódových stránkách zobrazovaly zkomolenou azbuku a korejštinu. Nyní se čtou správně.
-- Odstavcový text z jiných programů ztrácel při otevření formátování a ukládal se zpět bez něj.
-
-## V každé aplikaci
-
-- **Jednotky.** {{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Jednotky}} má po jednom seznamu pro délku, plochu, objem, úhel a sklon s přesnými velikostmi podle definic jednotek (americká zeměměřičská stopa je samostatná jednotka). Vypněte jednotky, které nikdy nepoužíváte, a z seznamů jednotek zmizí; označte jednu hvězdičkou a nová práce v ní začne. Soubor si vždy ponechává vlastní jednotku. V CadCraftu hvězdička nastavuje jednotky nového výkresu, pokud je to jednotka, kterou výkres může nést; vlastní pole {{ui:Jednotky}} CadCraftu zatím přepínače nesleduje. Jakmile má výkres jednotky, zadaná délka může nést značku libovolné jednotky. Viz [Jednotky, zadávané hodnoty a seznamy jednotek](common:unit-lists).
-- **Hustší rozvržení a panely, které se uklidí.** {{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Hustota rozložení}} › {{ui:Kompaktní}} vměstná na obrazovku víc (dotykové obrazovky a telefony si ponechávají velká tlačítka). Každý boční panel má štíhlou záhlavní lištu: přetažením panel ukotvíte nebo necháte plovoucí, puštěním na lištu jiného panelu je sloučíte do jednoho rámu jako karty, připnutím jej necháte zasunout k okraji, nebo jej skryjete a vrátíte z okraje. Viz [Uspořádání panelů](common:arrange-panels#make-the-layout-denser).
-- **Dialogy se přesouvají.** Přetáhněte dialog za záhlaví z cesty kresbě; vrátí se tam, kde jste jej nechali. Dvojitým kliknutím na záhlaví jej znovu vycentrujete. Viz [Přesunutí dialogu](common:arrange-panels#move-a-dialog).
-- **Návody pro asistenty s umělou inteligencí.** Deset ukázkových požadavků pro Vašeho vlastního asistenta (uklidit výkres, vykreslit sadu, zkontrolovat výkresy, ptát se modelu, sečíst výkaz výměr, vyzkoušet variantu dílu…), každý s nástroji, které volá, a oprávněními, která potřebuje, a každý přehraný našimi testy. Aplikace neobsahují žádnou AI. Viz [Návody pro asistenty s umělou inteligencí](common:assistants-recipes).
-- **Jazyky.** **Português (Portugal)** je nově v {{ui:Nastavení}} › {{ui:Obecné}} › {{ui:Jazyk}}. Ten, **Português (Brasil)**, **Español (México)** a **Bahasa Indonesia** mají nyní každé slovo aplikací, jako koncepty dosud nezkontrolované rodilým mluvčím. Témata nápovědy jsou v angličtině.
-- **CadCraft Studio** říká, proč kontrola aktualizací selhala (pro Váš systém zatím není soubor, chybí síť, chybný podpis), místo pouhého „Hotovo“, a přestane vracet kartu Novinky, kterou jste zavřeli, dokud nevyjde novější vydání.
-
-## V této verzi ještě není
-
-- **0.7 není podepsáno kódem.** Podepisování a balíček Microsoft Store se přesunuly do 0.8, protože ověření certifikátu zatím neprošlo. Zkontrolujte SHA-256 vedle každého souboru na getcadcraft.com/download. Pokud ve Windows instalátor zastaví SmartScreen, zvolte {{ui:Další informace}} a potom {{ui:Přesto spustit}}. Na Macu poprvé klikněte pravým tlačítkem na CadCraft Studio a zvolte {{ui:Otevřít}}. CadCraft Studio zatím není v žádném obchodě s aplikacemi a verze pro iPad ani iPhone zatím neexistuje.
-- Seznamy úhlu a sklonu v {{ui:Jednotky}} se ukládají, ale zatím je nečte žádné pole.
-- Objekty OLE v DWG se zachovávají, ale nezobrazují, a obrázky metasouboru uvnitř objektů OLE se nekreslí.
-- Čtení tabulek stylů tisku (soubory CTB) z jiných programů čeká na ukázkový soubor.
-- Starší asijský text zapsaný jako kódy `\M+` se čte, ale zatím nebyl ověřen proti souboru z jiného programu.
-- Podklady PDF: obrázky uvnitř strany se zobrazují na obrazovce, ale nevykreslují se, vykreslení asistentem podklady vynechá a jak ostatní programy čtou uložený ořez a měřítko, v nich nebylo ověřeno.
-- Historie: CadCraft zatím neodesílá svá uložení do cloudu, takže cloudové verze jsou ty, které byly uloženy z jiných zařízení a z webu. Historie je jen v CadCraft Studiu.
-- Zda Studio po restartu uchová složku podpory acad.lsp, zatím nebylo ověřeno; pokud se zeptá, zvolte složku v APPLOAD znovu.
-- Panel Laser nebyl zatím vyzkoušen na skutečném laseru: každé nastavení vyzkoušejte na odpadu. CadCraft Studio nemá Web Serial, takže ve Studiu panel ukládá jen G-code.
-- Registrace skenů byla vyzkoušena na vymyšlených skenech, zatím ne na sadě ze skutečného skeneru.
-- Posun dvěma prsty byl vyzkoušen se simulovanými událostmi trackpadu, zatím ne na skutečném trackpadu.
-- {{cmd:PEDIT}} nemá volbu Upravit vrchol (použijte úchopy nebo Vlastnosti). Odsazení, oříznutí, prodloužení, zaoblení, přerušení a spojení zatím spliny nepřijímají; výška (Z) splinu se nezachovává.
-- Novému odstavcovému textu zatím nelze zadat formátovací kódy a vykreslení do SVG zobrazuje formátovaný text jedinou barvou.
-- Celý výkres v WBLOCK zapíše jen model, ne listy. Aktuální styl kót se v souboru neukládá: výkres se otevře s aktuálním stylem Standard.
-- Styly nabídky pásu karet zatím nemají seznamy vrstev, barev ani typů čar: použijte panel {{ui:Vrstvy}} a {{ui:Vlastnosti}}.
-- Mračna bodů se stále neukládají do výkresu ani nevykreslují a soubory E57 se otevírají do 6 milionů bodů a 512 MB.
-- Uložené soubory DWG z CadCraftu zatím nebyly ověřeny v samotném AutoCADu.
-
-Vše ostatní je v tématu [Ještě není hotovo](topic:not-built-yet).
+Starší verzi najdete v [Novinky ve verzi 0.7](topic:whats-new-0-7).

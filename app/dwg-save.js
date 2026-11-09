@@ -32,7 +32,7 @@ import { standardSt } from './dimstyles.js';
 import { textLayout, entityBounds, emptyBounds, validBounds, mApply, mRotate, insertMatrix, explodeEntity, attdefHidden, vpDcsCentre } from './geom.js';
 import { worldAttribs, oneLine } from './attrs.js';
 import { dimGeometry, dimMeasure, dimTextPoint, dimLinePoints, DIM_DEFAULTS } from './dims.js';
-import { PATTERNS, hatchIsMetric } from './hatch.js';
+import { PATTERNS, patternFamilies } from './hatch.js';
 import { leaderGeometry, leaderStyle, landing } from './leader.js';
 import { patternOf } from './linetypes.js';
 import { isXrefRoot } from './xref.js';
@@ -303,20 +303,13 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     if (e.solid) return [{ ...base, type: 'HATCH', pattern: 'SOLID', solid: true, loops, ...more }];
     const lines = patternLines(e);
     if (!lines) note('hatchUnknown');
-    return [{ ...base, type: 'HATCH', pattern: String(e.pattern || 'USER').toUpperCase().slice(0, 31), solid: false, patternType: PATTERNS[String(e.pattern || '').toUpperCase()] ? 1 : 2,
+    return [{ ...base, type: 'HATCH', pattern: String(e.pattern || 'USER').toUpperCase().slice(0, 31), solid: false, patternType: PATTERNS[String(e.pattern || '').toUpperCase()] && !e.patdef ? 1 : 2,
       angle: e.pangle || 0, scale: e.pscale > 0 ? e.pscale : 1, loops, lines: lines || [], ...more }];
   }
   /** The pattern's line families in drawing units, as DWG keeps them (angle in radians, base, offset in world axes). */
   function patternLines(e) {
-    let fams = null;
-    if (Array.isArray(e.patlines) && e.patlines.length) fams = e.patlines;
-    else {
-      const def = PATTERNS[String(e.pattern || '').toUpperCase()];
-      if (!def) return null;
-      const k = (e.pscale > 0 ? e.pscale : 1) / (hatchIsMetric(e, doc) ? 1 : 25.4), turn = e.pangle || 0;
-      const c = Math.cos(turn), s = Math.sin(turn);
-      fams = def.lines.map((f) => ({ angle: f.angle + turn * 180 / Math.PI, x: (f.x * c - f.y * s) * k, y: (f.x * s + f.y * c) * k, dx: f.dx * k, dy: f.dy * k, dashes: f.dashes.map((d) => d * k) }));
-    }
+    const fams = patternFamilies(e, doc);
+    if (!fams) return null;
     const ox = Number.isFinite(e.ox) ? e.ox : 0, oy = Number.isFinite(e.oy) ? e.oy : 0;   // the pattern's origin (P.7) moves every line, as hatch.js draws it
     return fams.map((f) => {
       const a = f.angle * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);

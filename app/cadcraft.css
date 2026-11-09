@@ -60,7 +60,7 @@
 .cc-tool:hover { border-color: var(--line); background: var(--sheet); }
 .cc-tool:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
 .cc-tool[aria-pressed="true"] { border-color: var(--ink); background: var(--sheet); }
-.cc-tool:disabled { opacity: .45; cursor: default; }
+.cc-tool:disabled { opacity: .7; color: var(--ink-2); cursor: default; }   /* FX.90: grey by colour as well as faded (labels-only toolbar) */
 /* Edit › More: a toolbar menu (details/summary; cadcraft.js closes it on a click elsewhere and on Esc) */
 .cc-menu { position: relative; }
 .cc-menu > summary { list-style: none; }
@@ -86,12 +86,19 @@ body.app-shell .sp-tab { bottom: var(--cc-sp-bottom, 11.5rem); }
 /* Short windows (0.5 VP.5; cadcraft.js fitBars): first the toolbar drops the words under its icons (unless Settings
    says labels only) and its group names, and the history shows two lines; then the toolbar is one row that scrolls
    sideways, its menus fixed so the scrolling row doesn't clip them (as in the phone layout). */
-.cc.cc-fit-compact .cc-tool-label { display: none; }
-body:not([data-shell-tb="labels"]) .cc.cc-fit-compact .cc-tool > span {
+/* 0.9 SU.1083: Settings › CadCraft › Top area › Compact (.cc-top-compact) keeps the same compact step on for good, and also
+   tightens the Drafting classic and Ribbon styles' bars (no group names, no words under the icons). */
+.cc:is(.cc-fit-compact, .cc-top-compact) .cc-tool-label { display: none; }
+body:not([data-shell-tb="labels"]) .cc:is(.cc-fit-compact, .cc-top-compact) .cc-tool > span,
+body:not([data-shell-tb="labels"]) .cc.cc-top-compact .cc-in-tool > span {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-.cc.cc-fit-compact .cc-tool { min-width: 2.1rem; padding: .3rem .25rem; }
-.cc.cc-fit-compact .cc-tool-group { padding-block: .2rem; }
+.cc:is(.cc-fit-compact, .cc-top-compact) .cc-tool { min-width: 2.1rem; padding: .3rem .25rem; }
+.cc:is(.cc-fit-compact, .cc-top-compact) .cc-tool-group { padding-block: .2rem; }
+.cc.cc-top-compact .cc-in-pname { display: none; }
+.cc.cc-top-compact .cc-in-plabel:not(:has(button, summary)) { display: none; }
+.cc.cc-top-compact .cc-in-tool { padding-block: .15rem; min-height: 0; }
+.cc.cc-top-compact .cc-in-tool.cc-in-big { min-width: 2.2rem; }
 .cc.cc-fit-compact .cc-history { height: 2.9rem; }
 .cc.cc-fit-row .cc-tools { flex-wrap: nowrap; overflow-x: auto; }
 .cc.cc-fit-row .cc-menu-list { position: fixed; top: auto; left: 1rem; right: 1rem; min-width: 0; }
@@ -231,7 +238,7 @@ body:not([data-shell-tb="labels"]) .cc.cc-fit-compact .cc-tool > span {
 .cc-row { display: flex; gap: .4rem; align-items: center; min-width: 0; }
 
 /* blocks */
-.cc-blocks { list-style: none; margin: 0; padding: 0; font-size: .875rem; }
+.cc-blocks { list-style: none; margin: 0; padding: 0; font-size: .875rem; max-height: min(24rem, 45vh); overflow-y: auto; overscroll-behavior: contain; }   /* FX: a long block list scrolls inside its panel instead of running off the screen */
 .cc-blocks li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: baseline; gap: .5rem; padding: .2rem 0; border-top: var(--pen-1) solid var(--grid); }
 .cc-blocks li:first-child { border-top: 0; }
 .cc-block-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -240,7 +247,10 @@ body:not([data-shell-tb="labels"]) .cc.cc-fit-compact .cc-tool > span {
 /* ---- Stage ---- */
 .cc-stage { grid-area: stage; position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--sheet); }
 .cc-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.cc-over { cursor: none; touch-action: none; }
+.cc-over { touch-action: none; }
+/* FX.35: the pointer is hidden only while the canvas really draws the crosshair in its place (view.renderOver sets the class). With the crosshair
+ * dropped (a dialog or pop-up opened and closed under a still pointer, the other pane of a split screen) the ordinary pointer shows. */
+.cc-over.cc-xhair-on { cursor: none; }
 .cc-over.is-panning { cursor: grabbing; }
 .cc-hint {
   position: absolute;
@@ -280,11 +290,20 @@ body:not([data-shell-tb="labels"]) .cc.cc-fit-compact .cc-tool > span {
   display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .45rem; padding: .3rem .45rem; font-size: .8125rem;
   background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); max-width: min(46rem, calc(100vw - 2rem));
 }
+.cc-te-fbar { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; padding: .3rem .45rem; font-size: .8125rem; background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); max-width: min(46rem, calc(100vw - 2rem)); }
+.cc-te-fbar .cc-te-font { width: 10rem; padding: .15rem .35rem; }
+.cc-te-fbar .cc-te-size { width: 3.5rem; padding: .15rem .35rem; text-align: center; }
+.cc-te-fbar .cc-te-color { width: 2rem; height: 1.75rem; padding: 0; border: var(--pen-1) solid var(--ink); background: var(--sheet); cursor: pointer; }
+.cc-te-fmt { min-width: 1.9rem; font: inherit; font-weight: 600; padding: .15rem .4rem; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.cc-te-fmt.is-i { font-style: italic; } .cc-te-fmt.is-u { text-decoration: underline; } .cc-te-fmt.is-k { text-decoration: line-through; }
+.cc-te-fmt[aria-pressed="true"] { color: var(--sheet); background: var(--ink); }
+.cc-te-fmt:focus-visible { outline: var(--pen-2) solid var(--ink); outline-offset: 2px; }
 .cc-te-bar .cc-input { width: 5.5rem; padding: .15rem .35rem; }
 .cc-te-bar .cc-select { width: auto; padding: .15rem .35rem; }
 .cc-te-btn { font: inherit; font-weight: 600; padding: .15rem .7rem; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--ink); border-radius: var(--radius); cursor: pointer; }
 .cc-te-btn.is-primary { color: var(--sheet); background: var(--ink); }
 .cc-te-btn:focus-visible { outline: var(--pen-2) solid var(--ink); outline-offset: 2px; }
+.cc-te-actions { display: flex; gap: .4rem; justify-content: flex-end; }
 .cc-te-ta {
   display: block; box-sizing: content-box; min-height: 1.2em; padding: 0; margin: 0; resize: none; overflow: hidden;
   color: var(--ink); background: var(--sheet); border: 0; outline: var(--pen-1) dashed var(--ink-2); white-space: pre-wrap; overflow-wrap: break-word;
@@ -394,6 +413,53 @@ body:not([data-shell-tb="labels"]) .cc.cc-fit-compact .cc-tool > span {
 .cc-cmd-input { flex: 1 1 8rem; min-width: 6rem; font: inherit; font-size: .9375rem; font-weight: 600; color: var(--ink); background: transparent; border: 0; border-bottom: var(--pen-1) solid var(--line); padding: .1rem 0; }
 .cc-cmd-input:focus { outline: none; border-bottom: var(--pen-2) solid var(--action); }
 .cc-suggest { flex: 0 1 auto; font-size: .8125rem; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 0.9 SU.1083 (cmdline.js): the grip, the history button and the … menu on the line; the height handle on the top edge, the width
+   handle on the right edge (floating only); data-cmd-dock bottom | float, data-cmd-lines std | one | n (--cc-cmd-lines); .is-pop =
+   the history pop-up (the same list, one live region); the peek = the last message for a moment in one-line mode. Phones keep their
+   own layout (docked, one history line): only the history button and the pop-up apply there. */
+.cc-cmd { position: relative; }
+.cc-cmd-btn, .cc-cmd-grip {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 1.75rem; height: 1.6rem; padding: 0 .3rem;
+  font: inherit; font-size: .875rem; color: var(--ink-2); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer;
+}
+.cc-cmd-btn::-webkit-details-marker { display: none; }
+.cc-cmd-more > summary.cc-cmd-btn { list-style: none; }
+.cc-cmd-btn:hover, .cc-cmd-grip:hover, .cc-cmd-more[open] > summary { color: var(--ink); border-color: var(--line); background: var(--sheet); }
+.cc-cmd-btn[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); background: var(--sheet); }
+.cc-cmd-btn:focus-visible, .cc-cmd-grip:focus-visible, .cc-cmd-size:focus-visible, .cc-cmd-wsize:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
+.cc-cmd-grip { min-width: 1.1rem; padding: 0; margin-left: -.6rem; cursor: grab; touch-action: none; }
+.cc-cmd.is-moving .cc-cmd-grip { cursor: grabbing; }
+.cc .cc-cmd .cc-cmd-more > .cc-menu-list { position: absolute; top: auto; bottom: calc(100% + .25rem); left: auto; right: 0; min-width: 16rem; }
+.cc .cc-cmd.is-pop-down .cc-cmd-more > .cc-menu-list { bottom: auto; top: calc(100% + .25rem); }
+.cc-cmd-size { position: absolute; left: 0; right: 0; top: -.25rem; height: .5rem; z-index: 3; cursor: ns-resize; touch-action: none; }
+.cc-cmd-wsize { position: absolute; top: 0; bottom: 0; right: -.25rem; width: .5rem; z-index: 3; cursor: ew-resize; touch-action: none; }
+.cc-cmd-wsize[hidden], .cc-cmd-peek[hidden] { display: none; }
+html:not(.cc-phone) .cc-cmd[data-cmd-lines="n"] .cc-history { height: calc(var(--cc-cmd-lines, 3) * 1.4em + .3rem); }
+html:not(.cc-phone) .cc-cmd[data-cmd-lines="one"]:not(.is-pop) .cc-history {   /* hidden, still read out */
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+html:not(.cc-phone) .cc-cmd[data-cmd-lines="one"] .cc-cmdline { border-top: 0; padding-top: .3rem; }
+.cc-cmd-peek {
+  position: absolute; left: .5rem; right: auto; max-width: min(48rem, calc(100% - 1rem)); bottom: calc(100% + .2rem); z-index: 39; padding: .15rem .6rem; pointer-events: none;
+  font-size: .8125rem; line-height: 1.4; white-space: pre-wrap; color: var(--ink); background: var(--sheet-2);
+  border: var(--pen-1) solid var(--line); border-radius: var(--radius);
+}
+.cc-cmd.is-pop-down .cc-cmd-peek { bottom: auto; top: calc(100% + .2rem); }
+html .cc .cc-cmd.is-pop[data-cmd-lines] .cc-history {   /* over the chosen height (data-cmd-lines n) and the phone's one line */
+  position: absolute; left: 0; right: 0; bottom: 100%; z-index: 41; width: auto; height: min(22rem, 55vh); margin: 0; padding: .4rem 1rem; clip-path: none;
+  white-space: pre-wrap; overflow-y: auto; background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-bottom: var(--pen-1) solid var(--line);
+}
+html .cc .cc-cmd.is-pop.is-pop-down[data-cmd-lines] .cc-history { bottom: auto; top: 100%; border-bottom: var(--pen-2) solid var(--ink); border-top: var(--pen-1) solid var(--line); }
+html:not(.cc-phone) .cc .cc-cmd[data-cmd-dock="float"] {
+  position: absolute; z-index: 40; grid-area: auto; margin: 0; border: var(--pen-2) solid var(--ink); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--sheet-2) 94%, transparent);
+}
+html:not(.cc-phone) .cc .cc-cmd[data-cmd-dock="float"] .cc-history { border-radius: var(--radius) var(--radius) 0 0; }
+.cc-cmd.is-dock-target { outline: var(--pen-3) dashed var(--action); outline-offset: 2px; }
+html.cc-phone .cc-cmd :is(.cc-cmd-grip, .cc-cmd-size, .cc-cmd-wsize, .cc-cmd-more) { display: none; }
+.cc-set-range { display: block; margin-top: .6rem; font-size: .875rem; font-weight: 600; }
+#cc-set-cmdlines { width: 100%; }
 
 /* ---- Status bar ---- */
 .cc-status { grid-area: status; display: flex; align-items: center; gap: 1rem; padding: .2rem 1rem; font-size: .8125rem; background: var(--sheet-2); border-top: var(--pen-1) solid var(--line); }
@@ -908,3 +974,21 @@ dialog .cc-tablist .cc-tab { min-height: 2.25rem; padding: .45rem .9rem .35rem; 
 .cc-ribbon-ctl-btn[aria-pressed="false"] { opacity: 0.55; }
 .cc-ribbon-ctl-btn:focus-visible { outline: 2px solid var(--cc-accent, #1a64d6); outline-offset: 1px; }
 .cc-addons-banner { font-size: .8125rem; max-width: 40%; }
+
+/* Layer groups and the layer filter (0.9 PLAN2D.2) */
+.cc-layer-filter { width: 100%; margin-bottom: .35rem; }
+.cc-layers li.cc-layer-grp { grid-template-columns: minmax(0, 1fr) auto; background: var(--grid); }
+.cc-layers li.is-grouped { padding-left: .5rem; }
+.cc-layer-gname { border: 0; background: none; color: inherit; padding: .1rem .15rem; text-align: left; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.cc-layer-groupline { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: .4rem; margin-bottom: .35rem; font-size: .8125rem; }
+.cc-layer-groupline[hidden] { display: none; }
+
+/* Text style dialog (0.9 FX.72) */
+.cc-ts-form { display: grid; gap: .4rem; margin: .6rem 0; }
+.cc-ts-field { display: grid; grid-template-columns: 9rem 1fr; align-items: center; gap: .5rem; }
+.cc-ts-sample { margin: .2rem 0 0; padding: .5rem .7rem; font-size: 1.4rem; background: var(--sheet); border: var(--pen-1) dashed var(--ink-2); border-radius: var(--radius); }
+.cc-cmd-drop { position: fixed; z-index: 30; margin: 0; padding: .2rem; list-style: none; min-width: 16rem; max-width: min(34rem, 100%); max-height: 14rem; overflow-y: auto; font-size: .8125rem; background: var(--sheet); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); }
+.cc-cmd-drop[hidden] { display: none; }
+.cc-cmd-drop li { padding: .15rem .45rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cc-cmd-drop li[aria-selected="true"], .cc-cmd-drop li:hover { color: var(--sheet); background: var(--ink); }
+.cc-cmd-alias, .cc-cmd-help { opacity: .75; }

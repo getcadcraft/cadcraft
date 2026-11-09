@@ -13,9 +13,12 @@ import { assistantPrefs, ASSIST_KEY } from './host.js';
 import { t as tr } from './i18n.js';
 import { evaluateVars, cloneParams, setVar, varByName } from './params.js';
 import { commit } from './params-doc.js';
+import { extentsOf } from './plot.js';
+import { faceTris } from './m3d/model.js';
 
 /** The doc's block (shell-modules.md § Mounting 2), as the doc has it. */
 export function mountShellModules(host) {
+  { const f = () => window.ccDocTitleFollow && window.ccDocTitleFollow(host); if (window.ccDocTitleFollow) f(); else window.addEventListener('load', f); }   // 2026-11-09: tab title = document name (one pattern, app-shell.js)
   const when = (api, name, go) => (window[api] ? go() : document.addEventListener('cc-' + name + '-ready', go, { once: true }));
   // EG.18 calc sheets — parameters in, drives out, saved inside the app's own file
   when('ccCalc', 'calc', () => {
@@ -41,6 +44,11 @@ export function mountShellModules(host) {
     for (const [name, fn] of Object.entries(host.probes || {})) ccLessons.probe(name, fn);
     ccLessons.registerTools(host.control);
     host.emit = (event, data) => ccLessons.emit(event, data);           // the app calls host.emit('tool', { name: 'line' }) where it runs a command
+  });
+  // DI.1 drawing details — what the app counts, and where the written details are kept in its file
+  when('ccDocInfo', 'docinfo', () => {
+    ccDocInfo.attach({ read: host.docinfo?.read, persist: (json) => host.file.set('docinfo', json), step: host.step, onChange: host.docinfo?.onChange });   // read() → { units, extents, counts, extra, bytes, path }
+    ccDocInfo.registerTools(host.control);
   });
   // AC.12 Suggest, AC.13 activity log, AC.8 Ask box — they ride on host.control, so the app hands over very little
   when('ccSuggest', 'suggest', () => {
@@ -100,6 +108,30 @@ export function lessonsOf(doc) {
   };
 }
 
+/** DI.1: what CadCraft counts for the Drawing details panel. Triangles only while the 3D model holds something, worked out once per change. */
+export function docInfoOf(doc, path) {
+  let memo = { v: -1, tris: 0 };
+  const triangles = () => {
+    const m3 = doc.model3d;
+    if (!m3 || m3.empty) return null;
+    if (memo.v !== doc.version) {
+      let n = 0;
+      m3.walk((def) => { if (def.mesh) { n += (def.shown?.triangulate?.().tri.length || 0) / 3; return; } for (const f of def.faces.values()) n += faceTris(def, f).length; });
+      memo = { v: doc.version, tris: Math.floor(n) };
+    }
+    return memo.tris;
+  };
+  return {
+    read: () => {
+      let entities = doc.model.size; for (const l of doc.layouts) entities += l.entities.size;
+      const b = extentsOf(doc), tris = triangles();
+      return { units: doc.meta.units || '', path: path() || nameOf(doc), extents: b ? { min: [b.minX, b.minY], max: [b.maxX, b.maxY] } : null,
+        counts: { entities, layers: doc.layers.size, blocks: doc.blocks.size, sheets: doc.layouts.length, ...(tris === null ? {} : { triangles: tris }) } };
+    },
+    onChange: (fn) => doc.on(() => fn()),
+  };
+}
+
 /** What CadCraft hands over (the doc's table, § 3). */
 export function cadHost({ doc, control, selected, onSelection, setSelection, describe, path, undoTo }) {
   const ASSIST = () => assistantPrefs({ app: 'cadcraft', win: window });
@@ -109,10 +141,10 @@ export function cadHost({ doc, control, selected, onSelection, setSelection, des
     step: (label, fn) => (doc.pending ? fn() : doc.change(label, fn)),
     file: {
       set: (key, json) => {
-        if (!['calcs', 'reasons'].includes(key)) return;
+        if (!['calcs', 'reasons', 'docinfo'].includes(key)) return;
         const run = () => doc.setMeta({ [key]: json == null ? undefined : json });
         if (JSON.stringify(doc.meta[key] ?? null) === JSON.stringify(json ?? null)) return;
-        if (doc.pending) run(); else doc.change(key === 'calcs' ? 'Calc sheets' : 'Design reasons', run);
+        if (doc.pending) run(); else doc.change(key === 'calcs' ? 'Calc sheets' : key === 'docinfo' ? 'Drawing details' : 'Design reasons', run);
       },
     },
     params: paramsAdapter(doc),
@@ -120,9 +152,11 @@ export function cadHost({ doc, control, selected, onSelection, setSelection, des
     onSelection: (fn) => onSelection(fn),
     select: (el) => { const id = Number(el?.id); if (Number.isFinite(id) && doc.get(id)) setSelection(new Set([id])); },
     totals: [],
+    docinfo: docInfoOf(doc, path),
     ...lessonsOf(doc),
     rev: () => doc.version,
     document: () => ({ docId: nameOf(doc), path: path() || '', name: nameOf(doc) }),
+    dirty: () => !!doc.dirty,   // 2026-11-09: the tab title's unsaved mark (assets/js/app-doc-title.js)
     perms: {
       get: () => ASSIST(),
       set: (rec) => { try { localStorage.setItem(ASSIST_KEY + 'cadcraft', JSON.stringify(rec)); } catch { /* private mode */ } },
@@ -141,17 +175,19 @@ export function mountCadShell(dc) {
   const reload = () => {
     if (window.ccCalc) ccCalc.load(dc.doc.meta.calcs || null);
     if (window.ccReasons) ccReasons.load(dc.doc.meta.reasons || null);
+    if (window.ccDocInfo) ccDocInfo.load(dc.doc.meta.docinfo || null);
     if (window.ccLessons) ccLessons.emit('model', {});
     if (window.ccTotals) ccTotals.invalidate();
   };
   // an open replaces the sheets; an undo or redo may move them: reload when what the drawing holds is no longer what the module has
-  let calcs = dc.doc.meta.calcs, reasons = dc.doc.meta.reasons;
+  let calcs = dc.doc.meta.calcs, reasons = dc.doc.meta.reasons, docinfo = dc.doc.meta.docinfo;
   dc.doc.on((why) => {
-    if (why === 'load' || dc.doc.meta.calcs !== calcs || dc.doc.meta.reasons !== reasons) { calcs = dc.doc.meta.calcs; reasons = dc.doc.meta.reasons; reload(); }
+    if (why === 'load' || dc.doc.meta.calcs !== calcs || dc.doc.meta.reasons !== reasons || dc.doc.meta.docinfo !== docinfo) { calcs = dc.doc.meta.calcs; reasons = dc.doc.meta.reasons; docinfo = dc.doc.meta.docinfo; reload(); }
     else if (window.ccLessons) ccLessons.emit('model', {});
   });
   document.addEventListener('cc-calc-ready', reload, { once: true });
   document.addEventListener('cc-reasons-ready', reload, { once: true });
+  document.addEventListener('cc-docinfo-ready', reload, { once: true });
   reload();
   return { host, reload };
 }

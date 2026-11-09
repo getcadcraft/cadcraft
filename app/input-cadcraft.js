@@ -41,13 +41,29 @@ export const COMMANDS = [
 
   C('draw.line', 'draw', 'bi-slash-lg', T('Draw', 'LINE'), tab),
   C('draw.pline', 'draw', 'bi-vector-pen', T('Draw', 'PLINE'), tab),
+  C('draw.wall', 'draw', 'bi-bricks', T('Draw', 'WALL'), tab),   // 0.9 PLAN2D.4
+  C('draw.door', 'draw', 'bi-door-open', T('Draw', 'DOOR'), tab),
+  C('draw.window', 'draw', 'bi-window', T('Draw', 'WINDOW'), tab),
   C('draw.circle', 'draw', 'bi-circle', T('Draw', 'CIRCLE'), tab),
   C('draw.arc', 'draw', 'bi-bezier2', T('Draw', 'ARC'), tab),
+  C('draw.arc-3p', 'draw', 'bi-bezier2', T('Draw', 'ARC 3P'), tab),
+  C('draw.arc-sce', 'draw', 'bi-bezier2', T('Draw', 'ARC SCE'), tab),
+  C('draw.arc-sca', 'draw', 'bi-bezier2', T('Draw', 'ARC SCA'), tab),
+  C('draw.arc-scl', 'draw', 'bi-bezier2', T('Draw', 'ARC SCL'), tab),
+  C('draw.arc-sea', 'draw', 'bi-bezier2', T('Draw', 'ARC SEA'), tab),
+  C('draw.arc-sed', 'draw', 'bi-bezier2', T('Draw', 'ARC SED'), tab),
+  C('draw.arc-ser', 'draw', 'bi-bezier2', T('Draw', 'ARC SER'), tab),
+  C('draw.arc-cse', 'draw', 'bi-bezier2', T('Draw', 'ARC CSE'), tab),
+  C('draw.arc-csa', 'draw', 'bi-bezier2', T('Draw', 'ARC CSA'), tab),
+  C('draw.arc-csl', 'draw', 'bi-bezier2', T('Draw', 'ARC CSL'), tab),
+  C('draw.arc-con', 'draw', 'bi-bezier2', T('Draw', 'ARC CON'), tab),
   C('draw.rectang', 'draw', 'bi-square', T('Draw', 'RECTANG'), tab),
   C('draw.polygon', 'draw', 'bi-hexagon', T('Draw', 'POLYGON'), tab),
   C('draw.ellipse', 'draw', 'bi-egg', T('Draw', 'ELLIPSE'), tab),
   C('draw.text', 'draw', 'bi-type', T('Draw', 'TEXT'), tab),
   C('draw.mtext', 'draw', 'bi-text-paragraph', T('Draw', 'MTEXT'), tab),
+  C('draw.textstyle', 'draw', 'bi-fonts', T('Draw', 'STYLE'), tab),
+  C('draw.mline', 'draw', 'bi-list', T('Draw', 'MLINE'), tab),
   C('draw.hatch', 'draw', 'bi-grid-3x3', T('Draw', 'HATCH'), tab),
   C('draw.point', 'draw', 'bi-dot', T('Draw', 'POINT'), tab),
   C('draw.circle-ttr', 'draw', 'bi-circle', T('Draw', 'CIRCLE T'), tab),
@@ -88,6 +104,7 @@ export const COMMANDS = [
   C('annotate.dimbaseline', 'annotate', 'bi-arrow-left-right', T('Annotate', 'DIMBASELINE'), tab),
   C('annotate.revcloud', 'annotate', 'bi-cloud', T('Annotate', 'REVCLOUD'), tab),
   C('annotate.redline', 'annotate', 'bi-cloud-check', T('Annotate', 'REDLINE'), tab),   // 0.8 EG.19: a MarkupCraft redline package → revision clouds and a log
+  C('blocks.credits', 'blocks', 'bi-card-list', T('Blocks', 'CREDITS'), tab),   // the Library credits as a table on a sheet
   C('blocks.tags', 'blocks', 'bi-tags', T('Blocks', 'TAGS'), tab),   // 0.8 SU.915: block attributes as tags that feed schedules
   C('blocks.diagram', 'blocks', 'bi-diagram-2', T('Blocks', 'DIAGRAM'), tab),   // 0.8 SU.883: text (Mermaid, PlantUML, D2, from-to list) drawn as a diagram
   C('blocks.gds', 'blocks', 'bi-cpu', T('Blocks', 'GDSIN'), tab),
@@ -168,6 +185,11 @@ export const COMMANDS = [
   C('view.extents', 'view', 'bi-arrows-fullscreen', T('View', 'ZOOM E'), tab),
   C('view.window', 'view', 'bi-zoom-in', T('View', 'ZOOM W'), tab),
   C('view.previous', 'view', 'bi-skip-backward', T('View', 'ZOOM P'), tab),
+  C('view.zoomin', 'view', 'bi-plus-circle', T('View', 'ZOOM 2X'), tab),   // 0.9 D9.9: zoom in 2x
+  C('view.zoomout', 'view', 'bi-dash-circle', T('View', 'ZOOM 0.5X'), tab),
+  C('view.ucs', 'view', 'bi-bounding-box-circles', T('View', 'UCS'), tab),   // 0.9 D9.5: the UCS commands on the toolbar's View More menu
+  C('view.ucs-object', 'view', 'bi-bounding-box', T('View', 'UCS OB'), tab),
+  C('view.ucs-world', 'view', 'bi-globe2', T('View', 'UCS W'), tab),
   C('view.split-2v', 'view', 'bi-layout-split', T('View', 'SPLIT 2V'), tab),
   C('view.split-2h', 'view', 'bi-distribute-vertical', T('View', 'SPLIT 2H'), tab),
   C('view.split-4', 'view', 'bi-grid', T('View', 'SPLIT 4'), tab),
@@ -189,6 +211,7 @@ export const COMMANDS = [
   C('tools.measuregeom', 'tools', 'bi-rulers', T('View', 'MEASUREGEOM'), tab),
   C('tools.compare', 'tools', 'bi-layout-split', T('View', 'COMPARESETTINGS'), tab),
   C('tools.history', 'tools', 'bi-clock-history', T('View', 'HISTORY'), tab),   // 0.7 D7.31
+  C('tools.floors', 'tools', 'bi-layers', T('View', 'FLOORS'), tab),   // 0.9 PLAN2D.3
   C('tools.classes', 'tools', 'bi-diagram-3', T('View', 'CLASSES'), tab),   // 0.8 SU.912: the Classes panel (the toolbar button had no registry command)
   C('tools.documents', 'tools', 'bi-folder2-open', T('View', 'DOCUMENTS'), tab),   // 0.8 SU.1058: the Documents panel (View › More)
   C('tools.appload', 'tools', 'bi-filetype-js', T('View', 'APPLOAD'), tab),
@@ -199,6 +222,7 @@ export const COMMANDS = [
   // drafting aids: the status bar's toggles (cadcraft.js keydown: F3, F7, F8, F10, F11, F12)
   C('aids.osnap', 'aids', 'bi-magnet', '[data-toggle="osnap"]', { defKeys: ['F3'] }),
   C('aids.grid', 'aids', 'bi-grid-3x3-gap', '[data-toggle="grid"]', { defKeys: ['F7'] }),
+  C('aids.gsnap', 'aids', 'bi-grid-3x3', '[data-toggle="gsnap"]', { defKeys: ['F9'] }),
   C('aids.ortho', 'aids', 'bi-plus-lg', '[data-toggle="ortho"]', { defKeys: ['F8'] }),
   C('aids.polar', 'aids', 'bi-compass', '[data-toggle="polar"]', { defKeys: ['F10'] }),
   C('aids.otrack', 'aids', 'bi-bullseye', '[data-toggle="otrack"]', { defKeys: ['F11'] }),
@@ -243,6 +267,7 @@ export const COMMANDS = [
   C('app.settings', 'app', 'bi-gear', '[data-settings-open]', { defKeys: ['Ctrl+,'], keyOnly: true }),
   C('app.palette', 'app', 'bi-search', '[data-palette-open]', { defKeys: ['Ctrl+K'], keyOnly: true }),
   C('app.help', 'app', 'bi-question-circle', '[data-help-open]', { defKeys: ['F1'], keyOnly: true }),
+  C('view.cmdhistory', 'view', 'bi-clock-history', '[data-cmd-hist]', { defKeys: ['F2'], keyOnly: true }),   // 0.9 SU.1083: the command history pop-up (cmdline.js handles F2 itself in CadCraft's own style)
 ];
 export const GROUPS = ['file', 'draw', 'modify', 'annotate', 'parametric', 'blocks', 'layers', 'sheets', 'edit', 'view', 'tools', 'aids', '3d', 'app'];
 
@@ -255,13 +280,14 @@ const rtab = (label, panels) => ({ label: 'input.m.' + label, panels: panels.map
 const L = (id) => ({ id, size: 'lg' });
 const MIXED = { mixed: true };
 const CTL = (control) => ({ control, size: 'sm' });   // an inline control (ribbon-controls.js)
+const ARCS = { split: ['draw.arc', 'draw.arc-3p', 'draw.arc-sce', 'draw.arc-sca', 'draw.arc-scl', 'draw.arc-sea', 'draw.arc-sed', 'draw.arc-ser', 'draw.arc-cse', 'draw.arc-csa', 'draw.arc-csl', 'draw.arc-con'], size: 'lg' };   // 0.9 FX.137: the eleven ways to draw an arc
 const CIRCLES = { split: ['draw.circle', 'draw.circle-ttr', 'draw.circle-ttt'], size: 'lg' };
 
 const FILE_MENU = ['file.new', 'file.open', 'file.samples', '-', 'file.save', 'file.saveas', '-', 'file.plot', 'file.laser', '-', 'app.settings', 'app.palette', 'app.help'];
 const LAYERS = ['layers.iso', 'layers.uniso', 'layers.off', 'layers.frz', 'layers.mcur', 'layers.on', 'layers.thw', 'layers.mrg', 'layers.del', 'layers.rename'];
 const GEOM = ['param.horizontal', 'param.vertical', 'param.parallel', 'param.perpendicular', 'param.coincident', 'param.tangent', 'param.equal', 'param.fix', 'param.collinear', 'param.concentric', 'param.symmetric'];
 const DCONS = ['param.dclinear', 'param.dcaligned', 'param.dcangular', 'param.dcradius', 'param.dcdiameter', 'param.dcconvert'];
-const AIDS = ['aids.osnap', 'aids.grid', 'aids.ortho', 'aids.polar', 'aids.otrack', 'aids.dyn', 'aids.lwt'];
+const AIDS = ['aids.osnap', 'aids.grid', 'aids.gsnap', 'aids.ortho', 'aids.polar', 'aids.otrack', 'aids.dyn', 'aids.lwt'];
 const TAB_3D = (names) => rtab(names[0], [
   [names[1], ['3d.extrude', '3d.presspull', '3d.box', '3d.cylinder', '3d.wedge', '3d.revolve', '3d.sweep']],
   [names[2], ['3d.union', '3d.subtract', '3d.intersect']],
@@ -284,7 +310,7 @@ export const STYLES = {
     tabs: [
       // the classic Home tab (0.7 WS.8): the four drawing tools large, the rest small and stacked, so the tab fits one screen
       rtab('home', [
-        ['draw', [L('draw.line'), L('draw.pline'), CIRCLES, L('draw.arc'), 'draw.rectang', 'draw.polygon', 'draw.ellipse', 'draw.hatch'], { more: ['draw.point', 'draw.circle-ttr', 'draw.circle-ttt', 'draw.xline', 'draw.ray', 'draw.sketchlive', 'draw.sketchfix'] }],
+        ['draw', [L('draw.line'), L('draw.pline'), CIRCLES, ARCS, 'draw.rectang', 'draw.polygon', 'draw.ellipse', 'draw.hatch'], { more: ['draw.point', 'draw.circle-ttr', 'draw.circle-ttt', 'draw.xline', 'draw.ray', 'draw.sketchlive', 'draw.sketchfix', 'draw.mline', 'draw.wall', 'draw.door', 'draw.window'] }],
         ['modify', [L('modify.move'), 'modify.rotate', 'modify.scale', 'modify.mirror', 'modify.stretch', 'modify.array', L('modify.trim'), 'modify.extend', 'modify.fillet', 'modify.chamfer', 'modify.offset', 'modify.join', 'modify.explode', L('modify.erase'), 'modify.copy'], { more: ['modify.break', 'modify.lengthen', 'modify.align', 'modify.alignpanel'] }],
         ['annotation', [L('draw.mtext'), L('annotate.dimlinear'), 'annotate.mleader']],
         ['layers', [CTL('layers'), 'layers.off', 'layers.frz', 'layers.mcur'], { more: LAYERS.filter((x) => !['layers.off', 'layers.frz', 'layers.mcur'].includes(x)) }],
@@ -293,11 +319,11 @@ export const STYLES = {
         ['utilities', [L('tools.dist'), 'tools.area', 'edit.qselect'], { more: ['tools.measuregeom', 'edit.select-all', 'edit.similar', 'edit.select-none'] }],
         ['clipboard', [L('edit.paste'), 'edit.copy', 'edit.cut', 'edit.delete'], { more: ['edit.paste-in-place', 'edit.paste-picture', 'edit.paste-area', 'edit.duplicate'] }],
       ]),
-      rtab('insert', [['block', ['blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit']], ['reference', ['blocks.xattach', 'blocks.xref']], ['library', ['blocks.library']], ['pointcloud', ['view.pcattach', 'view.pointcloud']], ['data', ['blocks.count', 'blocks.tags', 'blocks.diagram', 'blocks.gds', 'blocks.ole', 'blocks.delblocks', 'blocks.exportpoints']], ['map', ['view.maplayers']]]),
-      rtab('annotate', [['text', ['draw.text', 'edit.find']], ['dimensions', ['annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline'], MIXED], ['markup', ['annotate.revcloud', 'annotate.redline']]]),
+      rtab('insert', [['block', ['blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit']], ['reference', ['blocks.xattach', 'blocks.xref']], ['library', ['blocks.library', 'blocks.credits']], ['pointcloud', ['view.pcattach', 'view.pointcloud']], ['data', ['blocks.count', 'blocks.credits', 'blocks.tags', 'blocks.diagram', 'blocks.gds', 'blocks.ole', 'blocks.delblocks', 'blocks.exportpoints']], ['map', ['view.maplayers']]]),
+      rtab('annotate', [['text', ['draw.text', 'draw.mtext', 'draw.textstyle', 'edit.find']], ['dimensions', ['annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline'], MIXED], ['markup', ['annotate.revcloud', 'annotate.redline']]]),
       rtab('parametric', [['geometric', [L('param.auto'), L('param.geom'), ...GEOM, 'param.bars-show', 'param.bars-hide']], ['dimensional', ['param.dim', ...DCONS, 'param.dcdisplay'], MIXED], ['manage', ['param.delete', 'param.parameters', 'param.swbout']]]),
-      rtab('view', [['navigate', ['view.extents', 'view.window', 'view.previous']], ['viewports', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews'], MIXED], ['coordinates', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['model', ['view.model', 'view.3d', 'view.open3d', 'view.autosheet']], ['aids', AIDS, MIXED]]),
-      rtab('manage', [['customization', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts']], ['compare', ['tools.compare', 'tools.history', 'tools.documents', 'tools.classes']]]),
+      rtab('view', [['navigate', ['view.extents', 'view.window', 'view.previous', 'view.zoomin', 'view.zoomout']], ['viewports', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews'], MIXED], ['coordinates', ['view.turn-left', 'view.turn-right', 'view.turn-world', 'view.ucs', 'view.ucs-object', 'view.ucs-world']], ['model', ['view.model', 'view.3d', 'view.open3d', 'view.autosheet']], ['aids', AIDS, MIXED]]),
+      rtab('manage', [['customization', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts']], ['compare', ['tools.compare', 'tools.history', 'tools.documents', 'tools.classes', 'tools.floors']]]),
       rtab('output', [['plot', ['file.plot', 'file.laser']], ['sheets', ['sheets.layout', 'sheets.mview']]]),
       TAB_3D(['3d', 'modeling', 'solidedit', 'modify', 'views', 'visual', 'export']),
     ],
@@ -312,10 +338,11 @@ export const STYLES = {
     quick: ['file.open', 'file.save', 'edit.undo', 'edit.redo'],
     tabs: [
       rtab('draw', [
-        ['lines', [L('draw.line'), 'draw.pline', 'draw.xline', 'draw.ray'], { more: ['draw.point', 'draw.sketchlive', 'draw.sketchfix'] }],
-        ['shapes', [CIRCLES, L('draw.arc'), 'draw.rectang', 'draw.polygon', 'draw.ellipse']],
-        ['text', [L('draw.text'), 'draw.mtext']],
+        ['lines', [L('draw.line'), 'draw.pline', 'draw.mline', 'draw.xline', 'draw.ray'], { more: ['draw.point', 'draw.sketchlive', 'draw.sketchfix'] }],
+        ['shapes', [CIRCLES, ARCS, 'draw.rectang', 'draw.polygon', 'draw.ellipse']],
+        ['text', [L('draw.text'), 'draw.mtext', 'draw.textstyle']],
         ['fill', ['draw.hatch']],
+        ['plan', ['draw.wall', 'draw.door', 'draw.window']],
       ]),
       rtab('modify', [
         ['clipboard', [L('edit.paste'), 'edit.cut', 'edit.copy', 'edit.delete'], { more: ['edit.paste-in-place', 'edit.paste-picture', 'edit.paste-area', 'edit.duplicate'] }],
@@ -323,13 +350,13 @@ export const STYLES = {
         ['shape', [L('modify.trim'), 'modify.extend', 'modify.fillet', 'modify.chamfer', 'modify.offset', 'modify.join', 'modify.explode', 'modify.erase'], { more: ['modify.break', 'modify.lengthen', 'modify.matchprop'] }],
         ['select', ['edit.select-all', 'edit.select-none', 'edit.qselect', 'edit.similar', 'edit.find']],
       ]),
-      rtab('annotate', [['dimensions', [L('annotate.dimlinear'), 'annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius'], { more: ['annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline'] }], ['notes', ['annotate.mleader', 'annotate.revcloud', 'annotate.redline']]]),
+      rtab('annotate', [['text', [L('draw.text'), 'draw.mtext', 'draw.textstyle']], ['dimensions', [L('annotate.dimlinear'), 'annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius'], { more: ['annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline'] }], ['notes', ['annotate.mleader', 'annotate.revcloud', 'annotate.redline']]]),
       rtab('parametric', [['constraints', ['param.auto', 'param.geom', 'param.dim', 'param.parameters']], ['geometric', GEOM], ['dimensional', [...DCONS, 'param.dcdisplay']], ['manage', ['param.delete', 'param.bars-show', 'param.bars-hide', 'param.swbout']]]),
-      rtab('blocks', [['blocks', ['blocks.make', 'blocks.insert', 'blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit', 'blocks.count', 'blocks.tags', 'blocks.diagram', 'blocks.gds', 'blocks.ole', 'blocks.delblocks', 'blocks.exportpoints']], ['links', ['blocks.xattach', 'blocks.xref', 'blocks.library']], ['layers', LAYERS]]),
+      rtab('blocks', [['blocks', ['blocks.make', 'blocks.insert', 'blocks.bedit', 'blocks.attdef', 'blocks.eattedit', 'blocks.battman', 'blocks.refedit', 'blocks.count', 'blocks.credits', 'blocks.tags', 'blocks.diagram', 'blocks.gds', 'blocks.ole', 'blocks.delblocks', 'blocks.exportpoints']], ['links', ['blocks.xattach', 'blocks.xref', 'blocks.library']], ['layers', LAYERS]]),
       rtab('sheets', [['sheets', ['sheets.layout', 'sheets.mview']], ['plot', ['file.plot', 'file.laser']]]),
-      rtab('view', [['zoom', ['view.extents', 'view.window', 'view.previous']], ['panes', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews']], ['turn', ['view.turn-left', 'view.turn-right', 'view.turn-world']], ['show', ['view.model', 'view.3d', 'view.open3d', 'view.maplayers', 'view.pcattach', 'view.pointcloud', 'view.autosheet']], ['aids', AIDS]]),
+      rtab('view', [['zoom', ['view.extents', 'view.window', 'view.previous', 'view.zoomin', 'view.zoomout']], ['panes', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews']], ['turn', ['view.turn-left', 'view.turn-right', 'view.turn-world', 'view.ucs', 'view.ucs-object', 'view.ucs-world']], ['show', ['view.model', 'view.3d', 'view.open3d', 'view.maplayers', 'view.pcattach', 'view.pointcloud', 'view.autosheet']], ['aids', AIDS]]),
       TAB_3D(['3d', 'modeling', 'solidedit', 'modify', 'views', 'visual', 'export']),
-      rtab('tools', [['measure', ['tools.dist', 'tools.area', 'tools.measuregeom']], ['customize', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts', 'tools.compare', 'tools.history', 'tools.documents', 'tools.classes']]]),
+      rtab('tools', [['measure', ['tools.dist', 'tools.area', 'tools.measuregeom']], ['customize', ['tools.appload', 'tools.aliasedit', 'tools.shortcuts', 'tools.compare', 'tools.history', 'tools.documents', 'tools.classes', 'tools.floors']]]),
     ],
     keys: { ...DEFAULT_KEYS },
     mouse: { wheel: 1, zoomSpeed: 1, pan2d: ['middle', 'right'], orbit3d: null },

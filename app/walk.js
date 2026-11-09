@@ -49,6 +49,7 @@ import { findPicture } from './pictures.js';
 import { findPdf } from './pdfmodel.js';
 import { isIsoLinetype } from './plotstyle.js';
 import { clipOut, clipPoly } from './xclip.js';
+import { floorView } from './floors.js';   // 0.9 PLAN2D.3: stacked floors
 import { classView } from './classes.js';   // 0.8 SU.912 (sx-classes): ByClass styles, hidden classes, viewport class overrides
 
 /** How strongly what is outside REFEDIT's working set is drawn (0.6 DF.5). */
@@ -182,10 +183,12 @@ export function walk(doc, entities, out, { m = null, plot = false, frozen = null
   const re = doc.refEdit || null;   // only the edited space's own objects are touched (re.map.get(e.id) === e below)
   const plain = out;
   const fade = (o) => ({ ...(o || {}), alpha: (o?.alpha ?? 1) * REF_FADE });
-  const faded = re ? { ...plain, stroke: (c, p, lw, o) => plain.stroke(c, p, lw, fade(o)), fill: (c, l, s, o) => plain.fill(c, l, s, o?.wipe ? o : fade(o)), text: (c, e, o) => plain.text(c, e, fade(o)),
+  const fv = floorView(doc, frozen);   // 0.9 PLAN2D.3: other floors faded, floors turned off skipped
+  const faded = re || fv ? { ...plain, stroke: (c, p, lw, o) => plain.stroke(c, p, lw, fade(o)), fill: (c, l, s, o) => plain.fill(c, l, s, o?.wipe ? o : fade(o)), text: (c, e, o) => plain.text(c, e, fade(o)),
     ...(plain.infinite ? { infinite: (c, e, lw, o) => plain.infinite(c, e, lw, fade(o)) } : {}), ...(plain.pdf ? { pdf: (p) => plain.pdf({ ...p, alpha: (p.alpha ?? 1) * REF_FADE }) } : {}), ...(plain.picture ? { picture: (p) => plain.picture({ ...p, alpha: (p.alpha ?? 1) * REF_FADE }) } : {}) } : plain;
   for (const e of entities) {
     if (re && re.map.get(e.id) === e) { if (e.id === re.ref) continue; out = re.ids.has(e.id) ? plain : faded; } else out = plain;
+    if (fv && e.type !== 'viewport') { const f = fv(e); if (f === 2) continue; if (f === 1) out = faded; }
     if (e.type === 'viewport') {
       // the view shows whatever its layer; the border follows the layer like anything else
       out.viewport?.(e);
@@ -238,12 +241,14 @@ function pictureOut(e, mm, o) {
  * carrying `.ovr` = Map(upper-case layer name → { color, lt, lw, tr }) when it overrides layers (`vp.lov`); or null when
  * it shows every layer as the drawing has it.
  */
-export function frozenSet(vp) {
+export function frozenSet(vp, hasFloors = false) {
   const f = vp && Array.isArray(vp.frz) ? vp.frz.filter((n) => typeof n === 'string' && n) : [];
   const lov = vp && vp.lov && typeof vp.lov === 'object' ? Object.entries(vp.lov).filter(([k, v]) => k && v && typeof v === 'object') : [];
   const vpc = vp && vp.vpc && typeof vp.vpc === 'object' && Object.keys(vp.vpc).length ? vp.vpc : null;   // 0.8 SU.912 viewport class overrides (vpclass.js)
-  if (!f.length && !lov.length && !vpc) return null;
+  const flr = vp && typeof vp.flr === 'string' && vp.flr ? vp.flr : null;   // 0.9 PLAN2D.3: the one floor this viewport shows
+  if (!f.length && !lov.length && !vpc && !flr && !hasFloors) return null;
   const set = new Set(f.map((n) => n.toUpperCase()));
+  if (flr) set.flr = flr;
   if (lov.length) set.ovr = new Map(lov.map(([k, v]) => [k.toUpperCase(), v]));
   if (vpc) set.vpc = vpc;
   return set;
@@ -253,7 +258,7 @@ export function frozenSet(vp) {
 export function frozenKey(set) {
   if (!set) return '';
   const o = set.ovr ? '\u0001' + JSON.stringify([...set.ovr].sort((a, b) => (a[0] < b[0] ? -1 : 1))) : '';
-  return [...set].sort().join('\n') + o + (set.vpc ? '\u0002' + JSON.stringify(set.vpc) : '');   // 0.8 SU.912
+  return [...set].sort().join('\n') + o + (set.vpc ? '\u0002' + JSON.stringify(set.vpc) : '') + (set.flr ? '\u0003' + set.flr : '') + (!set.size && !set.ovr && !set.vpc && !set.flr ? '\u0004' : '');   // 0.8 SU.912
 }
 
 const mm2 = (ps, m) => (m ? ps.flatMap((q) => txPrim(q, m)) : ps);

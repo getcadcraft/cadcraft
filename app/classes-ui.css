@@ -30,3 +30,10 @@
 .cc-cls-design summary { cursor: pointer; font-weight: 700; font-size: .8125rem; }
 .cc-cls-design .cc-input { width: 6rem; }
 html.cc-phone .cc-classpanel { top: auto; bottom: .5rem; max-height: 70%; }
+/* The Floors panel (0.9 PLAN2D.3, floors-ui.js) shares this panel's look. */
+.cc-flr-list li.cc-flr-row { grid-template-columns: 1.4rem 1.1rem minmax(0, 1fr) auto 1.1rem 1.1rem 1.1rem; }
+.cc-flr-list li.is-off .cc-flr-name { color: var(--ink-2); text-decoration: line-through; }
+.cc-flr-list li.is-active .cc-flr-name { font-weight: 700; }
+.cc-flr-name { min-width: 0; width: 100%; }
+.cc-floorpanel .cc-cls-eye:disabled { opacity: .35; cursor: default; }
+.cc-floorpanel .cc-cls-actions .cc-select { flex: 1 1 8rem; min-width: 0; }
