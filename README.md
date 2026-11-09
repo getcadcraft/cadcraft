@@ -6,9 +6,9 @@ The drafting table you already know how to use.
 
 **[Website](https://getcadcraft.com/apps/cadcraft) | [Use it in your browser](https://getcadcraft.com/use/cadcraft) | [Download CadCraft Studio](https://getcadcraft.com/download#studio) | [Help and tutorials](https://getcadcraft.com/tutorials/cadcraft) | [News](https://getcadcraft.com/news) | [Suggest a feature](https://getcadcraft.com/suggest)**
 
-[![CadCraft](screenshots/paper.png)](https://getcadcraft.com/use/cadcraft)
+[![CadCraft 0.9](screenshots/paper.png)](https://getcadcraft.com/use/cadcraft)
 
-<sub>Paper space above; [the same in model space](screenshots/model.png). Both are from the browser edition.</sub>
+<sub>CadCraft 0.9 in the browser, dark theme. [A second view](screenshots/model.png).</sub>
 
 CadCraft is the 2D drafting & documentation app in the [CadCraft](https://getcadcraft.com) family: Command-line drafting with layers, blocks, dimensions and layouts that plot. Opens and saves DWG and DXF.
 
@@ -18,11 +18,11 @@ Use it now at https://getcadcraft.com/use/cadcraft, or install CadCraft Studio, 
 
 | Platform | Status |
 |---|---|
-| [Browser](web/) | 0.7: `cadcraft-browser-edition-v0.7.0.zip` in [Releases](https://github.com/getcadcraft/cadcraft/releases), or build it from a clone ([BUILDING.md](BUILDING.md#the-browser-edition)) |
-| Desktop: [Windows](windows/), [Linux](linux/) | In [CadCraft Studio 0.7](https://github.com/getcadcraft/studio/releases/tag/studio-v0.7.0) (installer, `.deb`, AppImage); not code-signed yet |
-| [macOS](macos/) | In [CadCraft Studio 0.7](https://github.com/getcadcraft/studio/releases/tag/studio-v0.7.0) (universal disk image; not code-signed or notarized yet) |
+| [Browser](web/) | 0.9: `cadcraft-browser-edition-v0.9.0.zip` in [Releases](https://github.com/getcadcraft/cadcraft/releases), or build it from a clone ([BUILDING.md](BUILDING.md#the-browser-edition)) |
+| Desktop: [Windows](windows/), [Linux](linux/) | In [CadCraft Studio 0.9](https://github.com/getcadcraft/studio/releases/tag/studio-v0.9.0) (installer, `.deb`, AppImage); not code-signed yet |
+| [macOS](macos/) | In [CadCraft Studio 0.9](https://github.com/getcadcraft/studio/releases/tag/studio-v0.9.0) (universal disk image; not code-signed or notarized yet) |
 | [Android](android/) | The Studio APK, on the [download page](https://getcadcraft.com/download#studio) |
-| [iPad](ios/) | Planned, in 0.8 at the earliest |
+| [iPad](ios/) | Planned |
 
 ## Work on it
 
