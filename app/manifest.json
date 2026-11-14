@@ -2,7 +2,9 @@
   "app": "cadcraft",
   "css": [
     "cadcraft.css",
-    "laser/laser-panel.css"
+    "laser/laser-panel.css",
+    "classes-ui.css",
+    "vault/vault-panel.css"
   ],
   "module": "cadcraft.js",
   "imports": {
@@ -27,15 +29,34 @@
     "live"
   ],
   "phone": true,
-  "panels": ["move", "window"],
+  "propgrid": true,
+  "devices": true,
+  "calc": true,
+  "reasons": true,
+  "teamwork": true,
+  "totals": true,
+  "lessons": true,
+  "docinfo": true,
+  "panels": [
+    "move",
+    "window"
+  ],
   "addons": "own",
   "input": "input-cadcraft.js",
   "workspaces": {
     "layouts": [
       "docked",
-      "toolbox"
+      "toolbox",
+      "autorev", "duncan", "vector", "sketch"
     ],
     "adapter": "workspace-cadcraft.js"
   },
-  "hardware": true
+  "hardware": true,
+  "problems": true,
+  "ai-suggest": true,
+  "ai-activity": true,
+  "ai-ask": true,
+  "access": true,
+  "fields": true,
+  "engines": true
 }

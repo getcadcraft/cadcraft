@@ -44,7 +44,7 @@ section('The add-on in CadCraft: loader, commands, live updates, Properties (W2.
   });
   const me = started.list().find((a) => a.id === 'electrical');
   ok(me?.state === 'active', 'the bundled Electrical add-on starts (addons/index.json)', JSON.stringify(me && { state: me.state, reason: me.reason, detail: me.detail }));
-  const names = ['ELSYMBOL', 'ELWIRE', 'ELNUMBER', 'ELTAG', 'ELUPDATE', 'ELSHEET', 'ELREPORT', 'ELCHECK', 'ELSTANDARD', 'ELCABLE', 'ELINSTALL', 'ELCIRCUIT', 'ELROUTE', 'ELPANEL', 'ELBALANCE'];
+  const names = ['ELSYMBOL', 'ELWIRE', 'ELNUMBER', 'ELTAG', 'ELUPDATE', 'ELSHEET', 'ELREPORT', 'ELCHECK', 'ELSTANDARD', 'ELCABLE', 'ELINSTALL', 'ELCIRCUIT', 'ELROUTE', 'ELPANEL', 'ELBALANCE', 'ELCARRIER'];
   ok(names.every((n) => Cmd.lookup(n) && Cmd.commandRegistry.owner(n) === 'electrical'), 'its commands are registered, owned by the add-on');
   ok(Cmd.lookup('ELS')?.name === 'ELSYMBOL' && Cmd.lookup('ELW')?.name === 'ELWIRE', 'short aliases');
   ok(names.every((n) => { const h = Cmd.commandList().find((c) => c.name === n)?.help; return h && !/^cmd\./.test(h); }), 'every command has help in the add-on\'s words');
@@ -143,6 +143,18 @@ section('The add-on in CadCraft: loader, commands, live updates, Properties (W2.
   await type('ELCIRCUIT', 'A', 'C1');
   inst = IN.installation(doc, M.scan(doc));
   ok(inst.circuits.get('C1').watts === 460 && inst.circuits.get('C2').watts === 0, 'ELCIRCUIT A moves a device to another circuit');
+  // ELCARRIER (0.8 EG.2): size the first route as a tray, type a cable diameter, run the schedule
+  {
+    const routes = M.scan(doc).routes;
+    host.selection = new Set([routes[0].id]);
+    log.length = 0;
+    await type('ELCARRIER', 'S', 'T', '300', '100');
+    ok(doc.get(routes[0].id).layer === 'EL-ROUTE-TRAY-300X100' && doc.layers.has('EL-ROUTE-TRAY-300X100') && log.some((l) => /moved to layer EL-ROUTE-TRAY-300X100/.test(l)), 'ELCARRIER Size moves the selected route to a tray layer');
+    host.selection = new Set();
+    log.length = 0;
+    await type('ELCARRIER', 'R');
+    ok(log.some((l) => /\d cables:/.test(l)) && log.some((l) => /No outside diameter typed/.test(l)), 'ELCARRIER Run lists the cables and says which have no diameter', log.slice(0, 5).join(' | '));
+  }
   log.length = 0;
   await type('ELPANEL', 'L');
   ok(log.some((l) => /Panel schedule DB1/.test(l)) && log.some((l) => /C1/.test(l) && /460 W/.test(l)), 'ELPANEL lists the schedule', log.slice(0, 4).join(' | '));

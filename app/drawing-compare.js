@@ -24,7 +24,7 @@ import { prims, dimParts, entityBounds, validBounds, textCorners, primBounds, em
 
 const STEP = 1e-4;
 const PROPS = ['layer', 'color', 'lt', 'lw', 'lts', 'tr', 'alpha', 'wipe'];
-const SKIP = new Set(['id', 'block', 'hostFile']);   // `block` of a dimension = the geometry another program drew: the dimension's numbers say the same
+const SKIP = new Set(['id', 'key', 'block', 'hostFile']);   // `block` of a dimension = the geometry another program drew: the dimension's numbers say the same
 const num = (v) => (Number.isFinite(v) ? String(Math.round(v / STEP) * STEP).replace(/(\.\d{4})\d+$/, '$1').replace(/^-0$/, '0') : String(v));
 
 function canon(v, skipProps) {

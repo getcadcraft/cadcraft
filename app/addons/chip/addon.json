@@ -1,0 +1,25 @@
+{
+  "id": "chip",
+  "name": "Chip design",
+  "version": "0.9.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.3",
+  "license": "Apache-2.0",
+  "licenseNote": "The add-on's own code is Apache-2.0, like the core. It can run tools you installed yourself — including GPL tools such as Icarus Verilog, KLayout and Netgen — as separate programs that it talks to through files and command lines; it never contains, links or downloads them.",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "panel",
+    "files",
+    "problems",
+    "engine.run"
+  ],
+  "description": "Chip design from Verilog to layout, kept as a project with each run's tool versions and hashes. Studio runs tools you install yourself (Icarus Verilog, Yosys; not run by us yet: Verilator, OpenROAD, KLayout, Netgen), GPL ones as separate programs; nothing is bundled. Core Apache-2.0. For learning and open-silicon flows, not a signed-off tape-out system; we ship no PDK and make no foundry claims.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off",
+  "honesty": "For learning and open-silicon flows, not a signed-off tape-out system. We ship no PDK and make no foundry claims. Run by us on the sample design: Icarus Verilog 11, Yosys 0.9. Not run by us yet: Verilator, OpenROAD, KLayout, Netgen."
+}

@@ -11,7 +11,7 @@
 
 import { dimGeometry } from './dims.js';
 import { leaderGeometry, leaderStyle } from './leader.js';
-import { advance } from './font.js';
+import { advance, advanceIn } from './font.js';
 import { richOf, heightFactor } from './mtext.js';
 import { points as splinePoints, valid as splineValid, editFit as splineEditFit, moveCtrl as splineMoveCtrl, polyline as splinePolyline } from './spline.js';
 
@@ -255,9 +255,14 @@ export const LINE_SPACING = 5 / 3;  // × text height, baseline to baseline (Aut
 export const FONT_EM = 1 / 0.718;
 
 /** Width of a line of a text entity's text, in drawing units (Helvetica metrics, see font.js). */
-export const textWidth = (s, e) => advance(s) / 1000 * e.h * FONT_EM * (e.wf || 1);
+let measureHook = null;
+/** SHX text (0.8 D8.7): a measurer (s, e) → width in drawing units, or null to leave the string to the built-in face (shx-text.js). */
+export function setTextMeasure(fn) { measureHook = fn; }
+export const textWidth = (s, e) => { const w = measureHook ? measureHook(s, e) : null; return w !== null && w !== undefined ? w : (e.font ? advanceIn(e.font, s) : advance(s)) / 1000 * e.h * FONT_EM * (e.wf || 1); };
 
-const layouts = new WeakMap();
+let layouts = new WeakMap();
+/** Forget every measured text (a font was loaded or removed). */
+export function resetTextLayouts() { layouts = new WeakMap(); }
 /**
  * Text layout in the text's own frame (insertion point at 0,0, x along the text):
  * lines (wrapped to `ww` when the text has a wrap width, as multi-line text does), each line's
@@ -310,7 +315,7 @@ function richRuns(lines, e, rich) {
       if (g?.stack && n === g.text.length) {
         const sw = STACK_SCALE * hf * Math.max(advance(g.stack.num), advance(g.stack.den)) / 1000 * em;
         r = { text, st: g.st, x, w: sw, hf, stack: { num: g.stack.num, den: g.stack.den, sep: g.stack.sep } };
-      } else r = { text, st: g?.st, x, w: advance(text) / 1000 * em * hf * wfac, hf };
+      } else r = { text, st: g?.st, x, w: advanceIn(g?.st?.font || e.font, text) / 1000 * em * hf * wfac, hf };
       rs.push(r); x += r.w; k += n;
     }
     return rs;
@@ -723,7 +728,19 @@ export function txEntity(e, m) {
       const rot = sim.flip ? sim.rot + Math.PI - (e.rot || 0) : (e.rot || 0) + sim.rot;
       return { ...e, x: a.x, y: a.y, rot: normAngle(rot), sx: (e.sx ?? 1) * sim.s * (sim.flip ? -1 : 1), sy: (e.sy ?? 1) * sim.s };
     }
-    case 'hatch': return { ...e, loops: e.loops.map((l) => { const o = []; for (let i = 0; i + 1 < l.length; i += 2) { const p = P(l[i], l[i + 1]); o.push(p.x, p.y); } return o; }) };
+    case 'hatch': {
+      const out = { ...e, loops: e.loops.map((l) => { const o = []; for (let i = 0; i + 1 < l.length; i += 2) { const p = P(l[i], l[i + 1]); o.push(p.x, p.y); } return o; }) };
+      if (!e.solid) {   // the pattern goes with the hatch (0.9 PLAN2D.1): its origin always; a built-in pattern's angle and scale on a turn or scale, not a mirror
+        const o = P(e.ox || 0, e.oy || 0);
+        if (o.x) out.ox = o.x; else delete out.ox;
+        if (o.y) out.oy = o.y; else delete out.oy;
+        if (!e.patlines?.length && !sim.flip) {
+          if (Math.abs(sim.rot) > 1e-12) out.pangle = normAngle((e.pangle || 0) + sim.rot);
+          if (Math.abs(sim.s - 1) > 1e-12) out.pscale = (e.pscale > 0 ? e.pscale : 1) * sim.s;
+        }
+      }
+      return out;
+    }
     case 'dim': {
       const out = { ...e };
       delete out.block;                     // its imported geometry no longer fits: draw it again

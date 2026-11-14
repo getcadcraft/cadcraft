@@ -61,7 +61,12 @@ export function encodeItems(marker, kind, version, value) {
   const items = [[1000, marker]];
   if (marker === OBJ) items.push([1000, String(kind)]);
   items.push([1070, version | 0], [1070, json.length]);   // 1070: R12 DXF has no 1071; ≤ 12 000 fits
-  for (let i = 0; i < json.length; i += CHUNK) items.push([1000, json.slice(i, i + CHUNK)]);
+  // A DXF string value loses a leading or trailing space on the way back (R12 and 2000 readers trim), so a chunk never starts or ends with one (0.8 chem-draw_PART_4: a HAZOP block lost a space at a cut).
+  for (let i = 0; i < json.length;) {
+    let end = Math.min(json.length, i + CHUNK);
+    while (end < json.length && end - i > 1 && (json[end] === ' ' || json[end - 1] === ' ')) end--;
+    items.push([1000, json.slice(i, end)]); i = end;
+  }
   if (json.length === 0) items.push([1000, '']);
   return items;
 }

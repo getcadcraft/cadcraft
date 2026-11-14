@@ -565,6 +565,15 @@ a.status-chip:hover, a.status-chip:focus-visible { background: var(--ink); color
 .select-cc option.select-placeholder { color: var(--placeholder); }
 .form-cc .is-invalid { border-color: var(--layer-red) !important; }
 .field-error { display: block; color: var(--layer-red); font-weight: 600; font-size: var(--fs-sm); margin-top: .35rem; }
+/* Password show/hide eye (account/password-eye.inc + site.js). The input keeps room for it in both states. */
+.pw-field { position: relative; }
+.form-cc .pw-field input { padding-right: 3.25rem; }
+.pw-field input::-ms-reveal, .pw-field input::-ms-clear { display: none; } /* Edge's own eye would sit beside ours */
+.pw-eye { position: absolute; top: 0; right: 0; bottom: 0; width: 3rem; display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; padding: 0; color: var(--ink-2); font-size: 1.15rem; cursor: pointer; border-radius: var(--radius); }
+.pw-eye[hidden] { display: none; }
+.pw-eye:hover { color: var(--ink); }
+.pw-eye:focus-visible { outline: 2px solid var(--action); outline-offset: -3px; color: var(--ink); }
 .form-cc fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .check-grid { display: grid; gap: .5rem; grid-template-columns: 1fr; }
 @media (min-width: 560px) { .check-grid { grid-template-columns: 1fr 1fr; } }
@@ -632,6 +641,9 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .tb-col a { color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: .45rem; padding: .3rem 0; min-height: 2rem; }
 .tb-col a:hover { text-decoration: underline; color: var(--ink); }
 .tb-col p { margin: 0; color: var(--ink-2); font-size: var(--fs-sm); }
+/* Two links on one line ("Press kit / Educator kit"): slightly narrower letters where the column is tight, same text height as the list. */
+.tb-pair > span { margin-inline: .25rem; }
+@media (max-width: 26.875rem), (min-width: 768px) and (max-width: 58.75rem) { .tb-col .tb-pair { font-stretch: 78%; } }
 @media (min-width: 768px) {
   .tb-links { grid-template-columns: repeat(4, 1fr); }
   .tb-col { border-right: var(--pen-1) solid var(--ink); }
@@ -641,6 +653,20 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .tb-notes p { margin: 0; }
 .tb-notes .tb-legal { display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
 .tb-notes .tb-legal a { color: var(--ink); }
+/* site-lang.inc: the language picker (lab only for now), in the Community column under a rule like SuperCad Studio's (owner 2026-11-07). */
+.tb-lang { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .5rem; margin-top: .6rem; padding-top: .7rem; border-top: var(--pen-1) solid var(--ink); }
+.tb-lang label { flex-basis: 100%; display: flex; align-items: center; gap: .45rem; font-weight: 600; color: var(--ink); font-size: var(--fs-sm); }
+.tb-lang select { flex: 1 1 9rem; width: auto; min-width: 0; font-size: .8125rem; }
+.tb-lang .tb-lang-save { min-height: 0; padding: .15rem .55rem; font-size: .6875rem; line-height: 1.4; border-width: var(--pen-1); }
+.js .tb-lang:not(.is-changed) .tb-lang-save { display: none; }
+.tb-lang-tag { font-weight: 400; font-size: .625rem; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--ink-2); }
+.tb-col .tb-lang p { flex-basis: 100%; font-size: .6875rem; line-height: 1.45; }
+/* Community column: the picker sits at the bottom of the column (owner 2026-11-07). */
+.tb-community { display: flex; flex-direction: column; }
+.tb-community .tb-lang { margin-top: auto; }
+.tb-community > ul, .tb-community > p { margin-bottom: 1rem; }
+/* From 1100px Product's short links need the least room; the spare width goes to Community (owner 2026-11-07). Below that the four columns stay equal. */
+@media (min-width: 1100px) { .tb-links { grid-template-columns: minmax(0, .75fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr); } }
 
 /* ---------- Generic list of meta items (never middle-dot strings) ---------- */
 .meta-items { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin: 0; padding: 0; list-style: none; color: var(--ink-2); font-size: var(--fs-sm); }
@@ -689,3 +715,61 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .attach-field input[type="file"] { display: block; width: 100%; margin-top: .35rem; padding: .6rem; font: inherit; color: var(--ink); background: var(--sheet-2); border: 1px dashed var(--line); border-radius: var(--radius); }
 .attach-field input[type="file"].is-invalid { border-color: var(--bad, #b3261e); }
 .attach-field .hint { display: block; margin-top: .35rem; }
+
+/* ---------- Reach: the "not live" / "switched off" icon (core/components/reach-mark.inc via Reach::mark) ----------
+   One rule block drives every page. Fixed 1em, never wraps, never changes line height; only viewers who see the item because
+   of their role (admin, tester, lab access) ever get the markup. */
+.reach-mark { font-size: min(1em, 1.1rem); display: inline-block; width: 1em; height: 1em; line-height: 1; margin-inline: .35em 0; vertical-align: -.125em; flex: none; white-space: nowrap; overflow: visible; color: var(--line, #7A8796); cursor: help; }
+.reach-mark > .bi { display: block; width: 1em; height: 1em; line-height: 1; font-size: 1em; }
+.reach-mark > .bi::before { display: block; vertical-align: 0; }
+.reach-mark.is-off { color: var(--layer-red, #b3261e); }
+.reach-legend { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; align-items: baseline; margin: .5rem 0; font-size: .85rem; color: var(--muted, inherit); }
+.reach-legend .reach-mark { margin-inline: 0 .35em; }
+.reach-legend-item { display: inline-flex; align-items: baseline; gap: .35em; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.reach-legend-item > span:last-child { min-width: 0; }
+
+/* Footer, Apps column: the eight apps sit closer together, then a rule, then SuperCad Studio with the eight-colour ring (owner 2026-11-01). */
+.tb-apps li { margin: 0; }
+.tb-apps a { padding: .1rem 0; min-height: 1.6rem; }
+.tb-apps .tb-super { margin-top: .45rem; padding-top: .45rem; border-top: var(--pen-1) solid var(--ink); }
+.layer-ring { display: inline-block; flex-shrink: 0; width: .9rem; height: .9rem; border-radius: 50%;
+  background: conic-gradient(var(--layer-red) 0 12.5%, var(--layer-blue) 0 25%, var(--layer-orange) 0 37.5%, var(--layer-magenta) 0 50%, var(--layer-ochre) 0 62.5%, var(--layer-green) 0 75%, var(--layer-violet) 0 87.5%, var(--layer-cyan) 0 100%); }
+.layer-ring.sm { width: 1.05rem; height: 1.05rem; margin-left: -.15rem; }
+
+/* SuperCad Studio downloads (/account/supercad): one tidy block per file */
+.scd-ver { margin-block: 1.25rem .75rem; }
+.scd-file { display: grid; gap: .5rem; justify-items: start; padding: 1rem 1.25rem; margin-block: .75rem; border: var(--pen-1, 1px) solid var(--ink-2, currentColor); }
+.scd-file > p, .scd-note { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); }
+.scd-sha code { overflow-wrap: anywhere; font-size: .85em; }
+
+/* SuperCad Studio: the company-name edit form opens from the header link (:target, no JS) */
+.scd-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.scd-rename { display: none; }
+.scd-rename:target { display: block; }
+
+/* SuperCad Studio account: the seat editor is folded away; "Get more licences / seats" is a real button */
+.scd-seat-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.scd-seat-head h3 { margin: 0; }
+.scd-edit-body { display: none; margin-top: 1rem; }
+.scd-edit-body:target, .scd-edit-body.is-open { display: block; }
+.set-sec .form-cc.scd-seat, .set-sec .form-cc.scd-rename { max-width: none; }
+.scd-edit-body, .scd-rename > * { max-width: 36rem; }
+.scd-rename:target, .scd-rename.is-open { display: block; }
+.scd-form [data-scd-save][disabled] { opacity: .45; cursor: not-allowed; }
+.scd-more { min-height: 3.25rem; padding: .7rem 1.6rem; font-size: var(--fs-md); font-weight: 700; }
+.scd-more { margin-bottom: 1.5rem; }
+.scd-seat { margin-top: 2rem; padding-top: 1.5rem; border-top: var(--pen-1) solid var(--line, var(--ink-2)); }
+
+/* SuperCad Studio downloads: one tab per system, the visitor's own preselected (radio buttons, no JS needed) */
+.scd-os { margin-block: 1rem; }
+.scd-os .scd-detect { margin-bottom: .75rem; }
+.scd-os-radio { position: absolute; opacity: 0; pointer-events: none; }
+.scd-os-tab { display: inline-flex; align-items: center; gap: .35rem; cursor: pointer; margin: 0 .35rem .5rem 0; }
+.scd-os-radio:checked + .scd-os-tab { background: var(--action); color: var(--on-action); border-color: var(--action); }
+.scd-os-radio:focus-visible + .scd-os-tab { outline: var(--pen-2, 2px) solid var(--ink); outline-offset: 2px; }
+.scd-os-you { font-weight: 400; font-size: .85em; }
+.scd-panel { display: none; }
+.scd-os-radio[value="windows"]:checked ~ .scd-panels [data-p="windows"],
+.scd-os-radio[value="macos"]:checked ~ .scd-panels [data-p="macos"],
+.scd-os-radio[value="linux"]:checked ~ .scd-panels [data-p="linux"],
+.scd-os-radio[value="web"]:checked ~ .scd-panels [data-p="web"] { display: block; }

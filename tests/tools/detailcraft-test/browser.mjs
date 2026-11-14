@@ -26,6 +26,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { showSetting } from '../shell-test/show-setting.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const BASE = 'https://getcadcraft.com';
@@ -324,17 +325,17 @@ try {
   await page.waitForSelector('[data-import-report]', { timeout: 30000 });
   await settle();
   const imp = await dc(() => ({ n: window.detailcraft.model.state.members.length, lv: window.detailcraft.model.state.levels.map((l) => l.name).join(','), g: window.detailcraft.model.state.grids.x.length + window.detailcraft.model.state.grids.y.length, dirty: window.detailcraft.model.dirty, rows: [...document.querySelectorAll('[data-import-report] tbody tr')].map((r) => r.textContent) }));
-  ok(imp.n === 8 && imp.lv === 'Ground,First' && imp.g === 4 && imp.dirty, 'IFC imported: 8 members, levels Ground and First, 4 grid lines, model not saved yet', JSON.stringify(imp));
-  ok(imp.rows.length === 4 && imp.rows.some((r) => r.includes('IfcWall')) && imp.rows.some((r) => r.includes('unequal-leg angle')), 'import report lists what was not brought in, by class (' + imp.rows.length + ' rows)');
+  ok(imp.n === 9 && imp.lv === 'Ground,First' && imp.g === 4 && imp.dirty, 'IFC imported: 9 members (its 150 x 90 angle is the catalog UEA since 0.9), levels Ground and First, 4 grid lines, model not saved yet', JSON.stringify(imp));
+  ok(imp.rows.length === 3 && imp.rows.some((r) => r.includes('IfcWall')), 'import report lists what was not brought in, by class (' + imp.rows.length + ' rows)');
   await page.screenshot({ path: path.join(OUT, '07b-ifc-import-report.png') });
   await page.keyboard.press('Enter');
   await settle();
   ok(await dc(() => !document.querySelector('dialog[open]') && document.activeElement?.closest('.dc-tools') !== null), 'OK closes the report; focus back on the toolbar');
-  ok((await page.textContent('[data-status]')).startsWith('Imported ios-steel-ifc2x3.ifc: 8 members'), 'status line sums the import');
+  ok((await page.textContent('[data-status]')).startsWith('Imported ios-steel-ifc2x3.ifc: 9 members'), 'status line sums the import');
   // 0.4 D11: its two holes and the bolt came in; the bolt is loose, listed in the Model panel with a way to remove it
   const imp2 = await dc(() => { const d = window.detailcraft; return { holes: d.model.state.members.reduce((t, m) => t + m.holes.length, 0), bolts: d.model.state.bolts.length, built: d.built.bolts.length }; });
   ok(imp2.holes === 2 && imp2.bolts === 1 && imp2.built === 1, 'the file\'s 2 holes and its bolt came in (0.4 D11)', JSON.stringify(imp2));
-  ok(await dc(() => window.detailcraft.built.parts.length === 8 && window.detailcraft.built.problems.length === 0), 'imported members build into 8 parts with no problems');
+  ok(await dc(() => window.detailcraft.built.parts.length === 9 && window.detailcraft.built.problems.length === 0), 'imported members build into 9 parts with no problems');
   await page.screenshot({ path: path.join(OUT, '07c-ifc-imported.png') });
   await dc(() => window.detailcraft.setSelection([]));
   await settle();
@@ -508,13 +509,18 @@ try {
   await page.keyboard.press('Control+,');
   await page.waitForSelector('[data-app-settings][open]');
   await page.click('[data-settings-tab="app"]');
+  await showSetting(page, '[data-dc-settings]');   // 0.7: one Settings section at a time
   ok(await page.locator('[data-dc-settings]').isVisible() && await page.locator('[data-settings-tab="app"]').textContent() === 'DetailCraft', 'Settings has a DetailCraft tab with its own fields');
   ok(await dc(() => document.querySelector('input[name="dcSteel"][value="us"]').checked && document.querySelector('input[name="dcOffX"]').value === '6000' && document.querySelector('input[name="dcBolts"]').checked), 'fields filled from the defaults when the dialog opens');
+  await showSetting(page, 'input[name="dcSteel"]');
   await page.check('input[name="dcSteel"][value="eu"]');
+  await showSetting(page, 'input[name="dcOffX"]');
   await page.fill('input[name="dcOffX"]', '0');
   await page.fill('input[name="dcOffY"]', '7000');
   await page.locator('input[name="dcOffY"]').dispatchEvent('change');
+  await showSetting(page, 'input[name="dcBolts"]');
   await page.uncheck('input[name="dcBolts"]');
+  await showSetting(page, 'input[name="dcConns"]');
   await page.uncheck('input[name="dcConns"]');
   await page.screenshot({ path: path.join(OUT, '13-settings-detailcraft.png') });
   const st1 = await dc(() => ({ s: JSON.parse(localStorage.getItem('detailcraft.settings')), beam: window.detailcraft.toolOptions.beam.profile + ' ' + window.detailcraft.toolOptions.beam.material, col: window.detailcraft.toolOptions.column.profile, bolts: window.detailcraft.view.root.children.find((o) => o.userData.bolts)?.visible }));

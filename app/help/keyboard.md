@@ -137,3 +137,7 @@ On a trackpad or a touch screen, see [Mouse, trackpad and touch](topic:mouse-tra
 :::mac
 If {{key:Mod+Y}} opens your browser's history instead of redoing, use {{key:Mod+Shift+Z}} or the {{ui:Redo}} button.
 :::
+
+## Where Move lives
+
+Move is the command `MOVE` (key {{key:M}}): pick the objects, then a base point and a second point or a typed distance. `ALIGN` and `DISTRIBUTE` are there too. BimCraft uses the same names for the same jobs on building elements, but its {{key:M}} is Measure: its Move is {{key:Shift+M}}.

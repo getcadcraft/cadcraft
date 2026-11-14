@@ -481,7 +481,7 @@ import sys, ezdxf
 d = ezdxf.readfile(sys.argv[1]); a = d.audit()
 print('AUDIT', len(a.errors), len(a.fixes))
 msp = d.modelspace()
-print('XDATA', sum(1 for e in msp if e.has_xdata('CADCRAFT')))
+print('XDATA', sum(1 for e in msp if e.has_xdata('CADCRAFT') and any(str(v).startswith('CCREF') for _, v in e.get_xdata('CADCRAFT'))))
 d.dxfversion = 'AC1032'
 d.saveas(sys.argv[2])
 lines = [e for e in msp if e.dxftype() == 'LINE']
@@ -507,7 +507,7 @@ d.saveas(sys.argv[3])
   let db = null;
   try { db = readDwg(bytes); } catch (err) { ok(false, 'readDwg reads the DWG', err.message); }
   if (db) {
-    const ccx = db.blocks.flatMap((b) => b.entities).filter((e) => e.xdata?.CADCRAFT);
+    const ccx = db.blocks.flatMap((b) => b.entities).filter((e) => e.xdata?.CADCRAFT).map((e) => ({ xdata: { CADCRAFT: e.xdata.CADCRAFT.filter((x) => !/^CCKEY:/.test(x[1])) } })).filter((e) => e.xdata.CADCRAFT.length);   // CCKEY (DC.27) rides in the same xdata; this checks the constraint strings
     ok(ccx.length > 0 && ccx.every((e) => e.xdata.CADCRAFT.length === 1 && e.xdata.CADCRAFT[0][0] === 1000 && /^CC(REF|PARAM):/.test(e.xdata.CADCRAFT[0][1])), 'readDwg reads the CADCRAFT xdata: one string per entity (' + ccx.length + ' entities)');
     const imp = importDwg(db, { versionTag: 'AC1015' });
     const d5 = new Doc(); d5.load(imp);

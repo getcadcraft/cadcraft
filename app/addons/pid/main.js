@@ -10,7 +10,7 @@
  * save, their data passing through. Connections are never stored: model.js works them out from where things touch, so moving
  * a pump with the ordinary MOVE keeps the diagram true.
  *
- * Commands: PIDSYMBOL · PIDLINE · PIDTAG · PIDLN · PIDLIST · PIDCHECK.  Exports (EXPORT): the lists as one XLSX workbook, or as CSV.
+ * Commands (0.8 chem-draw_PART_4, lib/draw4.js: PIDPFD · PIDHEN · PIDNODE · PIDLIVE · PIDTUBESHEET · PIDPLUME): PIDSYMBOL · PIDLINE · PIDTAG · PIDLN · PIDLIST · PIDCHECK · PIDPROC (0.8 CH.4: the process model, lib/process-link.js) · PIDFEEDS (0.8 IND.8: an imported stream table sets the model's feeds) · PIDCALC (0.8 CH.1–CH.27: the process calculators, lib/calc-ui.js over process/calc.js) · PIDZONE (CH.17: hazardous-area zones on the sheet) · PIDSOURCES (CH.17: release sources read from the drawing) · PIDCONSEQ (CH.16: consequence zones on the sheet) · PIDRELIEF (CH.12: size a relief valve and write the orifice on its symbol) · PIDHAZOP (CH.30: accept or reject the assistant's HAZOP suggestions).  Exports (EXPORT): the lists as one XLSX workbook, or as CSV.
  * It does not draw the symbols of Piping's PIDSYM (those stay as they are); a P&ID drawn here counts and checks only its own.
  * A drafting aid, not an engineering approval.
  */
@@ -23,6 +23,15 @@ import { runChecks } from './lib/checks.js';
 import { allLists, toCsvAll, toSheets } from './lib/lists.js';
 import { nextTag, nextLoop } from './lib/tags.js';
 import { writeXlsx } from './lib/xlsx.js';
+import { install as installProcess, describe as describePid } from './lib/process-link.js';
+import { mountCalc } from './lib/calc-ui.js';
+import * as CALC from '../../process/calc.js';
+import { toDexpi, fromDexpi } from './lib/dexpi-pid.js';
+import { readDexpi, writeDexpi } from './lib/interop/dexpi.js';
+import { bringOver } from './lib/interop/bring.js';
+import { stash as streamStash } from './lib/interop/feeds.js';
+import { install4 } from './lib/draw4.js';   // 0.8 chem-draw_PART_4: PFD, HEN grid, HAZOP nodes, live labels, tube sheet, plume, loops, totals
+import { installCapeOpen } from './lib/capeopen-ui.js';   // 0.9 IND.3 (cape-open-09): PIDCAPEOPEN + Export › CAPE-OPEN package
 
 export const DEFAULTS = { toolbar: false, sym: { in: 4, mm: 100 }, textH: { in: 0.6, mm: 15 }, lineFormat: DEFAULT_FORMAT, symbol: 'gate', act: 'none', svc: '', size: '', spec: '', arrow: 'end', fn: 'PI' };
 export const LAYERS = {
@@ -323,6 +332,7 @@ export function activate(api) {
 
   // ---------------------------------------------------------------------------------------------- PIDLIST (a list on the sheet, kept up to date)
   const listOf = (kind, model) => allLists(model)[LISTS.indexOf(kind)];
+  let proc = { streamList: () => null };   // the process link (lib/process-link.js) takes this place at the end of activate
   const isTable = (e) => kindOf(e) === 'pidtable';
   function refreshTables(doc) {
     const tables = [...doc.model].filter(([, e]) => isTable(e));
@@ -330,8 +340,9 @@ export function activate(api) {
     const model = readModel(doc), lists = allLists(model);
     for (const [id, e] of tables) {
       const d = api.objects.dataOf(e);
-      if (!d || d.auto === false || !LISTS.includes(d.list)) continue;
-      const list = lists[LISTS.indexOf(d.list)];
+      if (!d || d.auto === false || !(LISTS.includes(d.list) || d.list === 'stream')) continue;
+      const list = d.list === 'stream' ? proc.streamList(doc) : lists[LISTS.indexOf(d.list)];
+      if (!list) continue;
       const rows = [list.columns, ...list.rows];
       if (JSON.stringify(rows) === JSON.stringify(d.rows) && d.title === list.name) continue;
       doc.update(id, api.objects.update(e, { ...d, title: list.name, rows }));
@@ -384,8 +395,137 @@ export function activate(api) {
   api.files.exporter({ id: 'pid-xlsx', label: t('export.xlsx'), extension: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', write: async (doc) => writeXlsx(toSheets(allLists(needModel(doc))), { title: doc.meta?.name || 'P&ID' }) });
   api.files.exporter({ id: 'pid-csv', label: t('export.csv'), extension: 'csv', mime: 'text/csv', write: (doc) => '﻿' + toCsvAll(allLists(needModel(doc))) });
 
+  // DEXPI (IND.2) and "bring a job over" (IND.8): the shared reader / writer is ./lib/interop/, the symbol mapping ./lib/dexpi-pid.js
+  const hasProblems = (() => { try { return !!api.problems?.available?.(); } catch { return false; } })();
+  const importSource = hasProblems ? api.problems.source({ id: 'import', kind: 'import', label: t('interop.source') }) : null;
+  const publishImport = (list) => { if (importSource) { try { importSource.set(list); } catch (e) { api.log('import problems failed', e); } } };
+  const readFileText = async (file) => { const u8 = new Uint8Array(await file.arrayBuffer()); try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); } catch { return new TextDecoder('latin1').decode(u8); } };
+  api.files.exporter({ id: 'pid-dexpi', label: t('export.dexpi'), extension: '.xml', mime: 'application/xml', write: (doc) => writeDexpi(toDexpi(needModel(doc), { mmPerUnit: perUnit(doc, 'mm'), name: doc.meta?.name || 'P&ID' })) });
+  api.files.importer({
+    id: 'pid-dexpi', label: t('import.dexpi'), extensions: ['.xml'],
+    read: async (file) => {
+      const d = readDexpi(await readFileText(file));
+      const doc = api.doc;
+      const k = 1 / perUnit(doc, 'mm');   // drawing units in a millimetre
+      const r = fromDexpi(d, { symL: sizes(doc).sym, perMm: k, fmt: settings.lineFormat });
+      publishImport([...d.problems, ...r.problems].map((p) => ({ code: p.code, severity: p.severity, text: p.text, about: [{ kind: 'file', id: file.name }] })));
+      if (!r.symbols.length && !r.lines.length) throw new Error(t('import.dexpi.empty', { name: file.name }));
+      ensureLayers(doc);
+      const ents = [];
+      for (const l of r.lines) ents.push({ ...api.objects.create('pidline', l.data, { layer: LAYER_OF.process }), x: 0, y: 0, rot: 0 });
+      for (const s of r.symbols) ents.push({ ...api.objects.create('pidsym', s.data, { layer: LAYER_FOR[SYMBOLS[s.data.sym].group] }), x: s.x, y: s.y, rot: s.rot });
+      return { entities: ents };
+    },
+  });
+  api.files.importer({
+    id: 'pid-streams', label: t('import.streams'), extensions: ['.csv', '.xlsx'],
+    read: async (file) => {
+      const r = await bringOver(new Uint8Array(await file.arrayBuffer()), file.name);
+      publishImport(r.problems.map((p) => ({ code: p.code, severity: p.severity, text: p.text, about: p.about })));
+      if (r.kind !== 'stream-table' || !r.ok) throw new Error(t('import.streams.none', { name: file.name }));
+      streamStash.table = r.data; streamStash.name = file.name;   // PIDFEEDS puts these streams on the process model's feeds
+      const comps = r.data.components, f = (v, d = 2) => (Number.isFinite(v) ? String(+v.toFixed(d)) : '');
+      const rows = [[t('streams.col.stream'), '°C', 'bar', 'kg/h', 'kmol/h', 'VF', ...comps.map((c) => c + ' (' + r.data.basis + ')')],
+        ...r.data.streams.map((s) => [s.name, f(s.T - 273.15, 1), f(s.P / 1e5, 3), f(s.mass * 3600, 1), f(s.mole * 3.6, 3), f(s.vf, 3), ...comps.map((c) => f(s.comp[c], 4))])];
+      ensureLayers(api.doc);
+      return { entities: [{ ...api.objects.create('pidtable', { list: 'streams', title: t('list.stream'), rows, h: sizes(api.doc).text, auto: false }, { layer: 'PID-LIST' }), x: 0, y: -sizes(api.doc).sym * 4, rot: 0 }] };
+    },
+  });
+
+  // ---------------------------------------------------------------------------------------------- process calculators (0.8 CH.1–CH.16)
+  const calcSource = hasProblems ? api.problems.source({ id: 'calc', kind: 'engine', label: t('ui.calc') }) : null;
+  const publishCalc = (list) => { if (calcSource) { try { calcSource.set(list); } catch (e) { api.log('calculator problems failed', e); } } };
+  let lastCalc = null; const lastInputs = {};   // the last inputs the calculators panel ran with, by calculator id (PIDRELIEF reads relief)
+  cmd('PIDCALC', ['PCALC'], async (c) => {
+    const ids = CALC.list().map((x) => x.id);
+    const id = String((await c.string(t('calc.pick') + ' (' + ids.join(', ') + ')', { default: 'flash' })) ?? '').trim().toLowerCase();
+    if (!CALC.get(id)) { c.print(t('calc.unknown', { id, list: ids.join(', ') })); return; }
+    const r = await CALC.run(id);
+    lastCalc = r; lastCalc.id = id; lastInputs[id] = lastInputs[id] || CALC.get(id).input; if (draw4) draw4.noteRun(id, r);
+    publishCalc(r.problems.map((p, i) => ({ code: p.code, severity: p.severity === 'error' ? 'error' : p.severity === 'warning' ? 'warning' : 'info', text: p.text, about: [{ kind: 'calc', id: id + ':' + (i + 1), label: CALC.get(id).title }] })));
+    c.print(t('calc.done', { title: CALC.get(id).title, n: r.lines.length, errors: r.problems.filter((p) => p.severity === 'error').length, warnings: r.problems.filter((p) => p.severity === 'warning').length }));
+    for (const l of r.lines.slice(0, 40)) c.print(l.k + ' = ' + l.v);
+  }, { noRepeat: true, keepSelection: true });
+  // PIDZONE (0.8 CH.17): the hazardous-area zones of the 'area' calculator drawn on the sheet, plan circles or a section through a plane (layers AREA-ZONE0/1/2)
+  cmd('PIDZONE', ['PZONE'], async (c) => {
+    const doc = c.doc, mode = String(await c.string(t('zone.mode'), { default: 'plan' }) ?? '').trim().toLowerCase();
+    if (mode !== 'plan' && mode !== 'section') { c.print(t('zone.mode.bad')); return; }
+    const res = lastCalc && lastCalc.id === 'area' && lastCalc.zones ? lastCalc : await CALC.run('area');
+    const AREA = await import('../../process/safety/area.js'), k = 1000 / perUnit(doc, 'mm');
+    const shapes = mode === 'plan' ? AREA.planShapes(res.zones) : AREA.sectionShapes(res.zones, { axis: 'x', at: res.zones.find((z) => z.shape)?.shape.cx ?? 0 });
+    if (!shapes.length) { c.print(t('zone.none')); return; }
+    const at = mode === 'section' ? await c.point(t('ask.table'), { none: true }) : { x: 0, y: 0 }; if (!at || at.option) return;
+    const COL = { 'AREA-ZONE0': 1, 'AREA-ZONE1': 30, 'AREA-ZONE2': 2 }, th = sizes(doc).text;
+    for (const sh of shapes) if (sh.layer && !doc.layers.has(sh.layer)) doc.addLayer({ name: sh.layer, color: COL[sh.layer] || 7, lineweight: 0.25 });
+    let n = 0;
+    doc.change('PIDZONE', () => {
+      for (const sh of shapes) {
+        if (!sh.layer) continue;
+        if (mode === 'plan') doc.add({ type: 'circle', cx: sh.cx * k, cy: sh.cy * k, r: sh.r * k, layer: sh.layer });
+        else if (sh.type === 'rect') { const x0 = at.x + sh.s0 * k, x1 = at.x + sh.s1 * k, y0 = at.y + sh.z0 * k, y1 = at.y + sh.z1 * k; for (const [a, b, d, e] of [[x0, y0, x1, y0], [x1, y0, x1, y1], [x1, y1, x0, y1], [x0, y1, x0, y0]]) doc.add({ type: 'line', x1: a, y1: b, x2: d, y2: e, layer: sh.layer }); }
+        else doc.add({ type: 'circle', cx: at.x + sh.s * k, cy: at.y + sh.z * k, r: sh.r * k, layer: sh.layer });
+        doc.add({ type: 'text', x: (mode === 'plan' ? sh.cx * k : at.x + (sh.s ?? (sh.s0 + sh.s1) / 2) * k), y: (mode === 'plan' ? sh.cy * k : at.y + (sh.z ?? sh.z1) * k), h: th, rot: 0, s: sh.label, ha: 'center', va: 'middle', layer: sh.layer });
+        n++;
+      }
+    });
+    c.print(t('zone.done', { mode, n }));
+  }, { noRepeat: true });
+  // PIDSOURCES (0.8 CH.17): the release sources of the drawing itself. Grade by what each symbol is, the substance by its service (the list is the person's), then the area calculator
+  // classifies them; PIDZONE draws the zones. Items carry the drawing's coordinates in metres.
+  const drawingItems = (doc) => { const model = readModel(doc), m = perUnit(doc, 'mm') / 1000; return { toMetres: m, items: model.symbols.map((sy) => ({ tag: sy.tag, sym: sy.sym, x: sy.x, y: sy.y, svc: (sy.attrs && sy.attrs.svc) || '', attrs: sy.attrs || {} })) }; };
+  cmd('PIDSOURCES', ['PSOURCES'], async (c) => {
+    const doc = c.doc, d = drawingItems(doc);
+    let subs = api.storage.get('substances');
+    const dflt = subs ? JSON.stringify(subs) : '{"gas":{"name":"methane","lfl":0.044,"M":0.016043}}';
+    const typed = String((await c.string(t('src.ask'), { default: dflt })) ?? '').trim() || dflt;   // Enter keeps the saved list
+    try { subs = JSON.parse(typed); } catch { c.print(t('src.badjson')); return; }
+    api.storage.set('substances', subs);
+    const input = { ...CALC.get('area').input, sources: [], pidItems: d.items, substances: subs, toMetres: d.toMetres, ventilation: { degree: 'medium', availability: 'fair', C: 0.02, indoor: false } };
+    const r = await CALC.run('area', input);
+    lastCalc = r; lastCalc.id = 'area';
+    publishCalc(r.problems.map((p, i) => ({ code: p.code, severity: p.severity === 'error' ? 'error' : p.severity === 'warning' ? 'warning' : 'info', text: p.text, about: [{ kind: 'calc', id: 'area:' + (i + 1), label: CALC.get('area').title }] })));
+    c.print(t('src.done', { n: r.zones ? r.zones.length : 0, items: d.items.length }));
+  }, { noRepeat: true, keepSelection: true });
+  // PIDCONSEQ (0.8 CH.16): the zones of the consequence calculator on the sheet, plan footprints (circles, plumes) on layers CONSEQ-1, CONSEQ-2 … and a label; one undo step.
+  cmd('PIDCONSEQ', ['PCONSEQ'], async (c) => {
+    const doc = c.doc, res = lastCalc && lastCalc.id === 'consequence' && lastCalc.zones ? lastCalc : await CALC.run('consequence');
+    if (!res.zones || !res.zones.length) { c.print(t('zone.none')); return; }
+    const at = await c.point(t('ask.consequence'), { none: true }); if (!at || at.option) return;
+    const k = 1000 / perUnit(doc, 'mm'), levels = [...new Set(res.zones.map((z) => String(z.level)))], COL = [1, 30, 2, 3, 5], th = sizes(doc).text;
+    for (let i = 0; i < levels.length; i++) { const nm = 'CONSEQ-' + (i + 1); if (!doc.layers.has(nm)) doc.addLayer({ name: nm, color: COL[i % COL.length], lineweight: 0.25 }); }
+    let n = 0;
+    doc.change('PIDCONSEQ', () => {
+      for (const z of res.zones) {
+        const layer = 'CONSEQ-' + (levels.indexOf(String(z.level)) + 1);
+        if (z.type === 'circle') doc.add({ type: 'circle', cx: at.x + z.cx * k, cy: at.y + z.cy * k, r: z.r * k, layer });
+        else if (z.polygon && z.polygon.length > 2) doc.add({ type: 'poly', pts: z.polygon.map(([x, y]) => [at.x + x * k, at.y + y * k, 0]), closed: true, layer });
+        else continue;
+        doc.add({ type: 'text', x: at.x + z.cx * k, y: at.y + z.cy * k + (z.type === 'circle' ? z.r * k : 0), h: th, rot: 0, s: z.label, ha: 'center', va: 'middle', layer });
+        n++;
+      }
+    });
+    c.print(t('conseq.done', { n }));
+  }, { noRepeat: true });
+  // PIDRELIEF (0.8 CH.12): size the relief valve of a tag with the relief calculator's inputs and write the result on the symbol (attributes orifice, area_mm2, basis).
+  cmd('PIDRELIEF', ['PRELIEF'], async (c) => {
+    const doc = c.doc, model = readModel(doc), valves = model.symbols.filter((sy) => sy.sym === 'relief');
+    if (!valves.length) { c.print(t('relief.none')); return; }
+    const tag = String((await c.string(t('relief.ask.tag', { list: valves.map((v) => v.tag || '—').join(', ') }), { default: valves[0].tag })) ?? '').trim();
+    const sy = valves.find((v) => v.tag === tag); if (!sy) { c.print(t('relief.badtag', { tag })); return; }
+    const basis = String((await c.string(t('relief.ask.basis'), { default: 'gas' })) ?? '').trim().toLowerCase();
+    if (!['gas', 'steam', 'liquid'].includes(basis)) { c.print(t('relief.badbasis')); return; }
+    const R = await import('../../process/equip/relief.js'), inp = lastInputs.relief || CALC.get('relief').input, Kc = R.discKc(inp.disc || 'none').Kc;
+    const A = basis === 'gas' ? R.gasArea({ ...inp.gas, Kc }).A : basis === 'steam' ? R.steamArea({ ...inp.steam, Kc }).A : R.liquidArea(inp.liquid).A, o = R.orificeLetter(A);
+    doc.change('PIDRELIEF', () => { const eid = Number(sy.uid); doc.update(eid, api.objects.update(doc.get(eid), cleanSymbol({ ...sy.data, attrs: { ...sy.data.attrs, orifice: o.letter || 'over T', area_mm2: String(Math.round(A * 1e6)), basis } }))); });
+    c.print(t('relief.done', { tag, letter: o.letter || '—', mm2: Math.round(A * 1e6), basis }));
+  }, { noRepeat: true });
+  api.files.exporter({ id: 'pid-calc', label: t('calc.export'), extension: 'csv', mime: 'text/csv', write: () => { if (!lastCalc || !lastCalc.lines.length) throw new Error(t('calc.unknown', { id: '—', list: CALC.list().map((x) => x.id).join(', ') })); return '﻿' + CALC.toCsv(lastCalc.lines); } });
+  let draw4 = null;   // the round-4 drawing commands (installed at the end, once the process link exists)
+  const calcBody = api.ui.panelSection({ id: 'pid-calc', title: t('ui.calc'), render: () => {} });
+  if (calcBody) mountCalc(calcBody, { t, publish: publishCalc, onRun: (id, input, r) => { lastInputs[id] = input; lastCalc = r; lastCalc.id = id; if (draw4) draw4.noteRun(id, r); }, drawingItems: () => (api.doc ? drawingItems(api.doc) : null) });
+
   // ---------------------------------------------------------------------------------------------- toolbar, panel, settings
-  const ACTIONS = [['PIDSYMBOL', 'ui.symbol', 'bi-diagram-3'], ['PIDLINE', 'ui.line', 'bi-bezier2'], ['PIDTAG', 'ui.tag', 'bi-tag'], ['PIDLN', 'ui.ln', 'bi-hash'], ['PIDLIST', 'ui.list', 'bi-table'], ['PIDCHECK', 'ui.check', 'bi-check2-square']];
+  const ACTIONS = [['PIDSYMBOL', 'ui.symbol', 'bi-diagram-3'], ['PIDLINE', 'ui.line', 'bi-bezier2'], ['PIDTAG', 'ui.tag', 'bi-tag'], ['PIDLN', 'ui.ln', 'bi-hash'], ['PIDLIST', 'ui.list', 'bi-table'], ['PIDCHECK', 'ui.check', 'bi-check2-square'], ['PIDCALC', 'ui.calc', 'bi-calculator'], ['PIDZONE', 'ui.zone', 'bi-bullseye'], ['PIDSOURCES', 'ui.sources', 'bi-geo'], ['PIDCONSEQ', 'ui.conseq', 'bi-record-circle'], ['PIDRELIEF', 'ui.relief', 'bi-shield-exclamation'], ['PIDHAZOP', 'ui.hazop', 'bi-clipboard-check'], ['PIDFEEDS', 'ui.feeds', 'bi-box-arrow-in-right'], ['PIDPFD', 'ui.pfd', 'bi-diagram-2'], ['PIDHEN', 'ui.hen', 'bi-grid-3x3'], ['PIDNODE', 'ui.node', 'bi-bounding-box'], ['PIDLIVE', 'ui.live', 'bi-activity'], ['PIDTUBESHEET', 'ui.tubes', 'bi-circle-square'], ['PIDPLUME', 'ui.plume', 'bi-wind'], ['PIDCAPEOPEN', 'ui.capeopen', 'bi-plug']];
   let bar = null;
   function showToolbar(on) {
     if (bar) { for (const x of bar) x?.remove?.(); bar = null; }
@@ -467,6 +607,7 @@ export function activate(api) {
       const out = [text('tag', 'prop.tag', 'tag', 24), text('desc', 'prop.desc', 'desc')];
       if (ents.every((e) => isValve(symData(e)?.sym))) out.push(field('act', 'choice', 'prop.act', (d) => d.act, (d, v) => { d.act = ACTUATORS.includes(v) ? v : d.act; return d; }, { choices: () => ACTUATORS.map((k) => [k, t('act.' + k)]) }));
       out.push(attr('svc'), attr('dp'), attr('dt'), attr('cap'), attr('mat'), attr('notes'));
+      if (ents.every((e) => symData(e)?.sym === 'relief')) out.push(attr('orifice'), attr('area_mm2'), attr('basis'));
       return out;
     }
     return [
@@ -479,6 +620,9 @@ export function activate(api) {
     ];
   }
 
+  proc = installProcess(api, { readModel, ensureLayers, sizes, cmd, choose, cleanLine, cleanSymbol, writeXlsx, perUnit, layerOf: (kind, d) => (kind === 'pidline' ? LAYER_OF[d.style] : LAYER_FOR[SYMBOLS[d.sym].group]) });
+  draw4 = install4(api, { readModel, ensureLayers, sizes, cmd, perUnit, proc, writeXlsx, lastInputs, publishCalc, describe: describePid });
+  installCapeOpen(api, { cmd, choose, proc });
   api.log('P&ID ready');   // i18n-ignore (developer log)
 }
 

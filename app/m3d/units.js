@@ -103,13 +103,25 @@ export function unitScale(unit) { return { 'ft-in': IN, in: IN, ft: FT, yd: YD, 
 
 const trim = (x, d) => { const s = x.toFixed(d); return s.includes('.') ? s.replace(/\.?0+$/, '') : s; };
 function gcd(a, b) { return b ? gcd(b, a % b) : a; }
-/** Inches to "6 1/2" (nearest 1/16). */
+
+// Length precision (0.8 D8.6): null = each unit's own (1/16" for feet and inches, 1 decimal for mm …); otherwise the
+// file's choice: a fraction of an inch for 'ft-in' / 'in' (1, 2, 4 … 64 = the denominator) and decimal places for the
+// rest (0–6). One value for the open model: the app sets it when a file opens or the choice changes (a page holds one
+// model), so every formatLength call, the status bar and the dimensions follow without a second argument.
+export const FRACTIONS = [1, 2, 4, 8, 16, 32, 64];
+let precision = null;
+export function setLengthPrecision(p) { precision = Number.isInteger(p) && (FRACTIONS.includes(p) || (p >= 0 && p <= 6)) ? p : null; }
+export function lengthPrecision() { return precision; }
+const fracDen = () => (FRACTIONS.includes(precision) ? precision : 16);
+const places = (own) => (precision !== null && precision <= 6 ? precision : own);
+/** Inches to "6 1/2" (nearest 1/16, or the chosen fraction). */
 function inchText(inches) {
-  const sx = Math.round(inches * 16);
-  const whole = Math.floor(sx / 16), frac = sx % 16;
+  const den = fracDen();
+  const sx = Math.round(inches * den);
+  const whole = Math.floor(sx / den), frac = sx % den;
   if (!frac) return String(whole);
-  const g = gcd(frac, 16);
-  return (whole ? whole + ' ' : '') + frac / g + '/' + 16 / g;
+  const g = gcd(frac, den);
+  return (whole ? whole + ' ' : '') + frac / g + '/' + den / g;
 }
 
 export function formatLength(m, unit = 'm') {
@@ -117,19 +129,20 @@ export function formatLength(m, unit = 'm') {
   const neg = m < -1e-9, a = Math.abs(m);
   let s;
   if (unit === 'ft-in') {
-    const total16 = Math.round((a / IN) * 16);
-    const ft = Math.floor(total16 / (12 * 16)), rest = (total16 - ft * 12 * 16) / 16;
+    const den = fracDen();
+    const total = Math.round((a / IN) * den);
+    const ft = Math.floor(total / (12 * den)), rest = (total - ft * 12 * den) / den;
     s = ft ? `${ft}' ${inchText(rest)}"` : `${inchText(rest)}"`;
   } else if (unit === 'in') s = inchText(a / IN) + '"';
-  else if (unit === 'ft') s = trim(a / FT, 4) + ' ft';
-  else if (unit === 'yd') s = trim(a / YD, 3) + ' yd';
-  else if (unit === 'mi') s = a >= MI ? trim(a / MI, 4) + ' mi' : trim(a / FT, 3) + ' ft';   // a mile model shows the small lengths in feet
-  else if (unit === 'mil') s = trim(a / MIL, 2) + ' mil';
-  else if (unit === 'um') s = trim(a * 1e6, 2) + ' µm';
-  else if (unit === 'mm') s = trim(a * 1000, 1) + ' mm';
-  else if (unit === 'cm') s = trim(a * 100, 2) + ' cm';
-  else if (unit === 'km') s = a >= 1000 ? trim(a / 1000, 3) + ' km' : trim(a, 3) + ' m';   // a kilometer model shows the small lengths in meters
-  else s = trim(a, 3) + ' m';
+  else if (unit === 'ft') s = trim(a / FT, places(4)) + ' ft';
+  else if (unit === 'yd') s = trim(a / YD, places(3)) + ' yd';
+  else if (unit === 'mi') s = a >= MI ? trim(a / MI, places(4)) + ' mi' : trim(a / FT, places(3)) + ' ft';   // a mile model shows the small lengths in feet
+  else if (unit === 'mil') s = trim(a / MIL, places(2)) + ' mil';
+  else if (unit === 'um') s = trim(a * 1e6, places(2)) + ' µm';
+  else if (unit === 'mm') s = trim(a * 1000, places(1)) + ' mm';
+  else if (unit === 'cm') s = trim(a * 100, places(2)) + ' cm';
+  else if (unit === 'km') s = a >= 1000 ? trim(a / 1000, places(3)) + ' km' : trim(a, places(3)) + ' m';   // a kilometer model shows the small lengths in meters
+  else s = trim(a, places(3)) + ' m';
   return (neg ? '-' : '') + s;
 }
 // millimeter models show areas from 0.01 m² and volumes from 0.01 m³ in square/cubic meters

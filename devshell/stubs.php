@@ -46,6 +46,13 @@ if (!function_exists('slugify')) {
         return trim(substr($s, 0, 120), '-');
     }
 }
+// Screenshot mode (helpers.php, 2026-11-08) is a /lab-only staff tool: a packed edition is never in it. header.inc, app-bar.inc, app-settings.inc and app-about.inc call these.
+if (!function_exists('shot_mode')) {
+    function shot_mode(): bool { return false; }
+}
+if (!function_exists('shot_version')) {
+    function shot_version(): string { return '0.9'; }
+}
 
 if (!class_exists('Catalog')) {
     final class Catalog
@@ -55,7 +62,13 @@ if (!class_exists('Catalog')) {
         {
             $d = devshell_app();
             if ($slug === $d['app']['slug']) return $d['app'];
+            if (isset($d['mount_rows'][$slug])) return $d['mount_rows'][$slug];   // an app SuperCad Studio hosts (edition-super.php)
             return isset($d['others'][$slug]) ? ['slug' => $slug, 'name' => $d['others'][$slug], 'open_in' => []] : null;
+        }
+        /** As the site's Catalog::anyApp (Help::compileApp): here the same lookup as app(), the apps not in this repo are name-only rows. */
+        public static function anyApp(string $slug): ?array
+        {
+            return self::app($slug);
         }
         /** Only this app runs here; links to other apps are never shown. */
         public static function openIn(array $app, string $area): bool
@@ -103,12 +116,24 @@ if (!class_exists('AppBuilds')) {
             $v = (string)($build['version'] ?? '');
             return !empty($build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $v) === 1 && version_compare($v, '0.5', '>='));
         }
+        /** The shared property grid (0.7 PANEL-COMPACT item 4), as the site's AppBuilds::propgrid: a build opts in with manifest "propgrid": true. */
+        public const PROPGRID_SCRIPT = '/assets/js/app-propgrid.js';
+        public const PROPGRID_CSS = '/assets/css/app-propgrid.css';
+        public static function propgrid(array $build): bool { return ($build['manifest']['propgrid'] ?? false) === true; }
         /** Hardware specs from the six apps without lib/compute (0.7 HW.2), as the site's AppBuilds::hardware. */
         public const HARDWARE_SCRIPT = '/assets/js/app-hardware.js';
         public static function hardware(array $build): bool { return ($build['manifest']['hardware'] ?? false) === true; }
+        /** Input devices (0.8 Track ID), as the site's AppBuilds::devices: a build opts in with manifest "devices": true. */
+        public const DEVICES_SCRIPT = '/assets/js/app-devices-ui.js';
+        public static function devices(array $build): bool { return ($build['manifest']['devices'] ?? false) === true; }
+        /** Round 2 shell_PART_2: calc, reasons, totals, lessons, as the site's AppBuilds::extras / extraScript. */
+        public const EXTRA_KEYS = ['calc', 'reasons', 'totals', 'lessons', 'ai-suggest', 'ai-activity', 'ai-ask', 'access', 'fields'];
+        public const EXTRA_CSS = '/assets/css/app-tools.css';
+        public static function extras(array $build): array { return array_values(array_filter(self::EXTRA_KEYS, fn($k) => ($build['manifest'][$k] ?? false) === true)); }
+        public static function extraScript(string $key): string { return '/assets/js/app-' . $key . '.js'; }
         /** Workspace layouts (0.7 WS.6), as the site's AppBuilds::workspaces / workspaceAdapter / hasWorkspaces / workspaceConfig. */
         public const WORKSPACE_BUILTINS = ['docked', 'toolbox'];
-        public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-arrange.js', '/assets/js/i18n.js'];
+        public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-icons.js', '/assets/js/app-workspace-vector.js', '/assets/js/app-workspace-arrange.js', '/assets/js/i18n.js'];
         public static function workspaces(array $build): array
         {
             $w = $build['manifest']['workspaces'] ?? [];
@@ -141,7 +166,15 @@ if (!class_exists('AppBuilds')) {
         /** Another app's build is never here (an "Edit in <app>" handoff stays hidden). */
         public static function resolve(string $slug, string $area, ?string $version = null): ?array
         {
-            return null;
+            // SuperCad Studio's browser edition stages the apps it hosts in <stage>/mounts/<slug> (devshell/edition-super.php)
+            $ver = devshell_app()['mounts'][$slug] ?? null;
+            $dir = __DIR__ . '/../mounts/' . $slug;
+            if ($ver === null || !is_dir($dir) || !preg_match('/^[a-z0-9-]+$/', $slug)) return null;
+            $m = json_decode((string)@file_get_contents("$dir/manifest.json"), true);
+            return [
+                'slug' => $slug, 'version' => $ver, 'label' => $ver, 'dir' => (string)realpath($dir), 'url' => '/assets/apps/' . $slug . '/' . $ver . '/',
+                'is_dev' => false, 'is_current' => true, 'current' => $ver, 'manifest' => is_array($m) ? $m : [], 'release' => null,
+            ];
         }
         public static function versions(string $slug): array { return []; }
         public static function hasDev(string $slug): bool { return false; }

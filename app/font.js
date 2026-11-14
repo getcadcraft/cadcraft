@@ -38,3 +38,39 @@ export function advance(s) {
   for (const ch of s) w += charAdvance(ch);
   return w;
 }
+
+// ---- other typefaces (0.9 FX.92: TEXTSTYLE + the MTEXT editor's font list) ----
+/** The faces of the font list, by CSS generic: what a name falls back to when the computer has none of that name. */
+export const FONT_LIST = Object.freeze([
+  ['Arial', 'sans-serif'], ['Calibri', 'sans-serif'], ['Verdana', 'sans-serif'], ['Tahoma', 'sans-serif'], ['Segoe UI', 'sans-serif'],
+  ['Times New Roman', 'serif'], ['Georgia', 'serif'], ['Cambria', 'serif'], ['Courier New', 'monospace'], ['Consolas', 'monospace'],
+  ['Comic Sans MS', 'cursive'], ['Impact', 'sans-serif'],
+]);
+const GENERIC = new Map(FONT_LIST);
+const MONO = /^(courier|consolas|lucida console|monaco|menlo|monospace|dejavu sans mono|liberation mono)/i;
+const SAME = /^(helvetica|arial|liberation sans|txt|standard|romans?|simplex|isocp\d*|iso3098\w*)$/i;   // the built-in face (SHX names are drawn by shx-text.js or as this one)
+
+/** A font name as written in a file or typed (path, ".ttf", ".shx", quotes) → the bare family name, or null for the built-in face. */
+export function fontName(name) {
+  let n = String(name ?? '').trim().replace(/^.*[\\/]/, '').replace(/\.(ttf|ttc|otf|shx)$/i, '').replace(/["';{}\\|]/g, '').trim();
+  if (!n || SAME.test(n)) return null;
+  return n.slice(0, 80);
+}
+/** The CSS font-family for a font name (null → fallback: the built-in face's own stack). */
+export function familyOf(name, fallback) {
+  const n = fontName(name);
+  if (!n) return fallback ?? null;
+  const g = GENERIC.get(n) || (MONO.test(n) ? 'monospace' : 'sans-serif');
+  return `"${n}", ${g}`;
+}
+let measureFont = null;
+/** The page installs a canvas measurer (family, string) → advance in 1/1000 em; Node has none and keeps Helvetica's widths. */
+export function setFontMeasure(fn) { measureFont = fn; }
+/** Width of a string in 1/1000 em in the named font (null / the built-in names → Helvetica's metrics). */
+export function advanceIn(name, s) {
+  const n = fontName(name);
+  if (!n) return advance(s);
+  const w = measureFont ? measureFont(familyOf(n), s) : null;
+  if (w !== null && w !== undefined) return w;
+  return MONO.test(n) ? 600 * [...s].length : advance(s);
+}

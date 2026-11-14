@@ -9,7 +9,7 @@
  * Settings: theme (paper / model / match the system), screen mode on open, toolbar buttons (icons and
  * labels / icons only / labels only, group names, arrange by dragging), panel text size, left and right
  * panel widths (also dragged at the panel edges), full names in tooltips when text is cut off, reset.
- * App-specific settings: a build may bring settings.inc (one or more <fieldset class="shell-set">). It gets a panel
+ * App-specific settings: a build may bring settings.inc (one or more <fieldset data-sec-group="language" class="shell-set">). It gets a panel
  * of its own — the first tab, named after the app — beside "General" (the shared settings below). They exist only
  * here, inside the app. The app's own JS reads and stores its fields, and listens for "cc-settings-reset" on the
  * dialog to reset them. app-settings.js switches the tabs (without it both panels show, one after the other).
@@ -31,12 +31,13 @@ $__panels = AppBuilds::panels($__build);   // [] for builds without manifest "pa
 $__an = ['app' => $app['name']];
 // Languages to pick: each locale's own name ("@name" in its file: the build's, else the shell's).
 $__langs = [];
-foreach (Lang::locales((string)($__build['dir'] ?? '')) as $__l) {
+foreach (Lang::available((string)($__build['dir'] ?? '')) as $__l) {   // the build's files + language packs (docs/LANG-PACKS.md)
     $__name = $__l;
     foreach ([rtrim((string)($__build['dir'] ?? ''), '/') . "/lang/$__l.json", Lang::shellDir() . "/$__l.json"] as $__f) {
-        $__j = is_file($__f) ? json_decode((string)file_get_contents($__f), true) : null;
-        if (is_array($__j) && is_string($__j['@name'] ?? null) && $__j['@name'] !== '') { $__name = $__j['@name']; break; }
+        $__n = Lang::nameOf($__f);   // the file's head only (0.9 FX.141): decoding every locale in full cost 150 ms per app page
+        if ($__n !== null) { $__name = $__n; break; }
     }
+    if ($__name === $__l && class_exists('LangPacks') && ($__pi = LangPacks::index())) $__name = (string)($__pi['locales'][$__l]['name'] ?? $__l);   // a pack-only locale: the pack's name
     $__langs[$__l] = $__name;
 }
 if (!empty($__build['is_dev'])) $__langs[Lang::PSEUDO] = Lang::t('shell.settings.lang.pseudo');
@@ -46,6 +47,41 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
 // size): dev builds and releases from 0.6 on. Worked out here, not in AppBuilds, so the browser edition / Studio page
 // (devshell/render.php and its AppBuilds stub) agrees; the 0.5 releases in /use load the same shell files and see none of it.
 $__ver = (string)($__build['version'] ?? '');
+/* Version (owner 2026-10-28): always in Settings, because a workspace layout (its own title bar) and a too-full app bar (the "More"
+   layout) can take the version chip off the screen. Reuses app-bar.inc's builds list and lab stamp when it ran (app-shell.inc). */
+$__vs = ['builds' => $__builds ?? [], 'stamp' => $__stamp ?? null, 'stampTitle' => $__stampTitle ?? '', 'area' => $__area ?? null, 'older' => !empty($__older)];
+$__versionSet = static function () use ($app, $__build, $__an, $__vs): void {
+    $label = (string)($__build['label'] ?? $__build['version'] ?? '');
+    $__shotV = shot_mode();   // ?shot=1: the release number, no "dev", no stamp, no area, no other builds
+    if ($__shotV) { $label = shot_version(); $__vs['stamp'] = null; $__vs['area'] = null; $__vs['builds'] = []; }
+    $note = $__shotV ? '' : (!empty($__build['is_dev']) ? Lang::t('shell.bar.ver.dev')
+        : (($__build['current'] ?? '') === ($__build['version'] ?? null) ? Lang::t('shell.bar.ver.current') : ($__vs['older'] ? Lang::t('shell.settings.version.older') : '')));
+    $stamp = $__vs['stamp'];
+    $area = $__vs['area'];
+    $areaName = $area ? (Lang::has('shell.bar.area.' . $area['key']) ? Lang::t('shell.bar.area.' . $area['key']) : (string)$area['label']) : '';
+    $builds = array_values(array_filter($__vs['builds'], static fn ($b) => $b['v'] !== ($__build['version'] ?? '') && !($b['v'] === 'dev' && !empty($__build['is_dev']))));
+    ?>
+    <fieldset class="shell-set" data-version-set>
+      <legend><?= Lang::e('shell.settings.version.legend') ?></legend>
+      <p class="shell-hint-text"><?= Lang::e('shell.settings.version.hint', $__an) ?></p>
+      <dl class="shell-version">
+        <dt><?= Lang::e('shell.settings.version.version') ?></dt>
+        <dd data-version-label><?= e($app['name'] . ' ' . $label) ?><?= $note !== '' ? ' (' . e($note) . ')' : '' ?></dd>
+        <?php if (!empty($__build['is_dev']) && $stamp): ?>
+        <dt><?= Lang::e('shell.settings.version.build') ?></dt>
+        <dd title="<?= e($__vs['stampTitle']) ?>"><code><?= e($stamp['hash']) ?></code> <?= e(fmt_date($stamp['time'], 'M j, Y H:i T')) ?></dd>
+        <?php endif; ?>
+        <?php if ($areaName !== ''): ?>
+        <dt><?= Lang::e('shell.settings.version.area') ?></dt>
+        <dd><?= e($areaName) ?></dd>
+        <?php endif; ?>
+        <?php if ($builds): ?>
+        <dt><?= Lang::e('shell.settings.version.others') ?></dt>
+        <dd><ul class="shell-version-list"><?php foreach ($builds as $b): ?><li><a href="<?= e($b['href']) ?>"><?= e($b['v']) ?></a><?= $b['note'] !== '' ? ' <span class="shell-hint-text">' . e($b['note']) . '</span>' : '' ?></li><?php endforeach; ?></ul></dd>
+        <?php endif; ?>
+      </dl>
+    </fieldset>
+<?php };
 $__shell_07 = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', (string)($__build['version'] ?? '')) === 1 && version_compare((string)$__build['version'], '0.7', '>='));   // 0.7 PANEL-COMPACT (session shell-07): layout density, panel title bars
 $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $__ver) === 1 && version_compare($__ver, '0.6', '>='));
 ?>
@@ -71,6 +107,7 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
       <?php if ($__own_settings): ?>
         <section class="shell-pane" id="shell-pane-app" role="tabpanel" aria-labelledby="shell-tab-app" data-settings-pane="app">
           <p class="shell-hint-text shell-pane-lede"><?= Lang::e('shell.settings.app_only', $__an) ?></p>
+          <?php $__versionSet(); ?>
           <?php if (AppBuilds::input($__build)): /* menus, keys and mouse (0.5 track IP): assets/js/app-input-ui.js fills it */ ?>
           <fieldset class="shell-set shell-set-wide" data-input-set>
             <legend><?= Lang::e('shell.input.legend') ?></legend>
@@ -81,16 +118,22 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         </section>
       <?php endif; ?>
       <section class="shell-pane" id="shell-pane-general"<?= $__own_settings ? ' role="tabpanel" aria-labelledby="shell-tab-general"' : '' ?> data-settings-pane="general">
+      <?php if (!$__own_settings) $__versionSet(); ?>
 <?php if ($__shell_ui): /* 0.6 DF.8: the way back when a bar, a menu or a panel went missing */ ?>
-      <fieldset class="shell-set" data-layout-set>
+      <fieldset data-sec-group="interface" class="shell-set" data-layout-set>
         <legend><?= Lang::e('shell.layout') ?></legend>
         <?php /* 0.7 workspace layouts (owner 2026-10-24): one choice for every app (localStorage cc-workspace, app-settings.js); an app that
            has no such layout yet keeps its standard one. Names say how the workspace works, never which program it resembles. */
         $__ws = AppBuilds::workspaces($__build); ?>
+        <section class="shell-group" aria-labelledby="shell-grp-pick"><h3 class="shell-group-h" id="shell-grp-pick"><?= Lang::e('shell.group.pick') ?></h3>
         <p class="shell-hint-text" id="shell-ws-h"><?= Lang::e('shell.ws.label') ?></p>
+        <?php /* 0.9 FX.83: the layouts are a drop-down of two-line choices (the radios stay in the pop-up; app-settings.js shows/hides it) */ ?>
+        <div class="shell-ws-pick" data-ws-pick>
+        <button type="button" class="shell-ws-trigger" data-ws-trigger aria-haspopup="true" aria-expanded="false" aria-controls="shell-ws-pop" aria-labelledby="shell-ws-h shell-ws-cur"><span class="shell-ws-cur" id="shell-ws-cur" data-ws-cur></span><i class="bi bi-caret-down-fill" aria-hidden="true"></i></button>
+        <div class="shell-ws-pop" id="shell-ws-pop" data-ws-pop>
         <div class="shell-seg shell-seg-col" role="radiogroup" aria-labelledby="shell-ws-h" data-ws-set>
           <label class="shell-ws-opt"><input type="radio" name="workspace" value="standard"> <i class="bi bi-layout-text-window" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.ws.standard') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.ws.standard.hint') ?></span></span></label>
-          <?php foreach (['docked' => 'bi-layout-sidebar-inset', 'toolbox' => 'bi-tools'] as $__wk => $__wi): $__won = in_array($__wk, $__ws, true); ?>
+          <?php foreach (['docked' => 'bi-layout-sidebar-inset', 'toolbox' => 'bi-tools', 'autorev' => 'bi-layout-sidebar', 'duncan' => 'bi-layout-three-columns', 'vector' => 'bi-window-desktop', 'sketch' => 'bi-box'] as $__wk => $__wi): $__won = in_array($__wk, $__ws, true); ?>
           <label class="shell-ws-opt<?= $__won ? '' : ' is-off' ?>"><input type="radio" name="workspace" value="<?= $__wk ?>"<?= $__won ? '' : ' disabled' ?>> <i class="bi <?= $__wi ?>" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.ws.' . $__wk) ?><?php if (!$__won): ?> <span class="shell-hint-text">(<?= Lang::e($__wk === 'toolbox' ? 'shell.ws.notbuilt' : 'shell.ws.notyet', $__an) ?>)</span><?php endif; ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.ws.' . $__wk . '.hint') ?></span></span></label>
           <?php endforeach; ?>
         </div>
@@ -100,6 +143,18 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
           <p class="shell-hint-text"><?= Lang::e('shell.ws.extra') ?></p>
           <div class="shell-seg shell-seg-col" role="radiogroup" aria-label="<?= Lang::e('shell.ws.extra') ?>" data-ws-extra-list></div>
         </div>
+        </div>
+        </div>
+        <?php /* 0.9 FX.82: a layout for this app alone (cc-workspace-app); off = follows the choice above for every app */ ?>
+        <label class="shell-ws-perapp"><input type="checkbox" data-ws-perapp> <span><?= Lang::e('shell.ws.perapp') ?> <strong data-ws-perapp-name></strong></span></label>
+        <p class="shell-hint-text"><?= Lang::e('shell.ws.perapp.hint') ?></p>
+        <p class="shell-hint-text"><?= Lang::e('shell.ws.hint') ?></p>
+        </section>
+        <section class="shell-group" aria-labelledby="shell-grp-files"><h3 class="shell-group-h" id="shell-grp-files"><?= Lang::e('shell.group.files') ?></h3>
+        <?php /* 0.7 WS.25 (Discord 2026-10-24): build a layout of your own from the blocks; the engine's dialog (app-workspace-arrange.js) */ ?>
+        <div class="shell-btns" data-ws-arrange-row hidden>
+          <button type="button" class="btn-line btn-sm-cc" data-ws-arrange><i class="bi bi-grid-1x2" aria-hidden="true"></i> <?= Lang::e('shell.ws.arrange') ?></button>
+        </div>
         <div class="shell-btns" data-ws-io hidden>
           <button type="button" class="btn-line btn-sm-cc" data-ws-import><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i> <?= Lang::e('shell.ws.import') ?></button>
           <button type="button" class="btn-line btn-sm-cc" data-ws-export><i class="bi bi-box-arrow-up" aria-hidden="true"></i> <?= Lang::e('shell.ws.export') ?></button>
@@ -107,13 +162,10 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         </div>
         <p class="shell-hint-text" data-ws-io-hint hidden><?= Lang::e('shell.ws.io.hint') ?> <?= Lang::e('shell.ws.drop') ?></p>
         <p class="shell-hint-text" data-ws-io-msg role="status" aria-live="polite"></p>
-        <?php /* 0.7 WS.25 (Discord 2026-10-24): build a layout of your own from the blocks; the engine's dialog (app-workspace-arrange.js) */ ?>
-        <div class="shell-btns" data-ws-arrange-row hidden>
-          <button type="button" class="btn-line btn-sm-cc" data-ws-arrange><i class="bi bi-grid-1x2" aria-hidden="true"></i> <?= Lang::e('shell.ws.arrange') ?></button>
-        </div>
-        <p class="shell-hint-text"><?= Lang::e('shell.ws.hint') ?></p>
+        </section>
         <?php /* 0.7 WS.24 (Discord 2026-10-24): work environments — the whole setup (layout, menu style and keys, toolbar, panels, My tools)
            for every app, saved under a name, switched, exported and imported (app-settings.js § Work environments) */ ?>
+        <section class="shell-group" aria-labelledby="shell-grp-env"><h3 class="shell-group-h" id="shell-grp-env"><?= Lang::e('shell.group.env') ?></h3>
         <div class="shell-env" data-env-set>
           <p class="shell-hint-text" id="shell-env-h"><strong><?= Lang::e('shell.env.label') ?></strong> <?= Lang::e('shell.env.hint') ?></p>
           <div class="shell-env-row">
@@ -132,14 +184,39 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
           </div>
           <p class="shell-hint-text" data-env-msg role="status" aria-live="polite"></p>
         </div>
+        </section>
+        <section class="shell-group" aria-labelledby="shell-grp-lost"><h3 class="shell-group-h" id="shell-grp-lost"><?= Lang::e('shell.group.lost') ?></h3>
         <p class="shell-hint-text"><?= Lang::e('shell.layout.lost') ?></p>
         <div class="shell-btns">
           <button type="button" class="btn-line btn-sm-cc" data-layout-reset><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> <?= Lang::e('shell.layout.reset') ?></button>
         </div>
         <p class="shell-hint-text"><?= Lang::e('shell.layout.hint', $__an) ?></p>
+        </section>
+      </fieldset>
+      <?php /* 0.9 DU.1 (owner 2026-11-05): the tool icons of layouts that use the CadCraft icon set (Duncan): full colour, or outline in a colour
+         the person picks, or each app's own drawings. localStorage cc-icons {style, color}; app-settings.js; the set is assets/js/app-workspace-icons.js */ ?>
+      <fieldset data-sec-group="interface" class="shell-set" data-icons-set>
+        <legend><?= Lang::e('shell.icons') ?></legend>
+        <section class="shell-group" aria-labelledby="shell-grp-icstyle"><h3 class="shell-group-h" id="shell-grp-icstyle"><?= Lang::e('shell.group.ic.style') ?></h3>
+        <p class="shell-hint-text" id="shell-ic-h"><?= Lang::e('shell.icons.label') ?></p>
+        <div class="shell-seg shell-seg-col" role="radiogroup" aria-labelledby="shell-ic-h">
+          <label class="shell-ws-opt"><input type="radio" name="icons" value="full"> <i class="bi bi-palette" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.icons.full') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.icons.full.hint') ?></span></span></label>
+          <label class="shell-ws-opt"><input type="radio" name="icons" value="outline"> <i class="bi bi-pencil" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.icons.outline') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.icons.outline.hint') ?></span></span></label>
+          <label class="shell-ws-opt"><input type="radio" name="icons" value="app"> <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.icons.app') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.icons.app.hint') ?></span></span></label>
+        </div>
+        </section>
+        <section class="shell-group" aria-labelledby="shell-grp-iccolor"><h3 class="shell-group-h" id="shell-grp-iccolor"><?= Lang::e('shell.group.ic.color') ?></h3>
+        <div class="shell-row" data-icons-color-row>
+          <label for="shell-ic-color"><?= Lang::e('shell.icons.color') ?></label>
+          <input type="color" id="shell-ic-color" data-icons-color value="#1b7fb5">
+          <button type="button" class="btn-line btn-sm-cc" data-icons-reset><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> <?= Lang::e('shell.icons.reset') ?></button>
+        </div>
+        <div class="shell-icons-preview" aria-hidden="true" data-icons-preview></div>
+        <p class="shell-hint-text"><?= Lang::e('shell.icons.hint') ?></p>
+        </section>
       </fieldset>
 <?php endif; ?>
-      <fieldset class="shell-set">
+      <fieldset data-sec-group="display" class="shell-set">
         <legend><?= Lang::e('shell.settings.theme') ?></legend>
         <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('shell.settings.theme') ?>">
           <label><input type="radio" name="theme" value="paper"> <i class="bi bi-sun" aria-hidden="true"></i> <?= Lang::e('shell.settings.theme.paper') ?></label>
@@ -150,7 +227,7 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
       </fieldset>
 <?php if (count($__langs) > 1): ?>
 
-      <fieldset class="shell-set" data-lang-set>
+      <fieldset data-sec-group="language" class="shell-set" data-lang-set>
         <legend><?= Lang::e('shell.settings.lang') ?></legend>
         <div class="shell-row">
           <label for="shell-lang"><?= Lang::e('shell.settings.lang.label') ?></label>
@@ -181,20 +258,27 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
 <?php if ($__shell_07): /* 0.7: one switch for every app's first-time tour (localStorage cc-tours, site-wide like the theme); each app's own tab keeps its own */ ?>
       <?php /* Hardware specs (owner 2026-10-24): one switch for every app (localStorage cc-hw-share; app-settings.js). On the web the
          specs are shared unless this is ticked; in the desktop app they are not, unless it is unticked. The apps' compute/report.js asks. */ ?>
-      <fieldset class="shell-set" data-hw-set>
+      <fieldset data-sec-group="other" class="shell-set" data-hw-set>
         <legend><?= Lang::e('shell.hw.legend') ?></legend>
         <label class="shell-check"><input type="checkbox" name="hwNoShare" data-hw-noshare> <?= Lang::e('shell.hw.noshare') ?></label>
         <p class="shell-hint-text"><?= Lang::e('shell.hw.why') ?></p>
         <p class="shell-hint-text" data-hw-default></p>
       </fieldset>
-      <fieldset class="shell-set" data-tours-set>
+<?php if (!empty($__build['is_dev'])): /* 0.8 D8.14: one switch for every app's full-screen crosshair (localStorage cc-crosshair; app-crosshair.js) */ ?>
+      <fieldset data-sec-group="display" class="shell-set" data-crosshair-set>
+        <legend><?= Lang::e('shell.crosshair.legend') ?></legend>
+        <label class="shell-check"><input type="checkbox" name="crosshairAll" data-crosshair-all> <?= Lang::e('shell.crosshair.all') ?></label>
+        <p class="shell-hint-text"><?= Lang::e('shell.crosshair.hint') ?></p>
+      </fieldset>
+<?php endif; ?>
+      <fieldset data-sec-group="other" class="shell-set" data-tours-set>
         <legend><?= Lang::e('shell.tours.legend') ?></legend>
         <label class="shell-check"><input type="checkbox" name="toursAll" data-tours-all> <?= Lang::e('shell.tours.all') ?></label>
         <p class="shell-hint-text"><?= Lang::e('shell.tours.hint') ?></p>
       </fieldset>
 
 <?php endif; ?>
-      <fieldset class="shell-set">
+      <fieldset data-sec-group="display" class="shell-set">
         <legend><?= Lang::e('shell.settings.screen') ?></legend>
         <div class="shell-row">
           <label for="shell-screen"><?= Lang::e('shell.settings.screen.label', $__an) ?></label>
@@ -207,14 +291,28 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         <p class="shell-hint-text"><?= Lang::e('shell.settings.screen.hint') ?></p>
       </fieldset>
 
-      <fieldset class="shell-set" data-tb-set>
+      <fieldset data-sec-group="interface" class="shell-set" data-tb-set>
         <legend><?= Lang::e('shell.settings.tb') ?></legend>
+        <section class="shell-group" aria-labelledby="shell-grp-tbbtn"><h3 class="shell-group-h" id="shell-grp-tbbtn"><?= Lang::e('shell.group.tb.buttons') ?></h3>
         <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('shell.settings.tb.buttons') ?>">
           <label><input type="radio" name="tb" value="both"> <i class="bi bi-card-text" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.both') ?></label>
           <label><input type="radio" name="tb" value="icons"> <i class="bi bi-grid-3x2-gap" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.icons') ?></label>
           <label><input type="radio" name="tb" value="labels"> <i class="bi bi-fonts" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.labels') ?></label>
         </div>
         <label class="shell-check" data-tb-groups-row><input type="checkbox" name="tbGroups"> <?= Lang::e('shell.settings.tb.groups') ?></label>
+        </section>
+        <section class="shell-group" aria-labelledby="shell-grp-tbrows"><h3 class="shell-group-h" id="shell-grp-tbrows"><?= Lang::e('shell.group.tb.rows') ?></h3>
+        <?php if ($__shell_07): /* 0.8 CP.1(d): one rows setting for every app's toolbar (CadCraft keeps its own in its tab) */ ?>
+        <div data-tb-rows-row>
+          <p class="shell-hint-text mb-1" id="shell-tb-rows-l"><?= Lang::e('shell.settings.tb.rows') ?></p>
+          <div class="shell-seg" role="radiogroup" aria-labelledby="shell-tb-rows-l">
+            <label><input type="radio" name="tbRows" value="wrap"> <i class="bi bi-text-wrap" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.rows.wrap') ?></label>
+            <label><input type="radio" name="tbRows" value="2"> <i class="bi bi-layout-split" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.rows.2') ?></label>
+            <label><input type="radio" name="tbRows" value="1"> <i class="bi bi-distribute-vertical" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.rows.1') ?></label>
+          </div>
+          <p class="shell-hint-text"><?= Lang::e('shell.settings.tb.rows.hint') ?></p>
+        </div>
+        <?php endif; ?>
         <div data-tb-touch-row hidden>
           <p class="shell-hint-text mb-1" id="shell-tb-touch-l"><?= Lang::e('shell.settings.tb.touch') ?></p>
           <div class="shell-seg" role="radiogroup" aria-labelledby="shell-tb-touch-l">
@@ -222,6 +320,8 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
             <label><input type="radio" name="tbTouch" value="wrap"> <i class="bi bi-text-wrap" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.touch.wrap') ?></label>
           </div>
         </div>
+        </section>
+        <section class="shell-group" aria-labelledby="shell-grp-tbarr"><h3 class="shell-group-h" id="shell-grp-tbarr"><?= Lang::e('shell.group.tb.arrange') ?></h3>
         <div class="shell-btns">
           <button type="button" class="btn-line btn-sm-cc" data-tb-arrange><i class="bi bi-arrows-move" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.arrange') ?></button>
           <button type="button" class="btn-line btn-sm-cc" data-tb-order-reset><?= Lang::e('shell.settings.tb.original') ?></button>
@@ -231,10 +331,11 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         <label class="shell-check"><input type="checkbox" name="tbLock" data-tb-lock> <?= Lang::e('shell.settings.tb.lock') ?></label>
         <p class="shell-hint-text"><?= Lang::e('shell.settings.tb.menu_hint') ?></p>
         <?php endif; ?>
+        </section>
       </fieldset>
 
       <?php if ($__shell_ui): /* 0.6 DC.102: pen and touch on the drawing (app-phone.js wires it; shown with a touch screen or a pen) */ ?>
-      <fieldset class="shell-set" data-pen-set hidden>
+      <fieldset data-sec-group="input" class="shell-set" data-pen-set hidden>
         <legend><?= Lang::e('shell.pen.title') ?></legend>
         <label class="shell-check"><input type="checkbox" name="penPalm" data-pen="palm"> <?= Lang::e('shell.pen.palm') ?></label>
         <p class="shell-hint-text mb-1" id="shell-pen-fingers-l"><?= Lang::e('shell.pen.fingers') ?></p>
@@ -242,6 +343,8 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
           <label><input type="radio" name="penFingers" value="draw" data-pen="fingers"> <i class="bi bi-hand-index" aria-hidden="true"></i> <?= Lang::e('shell.pen.fingers.draw') ?></label>
           <label><input type="radio" name="penFingers" value="view" data-pen="fingers"> <i class="bi bi-arrows-move" aria-hidden="true"></i> <?= Lang::e('shell.pen.fingers.view') ?></label>
         </div>
+        <?php $__dev = AppBuilds::devices($__build); /* 0.8 Track ID: Input devices sets the taps and the pen's buttons (any command) */ ?>
+        <div data-pen-own<?= $__dev ? ' hidden' : '' ?>>
         <label class="shell-check"><input type="checkbox" name="penTaps" data-pen="taps"> <?= Lang::e('shell.pen.taps') ?></label>
         <div class="shell-row">
           <label for="shell-pen-side"><?= Lang::e('shell.pen.side') ?></label>
@@ -259,12 +362,29 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
             <option value="redo"><?= Lang::e('shell.pen.redo') ?></option>
           </select>
         </div>
+        </div>
+        <?php if ($__dev): ?><p class="shell-hint-text"><?= Lang::e('shell.dev.pen.moved') ?></p><?php endif; ?>
         <p class="shell-hint-text"><?= Lang::e('shell.pen.hint') ?></p>
       </fieldset>
       <?php endif; ?>
 
-      <fieldset class="shell-set">
+      <?php if (AppBuilds::devices($__build)): /* 0.8 Track ID: input devices, every app or this app (assets/js/app-devices-ui.js fills it) */ ?>
+      <fieldset data-sec-group="other" class="shell-set shell-set-wide" data-dev-set>
+        <legend><?= Lang::e('shell.dev.legend') ?></legend>
+        <div data-dev-settings><p class="shell-hint-text"><?= Lang::e('shell.input.loading') ?></p></div>
+      </fieldset>
+      <?php endif; ?>
+
+      <?php if (in_array('access', AppBuilds::extras($__build), true)): /* round 3 EG.52: drafting without sight, one switch for every app (assets/js/app-access.js fills it) */ ?>
+      <fieldset data-sec-group="input" class="shell-set" data-access-set>
+        <legend><?= Lang::e('shell.access.legend') ?></legend>
+        <div data-access-settings><p class="shell-hint-text"><?= Lang::e('shell.input.loading') ?></p></div>
+      </fieldset>
+      <?php endif; ?>
+
+      <fieldset data-sec-group="interface" class="shell-set">
         <legend><?= Lang::e($__shell_ui ? 'shell.settings.sizes' : 'shell.settings.panels') ?></legend>
+        <section class="shell-group" aria-labelledby="shell-grp-szsize"><h3 class="shell-group-h" id="shell-grp-szsize"><?= Lang::e('shell.group.sz.text') ?></h3>
         <?php if ($__shell_ui): /* 0.6 DF.28: the whole app's size, beside the panel text size */ ?>
         <div class="shell-row">
           <label for="shell-ui"><?= Lang::e('shell.settings.ui') ?></label>
@@ -294,6 +414,8 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
             <?php endforeach; ?>
           </select>
         </div>
+        </section>
+        <section class="shell-group" aria-labelledby="shell-grp-szpanel"><h3 class="shell-group-h" id="shell-grp-szpanel"><?= Lang::e('shell.group.sz.panels') ?></h3>
         <div class="shell-row">
           <label for="shell-left"><?= Lang::e('shell.settings.left') ?></label>
           <span class="shell-range"><input type="range" id="shell-left" name="left" min="10" max="40" step="0.5"><output for="shell-left" class="tabular" data-out="left"></output></span>
@@ -318,7 +440,12 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
           </div>
           <p class="shell-hint-text"><?= Lang::e('shell.settings.panels.hint') ?></p>
         <?php endif; ?>
+        </section>
+        <section class="shell-group" aria-labelledby="shell-grp-szbeh"><h3 class="shell-group-h" id="shell-grp-szbeh"><?= Lang::e('shell.group.sz.behaviour') ?></h3>
         <label class="shell-check"><input type="checkbox" name="tips"> <?= Lang::e('shell.settings.tips') ?></label>
+        <label class="shell-check"><input type="checkbox" name="autofocus"> <?= Lang::e('shell.settings.autofocus') ?></label>
+        <p class="shell-hint-text"><?= Lang::e('shell.settings.autofocus.hint') ?></p>
+        </section>
       </fieldset>
 
       <fieldset class="shell-set shell-set-wide" data-addons-set hidden>
@@ -327,6 +454,7 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         <p class="shell-hint-text"><?= Lang::e('shell.addons.hint', $__an) ?></p>
         <p class="shell-hint-text shell-addon-dev" data-addons-dev hidden><?= Lang::e('shell.addons.dev') ?></p>
       </fieldset>
+      <fieldset class="shell-set shell-set-wide" data-addons-account-set hidden></fieldset>
       <?php if (!$__shell_07): ?>
       <p class="shell-hint-text" data-wide-only hidden><?= Lang::e('shell.settings.wide_only') ?></p>
       <?php endif; ?>

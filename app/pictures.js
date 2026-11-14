@@ -7,7 +7,8 @@
  * where the picture lies, in block coordinates:
  *
  *   frame.pic = { file, x, y (the picture's lower-left corner), ux, uy (one pixel along its width), vx, vy (one pixel up),
- *                 w, h (pixels), clipped?: true (the frame is a clip boundary), fade? (0–100) }
+ *                 w, h (pixels), clipped?: true (the frame is a clip boundary), fade? (0–100), transparent?: true (its
+ *                 see-through pixels show what is under it in other programs too: IMAGE display flag 8; 0.8 D8.15) }
  *   name text: picName: true (left out when the picture's file is loaded)
  *
  * So moving, rotating, scaling, picking, copying and erasing a picture is what CadCraft does with any block reference.
@@ -75,7 +76,7 @@ export function freePictureName(doc) {
 
 /**
  * A reference to a picture block → what a DWG's IMAGE holds: { file, insert, u, v, size, clip? (pixel coordinates, y down
- * from the top-left pixel's centre, as the file keeps them), fade } in the reference's space, or null when the block is
+ * from the top-left pixel's centre, as the file keeps them), fade, transparent? } in the reference's space, or null when the block is
  * not a picture (anything besides its frame and name in it).
  */
 export function picturePlacement(ref, block) {
@@ -85,7 +86,7 @@ export function picturePlacement(ref, block) {
   const at = mApply(m, { x: p.x, y: p.y });
   const vec = (x, y) => ({ x: m[0] * x + m[2] * y, y: m[1] * x + m[3] * y });
   const u = vec(p.ux, p.uy), v = vec(p.vx, p.vy);
-  const out = { file: p.file, insert: at, u, v, size: { x: p.w, y: p.h }, fade: Number.isFinite(p.fade) ? p.fade : 0 };
+  const out = { file: p.file, insert: at, u, v, size: { x: p.w, y: p.h }, fade: Number.isFinite(p.fade) ? p.fade : 0, ...(p.transparent ? { transparent: true } : {}) };
   if (p.clipped) {
     const det = u.x * v.y - u.y * v.x;
     if (Math.abs(det) > 1e-300) {

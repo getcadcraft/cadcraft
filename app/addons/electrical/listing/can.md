@@ -1,0 +1,9 @@
+- Draw schematics with symbols in the IEC 60617 set or the ANSI / NFPA 79 ("JIC") set, switch between the two, and redraw a whole drawing in the other set. (ELSYMBOL, ELSTANDARD)
+- Draw wires that end by themselves on a connection or another wire, and number them automatically. (ELWIRE, ELNUMBER)
+- Give a coil a tag from its path and see its contacts listed under it; a contact says where its coil is. (ELSYMBOL)
+- Add numbered A3 or A4 sheets with a frame, title block and numbered paths. (ELSHEET)
+- Make the sheet list, terminal plan, cable list and parts list on new sheets or as CSV. (ELREPORT)
+- Check a drawing for duplicate tags, open wire ends, contacts with no coil, shorted symbols, cables with fewer cores than wires, and circuits over their breaker rating. (ELCHECK) {#el-suite}
+- Place outlets, switches, luminaires, detectors and boards on a plan, put them on circuits, and measure cable lengths along the routes you draw. (ELINSTALL, ELCIRCUIT, ELROUTE)
+- Build a panel schedule with breaker, RCD text, phase, load, current, cable and length per circuit, and spread single-phase circuits over L1, L2 and L3. (ELPANEL, ELBALANCE) {#el-balance}
+- Import blocks from another drawing as your own symbols. (ELIMPORTSYM)

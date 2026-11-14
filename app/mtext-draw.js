@@ -13,6 +13,7 @@
  */
 import { aciHex } from './doc.js';
 import { FONT_EM, STACK_SCALE } from './geom.js';
+import { familyOf } from './font.js';
 
 /** A run's colour: its own when it sets one, else the object's. */
 export function runColor(st, base) {
@@ -33,7 +34,7 @@ export function fillRichLine(ctx, lay, i, e, { scale, family, color, paint = (c)
     const px = e.h * FONT_EM * scale * r.hf * (r.stack ? STACK_SCALE : 1);
     const st = r.st || {};
     ctx.fillStyle = paint(runColor(st, color));
-    ctx.font = (st.i ? 'italic ' : '') + (st.b ? 'bold ' : '') + px.toFixed(2) + 'px ' + family;
+    ctx.font = (st.i ? 'italic ' : '') + (st.b ? 'bold ' : '') + px.toFixed(2) + 'px ' + (familyOf(st.font || e.font, family) || family);
     const thick = Math.max(1, e.h * scale * 0.06);
     if (r.stack) {
       const bar = y - 0.36 * e.h * scale * r.hf;

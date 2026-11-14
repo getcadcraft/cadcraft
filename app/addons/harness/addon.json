@@ -1,0 +1,25 @@
+{
+  "id": "harness",
+  "name": "Harness and cabinet wiring",
+  "version": "0.9.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.3",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "toolbar",
+    "panel",
+    "settings",
+    "objects",
+    "files",
+    "problems"
+  ],
+  "description": "Wires and terminals from the Electrical add-on's schematic: an id, colour, gauge, type and end treatment for every wire, a from-to list, a wire list with cut lengths, connector tables, a harness drawing with branch points and lengths, a control-cabinet layout (back panel, DIN rails, ducts, devices on the rails) and a bill of materials.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

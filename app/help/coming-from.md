@@ -93,7 +93,7 @@ A DWG you opened saves in the version it came in; a new drawing saves in the Aut
 
 ### Plotting is simpler
 
-Plot style tables work by color, as CTB files do: Monochrome, Colour and Grayscale are built in, you can make your own, and each sheet keeps its table. Reading CTB or STB files and page setups are not built yet. Lines print at their lineweight, the others at one pen width. Sheets plot at 1:1 on their own paper; the model plots at a chosen scale or fitted. See [Plot to PDF](topic:plot-pdf).
+Plot style tables work by color, as CTB files do: Monochrome, Colour and Grayscale are built in, you can make your own, and each sheet keeps its table. Reading CTB files is built from the published description and has only been tried on files we made; named plot style tables (STB) and page setups are not built yet. Lines print at their lineweight, the others at one pen width. Sheets plot at 1:1 on their own paper; the model plots at a chosen scale or fitted. See [Plot to PDF](topic:plot-pdf).
 
 ### Working inside a viewport
 

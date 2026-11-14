@@ -20,7 +20,9 @@ import { scan, isWireLayer, fullTag } from './lib/model.js';
 import { netlist, numberWires, updateDots, wirenoNets, segDist2, netNumber } from './lib/wires.js';
 import { autoTag, updateXrefs, relatedOf } from './lib/devices.js';
 import { sheetList, terminalPlan, cableList, partsList, toCsv, addReportSheets } from './lib/reports.js';
-import { INSTALL, INSTALL_GROUPS, installSymbol, installBlock, installBlockName, installAttrs, installation, assignCircuit, defineCircuit, cableLengths, defaultScale } from './lib/install.js';
+import { readPvOneline, layoutPvOneline, placePvOneline } from './lib/pvoneline.js';   // 0.8 EG.15
+import { planCarriers, fillRows, carrierLayer, conduitChoices, scheduleCsv, SCHEDULE_COLUMNS } from './lib/carriers.js';   // 0.8 EG.2 (lib/mep/* is BimCraft's engine, synced)
+import { INSTALL, INSTALL_GROUPS, installSymbol, installBlock, installBlockName, installAttrs, installation, assignCircuit, defineCircuit, cableLengths, defaultScale, mPerUnit } from './lib/install.js';
 import { panelSchedule, balancePhases, applyPhases, boardCircuits, PHASES } from './lib/panel.js';
 import { runChecks } from './lib/checks.js';
 import * as DB from './lib/designblocks.js';
@@ -294,9 +296,9 @@ export function activate(api) {
     const how = yes(r);
     if (how !== 'A' && how !== 'O') return;
     const per = SL.unitScale(lib.meta?.units);   // the file's own units, when it says
-    const u = yes(await c.keyword(t('ask.symlib.units'), { options: [opt('M', t('opt.mm')), opt('I', t('opt.inches'))], default: per === 25.4 || per === 304.8 ? 'I' : 'M' }));
+    const u = yes(await c.keyword(t('ask.symlib.units'), { options: [opt('M', t('opt.mm')), opt('I', t('opt.inches'))], default: Math.abs(per - 25.4) < 1e-9 || Math.abs(per - 304.8) < 1e-9 ? 'I' : 'M' }));
     if (u !== 'M' && u !== 'I') return;
-    const scale = u === 'I' ? 25.4 : per >= 10 && per !== 25.4 && per !== 304.8 ? per : 1;
+    const scale = u === 'I' ? 25.4 : per >= 10 && !(Math.abs(per - 25.4) < 1e-9) && !(Math.abs(per - 304.8) < 1e-9) ? per : 1;
     const keys = SYMBOLS.map((s) => s.key);
     const chosen = [];
     for (let i = 0; i < found.length; i++) {
@@ -542,6 +544,69 @@ export function activate(api) {
     c.doc.change('ELROUTE', () => c.doc.add({ type: 'poly', layer: 'EL-ROUTE', color: null, closed: false, pts: pts.map((q) => ({ ...q, b: 0 })) }));
     c.print(t('done.route'));
   });
+
+  // ---------------------------------------------------------------------------------------------- ELCARRIER (0.8 EG.2)
+  // Trays and conduits are routes on a layer that names them (lib/carriers.js); a cable's outside diameter is typed per cable type (CABLE text).
+  cmd('ELCARRIER', ['ELCR'], async (c) => {
+    const doc = c.doc;
+    for (;;) {
+      const k = yes(await c.keyword(t('ask.carrier'), { options: [opt('S', t('opt.carrier.size')), opt('O', t('opt.carrier.od')), opt('R', t('opt.carrier.run'))], default: 'R' }));
+      if (!k) return;
+      if (k === 'S') {
+        const ids = [...(c.host.selection || [])].filter((id) => { const e = doc.get(id); return e && (e.type === 'poly' || e.type === 'line') && /^EL-ROUTE/i.test(String(e.layer || '')); });
+        if (!ids.length) { c.print(t('carrier.noroutes')); continue; }
+        const kind = yes(await c.keyword(t('ask.carrier.kind'), { options: [opt('T', t('opt.tray')), opt('C', t('opt.conduit'))], default: 'T' }));
+        let spec = null;
+        if (kind === 'T') {
+          const w = Number(await c.number(t('ask.tray.w'), { default: 300 })), h = Number(await c.number(t('ask.tray.h'), { default: 100 }));
+          spec = { kind: 'tray', widthMm: w, depthMm: h };
+        } else if (kind === 'C') {
+          const types = conduitChoices();
+          const ty = yes(await c.keyword(t('ask.conduit.type'), { options: types.map((x) => opt(x.name[0], x.name)), default: types[0].name[0] }));
+          const type = types.find((x) => x.name[0] === ty) || types[0];
+          const size = String(await c.string(t('ask.conduit.size', { list: type.sizes.join(', ') }), { default: '3/4' }) ?? '').trim();
+          spec = { kind: 'conduit', type: type.type, size };
+        }
+        const layer = carrierLayer(spec);
+        if (!layer) { c.print(t('carrier.badsize')); continue; }
+        doc.change('ELCARRIER', () => { if (!doc.layers.has(layer)) doc.addLayer({ name: layer, color: 3 }); for (const id of ids) doc.update(id, { ...doc.get(id), layer }); });
+        c.print(t('carrier.set', { n: ids.length, layer }));
+      } else if (k === 'O') {
+        const type = String(await c.string(t('ask.od.type'), { default: '' }) ?? '').trim().toLowerCase();
+        if (!type) continue;
+        const od = Number(await c.number(t('ask.od.mm', { type }), { default: 0 }));
+        const table = { ...(api.storage.get('cableOd') || {}) };
+        if (Number.isFinite(od) && od > 0 && od < 200) { table[type] = od; api.storage.set('cableOd', table); c.print(t('carrier.od', { type, mm: od })); } else { delete table[type]; api.storage.set('cableOd', table); c.print(t('carrier.od.cleared', { type })); }
+      } else if (k === 'R') {
+        const model = scan(doc), inst = installation(doc, model);
+        const p = planCarriers({ routes: model.routes, inst, mpu: mPerUnit(doc.meta.units), cableOd: api.storage.get('cableOd') || {} });
+        if (!p.rows.length) { c.print(t('carrier.nocircuits')); return; }
+        c.print(t('carrier.head', { n: p.rows.length }));
+        for (const r of p.rows.slice(0, 40)) c.print('  ' + [r.tag, r.type, r.from + ' → ' + (r.to || '?'), r.lengthM + ' m', r.carriers, r.note].filter(Boolean).join('  '));
+        for (const f of fillRows(p)) c.print('  ' + t(f.ok === null ? 'carrier.fill.nood' : f.ok ? 'carrier.fill.ok' : 'carrier.fill.bad', { run: f.run, size: f.size, pct: f.pct, limit: f.limit, cables: f.cables, bigger: f.bigger }));
+        if (p.noOd.length) c.print(t('carrier.nood', { list: p.noOd.join(', ') }));
+        if (p.unrouted.length) c.print(t('carrier.unrouted', { list: p.unrouted.join(', ') }));
+        download(csvName(doc, t('carrier.title')), '﻿' + scheduleCsv(p.rows), 'text/csv');
+        return;
+      }
+    }
+  }, { noRepeat: true, keepSelection: true });
+
+  // ---------------------------------------------------------------------------------------------- ELPVONELINE (0.8 EG.15)
+  // A PV one-line from BimCraft's data (Solar PV pane › Save data, or the assistant tool pv_oneline_make): one sheet, symbols left to right, wires with
+  // their current, wire size and fuse. The factors behind the numbers are the person's own; the sheet says they are not a compliance statement.
+  cmd('ELPVONELINE', ['ELPV'], async (c) => {
+    const [file] = await pickFiles('.json');
+    if (!file) { c.print(t('pv.none')); return; }
+    if (file.size > 2e6) { c.print(t('pv.big')); return; }
+    const r = readPvOneline(await file.text());
+    if (!r.ok) { c.print(t('pv.bad.' + r.errors[0])); return; }
+    const doc = c.doc, lay = layoutPvOneline(r.plan);
+    const made = placePvOneline(doc, r.plan, lay, { std: settings.std, title: t('pv.title'), note: t('pv.note') });
+    doc.setSpace(made);
+    c.host.zoomExtents?.();
+    c.print(t('pv.done', { n: lay.symbols.length, w: lay.wires.length }));
+  }, { noRepeat: true });
 
   cmd('ELPANEL', [], async (c) => {
     const doc = c.doc;

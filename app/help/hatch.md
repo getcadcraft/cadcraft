@@ -37,6 +37,8 @@ Type `?` at the pattern question for the list. The standard ones are ANSI31 to A
 
 {{ui:Angle}} (`A`) turns the whole pattern: ANSI31 at 90° slopes the other way.
 
+**Pattern files.** Type `F` (Pattern file) at `Pick internal point` and choose a `.pat` file. The patterns in it join the list; with more than one you are asked which to use. A file with no pattern CadCraft can read says so, and any pattern it skipped is counted. Sizes in a `.pat` file have no unit of their own, so they are read in the drawing's units. Only files written to the usual `.pat` format have been tried; none made by another program.
+
 ## Change a hatch
 
 Select it (click one of its lines). In {{ui:Properties}}: {{ui:Pattern}}, {{ui:Pattern scale}} and {{ui:Pattern angle}}. Hatches from opened drawings show their pattern when it is one of the standard ones; others show as a light tone of their color.
@@ -47,3 +49,11 @@ Select it (click one of its lines). In {{ui:Properties}}: {{ui:Pattern}}, {{ui:P
 - **"The pattern is too dense to draw at this scale."** The lines would be closer than the drawing can show. Use a larger scale: try the plot scale (20 for 1:20).
 - **The pattern looks huge or tiny.** The scale is in drawing units per pattern unit; see step 4 above.
 - **Moving the outline does not move the hatch.** A hatch is not tied to its boundary. Move both, or hatch again.
+
+## A hatch that stays with its boundary
+
+A hatch you make with `HATCH` remembers what bounds it. Move, turn or scale the boundary and the hatch and its pattern go with it. Drag a grip to reshape the boundary and the hatch is worked out again. Move the hatch on its own and its boundary comes too, like a filled shape in a drawing program.
+
+The link ends, and the command line says so, if the boundary no longer closes or you reshape the hatch by hand. The hatch itself stays. Type `AS` while hatching to make hatches that stand alone. Copy a hatch with its boundary and the copy has its own link.
+
+`HATCHEDIT` (`HE`) changes the pattern, scale, angle and origin of a hatch, and links it to a boundary or ends the link. The link is saved in DWG and DXF 2000 files. A DXF R12 file has no hatch object, and links made in other programs aren't read: use `HATCHEDIT` and Link for those.

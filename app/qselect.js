@@ -13,10 +13,12 @@
  */
 
 import { curveLength, entityArea } from './geom.js';
+import { classOf } from './classes.js';   // 0.8 SU.912
 
 const num = (v) => (Number.isFinite(v) ? v : null);
 export const QS_PROPS = Object.freeze({
   layer: { types: null, kind: 'choice', get: (e) => e.layer ?? '0' },
+  class: { types: null, kind: 'choice', get: (e) => classOf(e) },   // 0.8 SU.912 (classes.js): None when it has none
   color: { types: null, kind: 'color', get: (e) => (e.color === undefined ? null : e.color) },
   height: { types: ['text'], kind: 'number', get: (e) => num(e.h) },
   contents: { types: ['text'], kind: 'text', get: (e) => String(e.s ?? '') },

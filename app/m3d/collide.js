@@ -3,8 +3,9 @@
  * collide.js — keep solids from passing through each other while they move. No DOM, no three.js.
  *
  *   const c = collider(sc, { moving(o, t), ignore(o, t), whole?(path) })   sc = sceneOf(model) before the move
- *   c.clamp(delta) → { delta, hit }                          the longest part of a straight move that
- *                                                            stays clear (hit = it was shortened)
+ *   c.clamp(delta) → { delta, hit, by }                      the longest part of a straight move that
+ *                                                            stays clear (hit = it was shortened; by = what stopped it:
+ *                                                            { key, path, tris }, 0.9 FX.30)
  *
  * moving(o, 'e'|'f') — the faces and edges that travel rigidly (a selection, the groups in it, a pushed face).
  * ignore(o, 'e'|'f') — geometry that is neither in the way nor travelling: loose geometry stuck to what moves
@@ -85,6 +86,18 @@ export function collider(sc, { moving, ignore = () => false, whole: wholeOf = nu
     for (const o of statics) if (hits(mov, o, d)) return true;
     return false;
   }
+  /** 0.9 FX.30: what is in the way at shift d: { key, path, tris } — the object's placement path ([] = loose geometry of the
+   *  open group) and the triangles of its faces near the moving piece (all of them when none is, at most 400). */
+  function blocker(d) {
+    const o = statics.find((x) => hits(mov, x, d));
+    if (!o) return null;
+    ready(o);
+    const path = o.P ? o.P.path : (o.faces[0] && o.faces[0].path) || [];
+    const pad = Math.max(thin, 0.01), lo = mov.bb.min.map((v, i) => v + d[i] - pad), hi = mov.bb.max.map((v, i) => v + d[i] + pad);
+    const near = o.faces.filter((f) => f.tris.some((t) => t.some((p) => p[0] >= lo[0] && p[0] <= hi[0] && p[1] >= lo[1] && p[1] <= hi[1] && p[2] >= lo[2] && p[2] <= hi[2])));
+    const tris = (near.length ? near : o.faces).flatMap((f) => f.tris).slice(0, 400);
+    return { key: o.key, path, tris };
+  }
   return {
     empty,
     clamp(delta) {
@@ -101,7 +114,7 @@ export function collider(sc, { moving, ignore = () => false, whole: wholeOf = nu
         const m = (lo + hi) / 2;
         if (blocked(mul(delta, m))) hi = m; else lo = m;
       }
-      return { delta: mul(delta, lo), hit: true };
+      return { delta: mul(delta, lo), hit: true, by: blocker(mul(delta, hi)) };
     },
   };
 }

@@ -16,6 +16,8 @@
  *     setMarks(marks | null)     the colours on the drawing              centerOn(x, y)  the view moves there (same zoom)
  */
 import { compareDrawings, markPrims, describe } from './drawing-compare.js';
+import { describeChanges } from './changes.js';   // 0.8 EG.65
+import { mmPerDrawingUnit, unitsOf as fmtUnitsOf, isImperialFormat } from './units.js';
 import { bytes as sizeText } from './ui-util.js';
 
 const MAX_ROWS = 300;   // changes listed per compare (the colours on the drawing show all of them)
@@ -92,7 +94,7 @@ export function openHistory(o) {
         let from = r, to = other, fromDoc = a, toDoc = B;
         if (other) { const iFrom = rowsOf(st.source).indexOf(r), iTo = rowsOf(st.source).indexOf(other); if (iTo > iFrom) { from = other; to = r; fromDoc = B; toDoc = a; } }
         const result = compareDrawings(fromDoc, toDoc);
-        st.result = { from: rowName(from), to: other ? rowName(to) : nameB, result, marks: marksOf(result, fromDoc.blocks, toDoc.blocks) };
+        st.result = { from: rowName(from), to: other ? rowName(to) : nameB, result, blocks: { a: fromDoc.blocks, b: toDoc.blocks }, marks: marksOf(result, fromDoc.blocks, toDoc.blocks) };
         if (st.show) setMarks(st.result.marks);
         const tot = result.totals;
         print(t('hist.compare.done', { from: st.result.from, to: st.result.to, added: tot.added, removed: tot.removed, changed: tot.changed }));
@@ -122,6 +124,15 @@ export function openHistory(o) {
       } catch (e) { st.error = t('hist.err.restore', { why: (e && e.message) || '' }); }
       busyOn('');
       render();
+    }
+
+    // the changes as a plain list, sentence by sentence (0.8 EG.65): printed on the command line and copied
+    function listInWords(R) {
+      const mm = mmPerDrawingUnit(fmtUnitsOf(doc.meta).lunits, doc.meta.units || '');
+      const out = describeChanges(R.result, { blocksA: R.blocks?.a, blocksB: R.blocks?.b, mPerUnit: (mm || 1) / 1000, imperial: isImperialFormat(fmtUnitsOf(doc.meta).lunits) });
+      const text = [t('hist.words.title', { from: R.from, to: R.to }), ...out.lines].join('\n');
+      for (const l of text.split('\n')) print(l);
+      try { navigator.clipboard?.writeText(text).then(() => print(t('hist.words.copied')), () => {}); } catch { /* the list is on the command line */ }
     }
 
     function resultView() {
@@ -155,6 +166,7 @@ export function openHistory(o) {
         el('label', { className: 'cc-hist-show' }, el('input', { type: 'checkbox', checked: st.show, onchange: (e) => { st.show = e.target.checked; setMarks(st.show ? R.marks : null); } }), ' ', t('hist.show_on_drawing')),
         items.length ? el('ul', { className: 'cc-hist-items' }, ...items) : null,
         items.length >= MAX_ROWS ? el('p', { className: 'cc-note' }, t('hist.result.more', { n: MAX_ROWS })) : null,
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => listInWords(R) }, t('hist.words')), ' ',
         el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => { st.result = null; setMarks(null); render(); } }, t('hist.result.clear')));
     }
 

@@ -19,6 +19,7 @@
  * layout is kept as a block named CCLAYOUT_n that CadCraft reads back as a layout.
  */
 
+import { limitsFromHeader, limitsOf } from './limits.js';   // 0.8 D8.2
 import { unescapeText } from './dxf-decode.js';
 import { cleanScales } from './scales.js';
 import { standardSt } from './dimstyles.js';
@@ -27,6 +28,10 @@ import { keptFromDxf, SOLID_TYPES } from './acis-cad.js';   // 0.7 D7.25: other 
 import { fromFile as splineFromFile, polyline as splinePolyline, valid as splineValid } from './spline.js';
 import { hasFormatting, plainOf } from './mtext.js';
 import { underlayParts } from './pdfmodel.js';   // PDF underlays (0.7 D7.24)
+
+/** Append every item of `items` to `arr`. `arr.push(...items)` puts each item on the call stack and throws
+ *  "Maximum call stack size exceeded" from about 70,000 entities (a 15 MB DXF): 0.9 FX.142. */
+function pushAll(arr, items) { for (let i = 0; i < items.length; i++) arr.push(items[i]); return arr; }
 import { TAU, normAngle, ellipsePoints, rad, deg, textLayout, mMul, mTranslate, mRotate, mApply, viewportCorners, explodeEntity, entityBounds, emptyBounds, validBounds, clipInfinite, attdefHidden, vpModelCentre, vpDcsCentre } from './geom.js';
 import { t } from './i18n.js';
 import { readDxfModel } from './dxf-model.js';
@@ -35,7 +40,9 @@ import { isXrefRoot } from './xref.js';
 import { extrasFrom, EXTRA_TYPES, maskOf } from './dwg-import.js';
 import { forFile, parametricText, refKeyIn, isParamBlock, PARAM_BLOCK } from './gcons.js';
 import { isStyleBlock, payloadFrom, payloadStrings, STYLE_BLOCK } from './plotstyle.js';
+import { addonsPayload, addonsFromPayload, isAddonsBlock, ADDONS_BLOCK } from './addons-file.js';   // 0.8 AL.6
 import { laserPayload, laserFromPayload, isLaserBlock, LASER_BLOCK } from './laser-file.js';   // 0.7 SU.772: the Laser panel's settings, block CADCRAFT_LASER
+import { classesPayload, classesFromPayload, isClassesBlock, CLASSES_BLOCK } from './classes-file.js';   // 0.8 SU.912: block CADCRAFT_CLASSES
 import { isGeoBlock, geoFromPayload, geoPayload, GEO_BLOCK, fromDxfGroup, readGeo } from './geodwg.js';   // 0.6 GEO-DWG
 import { attdef, resolveAttribs, worldAttribs } from './attrs.js';
 import { nearestAci } from './doc.js';
@@ -43,7 +50,7 @@ import { dimGeometry, dimTextPoint, dimLinePoints, angularFromLines, DIM_DEFAULT
 import { matchPaper } from './sheets.js';
 import { forFile3d, read3dText, read3dView, isM3dBlock, M3D_BLOCK, split3d } from './model3d.js';
 import { vportRecords, vportsFrom } from './dwg-vports.js';
-import { trFrom, trWord, propsFromXdata, propsXdata, stFromCodes, stFromVars, ccDimFrom, dstyleItems, ccDimItems, dimstylePairs } from './dwg-props.js';
+import { trFrom, trWord, propsFromXdata, propsXdata, stFromCodes, stFromVars, ccDimFrom, dstyleItems, ccDimItems, r12DimstyleItems } from './dwg-props.js';
 import { pictureRefs } from './pictures.js';
 import { clipFromFilter } from './xclip.js';
 import { planMatrix, toPlan, isFlipped } from './ocs.js';   // 0.6 DF.1: objects in their own coordinate system
@@ -51,6 +58,8 @@ import { planMatrix, toPlan, isFlipped } from './ocs.js';   // 0.6 DF.1: objects
 const UNITS = { 0: '', 1: 'inches', 2: 'feet', 3: 'miles', 4: 'millimeters', 5: 'centimeters', 6: 'meters', 7: 'kilometers', 8: 'microinches', 9: 'mils', 10: 'yards' };
 const UNIT_CODES = Object.fromEntries(Object.entries(UNITS).filter(([, v]) => v).map(([k, v]) => [v, +k]));
 /** Dimension variables: DXF group code (DIMSTYLE table and ACAD DSTYLE overrides) → style key. */
+/** Dimension style extras R12 has no variable for: one POINT per style, CADCRAFT xdata strings "CCDIMNAME:<style name>" then "CCDIMST:…" (0.9 FX.130). */
+const DIMSTYLES_BLOCK = 'CADCRAFT_DIMSTYLES', DIMNAME_TAG = 'CCDIMNAME:';
 const DIMVAR_CODES = { 40: 'scale', 41: 'asz', 42: 'exo', 43: 'dli', 44: 'exe', 140: 'txt', 147: 'gap', 77: 'tad', 78: 'zin', 271: 'dec', 179: 'adec', 277: 'lunit', 270: 'unit' };
 const HEADER_DIMVARS = { $DIMSCALE: 'scale', $DIMASZ: 'asz', $DIMEXO: 'exo', $DIMDLI: 'dli', $DIMEXE: 'exe', $DIMTXT: 'txt', $DIMGAP: 'gap', $DIMTAD: 'tad', $DIMZIN: 'zin', $DIMDEC: 'dec', $DIMADEC: 'adec', $DIMLUNIT: 'lunit', $DIMUNIT: 'unit' };
 
@@ -94,7 +103,7 @@ export function readDxf(text) {
       if (name === 'HEADER') readHeader();
       else if (name === 'TABLES') readTables();
       else if (name === 'BLOCKS') readBlocks();
-      else if (name === 'ENTITIES') { const r = readEntityList(out.report, true); out.entities.push(...r.model); paperRaw = r.paper; }
+      else if (name === 'ENTITIES') { const r = readEntityList(out.report, true); pushAll(out.entities, r.model); paperRaw = r.paper; }
       else if (name === 'OBJECTS') readObjects();
       else skipSection();
     } else if (c === 0 && v.trim() === 'EOF') break;
@@ -108,6 +117,11 @@ export function readDxf(text) {
   }
   if (header.$INSBASE) out.meta.insbase = { x: +header.$INSBASE[10] || 0, y: +header.$INSBASE[20] || 0 };
   if (out.meta.lunits && header.$LUPREC && +header.$LUPREC[70] >= 0 && +header.$LUPREC[70] <= 8) out.meta.luprec = +header.$LUPREC[70];
+  if (header.$LIMMIN && header.$LIMMAX) {   // the drawing limits (0.8 D8.2), unless they are only a program's defaults
+    const lim = limitsFromHeader({ x: +header.$LIMMIN[10], y: +header.$LIMMIN[20] }, { x: +header.$LIMMAX[10], y: +header.$LIMMAX[20] }, header.$LIMCHECK ? +header.$LIMCHECK[70] : 0);
+    if (lim) out.meta.limits = lim;
+  }
+  if (out.meta.aunits && header.$AUPREC && +header.$AUPREC[70] >= 0 && +header.$AUPREC[70] <= 8) out.meta.auprec = +header.$AUPREC[70];
   // attributes: values and positions relative to their block, now that every block is known
   // references drawn in a tilted plane (0.6 DF.1, ocs.js): mapped now that every block is known (a shear makes an unnamed block)
   placeOcs([out.entities, paperRaw, ...paperBlocks.values(), ...out.blocks.map((b) => b.entities), ...out.layouts.map((l) => l.entities)], out.blocks);
@@ -149,10 +163,10 @@ export function readDxf(text) {
     for (const t of EXTRA_TYPES) delete out.report.skipped[t];
     const names = new Set(out.blocks.map((b) => b.name.toUpperCase()));
     for (const b of x.anon) if (!names.has(b.name.toUpperCase())) out.blocks.push(b);
-    out.entities.push(...x.model);
-    for (const [name, list] of x.blocks) out.blocks.find((b) => b.name.toUpperCase() === name.toUpperCase())?.entities.push(...list);
-    for (const [name, list] of x.layouts) out.layouts.find((l) => l.name === name)?.entities.push(...list);
-    out.report.notes.push(...x.notes);
+    pushAll(out.entities, x.model);
+    for (const [name, list] of x.blocks) { const b = out.blocks.find((b) => b.name.toUpperCase() === name.toUpperCase()); if (b) pushAll(b.entities, list); }
+    for (const [name, list] of x.layouts) { const l = out.layouts.find((l) => l.name === name); if (l) pushAll(l.entities, list); }
+    pushAll(out.report.notes, x.notes);
   }
 
   function skipSection() { while (i < pairs.length && !(at()[0] === 0 && at()[1].trim() === 'ENDSEC')) i++; i++; }
@@ -167,6 +181,7 @@ export function readDxf(text) {
         else if (varName === '$DWGCODEPAGE' && c === 3) dxfCodepage = v.trim();
         else if (varName === '$INSUNITS' && c === 70) out.meta.units = UNITS[+v] || '';
         else if (varName === '$LTSCALE' && c === 40 && parseFloat(v) > 0 && parseFloat(v) !== 1) out.meta.ltscale = parseFloat(v);
+        else if (varName === '$AUNITS' && c === 70 && [1, 2, 3, 4].includes(+v)) out.meta.aunits = +v;   // the angle format (units.js AUNITS, 0.8 SU.932)
         else if (varName === '$LUNITS' && c === 70 && +v >= 1 && +v <= 5 && +v !== 2) out.meta.lunits = +v;   // the length format (units.js codes)
         else if (HEADER_DIMVARS[varName]) out.dimStyle[HEADER_DIMVARS[varName]] = parseFloat(v);
         (header[varName] ||= {})[c] = v.trim();
@@ -212,7 +227,9 @@ export function readDxf(text) {
         const g = group();
         const name = val(g, 2), fl = parseInt(val(g, 70) ?? '0', 10);
         if (val(g, 5)) styleHandles.set(val(g, 5).toUpperCase(), name);
-        if (name && !(fl & 1) && !(fl & 16) && !/^standard$/i.test(name)) (out.textStyles ||= []).push([name, { font: val(g, 3) || '', h: num(g, 40), wf: num(g, 41, 1) || 1, obl: rad(num(g, 50)) }]);
+        const std = /^standard$/i.test(name || ''), sf = val(g, 3) || '', sbig = val(g, 4) || '';
+        // Standard is kept only when it names a font of its own (0.8 D8.7: legacy text is often in Standard); its name is written Standard
+        if (name && !(fl & 1) && !(fl & 16) && (!std || ((sf && !/^txt(\.shx)?$/i.test(sf)) || sbig))) (out.textStyles ||= []).push([std ? 'Standard' : name, { font: sf, ...(sbig ? { big: sbig } : {}), h: num(g, 40), wf: num(g, 41, 1) || 1, obl: rad(num(g, 50)) }]);
       } else if (t === 'LTYPE') {
         // linetypes (0.4 C8): the dash lengths (49); shapes and text in a pattern are left out
         i++;
@@ -261,6 +278,17 @@ export function readDxf(text) {
         if (isParamBlock(name)) { out.parametric = parametricText(ents); continue; }   // CadCraft's constraints (gcons.js)
         if (isStyleBlock(name)) { const ps = payloadFrom(ents); if (ps) out.plotStyles = ps; continue; }   // plot style tables (0.6 DC.14)
         if (isLaserBlock(name)) { const lz = laserFromPayload(ents); if (lz) out.laser = lz; continue; }   // the Laser panel's settings (0.7 SU.772)
+        if (isAddonsBlock(name)) { const ad = addonsFromPayload(ents); if (ad) out.addons = ad; continue; }   // 0.8 AL.6
+        if (name.toUpperCase() === DIMSTYLES_BLOCK) {   // the styles' extras (0.9 FX.130); older files carry them as xdata in the DIMSTYLE record, read above
+          for (const e of ents) {
+            const strs = (e.cc || []).map((x) => decodeText(String(x)));
+            const nm = strs.find((x) => x.startsWith(DIMNAME_TAG));
+            const st = nm && dimStyles.get(nm.slice(DIMNAME_TAG.length).toUpperCase());
+            if (st) fixStyle(ccDimFrom(strs, st));
+          }
+          continue;
+        }
+        if (isClassesBlock(name)) { const cl = classesFromPayload(ents); if (cl) out.classes = cl; continue; }   // classes (0.8 SU.912)
         if (isGeoBlock(name)) { geoOwn = geoFromPayload(ents); continue; }   // the coordinate system and map layers (0.6 GEO-DWG)
         if (isM3dBlock(name)) { const t = read3dText(ents); if (t) out.model3d = t; const v = read3dView(ents); if (v) out.view3d = v; continue; }   // CadCraft's 3D model and its view (model3d.js)
         if (/^\*paper_space\d+$/i.test(name)) { paperBlocks.set(name.toUpperCase(), ents); continue; }
@@ -452,7 +480,7 @@ export function readDxf(text) {
       const lim = mn && mx ? { min: { x: +mn[10], y: +mn[20] }, max: { x: +mx[10], y: +mx[20] } } : null;
       out.layouts.push(fromList('Layout1', paperRaw, lim && lim.max.x > lim.min.x ? lim : null, guessUnit()));
     }
-    out.layouts.push(...own);
+    pushAll(out.layouts, own);
     if (out.layouts.length) out.report.layouts = out.layouts.length;
     if (out.views) out.views = out.views.filter((v) => !v.paper || out.layouts.length).map(({ paper, ...v }) => (paper ? { ...v, layout: out.layouts[0].name } : v));
     // AutoCAD never plots DEFPOINTS; CadCraft's own R12 files list their no-plot layers
@@ -1051,6 +1079,10 @@ export function writeDxf(doc) {
   if (psPts) used.add(STYLE_BLOCK);
   const lzPts = laserPayload(doc);   // the Laser panel's settings (0.7 SU.772): block CADCRAFT_LASER
   if (lzPts) used.add(LASER_BLOCK);
+  const adPts = addonsPayload(doc);   // which add-ons the data came from (0.8 AL.6): block CADCRAFT_ADDONS
+  if (adPts) used.add(ADDONS_BLOCK);
+  const clPts = classesPayload(doc);   // classes, design layers, viewport class overrides (0.8 SU.912): block CADCRAFT_CLASSES
+  if (clPts) used.add(CLASSES_BLOCK);
   const geoPts = geoPayload(doc);   // the coordinate system and map layers (0.6 GEO-DWG): block CADCRAFT_GEO (R12 has no GEODATA)
   if (geoPts) used.add(GEO_BLOCK);
   const m3 = forFile3d(doc);   // the 3D model (model3d.js): 3DFACEs on layer CC-3D + its exact copy in block CADCRAFT_3D
@@ -1077,6 +1109,8 @@ export function writeDxf(doc) {
     w(9, '$UCSYDIR'); w(10, f(-Math.sin(a))); w(20, f(Math.cos(a))); w(30, '0.0');
   }
   if (doc.meta.lunits >= 1 && doc.meta.lunits <= 5) { w(9, '$LUNITS'); w(70, doc.meta.lunits | 0); if (Number.isFinite(doc.meta.luprec)) { w(9, '$LUPREC'); w(70, doc.meta.luprec | 0); } }
+  if (doc.meta.limits) { const l = limitsOf(doc.meta); w(9, '$LIMMIN'); w(10, f(l.x0)); w(20, f(l.y0)); w(9, '$LIMMAX'); w(10, f(l.x1)); w(20, f(l.y1)); w(9, '$LIMCHECK'); w(70, l.on ? 1 : 0); }   // 0.8 D8.2
+  if (doc.meta.aunits >= 1 && doc.meta.aunits <= 4) { w(9, '$AUNITS'); w(70, doc.meta.aunits | 0); if (Number.isFinite(doc.meta.auprec)) { w(9, '$AUPREC'); w(70, doc.meta.auprec | 0); } }
   for (const [name, key] of [['$DIMSCALE', 'scale'], ['$DIMASZ', 'asz'], ['$DIMEXO', 'exo'], ['$DIMDLI', 'dli'], ['$DIMEXE', 'exe'], ['$DIMTXT', 'txt'], ['$DIMGAP', 'gap']]) { w(9, name); w(40, f(st[key])); }
   w(9, '$DIMTAD'); w(70, st.tad | 0);
   w(9, '$DIMZIN'); w(70, st.zin | 0);
@@ -1145,11 +1179,12 @@ export function writeDxf(doc) {
   w(0, 'ENDTAB');
   // text styles (P.7): STANDARD, every one the drawing keeps and every name a text uses
   const textStyleOut = new Map();
+  const stdFont = [...(doc.textStyles || [])].find(([n]) => /^standard$/i.test(n))?.[1];   // 0.8 D8.7: Standard's own font
   for (const [n, v] of doc.textStyles || []) if (!/^standard$/i.test(n)) textStyleOut.set(r12Name(n), v);
   for (const e of everything) if (e.type === 'text' && e.style && !/^standard$/i.test(e.style) && !textStyleOut.has(r12Name(e.style))) textStyleOut.set(r12Name(e.style), { font: 'txt', h: 0, wf: 1, obl: 0 });
   w(0, 'TABLE'); w(2, 'STYLE'); w(70, 1 + textStyleOut.size);
-  w(0, 'STYLE'); w(2, 'STANDARD'); w(70, 0); w(40, '0.0'); w(41, '1.0'); w(50, '0.0'); w(71, 0); w(42, f(doc.current.textHeight)); w(3, 'txt'); w(4, '');
-  for (const [n, v] of textStyleOut) { w(0, 'STYLE'); w(2, n); w(70, 0); w(40, f(v.h || 0)); w(41, f(v.wf || 1)); w(50, f(deg(v.obl || 0))); w(71, 0); w(42, f(doc.current.textHeight)); w(3, encodeText(v.font || 'txt')); w(4, ''); }
+  w(0, 'STYLE'); w(2, 'STANDARD'); w(70, 0); w(40, '0.0'); w(41, '1.0'); w(50, '0.0'); w(71, 0); w(42, f(doc.current.textHeight)); w(3, encodeText(stdFont?.font || 'txt')); w(4, encodeText(stdFont?.big || ''));
+  for (const [n, v] of textStyleOut) { w(0, 'STYLE'); w(2, n); w(70, 0); w(40, f(v.h || 0)); w(41, f(v.wf || 1)); w(50, f(deg(v.obl || 0))); w(71, 0); w(42, f(doc.current.textHeight)); w(3, encodeText(v.font || 'txt')); w(4, encodeText(v.big || '')); }
   w(0, 'ENDTAB');
   // named UCSs (DR.8)
   const ucsNamed = (doc.ucsNamed || []).filter((u) => u && u.name);
@@ -1186,12 +1221,13 @@ export function writeDxf(doc) {
   for (const [n, s2] of doc.dimStyles || []) if (!/^standard$/i.test(n)) dimStyleOut.set(r12Name(n), s2);
   for (const e of everything) if (e.type === 'dim' && e.dimstyle && !/^standard$/i.test(e.dimstyle) && !dimStyleOut.has(r12Name(e.dimstyle))) dimStyleOut.set(r12Name(e.dimstyle), st);
   w(0, 'TABLE'); w(2, 'DIMSTYLE'); w(70, dimStyleOut.size);
+  const dimPts = [];   // what R12 has no variable for (decimals, arrowheads, …), for CadCraft: block CADCRAFT_DIMSTYLES, never xdata in the table (AutoCAD: "Unknown group 1001 for table")
   for (const [n, s2] of dimStyleOut) {
     w(0, 'DIMSTYLE'); w(2, n); w(70, 0);
-    for (const [code, v] of dimstylePairs(s2, { r12: true })) w(code, typeof v === 'string' ? encodeText(v) : Number.isInteger(v) && ![40, 41, 42, 43, 44, 45, 47, 48, 140, 142, 143, 144, 146, 147].includes(code) ? v : f(+v));
-    w(141, f(((s2.asz ?? st.asz) || 2.5) / 2));
-    const cc = ccDimItems(s2, { r12: true });   // what R12 has no variable for (decimals, arrowheads, …), for CadCraft
-    if (cc.length) { w(1001, 'CADCRAFT'); for (const [, v] of cc) w(1000, encodeText(v)); }
+    // every group R12 lists, in its order (a missing one is "Omitted group 4" in AutoCAD); strings are the only non-numbers
+    for (const [code, v] of r12DimstyleItems(s2, ((s2.asz ?? st.asz) || 2.5) / 2)) w(code, typeof v === 'string' ? encodeText(v) : Number.isInteger(v) && ![40, 41, 42, 43, 44, 45, 46, 47, 48, 140, 141, 142, 143, 144, 145, 146, 147].includes(code) ? v : f(+v));
+    const cc = ccDimItems(s2, { r12: true });
+    if (cc.length) dimPts.push([DIMNAME_TAG + n, ...cc.map(([, v]) => v)]);
   }
   w(0, 'ENDTAB');
   w(0, 'ENDSEC');
@@ -1206,6 +1242,9 @@ export function writeDxf(doc) {
     for (const d of attdefs || []) attribute('ATTDEF', { type: 'text', ...d, s: d.def || '' }, {}, d);
     w(0, 'ENDBLK'); w(8, '0');
   };
+  if (dimPts.length) block(DIMSTYLES_BLOCK, { x: 0, y: 0 }, [], () => {   // first, so the dimensions in the blocks after it read their styles whole
+    for (const strs of dimPts) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, encodeText(t)); }
+  });
   for (const b of doc.blocks.values()) {
     if (!blockNames.has(b.name)) continue;
     const link = isXrefRoot(b) && !b.entities.length ? b.xref.path || b.name : null;
@@ -1224,6 +1263,12 @@ export function writeDxf(doc) {
   });
   if (lzPts) block(LASER_BLOCK, { x: 0, y: 0 }, [], () => {
     for (const strs of lzPts) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }
+  });
+  if (adPts) block(ADDONS_BLOCK, { x: 0, y: 0 }, [], () => {   // 0.8 AL.6
+    for (const strs of adPts) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }
+  });
+  if (clPts) block(CLASSES_BLOCK, { x: 0, y: 0 }, [], () => {   // 0.8 SU.912
+    for (const strs of clPts) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }
   });
   if (m3) block(M3D_BLOCK, { x: 0, y: 0 }, [], () => {
     for (const strs of m3.points) { w(0, 'POINT'); w(8, '0'); w(10, '0.0'); w(20, '0.0'); w(30, '0.0'); w(1001, 'CADCRAFT'); for (const t of strs) w(1000, t); }

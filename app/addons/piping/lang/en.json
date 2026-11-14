@@ -7,7 +7,6 @@
   "table.empty": "No pipes in the drawing",
   "solid.name": "Pipe {tag}",
   "solid.tag": "Piping",
-
   "unit.in": "in",
   "unit.mm": "mm",
   "unit.len.in": "ft",
@@ -21,7 +20,6 @@
   "slope.pct": "{p} %",
   "on": "On",
   "off": "Off",
-
   "mat.steel": "Steel pipe (ASME B36.10M)",
   "mat.copper": "Copper tube (ASTM B88)",
   "mat.pvc": "PVC pipe (ASTM D1785)",
@@ -34,7 +32,6 @@
   "mat.pvc.40": "PVC Sch 40",
   "mat.pvc.80": "PVC Sch 80",
   "mat.pex.SDR9": "PEX SDR 9",
-
   "sys.cw": "Domestic cold water",
   "sys.hw": "Domestic hot water",
   "sys.hwr": "Hot water return",
@@ -59,7 +56,6 @@
   "sys.short.other": "",
   "lines.single": "Single line",
   "lines.double": "Double line",
-
   "valve.name.gate": "Gate valve",
   "valve.name.globe": "Globe valve",
   "valve.name.ball": "Ball valve",
@@ -98,7 +94,6 @@
   "symbol.instrument": "Instrument (field mounted)",
   "symbol.panel": "Instrument (panel mounted)",
   "symbol.flow": "Flow arrow",
-
   "fit.elbow90": "90° elbow {size}",
   "fit.elbow45": "45° elbow {size}",
   "fit.elbow": "Elbow {deg}° {size}",
@@ -106,13 +101,11 @@
   "fit.tee": "Tee {main}",
   "fit.tee.red": "Reducing tee {main} × {branch}",
   "fit.wye": "Wye {main} × {branch}",
-
   "cmd.pipe.help": "Draw a pipe run on its centerline: choose the material, class and nominal size; elbows, reducers and tees come by themselves",
   "cmd.valve.help": "Put valves, strainers, flanges and unions on pipe runs (or take them off)",
   "cmd.pidsym.help": "Place schematic symbols: valves, a pump, a relief valve, instrument balloons, flow arrows",
   "cmd.pipesched.help": "The pipe and fitting schedule, placed as a table that keeps itself up to date",
   "cmd.pipe3d.help": "Build the solids of every pipe run on the 3D tab again",
-
   "opt.size": "Size",
   "opt.material": "Material",
   "opt.class": "Class",
@@ -126,7 +119,6 @@
   "opt.remove": "Remove",
   "opt.symbol": "Symbol",
   "opt.angle": "Angle",
-
   "ask.pipe.first": "First point of the pipe run ({size}); start on a pipe to branch from it",
   "ask.pipe.next": "Next point ({size}); end on a pipe to connect to it",
   "ask.size.in": "Nominal size in inches ({list})",
@@ -147,7 +139,6 @@
   "ask.angle": "Angle",
   "ask.instrument": "Instrument tag: letters and number (PI 101)",
   "ask.table": "Where the schedule goes (its top left corner)",
-
   "done.pipe": "Pipe run drawn: {n} sections of {size}, {len} {lu}.",
   "done.slope": "Sloped {slope}: it falls {drop} {unit}.",
   "done.branch.from": "Branching from {run}.",
@@ -158,7 +149,6 @@
   "done.3d": "Solids built again for {n} pipe runs.",
   "done.3d.off": "Solids are switched off in Settings › CadCraft › Piping.",
   "sched.total": "Pipe: {len} {lu}, {f} fittings, {v} valves.",
-
   "warn.slope": "A drain flatter than the plumbing code's least slope for its size ({need}).",
   "warn.flat": "A level drain: the plumbing code asks at least {need} for its size.",
   "warn.short": "A section is too short for its fittings: they overlap.",
@@ -170,7 +160,6 @@
   "err.notpipe": "There is no pipe there.",
   "err.nopipes": "There are no pipe runs in the drawing.",
   "err.empty": "The drawing is empty.",
-
   "col.item": "Item",
   "col.qty": "Quantity",
   "col.material": "Material",
@@ -190,7 +179,6 @@
   "row.fit": "{name} ({mat})",
   "row.total": "Total",
   "row.total.v": "{len} {lu}, {f} fittings, {v} valves",
-
   "export.csv": "Pipe schedule (CSV)",
   "export.takeoff": "Pipes for TakeoffCraft (PDF with the takeoff inside)",
   "export.pack": "Pipe assemblies for TakeoffCraft (pack)",
@@ -204,7 +192,6 @@
   "pack.source.drawn": "Lengths measured on the drawing, center to center through the fittings",
   "pack.source.by": "CadCraft Piping add-on",
   "pack.note": "In the drawing: {qty} {unit}.",
-
   "ui.group": "Piping",
   "ui.pipe": "Pipe",
   "ui.valve": "Valve",
@@ -220,7 +207,6 @@
   "set.sym": "Symbol size ({unit})",
   "set.textH": "Schedule text height ({unit})",
   "set.solids": "Solids on the 3D tab",
-
   "props.section": "Pipe run",
   "prop.tag": "Tag",
   "prop.sys": "System",
@@ -231,5 +217,31 @@
   "prop.slope": "Slope",
   "prop.lines": "Lines",
   "prop.info": "Run",
-  "prop.info.v": "{n} sections, {len} {lu}, {f} fittings, {v} valves; {mat}: OD {od} {unit}, ID {id} {unit}."
+  "prop.info.v": "{n} sections, {len} {lu}, {f} fittings, {v} valves; {mat}: OD {od} {unit}, ID {id} {unit}.",
+  "cmd.pipenet.help": "Water supply from a source point: flow, velocity and pressure lost to each fixture from the fixture units you give (PNET)",
+  "ui.pipenet": "Supply network",
+  "net.source": "Source: click on the end of a pipe run where the supply comes in [Pressure/Reset fixtures]",
+  "net.opt.pressure": "Pressure",
+  "net.opt.reset": "Reset",
+  "net.reset": "The fixtures you named were forgotten.",
+  "net.avail": "Supply pressure at the source in kPa (0 = not given)",
+  "net.min": "Pressure needed at a fixture in kPa (0 = not given)",
+  "net.pressure.set": "Supply {a} kPa, needed at a fixture {m} kPa.",
+  "net.fixture": "Fixture at the end {tag} ({x}, {y}): {list}, or a number of fixture units (0 = none)",
+  "net.err.source": "The point is not on the end of a pipe run. Click the end where the supply comes in.",
+  "net.err.nopipes": "There are no pipe runs in this drawing.",
+  "net.err.noends": "No free pipe ends were found, so there is nowhere for the water to go.",
+  "net.err.nosrc": "Run PIPENET first and click the source, then export.",
+  "net.note.nofixture": "The end {tag} {key} has no fixture, so it takes no water.",
+  "net.note.loop": "{n} pipe loops were found. The calculation follows a tree, so loops are ignored.",
+  "net.note.unreached": "{n} pipe sections are not joined to the source.",
+  "net.head": "{n} fixtures. The furthest in pressure terms: {worst}.",
+  "net.load": "{label}: {fu} fixture units, loses {dp} kPa{left}",
+  "net.load.no": "{label}: not joined to the source",
+  "net.left": ", {v} kPa left{short}",
+  "net.short": " (short of what is needed)",
+  "net.sizes": "{n} runs are too small for their flow (fast) or much bigger than needed: {list}.",
+  "net.beyond": "Some demand is beyond the end of the demand curve. Type the curve of your code to go further.",
+  "net.defaults": "Demand uses a labelled default curve and the fitting losses are rounded defaults. Check with your engineer before you rely on them.",
+  "net.export": "Supply network (CSV)"
 }

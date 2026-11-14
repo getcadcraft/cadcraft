@@ -29,6 +29,7 @@
 import { DIM_DEFAULTS } from './dims.js';
 import { DIM_EXTRA, ARROWS, TOL_MODES } from './dimstyle.js';
 import { nearestAci } from './doc.js';
+import { validKey } from './file-keys.js';
 
 // ---------------------------------------------------------------------------- transparency
 
@@ -84,6 +85,7 @@ export function propsXdata(e, { r12 = false } = {}) {
   if (typeof e.mat === 'string' && e.mat) cc.push(...chunks('CCMAT:', e.mat.slice(0, 255)));
   if (e.type === 'hatch' && !e.solid && (Number.isFinite(e.ox) || Number.isFinite(e.oy)) && (e.ox || e.oy)) cc.push('CCHORG:' + (+e.ox || 0) + ',' + (+e.oy || 0));
   if (e.type === 'hatch' && e.assoc) cc.push('CCHASSOC');   // the boundary objects are not written, so the file's own flag stays off
+  if (typeof e.key === 'string' && validKey(e.key)) cc.push('CCKEY:' + e.key);   // DC.27 H4: the object's stable key (file-keys.js)
   if (cc.length) x.CADCRAFT = cc.map((s) => [1000, s]);
   if (typeof e.url === 'string' && e.url) x.PE_URL = [[1000, e.url.slice(0, 255)]];
   if (e.ann) x.AcadAnnotative = [[1000, 'AnnotativeData'], [1002, '{'], [1070, 1], [1070, 1], [1002, '}']];
@@ -104,6 +106,8 @@ export function propsFromXdata(xd) {
   const org = cc.find((s) => s.startsWith('CCHORG:'));
   if (org) { const [x, y] = org.slice(7).split(',').map(Number); if (Number.isFinite(x) && Number.isFinite(y)) { if (x) out.ox = x; if (y) out.oy = y; } }
   if (cc.includes('CCHASSOC')) out.assoc = true;
+  const key = cc.find((s) => s.startsWith('CCKEY:'));
+  if (key && validKey(key.slice(6))) out.key = key.slice(6);
   const tr = cc.find((s) => s.startsWith('CCTR:'));
   if (tr) { const v = tr.slice(5); if (v === 'ByBlock') out.tr = v; else if (Number.isFinite(+v) && +v >= 0 && +v <= 90) out.tr = +v; }
   const url = (app('PE_URL') || []).find(([c]) => c === 1000);
@@ -233,6 +237,29 @@ export function dimstylePairs(st, { r12 = false } = {}) {
   const out = [];
   for (let j = 2; j + 1 < items.length; j += 2) if (items[j][0] === 1070) out.push([items[j][1], items[j + 1][1]]);
   return out;
+}
+
+/**
+ * A DXF R12 DIMSTYLE table record's groups after 2 and 70, in the order R12 lists them, EVERY one of them: AutoCAD refuses a
+ * record that leaves a group out ("Omitted group 4", DIMAPOST, when the style has no alternate text) or that carries one R12
+ * does not know (270, 1001 xdata). DIMPOST / DIMAPOST are strings, "" when empty; the reals are 40–48, 140–147; the rest integers.
+ * What R12 has no variable for travels in the CADCRAFT_DIMSTYLES block (ccDimItems), never in the table.
+ * @returns {Array<[number, string|number]>}
+ */
+export function r12DimstyleItems(st, cen) {
+  const v = varsOf(st);
+  const real = (name, d = 0) => (Number.isFinite(+v[name]) ? +v[name] : d);
+  const int = (name) => Math.round(real(name));
+  return [
+    [3, v.DIMPOST || ''], [4, v.DIMAPOST || ''],
+    [40, real('DIMSCALE', 1)], [41, real('DIMASZ')], [42, real('DIMEXO')], [43, real('DIMDLI')], [44, real('DIMEXE')], [45, real('DIMRND')],
+    [46, 0], [47, real('DIMTP')], [48, real('DIMTM')],
+    [140, real('DIMTXT')], [141, Number.isFinite(+cen) ? +cen : real('DIMASZ') / 2], [142, real('DIMTSZ')], [143, real('DIMALTF', 25.4)], [144, real('DIMLFAC', 1)],
+    [145, 0], [146, real('DIMTFAC', 1)], [147, real('DIMGAP')],
+    [71, int('DIMTOL')], [72, int('DIMLIM')], [73, int('DIMTIH')], [74, int('DIMTOH')], [75, int('DIMSE1')], [76, int('DIMSE2')],
+    [77, int('DIMTAD')], [78, int('DIMZIN')], [170, int('DIMALT')], [171, int('DIMALTD')], [172, int('DIMTOFL')], [173, int('DIMSAH')],
+    [174, int('DIMTIX')], [175, 0], [176, int('DIMCLRD')], [177, int('DIMCLRE')], [178, int('DIMCLRT')],
+  ];
 }
 
 /** The ACAD xdata list of an entity ([[code, value]…]) → Map(group code → value) of its "DSTYLE" { … } overrides. */

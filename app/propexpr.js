@@ -15,7 +15,7 @@
  *   lengths   150, -2.5, 1/4, 6-1/2, 12'6", 12'-6 1/2" (as units.js reads them in the drawing's format), and a number with
  *             a unit — 900mm, 3.5m, 2ft, 6in, 3'6" — converted into drawing units when the drawing has units (a unitless
  *             drawing in feet and inches counts as inches; a unitless decimal drawing refuses them: no way to know).
- *   angles    45, 45.5, 45d30', 45°30'15", 0.5r (radians), 100g (grads) → degrees.
+ *   angles    45, 45.5, 45d30', 45°30'15", 0.5r (radians), 100g (grads), bearings N45°23'30"E (angles.js) → degrees.
  *   any kind  =<expression> through expr.js (never eval): =2*45, =3'6"/2, =sqrt(2)*100, =atan(1). Lengths with units inside
  *             an expression are converted the same way first; plain numbers are drawing units (or degrees). An expression
  *             without the "=" is read too when it is not a plain value (2*45, 100+50).
@@ -24,6 +24,7 @@
 
 import { compute } from './expr.js';
 import { parseLength, isImperialFormat, lunitCode } from './units.js';
+import { parseAngle } from './angles.js';
 import { t } from './i18n.js';
 
 const UNIT_MM = { millimeters: 1, centimeters: 10, meters: 1000, inches: 25.4, feet: 304.8, decimeters: 100, kilometers: 1e6, miles: 1609344, yards: 914.4, microns: 0.001 };
@@ -108,6 +109,8 @@ export function readValue(raw, kind, ctx = {}) {
     const v = parseLength(s, onSheet ? 2 : ctx.lunits ?? 2);
     if (v !== null) return finish(v, kind, ctx);
   } else if (kind === 'ang') {
+    const b = parseAngle(s);   // a bearing N45°23'30"E or 45°23'30" (0.8 SU.932)
+    if (b !== null) return finish(b, kind, ctx);
     if (PLAIN.test(s)) return finish(parseFloat(s), kind, ctx);
     const m = s.match(new RegExp('^([-+]?)(' + NUM + ')\\s*(r|rad|g|grad)$', 'i'));
     if (m) { const v = parseFloat(m[2]) * (/^r/i.test(m[3]) ? 180 / Math.PI : 0.9); return finish(m[1] === '-' ? -v : v, kind, ctx); }

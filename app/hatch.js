@@ -4,9 +4,10 @@
  *
  * A hatch entity: { type: 'hatch', loops: [[x, y, x, y, …], …] (even-odd), solid, pattern: 'ANSI31',
  *   pscale (default 1), pangle (radians, default 0), piso (true = the metric definitions, false = the inch ones;
- *   absent = from the drawing's units), patlines? [{ angle (deg), x, y, dx, dy, dashes: [] }] (a file's own,
+ *   absent = from the drawing's units), patdef? [{ angle, x, y, dx, dy, dashes }] (a .pat file's pattern, unscaled, in drawing units; scale and angle still apply), patlines? [{ angle (deg), x, y, dx, dy, dashes: [] }] (a file's own,
  *   already scaled and turned: used as they are) }.
  *
+ *   patternFamilies(e, doc) → [line]|null  the pattern's lines in drawing units (patdef = a .pat file's lines, see patfile.js)
  *   PATTERNS                        name → { lines (metric, as acadiso.pat: angle°, origin x y, offset dx dy, dashes) };
  *                                   each one's description is the language key hatch.pat.<name lower case>
  *   hatchLines(e, doc) → prims | null   the pattern's lines clipped to the loops (L primitives); null = solid, unknown
@@ -55,20 +56,23 @@ export function hatchIsMetric(e, doc) {
 
 const cache = new WeakMap();
 
+/** The pattern's line families in drawing units (turned and scaled, without the origin); null when there is no such pattern. */
+export function patternFamilies(e, doc = null) {
+  if (Array.isArray(e.patlines) && e.patlines.length) return e.patlines;
+  const turn = e.pangle || 0, c = Math.cos(turn), s = Math.sin(turn), sc = e.pscale > 0 ? e.pscale : 1;
+  // a pattern file's own definition (.pat, patfile.js) is in drawing units; the built-in ones are metric
+  const own = Array.isArray(e.patdef) && e.patdef.length ? e.patdef : null;
+  const def = own ? { lines: own } : PATTERNS[String(e.pattern || '').toUpperCase()];
+  if (!def) return null;
+  const k = own ? sc : sc / (hatchIsMetric(e, doc) ? 1 : 25.4);
+  return def.lines.map((f) => ({ angle: f.angle + turn * 180 / Math.PI, x: (f.x * c - f.y * s) * k, y: (f.x * s + f.y * c) * k, dx: f.dx * k, dy: f.dy * k, dashes: f.dashes.map((d) => d * k) }));
+}
+
 /** The pattern's lines as L primitives, clipped even-odd to the loops; null when it cannot or should not be drawn. */
 export function hatchLines(e, doc = null) {
   if (e.solid) return null;
   if (cache.has(e)) return cache.get(e);
-  let fams = null;
-  if (Array.isArray(e.patlines) && e.patlines.length) fams = e.patlines;
-  else {
-    const def = PATTERNS[String(e.pattern || '').toUpperCase()];
-    if (def) {
-      const k = (e.pscale > 0 ? e.pscale : 1) / (hatchIsMetric(e, doc) ? 1 : 25.4), turn = e.pangle || 0;
-      const c = Math.cos(turn), s = Math.sin(turn);
-      fams = def.lines.map((f) => ({ angle: f.angle + turn * 180 / Math.PI, x: (f.x * c - f.y * s) * k, y: (f.x * s + f.y * c) * k, dx: f.dx * k, dy: f.dy * k, dashes: f.dashes.map((d) => d * k) }));
-    }
-  }
+  let fams = patternFamilies(e, doc);
   // the pattern origin (Properties › Origin X / Y, P.7): every family moves with it
   const ox = Number.isFinite(e.ox) ? e.ox : 0, oy = Number.isFinite(e.oy) ? e.oy : 0;
   if (fams && (ox || oy)) fams = fams.map((f) => ({ ...f, x: f.x + ox, y: f.y + oy }));

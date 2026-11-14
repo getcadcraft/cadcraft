@@ -32,7 +32,7 @@ import { textLayout, textCorners, viewportCorners, viewportMatrix, mMul, mApply,
 import { UNIT_MM, makePaper, sOf, nOf, scaleLabel } from './sheets.js';
 import { fillRichLine, runColor } from './mtext-draw.js';
 import { STACK_SCALE } from './geom.js';
-import { CP1252, SUBST, charAdvance, advance } from './font.js';
+import { CP1252, SUBST, charAdvance, advance, familyOf } from './font.js';
 import { applyPen, builtinTable, penStyleOf } from './plotstyle.js';
 import { hatchLines } from './hatch.js';
 import { readTtf, FontUse, fontObjects, missingGlyphs } from './pdf-font.js';
@@ -50,7 +50,7 @@ export function layoutSheet(doc, layout) {
   for (const e of layout.entities.values()) {
     if (e.type !== 'viewport' || e.on === false) continue;   // a viewport turned off plots its frame only (P.7)
     // the layers frozen in this viewport are left out of its view (VP.1)
-    views.push({ clip: viewportCorners(e).map((q) => mApply(toMm, q)), m: mMul(toMm, viewportMatrix(e)), entities: doc.model.values(), frozen: frozenSet(e) });
+    views.push({ clip: viewportCorners(e).map((q) => mApply(toMm, q)), m: mMul(toMm, viewportMatrix(e)), entities: doc.model.values(), frozen: frozenSet(e, !!doc.meta?.floors) });
   }
   views.push({ clip: null, m: toMm, entities: layout.entities.values() });
   return { w: p.w * k, h: p.h * k, views, name: layout.name };
@@ -185,12 +185,14 @@ export async function toPdfPages(lists, { pen = 0.25, title = 'Drawing', names =
 // ---------------------------------------------------------------------------
 // The embedded font (0.6.1 FIX-061-PDF-CHARS; pdf-font.js)
 
-let fontSource = null, fontCache = null, cjkSource = null, cjkCache = null;
+let fontSource = null, fontCache = null, cjkSource = null, cjkCache = null, thaiSource = null, thaiCache = null;
 /** Where the embedded font's bytes come from: the bytes, an async loader, or null for the default (the app's import map
  *  `liberation-sans/`, else the vendor folder beside the app). Node (tests, the CLI) passes the bytes: it has no fetch for files. */
 export function setPdfFont(src) { fontSource = src; fontCache = null; }
 /** The same for the CJK font (D7.16: Chinese, Japanese and Korean text), used only when a drawing's text needs it. */
 export function setPdfCjkFont(src) { cjkSource = src; cjkCache = null; }
+/** The Thai font (FX.3; assets/vendor/thai-sans: Noto Sans Thai with Latin, OFL-1.1, ~220 KB): fetched the first time a plot has Thai text. */
+export function setPdfThaiFont(src) { thaiSource = src; thaiCache = null; }
 async function fetchFont(src, urls) {
   let bytes = null;
   if (src instanceof Uint8Array || src instanceof ArrayBuffer) bytes = src;
@@ -213,6 +215,13 @@ async function loadFont() {
   })();
   try { return await fontCache; } catch (err) { fontCache = null; throw err; }
 }
+async function loadThaiFont() {
+  if (!thaiCache) thaiCache = (async () => {
+    const urls = [new URL('../../../vendor/thai-sans/current/NotoSansThai-VF.ttf', import.meta.url).href];
+    return readTtf(await fetchFont(thaiSource, urls), { name: 'NotoSansThai', family: 'Noto Sans Thai' });   // i18n-ignore (a font's name)
+  })();
+  try { return await thaiCache; } catch (err) { thaiCache = null; throw err; }
+}
 /** The CJK font (assets/vendor/cjk-sans: Noto Sans SC + KR subset, OFL-1.1, ~10 MB): fetched the first time a plot needs it. */
 async function loadCjkFont() {
   if (!cjkCache) cjkCache = (async () => {
@@ -229,9 +238,25 @@ async function fontFor(lists, want) {
   if (!lines.length) return { use: null };
   let font;
   try { font = await loadFont(); } catch (err) { return { use: null, error: err.message || String(err) }; }
-  // Liberation Sans has Latin, Greek and Cyrillic; anything it lacks (Han, kana, Hangul) takes the CJK font, which has those too
-  if (lines.some((line) => missingGlyphs(font, line))) {
-    try { font = await loadCjkFont(); } catch (err) { return { use: new FontUse(font), error: 'the CJK font could not be loaded' }; }   // i18n-ignore (report.fontError)
+  // Liberation Sans has Latin, Greek and Cyrillic; anything it lacks takes the Thai font (Thai + Latin) or the CJK font (Han, kana, Hangul + Latin).
+  // One font prints the whole file: the first of the two that leaves nothing missing, else the one that leaves the fewest.
+  const lack = (f) => lines.reduce((n, line) => n + missingGlyphs(f, line), 0);
+  if (lack(font)) {
+    const hasThai = lines.some((line) => /[\u0E00-\u0E7F]/.test(line));
+    let best = font, bestLack = lack(font), err = '';
+    const hasCjk = lines.some((line) => /[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]/.test(line));
+    const tries = [];
+    if (hasThai) tries.push([loadThaiFont, 'Thai']);
+    if (hasCjk || !hasThai) tries.push([loadCjkFont, 'CJK']);   // (a Thai-only drawing never reads the big CJK font)
+    for (const [load, label] of tries) {
+      if (!bestLack) break;
+      let f;
+      try { f = await load(); } catch (e) { err = 'the ' + label + ' font could not be loaded'; continue; }   // i18n-ignore (report.fontError)
+      const n = lack(f);
+      if (n < bestLack) { best = f; bestLack = n; }
+    }
+    font = best;
+    if (err && bestLack) return { use: new FontUse(font), error: err };
   }
   return { use: new FontUse(font) };
 }
@@ -362,7 +387,7 @@ class Ops {
       const lx = e.ha === 'center' ? -w / 2 : e.ha === 'right' ? -w : 0, ly = lay.baselines[i];
       const x = e.x + lx * c - ly * s, y = e.y + lx * s + ly * c;
       const k = e.obl ? fs * Math.tan(e.obl) : 0;   // oblique angle (P.7): x leans by tan(angle) per unit of height
-      this.raw('BT /F' + (this.use ? 2 : 1) + ' 1 Tf ' + [fs * wf * c, fs * wf * s, k * c - fs * s, k * s + fs * c, x, y].map(num).join(' ') + ' Tm ' + (this.use ? '<' + enc.hex + '>' : '(' + enc.str + ')') + ' Tj ET');   // i18n-ignore: PDF operators
+      this.raw('BT /F' + (this.use ? 2 : 1) + ' 1 Tf ' + [fs * wf * c, fs * wf * s, k * c - fs * s, k * s + fs * c, x, y].map(num).join(' ') + ' Tm ' + (this.use ? (enc.ops || '<' + enc.hex + '> Tj') : '(' + enc.str + ') Tj') + ' ET');   // i18n-ignore: PDF operators
     });
     return missing;
   }
@@ -383,7 +408,7 @@ Ops.prototype.richText = function richText(e, color, lay) {
       const p = at(lx, ly2), k = size * (Math.tan(e.obl || 0) + (st?.i ? 0.2126 : 0));
       this.fillColor(col);
       if (st?.b) { this.strokeColor(col); this.raw(num(size * 0.03) + ' w'); }
-      this.raw('BT /F' + (this.use ? 2 : 1) + ' 1 Tf ' + (st?.b ? '2 Tr ' : '0 Tr ') + [size * wf * c, size * wf * s, k * c - size * s, k * s + size * c, p.x, p.y].map(num).join(' ') + ' Tm ' + (this.use ? '<' + enc.hex + '>' : '(' + enc.str + ')') + ' Tj ET');   // i18n-ignore: PDF operators
+      this.raw('BT /F' + (this.use ? 2 : 1) + ' 1 Tf ' + (st?.b ? '2 Tr ' : '0 Tr ') + [size * wf * c, size * wf * s, k * c - size * s, k * s + size * c, p.x, p.y].map(num).join(' ') + ' Tm ' + (this.use ? (enc.ops || '<' + enc.hex + '> Tj') : '(' + enc.str + ') Tj') + ' ET');   // i18n-ignore: PDF operators
     };
     const rule = (lx, ly2, w, col, thick) => {
       const a = at(lx, ly2), b = at(lx + w, ly2);
@@ -574,7 +599,7 @@ export function drawPreview(ctx, list, { pxPerMm, pen = 0.25, font = 'Helvetica,
       ctx.translate(p.x, p.y); ctx.rotate(-(e.rot || 0)); if (e.wf && e.wf !== 1) ctx.scale(e.wf, 1);
       if (e.obl) ctx.transform(1, 0, -Math.tan(e.obl), 1, 0, 0);
       ctx.globalAlpha = t.alpha ?? 1;
-      ctx.fillStyle = t.color; ctx.font = fs.toFixed(2) + 'px ' + font;
+      ctx.fillStyle = t.color; ctx.font = fs.toFixed(2) + 'px ' + (familyOf(e.font, font) || font);
       ctx.textAlign = e.ha === 'center' ? 'center' : e.ha === 'right' ? 'right' : 'left'; ctx.textBaseline = 'alphabetic';
       if (lay.runs) lay.lines.forEach((_, i) => fillRichLine(ctx, lay, i, e, { scale: pxPerMm, family: font, color: t.color }));   // inline format codes (mtext.js)
       else lay.lines.forEach((line, i) => ctx.fillText(line, 0, -lay.baselines[i] * pxPerMm));

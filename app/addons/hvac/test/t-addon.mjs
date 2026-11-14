@@ -61,7 +61,7 @@ const me = () => started.list().find((a) => a.id === 'hvac');
 ok(me()?.state === 'off' && !Cmd.lookup('DUCT'), 'HVAC is bundled off by default ("default": "off")', JSON.stringify(me() && [me().state, me().detail, me().reason]));
 await started.loader.setEnabled('hvac', true);
 ok(me()?.state === 'active', 'switched on: active', JSON.stringify(me() && [me().state, me().reason, me().detail]));
-const names = ['DUCT', 'DUCTSIZE', 'DUCTCALC', 'DUCTSCHED', 'DUCT3D'];
+const names = ['DUCT', 'DUCTSIZE', 'DUCTCALC', 'DUCTNET', 'DUCTSCHED', 'DUCT3D'];
 ok(names.every((n) => Cmd.lookup(n) && Cmd.commandRegistry.owner(n) === 'hvac'), 'its commands are registered, owned by the add-on');
 ok(names.every((n) => { const hh = Cmd.commandList().find((c) => c.name === n)?.help; return hh && !/^cmd\./.test(hh); }), 'every command has help in the add-on\'s words');
 const info = (e) => started.kinds.info(e);
@@ -171,5 +171,16 @@ ok(/^Straight duct\r\n/.test(csvText) && /Rectangular duct 14×12 in \(galvanize
 // grips: moving the corner point
 const gr = G.gripHooks ? [...G.gripHooks].map((g) => g.grips(doc.get(main.id))).find(Boolean) : null;
 ok(gr && gr.length === 3 && gr.some((g) => near(g.x, 240) && near(g.y, 0)), 'grips on the run\'s three points', JSON.stringify(gr));
+
+// DUCTNET (0.8 EG.1): pressure of the drawn network from a fan point
+{
+  log.length = 0;
+  await type('DUCTNET', '500,500');
+  ok(log.some((l) => /not on the end of a duct run/.test(l)), 'DUCTNET: a click that is not on a run end is refused');
+  log.length = 0;
+  await type('DUCTNET', '0,0');
+  ok(log.some((l) => /\d ends\. Fan pressure/.test(l)) && log.some((l) => /Fitting losses use labelled default/.test(l)), 'DUCTNET from the fan end (the run has no airflow yet) prints the ends, the fan pressure and the honest note', log.slice(0, 4).join(' | '));
+  ok(log.some((l) => /no airflow typed/.test(l)), 'a free end whose section has no airflow typed is said so, not guessed');
+}
 
 export { started, h };

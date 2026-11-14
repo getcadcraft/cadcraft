@@ -3,7 +3,8 @@
 /**
  * settings.inc — CadCraft's own section of the Settings dialog (core/components/app-settings.inc includes it).
  * cadcraft.js reads and stores the fields (localStorage cadcraft.settings) and resets them on "cc-settings-reset".
- *   cursor     crosshair + pick box size: small / medium (default) / large — the pick tolerance follows the box
+ *   cursor     crosshair + pick box size: small / medium (default) / large / full screen (D8.14: the crosshair edge to edge;
+ *              CURSORSIZE 100) — the pick tolerance follows the box
  *   pasteBase  where a pasted copy hangs from the cursor (PASTECLIP, Ctrl+V): lower-left corner (default) / center
  *   pick       what a click on an object does with no command running: adds to the selection (default; Shift+click
  *              removes) / replaces the selection (Shift+click adds or removes; a window replaces, Shift+window adds)
@@ -13,6 +14,7 @@
  *   corner     corner indicator: automatic (default: the axis icon on the Model tab, the view cube on the 3D tab) /
  *              axis icon (the X/Y icon on the Model tab, an X/Y/Z triad on the 3D tab) / view cube (m3d/viewcube.js: at Top on the Model tab, where a click opens the 3D tab looking from there) / none
  *   trimDrag   TRIM / EXTEND, a drag on an empty spot: a freehand path (default) / a window, crossing (0.6 DF.13)
+ *   autocomplete  drawing autocomplete: ghost geometry from the drawing's own patterns, Tab accepts (default; 0.8 EG.54) / off
  *   selTotals  the selection's length and area in the status bar: on (default) / off (0.6 DF.4)
  *   tabs       sheet tabs: full names (default) / sheet numbers only (WL.9; the number from the open sheet set, else the
  *              name's first word when it reads like one; the tooltip keeps the whole name)
@@ -26,6 +28,7 @@
     <label><input type="radio" name="ccCursor" value="small"> <i class="bi bi-plus" aria-hidden="true"></i> <?= Lang::e('set.small') ?></label>
     <label><input type="radio" name="ccCursor" value="medium"> <i class="bi bi-plus-lg" aria-hidden="true"></i> <?= Lang::e('set.medium') ?></label>
     <label><input type="radio" name="ccCursor" value="large"> <i class="bi bi-crosshair" aria-hidden="true"></i> <?= Lang::e('set.large') ?></label>
+    <label><input type="radio" name="ccCursor" value="full"> <i class="bi bi-border-inner" aria-hidden="true"></i> <?= Lang::e('set.full_screen') ?></label>
   </div>
   <p class="shell-hint-text"><?= Lang::e('set.crosshair_pick_box_drawing') ?></p>
 </fieldset>
@@ -78,6 +81,30 @@
   <p class="shell-hint-text"><?= Lang::e('set.seltotals.hint') ?></p>
 </fieldset>
 <fieldset class="shell-set">
+  <legend><?= Lang::e('set.autocomplete') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.autocomplete') ?>">
+    <label><input type="radio" name="ccAutocomplete" value="on"> <i class="bi bi-magic" aria-hidden="true"></i> <?= Lang::e('set.autocomplete.on') ?></label>
+    <label><input type="radio" name="ccAutocomplete" value="off"> <i class="bi bi-eye-slash" aria-hidden="true"></i> <?= Lang::e('set.autocomplete.off') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.autocomplete.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend><?= Lang::e('set.filekeys') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.filekeys') ?>">
+    <label><input type="radio" name="ccFileKeys" value="on"> <i class="bi bi-git" aria-hidden="true"></i> <?= Lang::e('set.filekeys.on') ?></label>
+    <label><input type="radio" name="ccFileKeys" value="off"> <i class="bi bi-eye-slash" aria-hidden="true"></i> <?= Lang::e('set.filekeys.off') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.filekeys.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend><?= Lang::e('set.details') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.details') ?>">
+    <label><input type="radio" name="ccDetails" value="on"> <i class="bi bi-journal-bookmark" aria-hidden="true"></i> <?= Lang::e('set.details.on') ?></label>
+    <label><input type="radio" name="ccDetails" value="off"> <i class="bi bi-eye-slash" aria-hidden="true"></i> <?= Lang::e('set.details.off') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.details.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
   <legend><?= Lang::e('set.corner_indicator') ?></legend>
   <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('set.corner_indicator') ?>">
     <label><input type="radio" name="ccCorner" value="auto"> <i class="bi bi-magic" aria-hidden="true"></i> <?= Lang::e('set.automatic_axis_icon_drawing') ?></label>
@@ -103,6 +130,26 @@
     <label><input type="radio" name="ccToolbarRows" value="1"> <i class="bi bi-distribute-horizontal" aria-hidden="true"></i> <?= Lang::e('set.toolbar_rows.1') ?></label>
   </div>
   <p class="shell-hint-text"><?= Lang::e('set.toolbar_rows.hint') ?></p>
+</fieldset>
+<?php /* 0.9 SU.1083: the command line (cmdline.js; stored in cc-app-settings:cadcraft → cmdline) and the top area (cadcraft.settings topArea) */ ?>
+<fieldset class="shell-set" data-cmdline-settings>
+  <legend><?= Lang::e('set.cmdline') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.cmdline') ?>">
+    <label><input type="radio" name="ccCmdDock" value="bottom"> <i class="bi bi-window-dock" aria-hidden="true"></i> <?= Lang::e('set.cmdline.dock.bottom') ?></label>
+    <label><input type="radio" name="ccCmdDock" value="float"> <i class="bi bi-window-stack" aria-hidden="true"></i> <?= Lang::e('set.cmdline.dock.float') ?></label>
+  </div>
+  <label class="cc-set-range" for="cc-set-cmdlines"><?= Lang::e('set.cmdline.lines') ?>: <output data-cmd-lines-out for="cc-set-cmdlines"></output></label>
+  <input type="range" id="cc-set-cmdlines" name="ccCmdLines" min="0" max="12" step="1" value="4">
+  <p><button type="button" class="btn-line btn-sm-cc" data-cmd-std><?= Lang::e('set.cmdline.std') ?></button></p>
+  <p class="shell-hint-text"><?= Lang::e('set.cmdline.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend><?= Lang::e('set.top_area') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.top_area') ?>">
+    <label><input type="radio" name="ccTopArea" value="standard"> <i class="bi bi-layout-text-window" aria-hidden="true"></i> <?= Lang::e('set.top_area.standard') ?></label>
+    <label><input type="radio" name="ccTopArea" value="compact"> <i class="bi bi-arrows-collapse" aria-hidden="true"></i> <?= Lang::e('set.top_area.compact') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.top_area.hint') ?></p>
 </fieldset>
 <fieldset class="shell-set">
   <legend><?= Lang::e('set.tour') ?></legend>

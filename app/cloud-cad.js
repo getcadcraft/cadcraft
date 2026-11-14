@@ -206,7 +206,9 @@ export async function attachFile(c, file, insert = null, { ask = false } = {}) {
   const { readCloudInfo, loadCloud, cloudSummary } = await lib();
   const info = await readCloudInfo(file);
   const t0 = Date.now();
-  const cloud = await loadCloud(file, info, { budget: c.host.cloudBudget?.() || 2e6, progress: (f) => c.host.status?.(t('pc.loading', { file: file.name, pct: Math.round(f * 100) })) });
+  let cloud;
+  try { cloud = await loadCloud(file, info, { budget: c.host.cloudBudget?.() || 2e6, progress: (f) => c.host.status?.(t('pc.loading', { file: file.name, pct: Math.round(f * 100) })) }); }
+  finally { c.host.status?.(null); }   // the host shows progress as the busy overlay; PCATTACH never cleared it (only drag-and-drop did)
   if (ask) {
     const p = await c.point(t('pc.prompt.insert'), { options: [opt('F', 'File coordinates')], none: true });   // i18n-ignore: the option's English label (shown as opt.filecoordinates)
     insert = p && !p.option ? p : null;

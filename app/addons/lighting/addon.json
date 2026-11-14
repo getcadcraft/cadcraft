@@ -1,0 +1,25 @@
+{
+  "id": "lighting",
+  "name": "Lighting plots",
+  "version": "0.9.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.3",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "toolbar",
+    "panel",
+    "settings",
+    "objects",
+    "files",
+    "problems"
+  ],
+  "description": "Entertainment lighting plots: fixtures hung on named positions (pipes, trusses, booms, floor lines), unit numbers along each position, channels and dimmer or DMX addresses, an instrument schedule, a channel hookup, a legend, and checks for duplicate units, DMX overlaps and overloaded dimmers. Fixtures and positions sit in classes (Lighting-Fixtures-…, Rigging-…).",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

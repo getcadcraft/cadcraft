@@ -16,7 +16,8 @@
  *   v.drawExtra = (g, project(p) → [x, y, depth] | null, colours) => …   the app's own marks on the overlay (lamps)
  * `ui()` returns {path, sel, overlay, guidesOn, dimsOn, present} at draw time. present (0.4 M28, presentation view): no axes,
  * guides, guide points, open-group box, inference marks, hover or selection highlight — only the model (and its dimensions);
- * nothing fades outside an open group (0.6 DC.21).
+ * nothing fades outside an open group (0.6 DC.21). 0.7.1: ui().hideRest (only the open group or component is drawn) and
+ * ui().showHidden (hidden groups and components drawn faded).
  * Colours come from the page tokens (paper/model themes).
  */
 import * as THREE from 'three';
@@ -24,7 +25,7 @@ import { add, sub, mul, dot, norm, apply, invert, dist, bboxAdd, IDENT } from '.
 import { faceTris, faceNormal, edgeFaces, smoothNormals, paintHex, isMaterialPaint, isImagePaint, imageId, imageUV, MESH_HOOKS } from './model.js';
 import { FL_DEAD, FL_HIDE, FL_SHARP, FL_SEAM } from './mesh.js';
 import { sunPosition } from './sun.js';
-import { dimLayout, dimTextBox, dimText, sectionLayout } from './infer.js';
+import { dimLayout, dimTextBox, dimText, dimTextSize, sectionLayout } from './infer.js';
 import { formatLength } from './units.js';
 import { viewImage } from './viewimage.js';
 
@@ -579,7 +580,10 @@ export class View3D {
     if (cut) this.clip.push(new THREE.Plane(new THREE.Vector3(-cut.n[0], -cut.n[1], -cut.n[2]), dot(cut.n, cut.p)));
     const solids = [];   // closed geometry the cut passes through gets a filled cap
     const offTags = this.model.hiddenTags ? this.model.hiddenTags() : new Set();   // 0.4 M6: placements with a hidden tag
-    const addDef = (def, parent, path, depth, dflt = null, wm = IDENT) => {
+    // 0.7.1 (MC-KEYS-COMMANDS): u.hideRest draws only the open group or component (nothing faded around it); u.showHidden draws
+    // hidden placements faded (ghost) — the presentation view shows the model as it is, so neither applies there
+    const hideRest = !!u.hideRest && u.path.length > 0 && !u.present, showHidden = !!u.showHidden && !u.present;
+    const addDef = (def, parent, path, depth, dflt = null, wm = IDENT, ghost = false) => {
       if (depth > 32) return;
       live.add(def.id + '|' + (dflt || ''));
       const g = this.geometryOf(def, dflt);
@@ -587,8 +591,9 @@ export class View3D {
       if (pb) { box = bboxAdd(box, pb.min); box = bboxAdd(box, pb.max); }
       // presentation view (0.6 DC.21): the whole model as it is, so nothing fades outside an open group
       const active = u.present || (path.length >= u.path.length && u.path.every((x, i) => path[i] === x));
-      const m = active ? mats.on : mats.off;
-      if (g.hasFaces && st.mode !== 'wire' && !def.lattice) {   // a lattice cage (MD.3) shows as wires only
+      const m = active && !ghost ? mats.on : mats.off;
+      const own = active || !hideRest;   // its own faces and edges (its placements are visited either way: the open one is inside)
+      if (own && g.hasFaces && st.mode !== 'wire' && !def.lattice) {   // a lattice cage (MD.3) shows as wires only
         const f = new THREE.Mesh(g.faces, m.front);
         f.castShadow = st.shadows; f.receiveShadow = st.shadows;
         parent.add(f);
@@ -607,15 +612,15 @@ export class View3D {
         }
         if (this.decals && st.mode === 'shaded') for (const o of this.decals(def, path)) { o.receiveShadow = st.shadows; parent.add(o); }   // 0.7 MT.6
       }
-      if (st.edges || st.mode === 'wire') parent.add(new THREE.LineSegments(g.edges, m.edge));
+      if (own && (st.edges || st.mode === 'wire')) parent.add(new THREE.LineSegments(g.edges, m.edge));
       for (const [iid, inst] of def.insts) {
         const d = this.model.def(inst.def);
-        if (!d || inst.hidden || (inst.tag && offTags.has(inst.tag))) continue;
+        if (!d || (inst.hidden && !showHidden) || (inst.tag && offTags.has(inst.tag))) continue;
         const grp = new THREE.Group();
         grp.matrixAutoUpdate = false;
         grp.matrix.fromArray(inst.m);
         parent.add(grp);
-        addDef(d, grp, [...path, iid], depth + 1, inst.color || dflt, mmul4(wm, inst.m));
+        addDef(d, grp, [...path, iid], depth + 1, inst.color || dflt, mmul4(wm, inst.m), ghost || !!inst.hidden);
       }
     };
     addDef(this.model.root, this.root, [], 0);
@@ -757,7 +762,7 @@ export class View3D {
 
   draw() {
     const u = this.ui();
-    const key = this.model.version + '|' + u.path.join('/') + '|' + JSON.stringify(this.style) + '|' + u.sel.map((s) => s.t + s.id).join(',') + '|' + this.c.bg + '|' + !!u.present;
+    const key = this.model.version + '|' + u.path.join('/') + '|' + JSON.stringify(this.style) + '|' + u.sel.map((s) => s.t + s.id).join(',') + '|' + this.c.bg + '|' + !!u.present + '|' + !!u.hideRest + '|' + !!u.showHidden;
     if (key !== this.builtFor) { this.build(); this.builtFor = key; }
     if (this.meshEditState) this.buildMeshEdit();   // 0.7 MD.2: the mesh being edited
     if (this.curveEditState) this.buildCurveEdit();   // 0.7 MD.6: the curve being edited
@@ -925,10 +930,10 @@ export class View3D {
     g.lineWidth = width + 0.75;
     for (const e of s) { g.beginPath(); g.moveTo(e[0] - tx, e[1] - ty); g.lineTo(e[0] + tx, e[1] + ty); g.stroke(); }
     const text = formatLength(l.L, this.model.units), b = dimTextBox(l.M, text);
-    g.font = '600 12px Archivo, system-ui, sans-serif';
+    g.font = `600 ${dimTextSize()}px Archivo, system-ui, sans-serif`;
     g.fillStyle = this.c.bg; g.fillRect(b.x, b.y, b.w, b.h);
     g.lineWidth = 1; g.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
-    g.fillStyle = color; g.textAlign = 'center'; g.fillText(text, l.M[0], b.y + 14); g.textAlign = 'start';
+    g.fillStyle = color; g.textAlign = 'center'; g.fillText(text, l.M[0], b.y + b.h * 0.7); g.textAlign = 'start';
   }
   /** A section plane's outline, its four arrows (toward the side it cuts away) and a light fill. */
   drawSection(g, l, color, width, vp, dashed = false) {
@@ -968,10 +973,10 @@ export class View3D {
     }
     if (!l.M) return;
     const text = dimText(l, (m) => formatLength(m, this.model.units)), b = dimTextBox(l.M, text);
-    g.font = '600 12px Archivo, system-ui, sans-serif';
+    g.font = `600 ${dimTextSize()}px Archivo, system-ui, sans-serif`;
     g.fillStyle = this.c.bg; g.fillRect(b.x, b.y, b.w, b.h);
     g.lineWidth = 1; g.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
-    g.fillStyle = color; g.textAlign = 'center'; g.fillText(text, l.M[0], b.y + 14); g.textAlign = 'start';
+    g.fillStyle = color; g.textAlign = 'center'; g.fillText(text, l.M[0], b.y + b.h * 0.7); g.textAlign = 'start';
   }
   markerAt(g, s, kind) {
     const col = this.color(kind);

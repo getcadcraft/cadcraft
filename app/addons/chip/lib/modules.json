@@ -1,0 +1,9 @@
+{
+  "generated": "node tools/chip/sync.mjs",
+  "panels": [
+    "./lib/hdl/ui-source.js",
+    "./lib/hdl/ui-netlist.js",
+    "./lib/fmt/ui.js",
+    "./lib/run/panels.js"
+  ]
+}

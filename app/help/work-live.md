@@ -1,14 +1,14 @@
 ---
-title: Work on one drawing together, live
-summary: What changes in CadCraft while you are in a CadCraft Studio live session: other people's cursors and selections, objects someone is editing, the host's locks, your own undo, and joining from a browser on the same network.
+title: Work on one drawing together with Live TeamWork
+summary: What changes in CadCraft while you are in a Live TeamWork session from CadCraft Studio: other people's cursors and selections, objects someone is editing, the host's locks, your own undo, and joining from a browser on the same network.
 section: tasks
 order: 92
-keywords: live, studio live, together, collaborate, co-edit, session, share live, join, cursor, held, editing, lock, livelock, liveunlock, livehold, hold layer, hold area, padlock, undo, host, assistant, same file, many people, slow, limit, who changed, recent edits, edit log
+keywords: live, live teamwork, studio live, together, collaborate, co-edit, session, share live, join, cursor, held, editing, lock, livelock, liveunlock, livehold, hold layer, hold area, padlock, undo, host, assistant, same file, many people, slow, limit, who changed, recent edits, edit log
 ---
 
 ## What you will learn
 
-What you see and what happens to your edits while several people work on one drawing at the same time. CadCraft Studio starts and joins the session (Share live, Join); this page is about the drawing itself.
+What you see and what happens to your edits while several people work on one drawing at the same time. CadCraft Studio starts and joins the Live TeamWork session (Share live, Join); this page is about the drawing itself.
 
 ## Everyone draws at once
 
@@ -69,7 +69,7 @@ An assistant connected to your CadCraft window (see the help on working with AI 
 
 ## Join from a browser
 
-A teammate without Studio can scan the picture under the host's code with a phone, tablet or computer on the same network. CadCraft opens in the browser, asks for your name on the command line, and fills with the host's drawing once the host lets you in. Invite links, for joining from another network, are not open yet.
+A teammate without Studio can scan the picture under the host's code with a phone, tablet or computer on the same network. CadCraft opens in the browser, asks for your name on the command line, and fills with the host's drawing once the host lets you in. An invite link lets someone join from another network: the host needs a Team Cloud Plan seat for the app, everyone else joins free, and the link works only while the host's session is open.
 
 ## Many people on one drawing
 

@@ -1,16 +1,18 @@
 ---
 title: CadCraft settings
-summary: The settings that belong to the drafting app: cursor size, where a pasted copy hangs from the cursor, what a click does to the selection, how many rows the toolbar uses, and the corner indicator.
+summary: The settings that belong to the drafting app: cursor size, where a pasted copy hangs from the cursor, what a click does to the selection, how many rows the toolbar uses, where the command line sits and how tall it is, a compact top area, and the corner indicator.
 section: reference
 order: 5
-keywords: toolbar rows, toolbar display, ctrl f1, settings, preferences, options, corner indicator, view cube, axis icon, ucs icon, cursor, crosshair, pick box, paste point, base point, clicking objects, selection, pickadd, shift, reset
+keywords: command line, floating command line, float, dock, one line, f2, command history, commandline, cmdline, toparea, top area, compact, cursorsize, full screen crosshair, full-screen cursor, edge to edge, toolbar rows, toolbar display, ctrl f1, settings, preferences, options, corner indicator, view cube, axis icon, ucs icon, cursor, crosshair, pick box, paste point, base point, clicking objects, selection, pickadd, shift, reset
 ---
 
 Open {{ui:Settings}} with the gear in the app bar or {{key:Mod+,}}. The first tab, {{ui:CadCraft}}, holds the settings that belong to this app; {{ui:General}} holds the ones every app in the family shares (theme, panel text size and widths, the toolbar's look and order). CadCraft's settings exist only in the app: you change them here, and this browser remembers them. {{ui:Reset CadCraft settings}} puts every one back to the start.
 
 ## Cursor
 
-**Small**, **Medium** (the start) or **Large**: the size of the crosshair and of the pick box in the drawing. A bigger pick box also picks objects from a little farther away, which helps on a touch screen or a very fine drawing.
+**Small**, **Medium** (the start), **Large** or **Full screen**: the size of the crosshair and of the pick box in the drawing. A bigger pick box also picks objects from a little farther away, which helps on a touch screen or a very fine drawing.
+
+**Full screen** runs the crosshair's two lines edge to edge across the drawing, also when no command is running, so you can check by eye that two things line up across the whole view. With the view split, the lines stay in the pane you are working in. The same as AutoCAD's {{cmd:CURSORSIZE}} 100: type {{cmd:CURSORSIZE}} and 100 for full screen; a smaller number picks the nearest size (under 5 Small, 5 to 9 Medium, 10 to 99 Large).
 
 ## Paste point
 
@@ -70,6 +72,23 @@ How many lines the tools use above the drawing, in the CadCraft toolbar and in t
 - **1 row**: one line that scrolls sideways, which leaves the drawing the most room.
 
 {{key:Shift+Ctrl+F1}} steps through the three, and {{cmd:TOOLBARROWS}} sets one. What the buttons show (icons and text, just icons, or just text) is a setting of {{ui:General}} › {{ui:Toolbar}}; {{key:Ctrl+F1}} steps through it and {{cmd:TOOLBAR}} sets it.
+
+## Command line
+
+The command line can stay docked under the drawing, as it always was, or float over it, and it can be as thin as one line.
+
+- **Float it.** Drag the grip at its left end into the drawing, or choose {{ui:Float over the drawing}} in its {{ui:Command line options}} menu (the three dots at its right end). Drag the grip again to move it; its place is kept when the window changes size. Drag its right edge to make it wider or narrower. Drop it on the status bar, or choose {{ui:Dock at the bottom}}, to dock it again.
+- **Make it thinner or taller.** Drag its top edge: each step is one line of history. Down to zero lines it is a **one-line command line**: only the prompt and what you type, and a new message shows above it for a moment. A double-click on the top edge goes between one line and the height you had.
+- **The history.** {{key:F2}}, or the clock button on the command line ({{ui:Command history (F2)}}), opens the whole history above the line (below it when the line floats near the top of the window). Typing still goes to the command line; {{key:PageUp}} and {{key:PageDown}} scroll the history, and {{key:Esc}}, {{key:F2}} or a click elsewhere closes it. A key of your own on F2 wins over this.
+- **From the keyboard.** The grip is a button: with it focused, the arrow keys move a floating command line (with {{key:Shift}}, in bigger steps); {{key:Up}} floats a docked one and {{key:Down}} at the bottom edge docks it. The top edge is a separator: {{key:Up}} and {{key:Down}} add or take away a line, {{key:Home}} makes it one line, {{key:End}} the tallest. Screen readers still hear every message, also in the one-line command line.
+
+{{ui:CadCraft}} › {{ui:Command line}} has the same choices: {{ui:Docked at the bottom}} or {{ui:Floating}}, {{ui:History lines shown}} (0 to 12) and {{ui:Standard height}}. {{cmd:COMMANDLINE}} (`CMDLINE`) sets them from the command line. The place and the height are kept for CadCraft in this browser with the rest of the layout, so a saved work environment carries them; {{ui:General}} › {{ui:Reset the layout}} docks the command line at its standard height again. On a phone the command line stays docked with one line of history; the history button works there too.
+
+When the window is short and the layout check offers a tighter layout, its {{ui:Yes}} also turns the command line to one line if the drawing is still short after the toolbars.
+
+## Top area
+
+{{ui:CadCraft}} › {{ui:Top area}}: **Standard** (the start) or **Compact**. Compact keeps the bars above the drawing small in every menu style: the group names and the words under the icons go (the tooltips and screen readers still have them) and the buttons are tighter. It works with [Toolbar rows](topic:settings#toolbar-rows): Compact and **1 row** leave the drawing the most room. {{cmd:TOPAREA}} sets it.
 
 ## Corner indicator
 

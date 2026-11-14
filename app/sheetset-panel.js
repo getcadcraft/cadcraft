@@ -432,6 +432,7 @@ export function createSheetSetPanel({ root, el, t, ask, print, host, openSheet }
   const actions = {
     open: openSet, new: newSet, close: closeSet, add: addSheets, newsheet: newSheet, subset: newSubset, rename: renameSel, remove: removeSel,
     renumber: renumberDlg, numbering: numberingDlg, props: properties, publish, update, list: sheetList, archive, undo, redo, download: downloadSet,
+    publishdwg: async () => { const { publishDwgAction } = await import('./publish-set.js'); await publishDwgAction({ state, inSub: selectedSubset(), findSubset, ask, print, t, host, busy }); },   // 0.8 SU.912 (sx-classes): DWG per sheet, + PDF
   };
   menu?.addEventListener('click', (e) => {
     const b = e.target.closest('[data-ss]');

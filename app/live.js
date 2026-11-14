@@ -511,6 +511,27 @@ export function createLive(doc, opts = {}) {
     apply(ops, origin) { for (const op of ops) applyOp(op); changed(); live.lastOrigin = origin; },
     invert(ops) { const out = []; for (let i = ops.length - 1; i >= 0; i--) { const r = invertOp(ops[i]); if (r) out.push(r); } const g = out.findIndex((o) => o.o === 'g'); if (g > 0) out.unshift(out.splice(g, 1)[0]); return out; },
     touched,
+    /** EG.41 (studio_PART_2): where a step landed — the sheet it is on ('' = Model) and the extent of what it touches — so a
+     *  session can hold an assistant to a sheet or area (studio/hub/live/assistant-scope.js). null = can't tell. */
+    where(ops) {
+      let sheet, box = null;
+      const grow = (b) => { if (b && validBounds(b)) box = box ? [Math.min(box[0], b.minX), Math.min(box[1], b.minY), Math.max(box[2], b.maxX), Math.max(box[3], b.maxY)] : [b.minX, b.minY, b.maxX, b.maxY]; };
+      let unbounded = false;
+      for (const op of ops) {
+        if (!op || typeof op !== 'object') continue;
+        if (typeof op.sp === 'string' && ['add', 'rep', 'set', 'text', 'del'].includes(op.o)) {
+          if (sheet === undefined) sheet = op.sp; else if (sheet !== op.sp) return { sheet: '\u0000mixed', box: null };
+        }
+        try {
+          if ((op.o === 'add' || op.o === 'rep') && op.e) grow(entityBounds(op.e, live.doc.blocks));
+          else if (op.o === 'set' || op.o === 'text') { const f = findEnt(op.id); if (f) grow(entityBounds(f.e, live.doc.blocks)); else unbounded = true; }
+          else if (op.o === 'del') unbounded = true;
+        } catch { unbounded = true; }
+      }
+      if (sheet === undefined && !box) return null;
+      return { sheet: sheet === undefined ? undefined : sheet, box: unbounded ? null : box };
+    },
+    sheetLabel(lid) { if (!lid) return t('live.where.model'); const l = layoutBy(lid); return l ? l.name : lid; },
     validate,
     snapshot() { return pack(state()); },
     load(bytes) { loadState(unpack(bytes)); },
@@ -687,8 +708,10 @@ export function createLiveAdapter({ host } = {}) {
 // nothing above does. `app` = window.cadcraft { doc, view, engine, host, commands }.
 
 /** Colours for people (the site's eight layer colours; every one passes 4.5:1 on paper and on the dark model space). */
-export const PEOPLE = ['#c8102e', '#1f6fd1', '#d9640a', '#b5179e', '#9a7b00', '#1d8a4b', '#6a3fd6', '#008c9e'];
-export const personColour = (c) => PEOPLE[((c || 1) - 1) % PEOPLE.length];
+// (0.9 SU.1112) one palette for every app's Live: the shared presence layer's (live-presence.js; every other app draws with it)
+import { PEOPLE, personColour } from './live-presence.js';
+import { attachFollow, fitUnits } from './live-follow.js';   // 0.9 ED.1 / ED.2: follow a view, the people list
+export { PEOPLE, personColour };
 const HOLD_MAX = 500, SEL_MAX = 200, NEAR = 0.25;
 
 export function attachUi(app, adapter, client) {
@@ -735,10 +758,32 @@ export function attachUi(app, adapter, client) {
     const p = mine(), k = JSON.stringify(p);
     if (k === sent) return;
     sent = k;
-    client.setPresence(p);
+    client.setPresence({ ...(client.lastPresence || {}), ...p });   // keep what live-follow.js adds (vw, ld)
   }
   const timer = setInterval(push, 33);
   offs.push(() => clearInterval(timer));
+
+  // ---- follow someone's view, and the people list (0.9 ED.1 / ED.2; live-follow.js) ----------------------------------
+  const view2d = () => (window.ccViews || []).find((x) => x && x.kind === '2d' && x.el) || null;
+  const layoutOf = (key) => (doc().layouts || []).find((l) => adapter.lidOf(l.entities) === key) || null;
+  offs.push(attachFollow(client, {
+    get el() { const v = view2d(); return v ? v.el : null; },
+    hidden: () => !!(host.ws3d && host.ws3d.active),
+    space: spaceId,
+    spaceName: (key) => (key ? (layoutOf(key) || {}).name || '' : t('live.where.model')),
+    goSpace: (key) => { if (!host.showSpace) return; if (!key) host.showSpace(null); else { const l = layoutOf(key); if (l) host.showSpace(l); } },
+    toModel: (x, y) => { const p = view.toWorld(x - (view.x0 || 0), y - (view.y0 || 0)); return [p.x, p.y]; },
+    toScreen: (p) => { const q = view.toScreen(p[0], p[1]); return [q.x + (view.x0 || 0), q.y + (view.y0 || 0)]; },
+    snap: () => (view.w && view.h && view.zoom > 0 ? { k: '2d', c: [view.cx, view.cy], u: 1 / view.zoom, w: view.w, h: view.h } : null),
+    apply: (vw) => {
+      if (!vw || vw.k !== '2d' || !view.w || !view.h) return false;
+      const u = fitUnits(vw, view.w, view.h);
+      if (!(u > 0)) return false;
+      view.cx = vw.c[0]; view.cy = vw.c[1]; view.zoom = 1 / u;
+      view.invalidate();
+      return true;
+    },
+  }, { t, colour: personColour }));
   // the space id of the open sheet, cheaply (presence runs often)
 
   adapter.drawPresence = (peers) => { others = new Map(peers); view.invalidate(); };

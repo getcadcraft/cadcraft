@@ -141,7 +141,7 @@ export class Tools {
     const sc = opts.scene || this.host.scene();
     const r = infer(sc, this.host.cam, ev.x, ev.y, {
       axes: this.axes(), from: opts.from || null, plane: opts.plane || null, skip: opts.skip, snap: this.snapping, ...this.groundOpts(),
-      lockDir: opts.from && this.lock ? this.lock.dir : null, lockKind: this.lock?.kind, ref: this.refEdge, radius: this.touch ? 22 : 12,
+      lockDir: opts.from && this.lock && !opts.free ? this.lock.dir : null, lockKind: this.lock?.kind, ref: this.refEdge, radius: this.touch ? 22 : 12,
     });
     if (r.edge && !opts.from) this.refEdge = { a: r.edge.a, b: r.edge.b };
     return r;
@@ -405,10 +405,16 @@ class RectTool extends ClickTool {
       this.h.overlay({ marker: this.marker(r), tip: r.tip });
       return;
     }
-    const r = this.T.snap(ev, { from: this.p0, plane: this.plane });
+    // 0.7.1 FIX-071-RECT-PLANE: an arrow key locks the PLANE square to that axis (Up = level, the blue plane; Right = the
+    // red plane; Left = the green one) instead of a line; Shift keeps the plane in use. Unlocked, a point off the plane or
+    // a face through the first corner takes the rectangle onto that plane (follow).
+    const L = this.T.lock, axisLock = L && !L.shift && L.kind.startsWith('axis-') ? L.dir : null;
+    if (axisLock && Math.abs(dot(axisLock, this.n)) < 1 - 1e-9) this.setPlane(axisLock, false);
+    const r = this.T.snap(ev, { from: this.p0, plane: this.plane, free: true });
     this.lastDir = r.dir || null; this.lastKind = r.kind;
+    if (!L) this.follow(r);
     let q = sub(r.p, mul(this.n, dot(sub(r.p, this.p0), this.n)));
-    if (r.kind === 'face' || r.kind === 'none' || r.kind === 'ground') {
+    if (r.kind === 'face' || r.kind === 'none' || r.kind === 'ground' || r.kind === 'plane') {
       const ray = this.h.cam.ray(ev.x, ev.y), g = rayPlane(ray.o, ray.d, this.plane);
       if (g && g.t > 0) q = g.p;
     }
@@ -428,12 +434,47 @@ class RectTool extends ClickTool {
       ({ u: this.u, v: this.v } = planeAxes(this.n, ax));
       this.p0 = r.p;
       this.onFace = !!r.face;
+      this.n0 = this.n; this.onFace0 = this.onFace;   // the first plane, to go back to (follow)
       this.busy = true;
       this.h.tip(this.hint);
       return;
     }
     this.hover(ev);
     if (this.wh) this.make(this.wh[0], this.wh[1]);
+  }
+  /** Draw on the plane through the first corner square to n (onFace: a face's plane, so the new face takes its side). */
+  setPlane(n, onFace) {
+    this.n = n;
+    this.plane = planeFrom(n, this.p0);
+    ({ u: this.u, v: this.v } = planeAxes(n, this.T.axes()));
+    this.onFace = onFace;
+  }
+  /** Unlocked: a face through the first corner, or a snapped point off the plane, moves the rectangle onto that plane. */
+  follow(r) {
+    const d = sub(r.p, this.p0), size = Math.max(len(d), 1e-9);
+    if (r.kind === 'face') {
+      const f = r.face, tol = 1e-6 * Math.max(1, Math.abs(this.p0[0]), Math.abs(this.p0[1]), Math.abs(this.p0[2]));
+      if (f && Math.abs(dot(f.n, this.n)) < 1 - 1e-9 && Math.abs(dot(f.n, this.p0) - f.plane.d) <= tol) this.setPlane(f.n, true);
+      return;
+    }
+    if (r.kind === 'none' || r.kind === 'ground' || r.kind === 'plane' || Math.abs(dot(d, this.n)) <= 1e-6 * size) return;
+    // back on the plane the first click chose: that plane again
+    if (Math.abs(dot(d, this.n0)) <= 1e-6 * size) { this.setPlane(this.n0, this.onFace0); return; }
+    // the axis plane the point lies on, or nearest to it (a tie, as straight up the blue axis: the one facing us)
+    const ax = this.T.axes(), eye = this.T.towardEye(this.p0);
+    let best = null;
+    for (const a of [ax.x, ax.y, ax.z]) {
+      const off = Math.abs(dot(d, a)), facing = Math.abs(dot(a, eye));
+      if (!best || off < best.off - 1e-9 * size || (Math.abs(off - best.off) <= 1e-9 * size && facing > best.facing)) best = { a, off, facing };
+    }
+    if (Math.abs(dot(best.a, this.n)) < 1 - 1e-9) this.setPlane(best.a, false);
+  }
+  /** What the status line says for an arrow-key or Shift lock (modelcraft.js sayLock); null = unlocked. */
+  lockText() {
+    const L = this.T.lock;
+    if (!L) return null;
+    if (L.shift || !L.kind.startsWith('axis-')) return t('m3d.tool.rect_plane_kept');
+    return t('m3d.tool.rect_plane_' + { 'axis-x': 'red', 'axis-y': 'green', 'axis-z': 'blue' }[L.kind]);
   }
   make(w, h) {
     if (Math.abs(w) <= EPS || Math.abs(h) <= EPS) return;
@@ -1035,6 +1076,15 @@ class PaintTool extends Tool {
   }
 }
 
+/** 0.9 FX.30: what a stopped push or move touches, in words: "— stopped where it touches Box" (the name of the object in the
+ *  way; loose geometry of the open group has none). `by` is collide.js's clamp(...).by. */
+function stoppedWords(h, by, plain) {
+  if (!by) return t(plain);
+  const pl = by.path && by.path.length ? h.model.placementAt(by.path) : null;
+  const name = pl ? (pl.inst.name || h.model.defs.get(pl.inst.def)?.name || '') : '';
+  return t('m3d.tool.stopped_touching', { name: name || t(by.path && by.path.length ? 'm3d.tool.touch_object' : 'm3d.tool.touch_loose') });
+}
+
 // ---- push/pull ----
 class PushTool extends ClickTool {
   constructor(...a) { super(...a); this.reset(); this.last = null; }
@@ -1060,8 +1110,8 @@ class PushTool extends ClickTool {
     if (at) d = dot(sub(at.p, this.p0), this.n);
     else { const a = alongLine(this.h.cam, ev.x, ev.y, this.p0, this.n); d = a ? a.s : 0; }
     this.apply(d);
-    const tip = at && at.kind === 'face' && !this.stopped ? TIPS.face : this.fmt(Math.abs(this.d)) + (this.stopped ? t('m3d.tool.stopped_where_it_touches') : '');
-    this.h.overlay({ marker: at ? this.marker(at) : null, tip, lines: [{ a: this.p0, b: add(this.p0, mul(this.n, this.d)), kind: 'axis', dash: true }] });
+    const tip = at && at.kind === 'face' && !this.stopped ? TIPS.face : this.fmt(Math.abs(this.d)) + (this.stopped ? stoppedWords(this.h, this.stoppedBy, 'm3d.tool.stopped_where_it_touches') : '');
+    this.h.overlay({ marker: at ? this.marker(at) : null, tip, lines: [{ a: this.p0, b: add(this.p0, mul(this.n, this.d)), kind: 'axis', dash: true }], ...(this.stopped && this.stoppedBy?.tris.length ? { faces: this.stoppedBy.tris } : {}) });
   }
   /** Does the pushed face, where it was, lie in front of point p under the cursor? */
   hides(ev, p) {
@@ -1070,10 +1120,10 @@ class PushTool extends ClickTool {
   }
   apply(d) {
     const T = this.T, k = this.k;
-    this.stopped = false;
+    this.stopped = false; this.stoppedBy = null;
     if (this.coll && Math.abs(d) > EPS) {
       const r = this.coll.clamp(mul(this.n, d));
-      if (r.hit) { d = Math.sign(d) * len(r.delta); this.stopped = true; }
+      if (r.hit) { d = Math.sign(d) * len(r.delta); this.stopped = true; this.stoppedBy = r.by || null; }
     }
     this.d = d;
     const r = this.h.model.preview((m) => pushPull(m.context(this.h.path).def, this.fid, d * k), this.scope());
@@ -1161,9 +1211,33 @@ class PushTool extends ClickTool {
 const same = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
 
 /** Push/pull's collider: the face travels; its own solid (everything connected to it) is neither in the way nor moving. */
+/**
+ * 0.9 FX.30: the faces and edges of the piece the face fid is part of, joining pieces through the faces as well as the edges: a
+ * face with a hole (the ring left by Offset) ties its inner loop's points to its outer loop's, so the pocket you push is still
+ * one piece with the solid around it. (connected() follows edges only: the inner outline of an offset face shares no edge
+ * with the outside, so the walls of the solid counted as a second object the pushed face ran into.)
+ */
+export function pieceOf(def, fid) {
+  const vf = new Map(), ve = new Map();
+  for (const [id, f] of def.faces) for (const l of f.loops) for (const v of l) { if (!vf.has(v)) vf.set(v, new Set()); vf.get(v).add(id); }
+  for (const [id, e] of def.edges) for (const v of [e.a, e.b]) { if (!ve.has(v)) ve.set(v, new Set()); ve.get(v).add(id); }
+  const fids = new Set([fid]), eids = new Set(), seenV = new Set(), stack = [];
+  const takeFace = (id) => { for (const l of def.faces.get(id).loops) for (const v of l) if (!seenV.has(v)) { seenV.add(v); stack.push(v); } };
+  takeFace(fid);
+  while (stack.length) {
+    const v = stack.pop();
+    for (const id of ve.get(v) || []) {
+      eids.add(id);
+      const e = def.edges.get(id);
+      for (const w of [e.a, e.b]) if (!seenV.has(w)) { seenV.add(w); stack.push(w); }
+    }
+    for (const id of vf.get(v) || []) if (!fids.has(id)) { fids.add(id); takeFace(id); }
+  }
+  return [...[...fids].map((id) => ({ t: 'f', id })), ...[...eids].map((id) => ({ t: 'e', id }))];
+}
 function pushCollider(T, sc, fid) {
   const P = T.host.path, def = T.ctx().def;
-  const own = connected(def, [{ t: 'f', id: fid }]);
+  const own = pieceOf(def, fid);
   const ownF = new Set(own.filter((s) => s.t === 'f').map((s) => s.id)), ownE = new Set(own.filter((s) => s.t === 'e').map((s) => s.id));
   const faceE = new Set(faceWithEdges(def, fid).filter((s) => s.t === 'e').map((s) => s.id));
   return collider(sc, {
@@ -1220,11 +1294,11 @@ class MoveTool extends ClickTool {
     const r = this.T.snap(ev, { from: this.p0, scene: this.sc0, skip: this.copy ? null : this.skip });
     this.lastDir = r.dir || null; this.lastKind = r.kind;
     this.apply(sub(r.p, this.p0));
-    this.h.overlay({ lines: [{ a: this.p0, b: r.p, kind: r.kind }], marker: this.marker(r), tip: this.stopped ? t('m3d.tool.stopped_where_it_touches_2') : r.tip });
+    this.h.overlay({ lines: [{ a: this.p0, b: r.p, kind: r.kind }], marker: this.marker(r), tip: this.stopped ? stoppedWords(this.h, this.stoppedBy, 'm3d.tool.stopped_where_it_touches_2') : r.tip, ...(this.stopped && this.stoppedBy?.tris.length ? { faces: this.stoppedBy.tris } : {}) });
   }
   apply(delta) {
-    this.stopped = false;
-    if (this.coll) { const r = this.coll.clamp(delta); delta = r.delta; this.stopped = r.hit; }
+    this.stopped = false; this.stoppedBy = null;
+    if (this.coll) { const r = this.coll.clamp(delta); delta = r.delta; this.stopped = r.hit; this.stoppedBy = r.by || null; }
     this.delta = delta;
     const T = this.T, sel = this.h.sel.filter((s) => s.t !== 'g' && s.t !== 'd' && s.t !== 's'), copy = this.copy;
     const ld = T.localDir(delta);
@@ -2294,14 +2368,16 @@ class SectionTool extends ClickTool {
 // ---- camera tools ----
 class CamTool extends Tool {
   get hint() { return { orbit: t('m3d.tool.drag_to_orbit_middle_drag_orbits'), pan: t('m3d.tool.drag_to_pan_shift_middle_drag'), zoom: t('m3d.tool.drag_up_and_down_to_zoom') }[this.name]; }
-  down(ev) { this.last = ev; }
+  // 0.7.1: the host may name the point to turn about (ModelCraft: the model under the cursor; null = the view centre),
+  // and Shift held during an Orbit drag pans until it is let go
+  down(ev) { this.last = ev; this.pivot = this.name === 'zoom' ? null : this.h.camPivot?.(ev.x, ev.y) || null; }
   move(ev) {
     if (!this.last) return;
     const dx = ev.x - this.last.x, dy = ev.y - this.last.y;
     this.last = ev;
     const cam = this.h.cam;
-    if (this.name === 'orbit') cam.orbit(dx, dy);
-    else if (this.name === 'pan') cam.pan(dx, dy);
+    if (this.name === 'orbit' && !ev.shift) cam.orbit(dx, dy, this.pivot);
+    else if (this.name === 'pan' || this.name === 'orbit') cam.pan(dx, dy, this.pivot);
     else cam.zoomAt(Math.exp(dy * 0.01), ev.from?.x, ev.from?.y);
     this.h.changed(true);
   }

@@ -1,0 +1,8 @@
+{
+  "manual": null,
+  "cases": [
+    {"id": "el-suite", "name": "The add-on's own test suite", "result": "338 checks passed, 0 failed (node test.mjs in the add-on's test folder; 2026-10-28, headless, on the build server). It covers symbols, wires, cross-references, sheets, the four lists, installation plans, circuits, cable routes, the panel schedule, checks, DWG/DXF round trips and the sample project."},
+    {"id": "el-balance", "name": "Balancing a panel", "result": "Four single-phase circuits and one three-phase circuit, all on L1: balancing gives L1 4,000 W, L2 3,000 W and L3 3,900 W, and the unbalance matches the largest phase difference divided by the mean phase load (test t-reports)."},
+    {"id": "el-sample", "name": "The sample project", "result": "Built and checked with no errors; its terminal plan (-X1:1 to 4, from the contactor to the motor), its cable list (three cores of -W1) and the contactor's six listed contacts match what the drawing holds, and it saves and reads back (test t-sample)."}
+  ]
+}
