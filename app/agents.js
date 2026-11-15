@@ -30,6 +30,7 @@ import { sketchFromPhoto } from './photosketch.js';
 import { planDimensions, applyDimensions, SIDES as DIM_SIDES } from './autodim.js';   // 0.8 EG.20
 import { processTools } from './process/tools.js';   // 0.8 Track CH (process-link_PART_3)
 import { createJobs } from './process/optimise.js';
+import { isBinaryDxf, binaryToAscii } from './dxf-binary.js';   // binary DXF read as the ASCII DXF it stands for
 import { safetyTools } from './process/safety/tools.js';   // 0.8 CH.30 (HAZOP copilot)
 import * as studyLib from './study/study.js';
 import { readRedline, frameOf as redlineFrame, Review as RedlineReview, applyRevision, answersJson as redlineAnswersJson, answersName as redlineAnswersName } from './redline.js';   // 0.8 EG.19
@@ -63,9 +64,9 @@ export async function readDrawingBytes(bytes, name) {
   const ext = extOf(name);
   if (ext === 'dxf') {
     const { readDxf } = await import('./dxf.js');
+    if (isBinaryDxf(bytes)) bytes = binaryToAscii(bytes).bytes;   // a binary DXF is read as the ASCII DXF it stands for
     let text = new TextDecoder('utf-8').decode(bytes);
     if (text.includes('\uFFFD')) text = new TextDecoder('windows-1252').decode(bytes);
-    if (/^AutoCAD Binary DXF/.test(text)) throw new Error('Binary DXF is not read; save it as ASCII DXF.');
     const drawing = readDxf(text);
     const v = drawing.meta?.version;
     return { drawing, format: 'DXF' + (DWG_TAGS[v] ? ' ' + DWG_TAGS[v] : '') + (v ? ' (' + v + ')' : '') };
@@ -934,7 +935,7 @@ export function installAgents(app) {
     preview: (a) => ({ wouldUndo: peekUndo(doc.undoStack, a.steps, a.any, PREFIX) }),
     run: async (a) => { const u = undoSteps(doc, a.steps, { any: a.any, prefix: PREFIX }); view?.invalidate?.(true); return { undone: u }; } });
   T({ name: 'drawing_save', group: 'save', title: 'Save the drawing', description: 'CadCraft\'s own Save, in the drawing\'s format (or the one given): on the desktop it is written to its file; in a browser it is downloaded as a copy. With a path (Studio) it is Save as: written there, and later saves go there too. DWG versions 2000, 2004, 2007, 2010, 2013, 2018.',
-    inputSchema: obj({ format: { description: 'dwg, dxf2000 or dxf (default: the drawing\'s own format).', type: 'string', enum: ['dwg', 'dxf2000', 'dxf'] }, path: PATH, version: { description: 'DWG version to write (default: the drawing\'s).', type: 'string', enum: ['2000', '2004', '2007', '2010', '2013', '2018'] }, overwrite: OVERWRITE }),
+    inputSchema: obj({ format: { description: 'dwg, dxf2000, dxfbin (DXF 2000 as binary DXF) or dxf (R12) (default: the drawing\'s own format).', type: 'string', enum: ['dwg', 'dxf2000', 'dxfbin', 'dxf'] }, path: PATH, version: { description: 'DWG version to write (default: the drawing\'s).', type: 'string', enum: ['2000', '2004', '2007', '2010', '2013', '2018'] }, overwrite: OVERWRITE }),
     run: async (a) => {
       if (engine.busy) throw new Error('A command is running; try again when it is done.');
       let format = a.format;

@@ -3,14 +3,15 @@ title: Files: what opens, what saves
 summary: The formats CadCraft opens, saves and exports, what is kept or converted, and where the files go.
 section: start
 order: 30
-keywords: xclip, clip, xclip boundary, bind clipped, dwg, dxf, pdf, r12, open, save, export, import, formats, conversion, download, saveas, dxfout, save as, dwg save, format, qsave, xref, xattach, linked drawing, external reference, bind, reload, detach
+keywords: binary dxf, xclip, clip, xclip boundary, bind clipped, dwg, dxf, pdf, r12, open, save, export, import, formats, conversion, download, saveas, dxfout, save as, dwg save, format, qsave, xref, xattach, linked drawing, external reference, bind, reload, detach
 ---
 
 ## At a glance
 
 | Format | Open | Save | Notes |
 |---|---|---|---|
-| DXF (text, any version) | Yes | Yes, as DXF R12 or DXF 2000 | Binary DXF is refused: save it as text DXF first. |
+| DXF (text, any version) | Yes | Yes, as DXF R12 or DXF 2000 | |
+| DXF (binary, any version) | Yes | Yes, as DXF 2000 (binary) | Read exactly as the text DXF it stands for. See [Binary DXF](topic:files#binary-dxf). |
 | DWG | Yes | Yes, as DWG (AutoCAD 2000, 2004, 2007, 2010, 2013 or 2018) | Read and written by CadCraft's own DWG library (AutoCAD R13 to 2018 files). Your DWG is never changed. Damaged files, or versions the reader does not handle, are refused with a message. |
 | PDF | Brings a page in: as an underlay or as objects ([PDF underlays](topic:pdf-underlay)) | Yes, by plotting | Vector PDF of a sheet, or of the model at a scale. |
 
@@ -48,7 +49,7 @@ Text is drawn in one Helvetica-style font. A label that fits on one line in the 
 There are three ways to save. Each one downloads a copy.
 
 - **Save**: press {{key:Mod+S}}, click {{ui:Save}}, or type `SAVE` (also `QSAVE`). It saves in the drawing's format: DWG if you opened a DWG, DXF if you opened a DXF. A DWG keeps the version it came in (a 2018 file saves as 2018). A new drawing uses the format and DWG version you last chose in Save as in this browser; if you never chose one, DWG in the AutoCAD 2000 format.
-- **Save as**: press {{key:Mod+Shift+S}}, click {{ui:Save as}}, or type `SAVEAS`. The {{ui:Save a copy as}} dialog offers {{ui:DWG}}, with a {{ui:Version}} list (AutoCAD 2018, 2013, 2010, 2007, 2004 or 2000), {{ui:DXF R12}} and {{ui:DXF 2000}}, each with the file name it will give, and the drawing's current format and version already picked. Click {{ui:Save}} to download, or {{ui:Cancel}} (or {{key:Esc}}) to save nothing; the history then says "Not saved." What you choose sticks: {{key:Mod+S}} uses it for this drawing from then on, and new drawings in this browser start with it.
+- **Save as**: press {{key:Mod+Shift+S}}, click {{ui:Save as}}, or type `SAVEAS`. The {{ui:Save a copy as}} dialog offers {{ui:DWG}}, with a {{ui:Version}} list (AutoCAD 2018, 2013, 2010, 2007, 2004 or 2000), {{ui:DXF R12}}, {{ui:DXF 2000}} and {{ui:DXF 2000 (binary)}}, each with the file name it will give, and the drawing's current format and version already picked. Click {{ui:Save}} to download, or {{ui:Cancel}} (or {{key:Esc}}) to save nothing; the history then says "Not saved." What you choose sticks: {{key:Mod+S}} uses it for this drawing from then on, and new drawings in this browser start with it.
 - **DXFOUT**: type `DXFOUT`. It always downloads a DXF R12 copy, and the next {{key:Mod+S}} still saves in the drawing's own format.
 
 The browser downloads `<drawing name>.dwg` or `<drawing name>.dxf`. Every save is a **new download**; the file you opened is never overwritten or changed. The history confirms it, for example "Saved a copy as Plan.dwg (DWG (AutoCAD 2018)). Your original Plan.dxf is unchanged." For a DXF it says "(DXF R12, opens in any CAD program)". The lines under it list anything that changed on the way.
@@ -114,6 +115,16 @@ The history lists each of these that applied to your drawing.
 :::tip
 To keep working on a drawing over several days, save as DXF and open that DXF next time. Everything CadCraft can draw survives the round trip, including dimensions, blocks and all sheets.
 :::
+
+## Binary DXF
+
+A DXF can be text or binary. Both hold the same drawing; a binary DXF stores each number as binary data instead of digits, so nothing is rounded, other programs read it faster, and a drawing CadCraft saves is usually about a quarter smaller. (A tiny file with only round numbers can come out a little larger.)
+
+- **Opening:** a binary DXF opens like any other DXF, in any version from R12 on. The {{ui:Drawing}} section shows it, for example "DXF 2000 (AC1015), binary".
+- **Saving:** {{key:Mod+S}} saves a binary DXF you opened as a binary DXF 2000. To choose it yourself, use {{ui:Save as}} › {{ui:DXF 2000 (binary)}}: it keeps exactly what {{ui:DXF 2000}} keeps.
+- **A damaged binary DXF** (cut off, or with a group the DXF reference does not have) is refused with the byte where reading stopped.
+
+Most CAD programs open binary DXF. If one does not, save as {{ui:DXF 2000}} for it.
 
 ## Linked drawings (external references)
 

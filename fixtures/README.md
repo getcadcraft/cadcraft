@@ -27,6 +27,17 @@ partitions. They have no model geometry (BimCraft never reads it) and open in an
 **File dates.** The folder scan uses file dates ("newest saved work"), and git does not keep them: after a clone run
 `node tools/fixtures/make-folder.mjs --touch` (dates from `folder/manifest.json`).
 
+## `dxf-binary/` — binary DXF written by another program
+
+Made by ezdxf (MIT), run as a black box: `tools/cadcraft-test/venv/bin/python tools/cadcraft-test/make-binary-dxf.py fixtures/dxf-binary`.
+ezdxf's fixed test metadata makes the files byte-for-byte reproducible. Checked by `bin/test-cadcraft-dxf-binary.mjs`.
+
+| file | what it is |
+|---|---|
+| `ezdxf-r12.dxf`, `ezdxf-r12-ascii.dxf` | One small drawing saved by ezdxf as binary DXF R12 (1-byte group codes) and as ASCII DXF R12: lines, a circle, an arc, text with non-ASCII letters (`Küche Ø 1/3`), a point at (1e-7, -2.5e9), a closed 2D polyline, a block `TAG` with an attribute placed scaled and turned. The binary file must read as exactly the ASCII one, group by group, and the ASCII one written as binary must be byte for byte the binary one. |
+| `ezdxf-r2000.dxf`, `ezdxf-r2000-ascii.dxf` | The same drawing as DXF R2000 (2-byte group codes), plus a bulged lightweight polyline, MTEXT, an ellipse, a hatch and extended data with a binary chunk (1004), 16- and 32-bit integers and a double. Its header has booleans (290–299) and a 64-bit integer (160). |
+| `ezdxf-r2018.dxf`, `ezdxf-r2018-ascii.dxf` | The same as DXF R2018. |
+
 ## `cad/` — drawings TakeoffCraft counts and measures (0.7 Track TD, session `takeoff-cad`)
 
 All drawn by us (nothing from a client), made once by `node tools/takeoffcraft-test/make-cad-fixtures.mjs [--force]` with CadCraft's own writers (DWG 2000 / 2018, DXF 2000), then kept. Every number the tests assert is

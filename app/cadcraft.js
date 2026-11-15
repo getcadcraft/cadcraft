@@ -67,8 +67,9 @@ import { has as hasKey } from './i18n.js';
 import { DynInput } from './dynin.js';
 import { readDxf, writeDxf } from './dxf.js';
 import { decodeDxfBytes } from './dxf-decode.js';
+import { isBinaryDxf, binaryToAscii } from './dxf-binary.js';   // binary DXF in and out, through ASCII DXF
 import { saveDwg, DWG_VERSIONS, dwgVersionKey } from './dwg-save.js';
-import { writeDxf2000 } from './dxf2000.js';
+import { writeDxf2000, writeDxf2000Binary } from './dxf2000.js';
 import { importDwg, VERSIONS, preR13 } from './dwg-import.js';
 import { gripMove, deg, rad, normAngle, SNAP_KINDS, textLayout, FONT_EM, LINE_SPACING } from './geom.js';
 import { DIM_KINDS, dimMeasure, formatMeasure } from './dims.js';
@@ -1914,7 +1915,7 @@ function init(root) {
   function currentBytes() {
     stampAddons();
     const format = saveFormat();
-    const bytes = format === 'dwg' ? saveDwg(doc, { version: dwgVersion() }).bytes : new TextEncoder().encode((format === 'dxf2000' ? writeDxf2000(doc) : writeDxf(doc)).text);
+    const bytes = format === 'dwg' ? saveDwg(doc, { version: dwgVersion() }).bytes : format === 'dxfbin' ? writeDxf2000Binary(doc).bytes : new TextEncoder().encode((format === 'dxf2000' ? writeDxf2000(doc) : writeDxf(doc)).text);
     return { bytes, format };
   }
   async function drawingOf(bytes, name) {
@@ -1934,7 +1935,7 @@ function init(root) {
         const key = historyKey();
         if (localHist && key) { try { const cur = currentBytes(); await localHist.snapshot({ key, name: doc.meta.name, bytes: cur.bytes, format: cur.format, note: t('hist.note.before_restore') }); } catch (err) { console.warn(err); } }
         const { drawing, ext } = await drawingOf(bytes, name);
-        const keep = Object.fromEntries(['name', 'source', 'hostFile', 'saveFormat', 'dwgVersion', 'cloud'].filter((k) => doc.meta[k] !== undefined).map((k) => [k, doc.meta[k]]));
+        const keep = Object.fromEntries(['name', 'source', 'hostFile', 'saveFormat', 'dwgVersion', 'binaryDxf', 'cloud'].filter((k) => doc.meta[k] !== undefined).map((k) => [k, doc.meta[k]]));
         doc.load({ ...drawing, meta: { ...drawing.meta, ...keep } });
         doc.savedVersion = -1; doc.emit();   // not saved to the file until the person saves it
         host.setSelection(new Set()); view.fit(); view.restorePanes(doc.vports); renderTabs(); renderInfo();
@@ -2559,8 +2560,14 @@ function init(root) {
     const data = new Uint8Array(await file.arrayBuffer());
     let drawing, format;
     if (ext === 'dxf') {
-      drawing = readDxf(decodeDxfBytes(data).text);   // $DWGCODEPAGE / UTF-8 (0.7 D7.16)
+      const bin = isBinaryDxf(data) ? binaryToAscii(data) : null;   // a binary DXF is read as the ASCII DXF it stands for
+      drawing = readDxf(decodeDxfBytes(bin ? bin.bytes : data).text);   // $DWGCODEPAGE / UTF-8 (0.7 D7.16)
       format = 'DXF' + (VERSIONS[drawing.meta.version] ? ' ' + VERSIONS[drawing.meta.version] : '') + (drawing.meta.version ? ' (' + drawing.meta.version + ')' : '');
+      if (bin) {
+        drawing.meta.binaryDxf = true;   // Save writes binary DXF again (saveFormat)
+        format += ', ' + t('dxf.binary.tag');
+        drawing.report.notes.push(...bin.report.notes);
+      }
     } else {
       const tag = new TextDecoder().decode(data.subarray(0, 6));
       const model = await dwgModel(data, false, file.name);
@@ -2576,7 +2583,7 @@ function init(root) {
     await frame();
     if (dxf) {
       const { readDxfModel } = await import('./dxf-model.js');
-      return readDxfModel(decodeDxfBytes(data).text);
+      return readDxfModel(decodeDxfBytes(isBinaryDxf(data) ? binaryToAscii(data).bytes : data).text);
     }
     const tag = new TextDecoder().decode(data.subarray(0, 6));
     const old = preR13(tag);   // 0.6 DF.11: R12 and earlier are not read: say so plainly
@@ -2779,6 +2786,7 @@ function init(root) {
     dwg: { label: () => t('save.format.dwg', { version: t('dwg.version', { v: dwgVersion() }) }), mime: 'application/acad', about: () => t('save.format.dwg.about') },
     dxf: { label: () => 'DXF R12', mime: 'application/dxf', about: () => t('app.save.dxf.about') },
     dxf2000: { label: () => t('save.format.dxf2000'), ext: 'dxf', mime: 'application/dxf', about: () => t('save.format.dxf2000.about') },   // 0.4 C17
+    dxfbin: { label: () => t('save.format.dxfbin'), ext: 'dxf', mime: 'application/dxf', about: () => t('save.format.dxfbin.about') },   // DXF 2000 as binary DXF (dxf-binary.js)
   };
   const extOf = (format) => FORMATS[format]?.ext || format;
   const FORMAT_KEY = 'cadcraft.saveFormat', VERSION_KEY = 'cadcraft.dwgVersion';
@@ -2793,6 +2801,7 @@ function init(root) {
   function saveFormat() {
     if (FORMATS[doc.meta.saveFormat]) return doc.meta.saveFormat;
     const m = /\.(dwg|dxf)$/i.exec(doc.meta.source || '');
+    if (m && m[1].toLowerCase() === 'dxf' && doc.meta.binaryDxf) return 'dxfbin';   // a binary DXF saves as binary DXF
     if (m && m[1].toLowerCase() === 'dxf' && /^AC10(1[5-9]|[2-9]\d)$/.test(doc.meta.version || '')) return 'dxf2000';   // a newer DXF saves as DXF 2000
     return m ? m[1].toLowerCase() : remembered() || 'dwg';
   }
@@ -2813,6 +2822,7 @@ function init(root) {
     try {
       if (format === 'dwg') ({ bytes: data, report } = saveDwg(doc, { version: dwgVersion() }));
       else if (format === 'dxf2000') ({ text: data, report } = writeDxf2000(doc));
+      else if (format === 'dxfbin') ({ bytes: data, report } = writeDxf2000Binary(doc));
       else ({ text: data, report } = writeDxf(doc));
     } catch (err) {
       console.error(err);
@@ -2858,6 +2868,7 @@ function init(root) {
     try {
       if (format === 'dwg') ({ bytes: data } = saveDwg(d, { version: dwgVersion() }));
       else if (format === 'dxf2000') ({ text: data } = writeDxf2000(d));
+      else if (format === 'dxfbin') ({ bytes: data } = writeDxf2000Binary(d));
       else ({ text: data } = writeDxf(d));
     } catch (err) { console.error(err); return { ok: false, why: err.message }; }
     const file = (name || 'Drawing') + '.' + extOf(format);

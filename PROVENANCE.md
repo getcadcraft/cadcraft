@@ -26,6 +26,10 @@ that name one of them record what it reported when it read a file, nothing more.
 Read and written by our own code from Autodesk's published DXF reference (group codes). ezdxf (MIT) checks our
 files in the tests.
 
+Binary DXF (`dxf-binary.js`) is translated to and from ASCII DXF by our own code, from the same reference ("Binary DXF
+Files" and "Group Code Value Types"). Where the reference does not give a value's width in binary (booleans, 290–299),
+the width was found by experiment on files ezdxf wrote, run as a black box; its source was not read.
+
 ### PDF output
 
 Plots are written as vector PDF by our own code (`plot.js`), from the PDF 1.4 reference.

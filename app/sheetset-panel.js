@@ -407,7 +407,8 @@ export function createSheetSetPanel({ root, el, t, ask, print, host, openSheet }
         if (/\.dxf$/i.test(p)) {
           const { readDxfModel } = await import('./dxf-model.js');
           const { decodeDxfBytes } = await import('./dxf-decode.js');
-          return readDxfModel(decodeDxfBytes(bytes).text);
+          const { dxfBytes } = await import('./dxf-binary.js');
+          return readDxfModel(decodeDxfBytes(dxfBytes(bytes)).text);
         }
         return (await import('./dwg/read-async.js')).readDwgAsync(bytes);
       };

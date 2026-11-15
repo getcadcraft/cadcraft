@@ -11,7 +11,7 @@ keywords: problem, error, not working, message, cannot open, unknown command, no
 | Message or symptom | Cause | Fix |
 |---|---|---|
 | "CadCraft opens DWG and DXF drawings. "…" is neither." | The file is not a `.dwg` or `.dxf`. | Open the drawing file itself. A PDF can be brought in (Open asks: import or attach, see [PDF underlays](topic:pdf-underlay)); pictures go in with `IMAGEATTACH`. |
-| "This is a binary DXF. Save it as ASCII DXF (or open the DWG) and try again." | Binary DXF is not read. | Ask for a text (ASCII) DXF, or the DWG. |
+| "This binary DXF ends in the middle of a group (byte …)." or "This binary DXF has a group code the DXF reference does not define (…)." | The binary DXF is cut off or damaged. | Ask for the file again, or for a text DXF or the DWG. |
 | "This file is not a readable DXF (bad group code on line …)." | The DXF is damaged or not really a DXF. | Ask for the file again, or for a DWG. |
 | "This drawing could not be read. It may be damaged, or saved in a version the reader does not handle yet (…)." | The DWG reader could not read it. | Ask for the DWG saved in an older version, or a DXF. |
 | "This drawing is from AutoCAD R11 / R12 (DWG AC1009), older than CadCraft reads …" | DWG files from Release 12 and earlier use a format CadCraft does not read. | In the program that made it, save it as DXF (any version) or as a newer DWG, and open that. CadCraft's own Save as offers DXF R12 for programs that want that old format. |

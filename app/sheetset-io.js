@@ -7,7 +7,7 @@
  *   folder = { name, read(path) → Promise<Uint8Array>, write?(path, bytes | string) → Promise, list?() → Promise<[path]> }
  *   (paths relative to the set's folder, "/" between folders — sheetset.js cleanPath)
  *
- *   openDrawing(folder, path, opts) → { doc, format: 'dwg' | 'dxf' | 'dxf2000', version }   (DWG through the worker reader)
+ *   openDrawing(folder, path, opts) → { doc, format: 'dwg' | 'dxf' | 'dxf2000' | 'dxfbin', version }   (DWG through the worker reader)
  *   layoutsIn(folder, path, opts) → [layout name]                                           (to add a file's sheets)
  *   publishSet(set, folder, { subset, ids, pen, mono, fields }) → { bytes, report: { pages, names, missing, notes } }
  *     Z.4: one PDF in set order, a page and a bookmark ("A-101 — Floor plan") per sheet, title blocks filled from the set
@@ -24,9 +24,10 @@
 import { Doc } from './doc.js';
 import { readDxf, writeDxf } from './dxf.js';
 import { decodeDxfBytes } from './dxf-decode.js';
+import { isBinaryDxf, dxfBytes } from './dxf-binary.js';
 import { importDwg } from './dwg-import.js';
 import { saveDwg, dwgVersionKey } from './dwg-save.js';
-import { writeDxf2000 } from './dxf2000.js';
+import { writeDxf2000, writeDxf2000Binary } from './dxf2000.js';
 import { layoutSheet, displayList, toPdfPages } from './plot.js';
 import { findTable, styleNameFor, builtinTable } from './plotstyle.js';
 import { allSheets, fieldValues, fillTitleBlocks, layoutNameFor, sheetLabel, updateSheet, refreshSheetList, placeSheetList } from './sheetset.js';
@@ -38,16 +39,23 @@ const defaultRead = async (bytes) => {
   return asyncReader(bytes);
 };
 
+/** A drawing of the set written back in the format it was opened in (openDrawing's format and version). */
+function writeAs(doc, { format, version }) {
+  if (format === 'dwg') return saveDwg(doc, { version }).bytes;
+  if (format === 'dxfbin') return writeDxf2000Binary(doc).bytes;
+  return format === 'dxf2000' ? writeDxf2000(doc).text : writeDxf(doc).text;
+}
+
 /** Read one drawing of the set into a Doc of its own. */
 export async function openDrawing(folder, path, { readDwg = defaultRead } = {}) {
   const bytes = await folder.read(path);
   const doc = new Doc();
   const name = path.split('/').pop().replace(/\.[^.]+$/, '');
   if (/\.dxf$/i.test(path)) {
-    const d = readDxf(decodeDxfBytes(bytes).text);
+    const d = readDxf(decodeDxfBytes(dxfBytes(bytes)).text);   // a binary DXF through the ASCII DXF it stands for
     doc.load({ ...d, meta: { ...d.meta, name, source: path.split('/').pop() } });
     doc.markSaved();
-    return { doc, format: d.meta.version === 'AC1009' || !d.meta.version ? 'dxf' : 'dxf2000', version: d.meta.version || '' };
+    return { doc, format: isBinaryDxf(bytes) ? 'dxfbin' : d.meta.version === 'AC1009' || !d.meta.version ? 'dxf' : 'dxf2000', version: d.meta.version || '' };
   }
   const tag = new TextDecoder().decode(bytes.subarray(0, 6));
   const model = await readDwg(bytes);
@@ -127,7 +135,7 @@ export async function updateDrawings(set, folder, { fields = true, names = true,
     }
     const list = refreshSheetList(doc, out) ? 1 : 0;   // a sheet list table in this drawing follows the set (Z.6)
     if (!nFields && !renamed && !list) continue;
-    const data = got.format === 'dwg' ? saveDwg(doc, { version: got.version }).bytes : got.format === 'dxf2000' ? writeDxf2000(doc).text : writeDxf(doc).text;
+    const data = writeAs(doc, got);
     await folder.write(path, data);
     files.push({ path, fields: nFields, renamed, list });
   }
@@ -139,7 +147,7 @@ export async function addSheetList(set, folder, sheet, { readDwg = defaultRead }
   if (!folder.write) throw new Error(t('sheetset.io.readonly'));
   const got = await openDrawing(folder, sheet.file, { readDwg });
   if (!placeSheetList(got.doc, sheet.layout, set)) throw new Error(t('sheetset.io.nolayout', { sheet: sheetLabel(sheet), layout: sheet.layout, file: sheet.file }));
-  const data = got.format === 'dwg' ? saveDwg(got.doc, { version: got.version }).bytes : got.format === 'dxf2000' ? writeDxf2000(got.doc).text : writeDxf(got.doc).text;
+  const data = writeAs(got.doc, got);
   await folder.write(sheet.file, data);
   return { ok: true, path: sheet.file };
 }

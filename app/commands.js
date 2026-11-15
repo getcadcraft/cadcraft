@@ -2996,8 +2996,8 @@ def('WBLOCK', ['W', '-WBLOCK'], async (c) => {
   }
   const built = wblockDoc(doc, spec);
   if (built.error) { c.print(t('cmd.wblock.' + (built.error === 'empty' ? 'empty' : 'noobjects'))); return; }
-  const fk = await c.keyword(t('cmd.wblock.format'), { options: [opt('D', 'DWG'), opt('X', 'DXF'), opt('R', 'DXF R12')], default: 'D' });
-  const format = { D: 'dwg', X: 'dxf2000', R: 'dxf' }[fk?.option || fk] || 'dwg';
+  const fk = await c.keyword(t('cmd.wblock.format'), { options: [opt('D', 'DWG'), opt('X', 'DXF'), opt('B', t('cmd.wblock.binary')), opt('R', 'DXF R12')], default: 'D' });
+  const format = { D: 'dwg', X: 'dxf2000', B: 'dxfbin', R: 'dxf' }[fk?.option || fk] || 'dwg';
   const file = (await c.string(t('cmd.wblock.file'), { default: name })).trim();
   if (!file) return;
   let after = 'R';

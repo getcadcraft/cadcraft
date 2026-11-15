@@ -4,6 +4,7 @@
  * DXF 2000) and bin/test-cadcraft.mjs use it. Written from the public DXF reference.
  *
  *   writeDxf2000(doc) → { text, report: { notes[], counts{} } }
+ *   writeDxf2000Binary(doc) → { bytes, report }     the same, as a binary DXF (dxf-binary.js)
  *
  * The drawing is first turned into the same model DWG saving builds (dwg-save.js, modelOnly), so a DXF 2000 keeps what a
  * DWG keeps: every sheet as a layout with its viewports, real dimensions with their overrides, patterned hatches with
@@ -12,6 +13,7 @@
  * wants them in R2000: tables, BLOCK_RECORDs, the block section (other sheets' objects in their *Paper_Space blocks), the
  * entities of the model and the first sheet, and the objects (named-object dictionary, groups, layouts, multiline style).
  */
+import { asciiToBinary } from './dxf-binary.js';
 import { saveDwg } from './dwg-save.js';
 import { t } from './i18n.js';
 import { dimstylePairs, stFromVars } from './dwg-props.js';
@@ -23,6 +25,12 @@ const f = (n) => (Number.isFinite(n) ? (Math.abs(n) < 1e-12 ? '0.0' : Number(n.t
 /** Text for an R2000 DXF (Windows-1252 file): ASCII as is, everything else as \U+XXXX (beyond U+FFFF: two). */
 const enc = (s) => String(s ?? '').replace(/[\r\n]+/g, ' ').replace(/[^\x20-\x7e]/g, (ch) => '\\U+' + ch.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0'));
 const RESERVED = new Set(['*MODEL_SPACE', '*PAPER_SPACE']);
+
+/** The same drawing as a binary DXF: every group writeDxf2000 writes, in binary (dxf-binary.js), with its report. */
+export function writeDxf2000Binary(doc) {
+  const { text, report } = writeDxf2000(doc);
+  return { bytes: asciiToBinary(text).bytes, report };
+}
 
 export function writeDxf2000(doc) {
   const { model, counts } = saveDwg(doc, { modelOnly: true, explodeLeaders: true });

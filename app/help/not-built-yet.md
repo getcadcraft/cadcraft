@@ -20,7 +20,6 @@ CadCraft is in development. This page lists what the current build does not do, 
 | Pictures in DXF; wipeouts that hide what is under them | DXF keeps a picture as its frame with the file name; DWG keeps it as a picture — see [Pictures in a drawing](topic:pictures). A wipeout shows as its frame. |
 | Editing multileaders that have a block, several leader lines or curved lines | They are drawn as the other program drew them and move as one. Text multileaders come in editable. |
 | Tables in a DXF | Counted in "About this file", not shown. Tables in a DWG are shown as the other program drew them. |
-| Binary DXF | Save it as text (ASCII) DXF in the program that made it. |
 | Copy and paste with other programs | CadCraft's clipboard works between CadCraft drawings and tabs in the same browser, not with other programs. Save as DWG or DXF and open it there. See [Copy, paste and duplicate](topic:copy-paste). |
 
 ## Drawing and editing
