@@ -18,7 +18,7 @@ You draw the building on the {{ui:Model}} tab, at full size: a 6 m wall is 6000 
 
 1. Open or draw a plan on the {{ui:Model}} tab.
 2. Press {{key:Esc}} so nothing is selected.
-3. In {{ui:Current settings}}, set {{ui:Units}} to the unit you drew in, for example {{ui:Millimetres}}.
+3. In {{ui:Current settings}}, set {{ui:Units}} to the unit you drew in, for example {{ui:Millimeters}}.
 
 Units matter: a viewport scale such as 1:100 means one millimeter on the paper shows 100 real millimeters, so CadCraft needs to know what one drawing unit is. A drawing left as {{ui:Unitless}} is taken to be in the paper's unit (millimeters on ISO paper, inches on US paper).
 
@@ -48,7 +48,7 @@ Changing the paper does not move or resize what is already on the sheet. After c
 
 The model inside the viewport redraws at 1:100, centered where it was. The list offers metric scales from 10:1 to 1:10000; drawings in inches or feet also get architectural scales (1/4" = 1'-0" and the like) and engineering scales (1" = 20' and the like). {{ui:Fit the whole model}} sets an exact, non-standard scale that fits everything.
 
-3. If the plan is no longer centered, change {{ui:View centre X}} and {{ui:View centre Y}}: they are the model point shown in the middle of the viewport.
+3. If the plan is no longer centered, change {{ui:X}} and {{ui:Y}} under {{ui:View center (model)}} in the right panel: they are the model point shown in the middle of the viewport.
 
 ## Show part of the model in a viewport
 
@@ -77,9 +77,9 @@ Viewport frames are on the layer `Viewports`, which is set not to plot, so the f
 
 The title block is made of ordinary lines and text on the layer `Title block`. It starts with the drawing name, the scale of the first viewport, today's date and the sheet number.
 
-1. Double-click the large title text. The {{ui:Text}} box in the right panel gets the cursor.
+1. Double-click the large title text. An editing box opens over it.
 2. Type the title of the sheet.
-3. Press {{key:Tab}}.
+3. Click {{ui:OK}}, or press {{key:Mod+Enter}}.
 
 Do the same for the other fields. Use {{cmd:TEXT}} to write in the empty "DRAWN BY" cell. The SCALE text does not update itself when you change a viewport's scale: edit it by hand.
 
@@ -138,4 +138,4 @@ Plot a sheet with {{ui:Plot this sheet}} or {{key:Mod+P}}; see [Plot to PDF](top
 - **1:100 looks ten times too big or small.** The drawing units are wrong. Set {{ui:Units}} to what one unit really is.
 - **Clicking the plan inside the viewport selects nothing.** On a sheet you select the sheet's own objects. Double-click inside the viewport first to work on the plan through it.
 - **Clicks outside the viewport do nothing.** You are inside a viewport: double-click outside it, or type `PS`, to work on the sheet again.
-- **"Viewports go on a layout."** {{cmd:MVIEW}} only works on a sheet tab.
+- **"Viewports go on a layout. Open a layout tab (or make one with LAYOUT) first."** {{cmd:MVIEW}} only works on a sheet tab.

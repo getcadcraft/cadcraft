@@ -75,7 +75,7 @@ To choose the format yourself:
 
 1. Press {{key:Mod+Shift+S}}, or click {{ui:Save as}}.
 
-The {{ui:Save a copy as}} dialog opens with three choices, each with the file name it will give: {{ui:DWG}}, with its {{ui:Version}} list, {{ui:DXF R12}} and {{ui:DXF 2000}}. The drawing's current format and version are already picked.
+The {{ui:Save a copy as}} dialog opens with four choices, each with the file name it will give: {{ui:DWG}}, with its {{ui:Version}} list, {{ui:DXF R12}}, {{ui:DXF 2000}} and {{ui:DXF 2000 (binary)}}. The drawing's current format and version are already picked.
 
 2. Click the format you want. For DWG, pick the version the other office uses, or an older one: AutoCAD 2018, 2013, 2010, 2007, 2004 or 2000.
 3. Click {{ui:Save}}.
@@ -86,6 +86,7 @@ Which one to pick:
 
 - **DWG** keeps the most: sheets with their viewports, real dimensions, hatch patterns, layer and block names as you typed them, and multi-line text as multi-line text. The AutoCAD 2000 version opens in the most programs; 2004 and later also keep true colors.
 - **DXF 2000** is a text file that keeps almost what a DWG keeps: every sheet as a layout with its viewports, real dimensions, hatch patterns, true colours, lineweights, linetypes, and names as you typed them. It opens in AutoCAD 2000 and later and most CAD programs. Multileaders become the lines, arrowheads and text they draw. A DXF opened in version 2000 or later saves as DXF 2000.
+- **DXF 2000 (binary)** holds the same content as DXF 2000 in the binary form of the format: a smaller file that keeps every number exactly. Binary DXF files from other programs open like text ones, and a drawing opened from a binary DXF saves back as binary.
 - **DXF R12** opens in almost any CAD program. It keeps the first sheet with its viewports, and CadCraft's other sheets. It simplifies newer things, such as multi-line text and hatches.
 
 ## What the other office will see
@@ -110,7 +111,7 @@ Either way, anything listed as "Not shown yet" when you opened the DWG is **not*
 
 - **"CadCraft opens DWG and DXF drawings."** The file has another extension. Check it is a `.dwg` or `.dxf`.
 - **"This drawing could not be read."** The DWG is damaged or in a version the reader does not handle. Ask for a DXF, or for the DWG saved in an older version.
-- **"This is a binary DXF."** Ask for, or save, a text (ASCII) DXF.
+- **"This binary DXF ends in the middle of an object."** The file is cut short or damaged. Type RECOVER to open what can be read, or ask for the file again.
 - **The saved file is called `name (1).dwg` or `name (1).dxf`.** The browser does that when a file with the same name is already in the folder.
 - **They have an older program that cannot open the DWG.** Save as DWG with {{ui:Version}} {{ui:AutoCAD 2000}}, or as {{ui:DXF R12}}: almost any CAD program opens it.
 - **Parts of the drawing are missing.** Linked drawings (xrefs) are not loaded until you pick their files ({{cmd:XREF}}, `R`), and pictures show as frames with their file names.

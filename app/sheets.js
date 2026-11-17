@@ -12,6 +12,7 @@
 import { emptyBounds, growPt, validBounds, entityBounds } from './geom.js';
 
 import { t } from './i18n.js';
+import { policyPaper } from './new-drawing-policy.js';   // 0.10 DP.1 (bk-defaults-10)
 /** Landscape sizes (w ≥ h). ISO in millimetres, ANSI and ARCH in inches. */
 export const PAPERS = [
   { key: 'iso-a4', label: 'ISO A4 (297 × 210 mm)', w: 297, h: 210, unit: 'mm' },
@@ -110,7 +111,7 @@ export function aimViewport(doc, paperUnit, w, h, win, { exact = false } = {}) {
 
 /** The paper a new layout gets: A3 for metric or unitless drawings, Tabloid for imperial ones. */
 export function defaultPaper(doc) {
-  return paperByKey(isImperial(doc) ? 'ansi-b' : 'iso-a3');
+  return paperByKey(policyPaper(doc.meta.units)) || paperByKey(isImperial(doc) ? 'ansi-b' : 'iso-a3');   // 0.10 DP.1: the sheet paper policy first; not set (or a paper that is gone) = as before
 }
 
 /** Paper for a key and orientation, as a layout stores it. */
@@ -168,4 +169,26 @@ export function sheetContents(doc, paper, { title = doc.meta.name || 'Drawing1',
   });
   // an empty value would be invisible and unpickable: drop it (the cell stays for writing in)
   return { paper, entities: out.filter((e) => e.type !== 'text' || e.s !== ''), scale: aim, layers: [{ name: L, color: 7 }, { name: 'Viewports', color: 8, plot: false }] };
+}
+
+/**
+ * The plain title block sheetContents draws, filled (SC.7: a host's export set gives the project's values). The block is plain text, so the cells are
+ * found the way they were drawn: the label text (PROJECT, DATE, DRAWN BY) and the value under it at the same x. `values` = { PROJECT, DATE, 'DRAWN BY' };
+ * `overwrite` false keeps what is written in a cell and fills only an empty one. Nothing is changed here.
+ * → { has (the layout has such a block), set: [{ id, e }] (texts to update), add: [e] (texts to add) }
+ */
+export function plainTitleBlock(layout, values, { overwrite = true } = {}) {
+  const texts = [...layout.entities.entries()].filter(([, e]) => e.type === 'text');
+  const out = { has: false, set: [], add: [] };
+  for (const [key, drop, h] of [['PROJECT', 6.5, 2.5], ['DATE', 6.5, 2.5], ['DRAWN BY', 10, 3]]) {
+    const hit = texts.find(([, e]) => e.s === key);
+    if (!hit) continue;
+    out.has = true;
+    const lab = hit[1], k = lab.h / 1.8, want = String(values[key] ?? '');
+    const val = texts.find(([, e]) => e !== lab && e.layer === lab.layer && Math.abs(e.x - lab.x) < 0.5 * k && e.y < lab.y - 2 * k && e.y > lab.y - (drop + 3) * k);
+    if (!want || (val && (val[1].s === want || !overwrite))) continue;
+    if (val) out.set.push({ id: val[0], e: { ...val[1], s: want } });
+    else out.add.push({ type: 'text', layer: lab.layer, color: lab.color ?? null, x: lab.x, y: lab.y - drop * k, h: h * k, rot: 0, s: want, ha: 'left', va: 'baseline', wf: 1 });
+  }
+  return out;
 }

@@ -19,7 +19,8 @@
  */
 
 import { Doc } from './doc.js';
-import { newDrawingUnits } from './units.js';   // 0.7 UNITS: a new drawing's $INSUNITS from the starred length unit
+import { newDrawingUnits } from './units.js';
+import { applyNewDrawingPolicy } from './new-drawing-policy.js';   // 0.10 DP.1 (bk-defaults-10): length format, precision and text height of a new drawing, when a policy is set   // 0.7 UNITS: a new drawing's $INSUNITS from the starred length unit
 
 export function createDocTabs({ doc, view, engine, host, strip, el, t, ask, saveCopy, refresh }) {
   let nextId = 2;
@@ -66,6 +67,7 @@ export function createDocTabs({ doc, view, engine, host, strip, el, t, ask, save
   tabs.add = async ({ name } = {}) => {
     const d = new Doc();
     d.load({ meta: { name: name || freshName(), units: newDrawingUnits() } });
+    applyNewDrawingPolicy(d);
     d.markSaved();
     const r = { id: nextId++, store: d, report: null };
     tabs.list.push(r);
@@ -92,6 +94,7 @@ export function createDocTabs({ doc, view, engine, host, strip, el, t, ask, save
     }
     if (tabs.list.length === 1) {   // the last drawing: a new empty one takes its place
       doc.load({ meta: { name: 'Drawing1', units: newDrawingUnits() } });
+      applyNewDrawingPolicy(doc);
       doc.markSaved();
       r.report = null; host.report?.set?.(null);
       view.restorePanes(null);

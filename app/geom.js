@@ -10,9 +10,13 @@
  */
 
 import { dimGeometry } from './dims.js';
-import { leaderGeometry, leaderStyle } from './leader.js';
+import { bpParts } from './blockparams.js';   // 0.10 SU.1804: the objects one reference shows
+import { leaderGeometry, leaderStyle, leaderExtrasTx, leaderStretchMore } from './leader.js';   // ORS.15: + extra leader lines, block content
 import { advance, advanceIn } from './font.js';
 import { richOf, heightFactor } from './mtext.js';
+import { lineDirs, bidiRuns } from './bidi-text.js';   // ORS.17: right-to-left text
+import { viewportOutline } from './vpclip.js';   // ORS.16: a clipped viewport's outline (that file imports nothing)
+import { turnGradient } from './hatch-gradient.js';   // ORS.7: a gradient fill's angle turns with its hatch (that file imports only i18n.js)
 import { points as splinePoints, valid as splineValid, editFit as splineEditFit, moveCtrl as splineMoveCtrl, polyline as splinePolyline } from './spline.js';
 
 export const TAU = Math.PI * 2;
@@ -134,7 +138,7 @@ export function prims(e, blocks = null, depth = 0) {
       if (!blk || depth > 16) return [];
       const m = insertMatrix(e, blk);
       const out = [];
-      for (const c of blk.entities) for (const p of prims(c, blocks, depth + 1)) out.push(...txPrim(p, m));
+      for (const c of (blk.bp ? bpParts(blk, e.bp) : blk.entities)) for (const p of prims(c, blocks, depth + 1)) out.push(...txPrim(p, m));
       // attribute text counts for picking and bounds, not for snaps
       for (const t of attrTexts(e, blk)) for (const p of prims(t)) for (const q of txPrim(p, m)) out.push({ ...q, box: true });
       return out;
@@ -148,8 +152,8 @@ export function prims(e, blocks = null, depth = 0) {
       return out;
     }
     case 'viewport': {
-      const c = viewportCorners(e);
-      return c.map((p, i) => ({ k: 'L', x1: p.x, y1: p.y, x2: c[(i + 1) % 4].x, y2: c[(i + 1) % 4].y }));
+      const c = e.clip ? viewportOutline(e) : viewportCorners(e), n = c.length;   // ORS.16: its border is its outline
+      return c.map((p, i) => ({ k: 'L', x1: p.x, y1: p.y, x2: c[(i + 1) % n].x, y2: c[(i + 1) % n].y }));
     }
     case 'xline': case 'ray': {   // 0.5 DR.6: one long stand-in segment (FAR each way), for intersections, picking and trimming only
       const s = e.type === 'ray' ? 0 : -FAR;
@@ -270,21 +274,38 @@ export function resetTextLayouts() { layouts = new WeakMap(); }
  * 'bottom', 'middle' or 'top' of the box; ha: 'left', 'center' or 'right'. `ls` scales the
  * line spacing. Cached per entity object (entities are replaced, never mutated).
  */
-export function textLayout(e) {
-  let lay = layouts.get(e);
+let textDecode = null;
+/** ORS.21: (e, rich) → null | { s, rich? }: the text as it reads when its font is an old 8-bit encoding (legacy-text.js); the stored string is not changed. */
+export function setTextDecode(fn) { textDecode = fn; resetTextLayouts(); }
+export function textLayout(e0) {
+  let lay = layouts.get(e0);
   if (lay) return lay;
+  let e = e0, rich = richOf(e0);   // inline format codes kept (mtext.js): each line also comes as styled runs
+  const shown = textDecode ? textDecode(e0, rich) : null;   // ORS.21
+  if (shown) { e = { ...e0, s: shown.s }; rich = shown.rich || null; }
   let lines = String(e.s).split('\n');
-  if (e.ww > 0) lines = lines.flatMap((l) => wrapLine(l, e));
-  const rich = richOf(e);   // inline format codes kept (mtext.js): each line also comes as styled runs
-  const runs = rich ? richRuns(lines, e, rich) : null;
+  let paras = null;
+  if (e.ww > 0) {
+    const wOf = rich ? richMeasure(e, rich) : undefined;   // 0.9.1: bigger or wider runs (\H, \W, a run's font) wrap by their own width
+    let off = 0;
+    paras = [];   // ORS.17: the paragraph each wrapped line came from (its first strong letter gives the line's direction)
+    lines = lines.flatMap((l) => { const out = wrapLine(l, e, wOf, off); off += l.length + 1; for (let k = 0; k < out.length; k++) paras.push(l); return out; });
+  }
+  const rtl = lineDirs(lines, paras);   // ORS.17: null when the text has nothing right-to-left (bidi-text.js)
+  const runs = rich ? bidiRuns(richRuns(lines, e, rich), rtl, e) : null;
   const widths = runs ? runs.map((rs) => rs.reduce((a, r) => a + r.w, 0)) : lines.map((l) => textWidth(l, e));
   const w = Math.max(...widths, e.h * 0.4);
   const ls = LINE_SPACING * (e.ls || 1);
-  const h = e.h * (1 + (lines.length - 1) * ls);
+  // 0.9.1 (Imtaar): a line is as tall as its tallest run (\H), as in AutoCAD, so a line of bigger text no longer runs into the
+  // line above it. Text without height codes has every factor 1 and lays out exactly as before.
+  const hf = lines.map((_, k) => (runs && runs[k].length ? Math.max(...runs[k].map((r) => r.hf || 1)) : 1));
+  const first = e.h * hf[0];
+  let h = first;
+  const drops = hf.map((f, k) => (k ? (h += e.h * f * ls) - first : 0));   // each baseline below the first one
   const x = e.ha === 'center' ? -w / 2 : e.ha === 'right' ? -w : 0;
-  const top = e.va === 'top' ? 0 : e.va === 'middle' ? h / 2 : e.va === 'bottom' ? h : e.h;
-  lay = { lines, widths, box: { x, y: top - h, w, h }, baselines: lines.map((_, k) => top - e.h - k * e.h * ls), ...(runs ? { runs } : {}) };
-  if (e && typeof e === 'object') layouts.set(e, lay);
+  const top = e.va === 'top' ? 0 : e.va === 'middle' ? h / 2 : e.va === 'bottom' ? h : first;
+  lay = { lines, widths, box: { x, y: top - h, w, h }, baselines: drops.map((d) => top - first - d), ...(runs ? { runs } : {}), ...(rtl ? { rtl } : {}) };
+  if (e0 && typeof e0 === 'object') layouts.set(e0, lay);
   return lay;
 }
 
@@ -322,13 +343,32 @@ function richRuns(lines, e, rich) {
   });
 }
 
+/** A measurer (str, off) → width for a formatted text: `str` sits at `off` in the plain text, each character in its own run's height, width and font. */
+function richMeasure(e, rich) {
+  const own = [];
+  rich.segs.forEach((g, gi) => { for (let k = 0; k < g.text.length; k++) own.push(gi); });
+  const em = e.h * FONT_EM * (e.wf || 1);
+  return (str, off) => {
+    let w = 0;
+    for (let k = 0; k < str.length;) {
+      const gi = own[off + k], g = rich.segs[gi];
+      let n = 1;
+      while (k + n < str.length && own[off + k + n] === gi) n++;
+      w += advanceIn(g?.st?.font || e.font, str.slice(k, k + n)) / 1000 * em * heightFactor(g?.st, e.h) * (g?.st?.w || 1);
+      k += n;
+    }
+    return w;
+  };
+}
+
 /** Break one line into lines no wider than the text's wrap width (a word longer than that keeps its own line). */
-function wrapLine(line, e) {
-  if (textWidth(line, e) <= e.ww) return [line];
+function wrapLine(line, e, wOf = (str) => textWidth(str, e), off = 0) {
+  if (wOf(line, off) <= e.ww) return [line];
   const out = [];
-  let cur = '';
+  let cur = '', curOff = off, pos = off;   // where `cur` and the next word start in the whole text (a formatted text measures by place)
   for (const word of line.split(/(?<= )/)) {
-    if (cur && textWidth((cur + word).trimEnd(), e) > e.ww) { out.push(cur.trimEnd()); cur = word.trimStart(); } else cur += word;
+    if (cur && wOf((cur + word).trimEnd(), curOff) > e.ww) { out.push(cur.trimEnd()); cur = word.trimStart(); curOff = pos + word.length - cur.length; } else cur += word;
+    pos += word.length;
   }
   if (cur || !out.length) out.push(cur.trimEnd());
   return out;
@@ -730,6 +770,7 @@ export function txEntity(e, m) {
     }
     case 'hatch': {
       const out = { ...e, loops: e.loops.map((l) => { const o = []; for (let i = 0; i + 1 < l.length; i += 2) { const p = P(l[i], l[i + 1]); o.push(p.x, p.y); } return o; }) };
+      if (e.xd?.CADCRAFT_GRAD) return turnGradient(out, sim.rot, sim.flip);   // ORS.7
       if (!e.solid) {   // the pattern goes with the hatch (0.9 PLAN2D.1): its origin always; a built-in pattern's angle and scale on a turn or scale, not a mirror
         const o = P(e.ox || 0, e.oy || 0);
         if (o.x) out.ox = o.x; else delete out.ox;
@@ -745,7 +786,7 @@ export function txEntity(e, m) {
       const out = { ...e };
       delete out.block;                     // its imported geometry no longer fits: draw it again
       for (const k of ['p1', 'p2', 'c', 'loc']) if (e[k]) out[k] = P(e[k].x, e[k].y);
-      if (e.kind === 'linear') { const u = { x: m[0] * Math.cos(e.rot || 0) + m[2] * Math.sin(e.rot || 0), y: m[1] * Math.cos(e.rot || 0) + m[3] * Math.sin(e.rot || 0) }; out.rot = normAngle(Math.atan2(u.y, u.x)); }
+      if (e.kind === 'linear' || e.kind === 'ordinate') { const u = { x: m[0] * Math.cos(e.rot || 0) + m[2] * Math.sin(e.rot || 0), y: m[1] * Math.cos(e.rot || 0) + m[3] * Math.sin(e.rot || 0) }; out.rot = normAngle(Math.atan2(u.y, u.x)); }   // ORS.6: an ordinate dimension's datum axes turn with it
       return out;
     }
     case 'viewport': {
@@ -761,7 +802,7 @@ export function txEntity(e, m) {
       // the landing keeps pointing the way it pointed (a mirror can turn it round); the text stays level
       const far = P(last.x + (e.dir === -1 ? -1 : 1), last.y), q = pts[pts.length - 1];
       const st = leaderStyle(e), k = sim.s;
-      return { ...e, pts, dir: far.x >= q.x ? 1 : -1, h: (e.h || st.asz) * k, ...(e.ww ? { ww: e.ww * k } : {}), st: { ...st, asz: st.asz * k, dogleg: st.dogleg * k, gap: st.gap * k } };
+      return { ...e, pts, dir: far.x >= q.x ? 1 : -1, h: (e.h || st.asz) * k, ...(e.ww ? { ww: e.ww * k } : {}), st: { ...st, asz: st.asz * k, dogleg: st.dogleg * k, gap: st.gap * k }, ...leaderExtrasTx(e, P, k) };   // ORS.15: its other leader lines and block content come too
     }
     default: return { ...e };
   }
@@ -1505,6 +1546,7 @@ export function stretchEntity(e, inside, dx, dy) {
     case 'circle': case 'ellipse': return inside({ x: e.cx, y: e.cy }) ? txEntity(e, mTranslate(dx, dy)) : null;
     case 'text': case 'point': case 'insert': return inside({ x: e.x, y: e.y }) ? txEntity(e, mTranslate(dx, dy)) : null;
     case 'mleader': {
+      if (Array.isArray(e.more) && e.more.length) return leaderStretchMore(e, inside, mv);   // ORS.15: several leader lines
       const hit = e.pts.map((p) => inside(p));
       return hit.some(Boolean) ? { ...e, pts: e.pts.map((p, i) => (hit[i] ? mv(p) : p)) } : null;
     }
@@ -1973,7 +2015,7 @@ export function explodeEntity(e, blocks) {
       const blk = blocks?.get(e.block);
       if (!blk) return null;
       // its visible attributes become plain text with their values
-      parts = [...blk.entities, ...attrTexts(e, blk).map((t) => { const c = { ...t }; delete c.tag; delete c.invisible; return c; })];
+      parts = [...(blk.bp ? bpParts(blk, e.bp) : blk.entities), ...attrTexts(e, blk).map((t) => { const c = { ...t }; delete c.tag; delete c.invisible; return c; })];
       m = insertMatrix(e, blk);
     } else parts = dimParts(e, blocks);
     return parts.map((c) => {

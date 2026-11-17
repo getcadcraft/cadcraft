@@ -20,6 +20,17 @@ import { commandRegistry } from './commands.js';
 import { pictureFrame, pictureBlock, picturesOf, pictureKey, freePictureName } from './pictures.js';
 import { scanGeom, scansOf, decodePicture, attachScanFile, replacePicture, traceEntities, errorText } from './scan.js';
 import { toGrey, threshold, despeckle, findSkew, rotateImage, crop, paintPolygon, trace, greyToBitmap, scanPages, sniffScan, RasterError } from './raster/index.js';
+import { mmPerUnit } from './blockcopy.js';
+
+/**
+ * Drawing units for one pixel of a scan at its true size (0.10 BK.8 fix): 25.4 / dpi millimeters, turned into the drawing's units.
+ * It was used as millimeters in every drawing that has units, so a scan came in 25.4 times too big in an inch drawing and 304.8
+ * times in a feet drawing. 1 (a unit a pixel, until SCANSCALE) when the file states no density or the drawing has no units.
+ */
+export function scanUnitsPerPixel(dpiX, units) {
+  const mm = mmPerUnit(units);
+  return dpiX > 0 && mm ? 25.4 / dpiX / mm : 1;
+}
 
 const def = commandRegistry.add, opt = commandRegistry.option;
 const TAU = Math.PI * 2;
@@ -69,9 +80,7 @@ def('SCANATTACH', ['SCA', 'SCANIMAGE'], async (c) => {
     if (!r) return;
     const { rec, img } = r;
     // true size when the file says how dense it is and the drawing has units; else one drawing unit a pixel until SCANSCALE
-    const perPx = img.dpi?.x ? 25.4 / img.dpi.x : 1;
-    const unit = c.doc.meta?.units ? perPx : 1;
-    const px = unit;
+    const px = scanUnitsPerPixel(img.dpi?.x, c.doc.meta?.units);
     if (first === null) {
       const width = await c.distance(t('pic.prompt.width', { w: rec.w, h: rec.h }), { base: at, default: rec.w * px });
       first = typeof width === 'number' && width > 0 ? width / rec.w : px;

@@ -1,0 +1,24 @@
+{
+  "id": "mepdraft",
+  "name": "MEP drafting",
+  "version": "0.9.1",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "toolbar",
+    "panel",
+    "settings",
+    "files"
+  ],
+  "description": "2D building-services drafting: pipe and duct runs on service layers (single line, double line, flexible duct), valves and accessories that cut into the run and heal it again, equipment in plan with connection points, tags, a legend and a count schedule. Everything is ordinary geometry and blocks, so DXF and DWG carry it as it is.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off",
+  "honesty": "The symbols are our own drawings in the general manner of ISO 14617 and EN 12792 schematics; they were not checked against either standard and the add-on does not claim conformance. The only size table is steel pipe outside diameters (ASME B36.10M); any other pipe is drawn at the outside diameter you type. Layer names, colours and linetypes are a starting set, not a layer standard. Equipment outlines use the sizes you type, not any maker's product."
+}

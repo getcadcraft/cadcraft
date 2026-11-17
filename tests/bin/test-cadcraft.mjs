@@ -4154,9 +4154,10 @@ section('Multileaders, pictures and wipeouts from files (0.4 C6)');
     const r = importDwg(readDwg(new Uint8Array(fs.readFileSync(arch))), { versionTag: 'AC1021' });
     const d = open(r);
     const ml = all(d).filter((e) => e.type === 'mleader'), lb = all(d).filter((e) => e.type === 'insert' && /^\*L/.test(e.block));
-    ok(ml.length === 33 && lb.length === 3 && ml.every((e) => e.s && e.pts.length >= 2 && e.st.asz > 0), 'Autodesk sample: 33 text multileaders become editable ones; the 3 with a block are drawn as they were (one block each)', ml.length + ' / ' + lb.length);
-    const withBlock = lb.map((e) => d.blocks.get(e.block)).find((b) => b.entities.some((x) => x.type === 'insert'));
-    ok(withBlock && withBlock.entities.some((x) => x.type === 'poly') && withBlock.entities.some((x) => x.type === 'hatch' && x.solid), 'a multileader with block content keeps its leader, arrowhead and block', JSON.stringify(withBlock?.entities.map((x) => x.type)));
+    // ORS.15: multileaders with a block are editable multileaders too now (before: drawn as they were, one unnamed block each)
+    ok(ml.length === 36 && lb.length === 0 && ml.filter((e) => e.blk).length === 3 && ml.every((e) => (e.s || e.blk) && e.pts.length >= 2 && e.st.asz > 0), 'Autodesk sample: all 36 multileaders become editable ones, 33 with text and 3 with a block', ml.length + ' / ' + lb.length);
+    const withBlock = ml.find((e) => e.blk), wbParts = withBlock ? Ld.leaderGeometry(withBlock) : [];
+    ok(withBlock && d.blocks.has(withBlock.blk.name) && Object.keys(withBlock.blk.attrs || {}).length === 2 && wbParts.some((x) => x.type === 'poly') && wbParts.some((x) => x.type === 'hatch' && x.solid) && wbParts.some((x) => x.type === 'insert' && x.block === withBlock.blk.name), 'a multileader with block content keeps its leader, arrowhead, block and attribute values', JSON.stringify(wbParts.map((x) => x.type)));
     const r2 = importDwg(readDwg(new Uint8Array(fs.readFileSync(ex))), { versionTag: 'AC1032' });
     const wipe = r2.entities.filter((e) => e.type === 'poly' && e.closed && e.pts.length >= 4 && Math.abs(e.pts[0].x) > 1000);
     ok(!r2.report.skipped.WIPEOUT && r2.report.notes.some((n) => /2 wipeouts are drawn as their frames/.test(n)) && wipe.length >= 2, 'Autodesk sample: its 2 wipeouts are drawn as their frames (and said)', r2.report.notes.join(' | '));
@@ -7802,6 +7803,147 @@ section('ARC: the eleven methods (0.9 FX.137; lib/arcs, arcs.js)');
   h = harness();
   await h.type('ARC', '5,0', 'C', '0,0', 'A', '90');
   ok(h.doc.all().length === 1, 'one undo step per arc');
+}
+
+section('0.9.1: typed coordinates count from the last point, MTEXT lines as tall as their text, Layer manager');
+{
+  // typedRelative is what the command line asks before sending typed text (cadcraft.js submit); text() itself stays absolute
+  let h = harness();
+  await h.type('LINE');
+  ok(h.eng.typedRelative('4,0') === null, 'first point: typed x,y stays absolute');
+  await h.type('10,10');
+  ok(h.eng.typedRelative('4,0') === '@4,0', 'next point: typed x,y becomes @x,y', h.eng.typedRelative('4,0'));
+  ok(h.eng.typedRelative(' 5 < 90 ') === '@5<90', 'next point: typed d<a becomes @d<a', h.eng.typedRelative(' 5 < 90 '));
+  ok(h.eng.typedRelative('#4,0') === null && h.eng.typedRelative('@4,0') === null, '# and @ are left as typed');
+  ok(h.eng.typedRelative('25') === null && h.eng.typedRelative('U') === null && h.eng.typedRelative('mid') === null, 'a distance, an option and a snap word are left as typed');
+  ok(h.eng.typedRelative('2+2,6/2') === '@2+2,6/2', 'arithmetic in a coordinate still counts');
+  ok(h.eng.typedRelative('a,b') === null, 'something that is not a coordinate is left alone');
+  await h.type(h.eng.typedRelative('4,0'), h.eng.typedRelative('3<90'), '');
+  const ls = h.doc.all();
+  ok(ls.length === 2 && nearPt({ x: ls[0].x2, y: ls[0].y2 }, 14, 10) && nearPt({ x: ls[1].x2, y: ls[1].y2 }, 14, 13), 'LINE 10,10 then 4,0 then 3<90 as typed at the command line', JSON.stringify(ls.map((l) => [l.x2, l.y2])));
+  h = harness();
+  await h.type('LINE', '10,10', '4,0', '');
+  ok(nearPt({ x: h.doc.all()[0].x2, y: h.doc.all()[0].y2 }, 4, 0), 'a script, LISP or an assistant (text() directly) keeps absolute coordinates');
+  h = harness();
+  await h.type('LINE', '10,10', '#4,0', '');
+  ok(nearPt({ x: h.doc.all()[0].x2, y: h.doc.all()[0].y2 }, 4, 0), '#x,y is absolute at a next-point prompt');
+  h = harness();
+  await h.type('CIRCLE', '5,5', '3');
+  await h.type('MOVE', 'ALL', '', '5,5');
+  ok(h.eng.typedRelative('10,0') === '@10,0', 'MOVE: the second point counts from the base point', String(h.eng.typedRelative('10,0')));
+  await h.type(h.eng.typedRelative('10,0'));
+  ok(near(h.doc.all()[0].cx, 15) && near(h.doc.all()[0].cy, 5), 'MOVE base 5,5 then 10,0 moves by 10,0');
+  h = harness();
+  await h.type('LINE', '10,10');
+  h.eng.lastPoint = { x: 99, y: 99 };   // the base is not the last point given: the answer is the world point from the base
+  ok(h.eng.typedRelative('4,0') === '#*14,10', 'a base that is not the last point: counts from the base', String(h.eng.typedRelative('4,0')));
+  await h.type('');
+}
+{
+  const base = { type: 'text', s: 'FIRST LINE\nSECOND LINE', h: 2.5, ls: 1, ha: 'left', va: 'top', x: 0, y: 0 };
+  const plain = G.textLayout({ ...base });
+  ok(near(plain.baselines[0], -2.5) && near(plain.baselines[1], -2.5 - 2.5 * G.LINE_SPACING) && near(plain.box.h, 2.5 * (1 + G.LINE_SPACING)), 'plain text lays out as before');
+  const big = G.textLayout({ ...base, mt: 'FIRST LINE\\P{\\H3x;SECOND LINE}' });
+  ok(near(big.baselines[0], -2.5) && near(big.baselines[1], -2.5 - 7.5 * G.LINE_SPACING), 'a line of 3x text sits 3x the spacing below the line above', JSON.stringify(big.baselines));
+  ok(big.baselines[0] - big.baselines[1] > 7.5, 'the bigger second line clears the first (it overlapped before)');
+  ok(near(big.box.h, 2.5 + 7.5 * G.LINE_SPACING) && near(big.box.y, -big.box.h), 'the box grows with it');
+  const top = G.textLayout({ ...base, va: 'baseline', mt: '{\\H3x;FIRST LINE}\\PSECOND LINE' });
+  ok(near(top.baselines[0], 0) && near(top.baselines[1], -2.5 * G.LINE_SPACING) && near(top.box.y + top.box.h, 7.5), 'a bigger first line: its top is 3x up, the next line keeps its own spacing', JSON.stringify(top.baselines));
+  const mid = G.textLayout({ ...base, va: 'middle', mt: 'FIRST LINE\\P{\\H3x;SECOND LINE}' });
+  ok(near(mid.box.y, -mid.box.h / 2), 'middle justification centres the real height');
+  const mix = G.textLayout({ ...base, s: 'ab CD ef\nnext', mt: 'ab {\\H2x;CD} ef\\Pnext' });
+  ok(near(mix.baselines[0], -5) && near(mix.baselines[0] - mix.baselines[1], 2.5 * G.LINE_SPACING), 'part of a line bigger: that line is as tall as its tallest text', JSON.stringify(mix.baselines));
+  const wrap = G.textLayout({ type: 'text', s: 'aaa bbb ccc ddd', mt: 'aaa {\\H3x;bbb ccc} ddd', h: 2.5, ls: 1, ww: 30, ha: 'left', va: 'top', x: 0, y: 0 });
+  ok(wrap.lines.length === 2 && wrap.lines[0] === 'aaa bbb' && wrap.widths.every((w) => w <= 30), 'wrapping measures bigger runs at their own size', JSON.stringify([wrap.lines, wrap.widths]));
+}
+{
+  const LM = await load('layer-ui.js');
+  const d = new Doc();
+  d.setLayer('Walls', { color: 1 });
+  d.setLayer('Doors', { color: 3, linetype: 'DASHED', lineweight: 0.5 }, { current: true });
+  d.change('T', () => { d.add({ type: 'line', x1: 0, y1: 0, x2: 1, y2: 0, layer: 'Walls' }); d.add({ type: 'line', x1: 0, y1: 0, x2: 1, y2: 1, layer: 'Walls' }); });
+  const rows = LM.layerRows(d);
+  ok(rows.map((r) => r.name).join() === '0,Doors,Walls', 'layer rows: 0 first, then by name', rows.map((r) => r.name).join());
+  const doors = rows.find((r) => r.name === 'Doors'), walls = rows.find((r) => r.name === 'Walls');
+  ok(doors.current && doors.linetype === 'DASHED' && doors.lineweight === 0.5 && doors.color === 3 && doors.on && !doors.frozen && !doors.locked && doors.plot, 'a row carries current, colour, linetype, lineweight and the switches');
+  ok(walls.objects === 2 && doors.objects === 0, 'a row counts the objects on its layer');
+  ok(LM.layerRows(d, 'wal').length === 1, 'the search box filters by name');
+  ok(LM.nextLayerName(d) === 'Layer1', 'the first new layer is Layer1');
+  d.setLayer('Layer1', {});
+  ok(LM.nextLayerName(d) === 'Layer2', 'then Layer2');
+  ok(LM.layerRefusal(d, 'Doors', { on: false }) === 'current_off' && LM.layerRefusal(d, 'Doors', { frozen: true }) === 'current_frozen', 'the current layer is not turned off or frozen');
+  ok(LM.layerRefusal(d, '0', { name: 'Zero' }) === 'rename0' && LM.layerRefusal(d, 'Walls', { name: 'doors' }) === 'taken' && LM.layerRefusal(d, 'Walls', { name: 'a<b' }) === 'badname' && LM.layerRefusal(d, 'Walls', { name: '  ' }) === 'badname', 'rename: layer 0, a name in use and a bad name are refused');
+  ok(LM.layerRefusal(d, 'Walls', { name: 'Walls-2', frozen: true, locked: true }) === null && LM.layerRefusal(d, 'Nope', {}) === 'none', 'a fine change passes; an unknown layer does not');
+  d.setLayer('Walls', { name: 'Walls-2', newVpFrozen: true, plot: false });
+  const w2 = LM.layerRows(d).find((r) => r.name === 'Walls-2');
+  ok(w2 && w2.objects === 2 && w2.newVpFrozen && !w2.plot, 'a rename keeps the objects; frozen in new viewports and no-plot are read back');
+  d.undo();
+  ok(LM.layerRows(d).some((r) => r.name === 'Walls' && r.objects === 2 && r.plot), 'one undo step puts the layer back');
+  { const lk = (await load('commands.js')).lookup; ok(['LAYER', 'LA', 'LAYERPANEL'].every((n) => lk(n)) && lk('LA').name === 'LAYER', 'LAYER, LA and LAYERPANEL are commands'); }
+}
+
+section('0.9.1: a pointer move stays cheap (pointer-perf.js)');
+{
+  const { BoxGrid, frameGate, PointerGovernor } = await load('pointer-perf.js');
+  // the grid returns every box within r of a point, in the order given: checked against walking all of them
+  let seed = 12345;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const boxes = new Map();
+  for (let i = 1; i <= 3000; i++) { const x = rnd() * 1000, y = rnd() * 400, w = rnd() < 0.02 ? rnd() * 900 : rnd() * 12, h = rnd() < 0.02 ? rnd() * 300 : rnd() * 12; boxes.set(i, { minX: x, minY: y, maxX: x + w, maxY: y + h }); }
+  boxes.set(3001, { minX: -Infinity, minY: 0, maxX: Infinity, maxY: 0 });   // a construction line
+  boxes.set(3002, null);                                                     // an object with no box
+  boxes.set(3003, { minX: 5, minY: 5, maxX: 5, maxY: 5 });                   // a point
+  const grid = new BoxGrid(boxes, { always: (id) => id === 3001 });
+  let same = true, fewer = 0, asked = 0;
+  for (let k = 0; k < 400 && same; k++) {
+    const p = { x: rnd() * 1100 - 50, y: rnd() * 500 - 50 }, r = k % 3 ? rnd() * 4 : rnd() * 60;
+    const want = [...boxes].filter(([id, b]) => b && (id === 3001 || !(p.x < b.minX - r || p.x > b.maxX + r || p.y < b.minY - r || p.y > b.maxY + r))).map(([id]) => id);
+    const got = grid.near(p.x, p.y, r);
+    const gotIn = got.filter((id) => want.includes(id));
+    same = want.every((id) => got.includes(id)) && gotIn.join() === want.join() && !got.includes(3002);
+    asked += boxes.size; fewer += got.length;
+  }
+  ok(same, 'the grid finds every object whose box is near the point, in drawing order (400 points against a walk of all 3,003)');
+  ok(fewer < asked / 20, 'and hands back a small share of the drawing to test', (100 * fewer / asked).toFixed(1) + '%');
+  ok(new BoxGrid(new Map()).near(0, 0, 5).length === 0 && new BoxGrid(new Map([[1, { minX: 2, minY: 2, maxX: 2, maxY: 2 }]])).near(2, 2, 0).join() === '1', 'an empty drawing and a single point work');
+
+  // one update a frame
+  let clock = 0, frames = [];
+  const gate = frameGate({ frame: (cb) => frames.push(cb), now: () => clock, gap: 12 });
+  const ran = [];
+  ok(gate.push(() => ran.push('a')) === true && ran.join() === 'a', 'the first move of a frame is applied at once');
+  clock = 2; gate.push(() => ran.push('b')); clock = 4; gate.push(() => ran.push('c'));
+  ok(ran.join() === 'a' && gate.waiting && frames.length === 1, 'moves that follow within the frame wait, and ask for one frame');
+  clock = 16; frames.shift()();
+  ok(ran.join() === 'a,c' && !gate.waiting, 'the frame applies only the newest of them');
+  clock = 17; gate.push(() => ran.push('d')); gate.flush();
+  ok(ran.join() === 'a,c,d' && !gate.flush(), 'a click or a key applies a waiting move first (flush), once');
+  clock = 40; ok(gate.push(() => ran.push('e')) === true, 'a move in a later frame is applied at once again');
+  const now0 = frameGate({ frame: () => {}, now: () => 0, gap: 0 });
+  ok(now0.push(() => {}) && now0.push(() => {}), 'gap 0: every move at once (how tests and films run)');
+
+  // the governor
+  const feed = (g, dt, n) => { let r = null; for (let i = 0; i < n; i++) r = g.frame(dt) || r; return r; };
+  let g = new PointerGovernor();
+  ok(!g.light && feed(g, 16.7, 600) === null && !g.light, 'automatic: fast frames never turn the light pointer on');
+  g = new PointerGovernor();
+  ok(feed(g, 60, 60) === null && !g.light, 'two slow windows are not enough');
+  ok(feed(g, 60, 30) === 'down' && g.light && g.stepped, 'three slow windows in a row turn it on, said once');
+  ok(feed(g, 60, 300) === null && g.light, 'and it stays on without saying it again');
+  g = new PointerGovernor();
+  feed(g, 60, 60); feed(g, 16.7, 30);
+  ok(feed(g, 60, 60) === null && !g.light, 'a fast window in between starts the count again');
+  g = new PointerGovernor();
+  ok(feed(g, 2000, 500) === null && !g.light, 'a long stall (a file opening) is not counted as a slow pointer');
+  g = new PointerGovernor({ mode: 'off' });
+  ok(feed(g, 80, 500) === null && !g.light, 'off: never');
+  g = new PointerGovernor({ mode: 'on' });
+  ok(g.light, 'on: always');
+  g = new PointerGovernor({ mode: 'auto', stepped: true });
+  ok(g.light, 'automatic remembers that it turned it on');
+  g.setMode('auto');
+  ok(!g.light && !g.stepped, 'choosing the setting again starts the watching again');
+  ok(new PointerGovernor({ mode: 'nonsense' }).mode === 'auto', 'an unknown mode reads as automatic');
 }
 
 // DWG saving, read back by three other programs' readers (LibreDWG, libdxfrw, ODA) and by CadCraft again

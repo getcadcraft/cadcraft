@@ -24,11 +24,22 @@ export function runColor(st, base) {
   return h === 'ink' ? base : h;
 }
 
+/**
+ * One plain line of a text (1.0 ORS.17). `rtl` = the layout's lay.rtl (undefined when the text has nothing right-to-left): the line's
+ * direction is set on the canvas, which then orders the letters by the Unicode bidirectional rules and joins Arabic-script letters
+ * itself. The direction is always set: a page in a right-to-left language would otherwise hand its own direction to every drawing text.
+ */
+export function fillPlainLine(ctx, line, x, y, rtl, i) {
+  ctx.direction = rtl && rtl[i] ? 'rtl' : 'ltr';
+  ctx.fillText(line, x, y);
+}
+
 export function fillRichLine(ctx, lay, i, e, { scale, family, color, paint = (c) => c }) {
   const wf = e.wf || 1, W = lay.widths[i] / wf;
   const x0 = (e.ha === 'center' ? -W / 2 : e.ha === 'right' ? -W : 0) * scale;
   const y = -lay.baselines[i] * scale;
   ctx.textBaseline = 'alphabetic';
+  ctx.direction = 'ltr';   // ORS.17: never the page's own direction
   for (const r of lay.runs[i]) {
     const x = x0 + (r.x / wf) * scale, w = (r.w / wf) * scale;
     const px = e.h * FONT_EM * scale * r.hf * (r.stack ? STACK_SCALE : 1);
@@ -44,7 +55,8 @@ export function fillRichLine(ctx, lay, i, e, { scale, family, color, paint = (c)
       if (r.stack.sep !== '^') ctx.fillRect(x, bar - thick / 2, w, thick);
     } else {
       ctx.textAlign = 'left';
-      ctx.fillText(r.text, x, y);
+      if (lay.rtl) ctx.direction = r.level % 2 ? 'rtl' : 'ltr';   // ORS.17: a piece of a right-to-left line; the canvas orders and joins its letters
+      ctx.fillText(r.draw ?? r.text, x, y);
       if (st.u) ctx.fillRect(x, y + 0.14 * e.h * scale * r.hf, w, thick);
       if (st.o) ctx.fillRect(x, y - 1.16 * e.h * scale * r.hf, w, thick);
       if (st.k) ctx.fillRect(x, y - 0.36 * e.h * scale * r.hf, w, thick);

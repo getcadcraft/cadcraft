@@ -178,6 +178,59 @@ export class CloudAttach {
     ctx.restore();
   }
 
+  /**
+   * 0.10 FX.297: the cloud on paper. `m` maps drawing units to millimetres on the sheet (a view's matrix in plot.js), `box` is the
+   * part of the sheet the view shows { minX, minY, maxX, maxY } (mm). Every point is put on a grid of square cells (the highest
+   * point wins a cell, as on screen), at most `max` cells are kept (the cell grows until they fit: the point budget of a plot),
+   * and the cells are grouped by colour (5 bits a channel) → { cell (mm), n, groups: [{ color: '#rrggbb', pts: [x, y, …] }] }
+   * (x, y = a cell's lower-left corner, y up) or null when nothing shows. DOM-free; the result is kept for the same inputs.
+   */
+  plotDots(m, box, { max = 400000, cell = 0 } = {}) {
+    if (!this.cloud || !this.visible || !this.colors || !m || !box) return null;
+    const key = [this.version, this._shownKey || '', this.size, this.insert ? this.insert.x + ',' + this.insert.y : '', max, cell, m.join(','), box.minX, box.minY, box.maxX, box.maxY].join('|');
+    if (this._dotsKey === key) return this._dots;
+    const c = this.cloud, k = this.scale(), pos = c.pos, rgb = this.colors, n = c.n;
+    const ox = this.insert ? this.insert.x + (c.origin[0] - c.min[0]) * k : c.origin[0] * k;
+    const oy = this.insert ? this.insert.y + (c.origin[1] - c.min[1]) * k : c.origin[1] * k;
+    // drawing x = ox + k·pos.x → mm = m0·x + m2·y + m4
+    const a = m[0] * k, b = m[1] * k, cc = m[2] * k, e = m[3] * k;
+    const tx = m[0] * ox + m[2] * oy + m[4], ty = m[1] * ox + m[3] * oy + m[5];
+    const idx = this.shown();
+    const W = box.maxX - box.minX, H = box.maxY - box.minY;
+    if (!(W > 0 && H > 0)) return null;
+    let cl = cell > 0 ? cell : Math.max(0.15, this.size * 0.2);   // a screen point of size 2 is about 0.4 mm
+    let zb = null, ci = null, gw = 0, gh = 0, count = 0;
+    for (let tries = 0; tries < 8; tries++) {
+      gw = Math.max(1, Math.ceil(W / cl)); gh = Math.max(1, Math.ceil(H / cl));
+      if (gw * gh > 16e6) { cl *= Math.sqrt(gw * gh / 16e6) * 1.01; continue; }   // a huge sheet: coarser than the pen's cell
+      zb = new Float32Array(gw * gh).fill(-Infinity); ci = new Int32Array(gw * gh).fill(-1); count = 0;
+      const put = (i) => {
+        const X = pos[i * 3], Y = pos[i * 3 + 1], Z = pos[i * 3 + 2];
+        const u = Math.floor((a * X + cc * Y + tx - box.minX) / cl), v = Math.floor((b * X + e * Y + ty - box.minY) / cl);
+        if (u < 0 || v < 0 || u >= gw || v >= gh) return;
+        const q = v * gw + u;
+        if (ci[q] < 0) count++;
+        if (Z >= zb[q]) { zb[q] = Z; ci[q] = i; }
+      };
+      if (idx) for (const i of idx) put(i); else for (let i = 0; i < n; i++) put(i);
+      if (count <= max) break;
+      cl *= Math.sqrt(count / max) * 1.02;   // too many cells for a plot's file: fewer, larger
+      zb = null;
+    }
+    if (!zb || !count || count > max * 1.5) { this._dotsKey = key; return (this._dots = null); }
+    const groups = new Map();
+    for (let q = 0; q < ci.length; q++) {
+      const i = ci[q];
+      if (i < 0) continue;
+      const r = rgb[i * 3] & 0xf8, g = rgb[i * 3 + 1] & 0xf8, bl = rgb[i * 3 + 2] & 0xf8, gk = (r << 16) | (g << 8) | bl;
+      let grp = groups.get(gk);
+      if (!grp) groups.set(gk, (grp = { color: '#' + (0x1000000 | gk | 0x040404).toString(16).slice(1), pts: [] }));
+      grp.pts.push(box.minX + (q % gw) * cl, box.minY + Math.floor(q / gw) * cl);
+    }
+    this._dotsKey = key;
+    return (this._dots = { cell: cl, n: count, groups: [...groups.values()] });
+  }
+
   /** The 3D tab: the cloud's points (relative to its origin, file units) → metres, Z up, its lowest point on the ground. */
   matrix3d(mPer) {
     const c = this.cloud, k = this.scale() * mPer, kz = this.zScale() * mPer;
@@ -205,10 +258,18 @@ export async function attachFile(c, file, insert = null, { ask = false } = {}) {
   c.print(t('pc.reading', { file: file.name }));
   const { readCloudInfo, loadCloud, cloudSummary } = await lib();
   const info = await readCloudInfo(file);
+  // 0.10 BK.8 (units on import): a cloud whose file states no unit is asked about before it is loaded and attached (the shell's one
+  // dialog, remembered per file), when this drawing has units to convert to; it was attached number for number, with a note
+  let said = null;
+  if (!info.unit && c.doc.meta.units && typeof window !== 'undefined' && window.ccImportUnits) {
+    said = await window.ccImportUnits.resolve({ file, format: t('pc.units.format'), stated: null, choices: ['m', 'ft', 'usft'], suggest: 'm', say: (s) => c.print(s) });
+    if (!said) return false;
+  }
   const t0 = Date.now();
   let cloud;
   try { cloud = await loadCloud(file, info, { budget: c.host.cloudBudget?.() || 2e6, progress: (f) => c.host.status?.(t('pc.loading', { file: file.name, pct: Math.round(f * 100) })) }); }
   finally { c.host.status?.(null); }   // the host shows progress as the busy overlay; PCATTACH never cleared it (only drag-and-drop did)
+  if (said && !cloud.unit) { cloud.unit = said.unit === 'usft' ? 'ftUS' : said.unit; if (!cloud.zUnit) cloud.zUnit = cloud.unit; }
   if (ask) {
     const p = await c.point(t('pc.prompt.insert'), { options: [opt('F', 'File coordinates')], none: true });   // i18n-ignore: the option's English label (shown as opt.filecoordinates)
     insert = p && !p.option ? p : null;

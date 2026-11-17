@@ -11,7 +11,7 @@ keywords: problem, error, not working, message, cannot open, unknown command, no
 | Message or symptom | Cause | Fix |
 |---|---|---|
 | "CadCraft opens DWG and DXF drawings. "…" is neither." | The file is not a `.dwg` or `.dxf`. | Open the drawing file itself. A PDF can be brought in (Open asks: import or attach, see [PDF underlays](topic:pdf-underlay)); pictures go in with `IMAGEATTACH`. |
-| "This is a binary DXF. Save it as ASCII DXF (or open the DWG) and try again." | Binary DXF is not read. | Ask for a text (ASCII) DXF, or the DWG. |
+| "This binary DXF ends in the middle of an object: the file is cut short or damaged." | The binary DXF stops before its end. | Type RECOVER to open what can be read, or ask for the file again. |
 | "This file is not a readable DXF (bad group code on line …)." | The DXF is damaged or not really a DXF. | Ask for the file again, or for a DWG. |
 | "This drawing could not be read. It may be damaged, or saved in a version the reader does not handle yet (…)." | The DWG reader could not read it. | Ask for the DWG saved in an older version, or a DXF. |
 | "This drawing is from AutoCAD R11 / R12 (DWG AC1009), older than CadCraft reads …" | DWG files from Release 12 and earlier use a format CadCraft does not read. | In the program that made it, save it as DXF (any version) or as a newer DWG, and open that. CadCraft's own Save as offers DXF R12 for programs that want that old format. |
@@ -87,7 +87,7 @@ keywords: problem, error, not working, message, cannot open, unknown command, no
 | "Pick the window to plot." | {{ui:A window…}} is chosen and no window was picked. | Click {{ui:Pick}} and pick two corners. |
 | "… bigger than the paper: the edges are cut off." | The area does not fit at that scale. | Choose a smaller scale, a larger paper, or {{ui:Fit to paper}}. |
 | "The browser blocked the new tab, so the PDF was downloaded instead." | Pop-ups are blocked for the site. | Open the downloaded PDF, or allow pop-ups for the site. |
-| Characters print as "?" | The PDF's fonts have no letter for them (Arabic, Hebrew, rare ideographs, …), or the CJK font could not be fetched (offline). European scripts, Cyrillic, Greek, Chinese, Japanese and Korean print as themselves. | For Chinese, Japanese or Korean, plot again with a connection. Other scripts are not built yet. |
+| Characters print as "?" | The PDF's fonts have no letter for them (rare ideographs, Hindi and other scripts that need complex shaping, …), or the larger font could not be fetched (offline). European scripts, Cyrillic, Greek, Hebrew, Arabic, Persian, Urdu, Thai, Chinese, Japanese and Korean print as themselves. | For Arabic-script, Thai, Chinese, Japanese or Korean, plot again with a connection. Other scripts are not built yet. |
 | Construction lines show in the PDF | Their layer plots. | Click the layer's printer button. |
 | All lines are equally thick | Their lineweight is {{ui:Default}}, so they print at the dialog's pen width. | Give the layers or objects a {{ui:Lineweight}} in the right panel, or choose a {{ui:Line weight}} in the dialog. To see lineweights on screen, press {{ui:LWT}} in the status bar. |
 

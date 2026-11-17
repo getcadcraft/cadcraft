@@ -57,3 +57,15 @@ A hatch you make with `HATCH` remembers what bounds it. Move, turn or scale the 
 The link ends, and the command line says so, if the boundary no longer closes or you reshape the hatch by hand. The hatch itself stays. Type `AS` while hatching to make hatches that stand alone. Copy a hatch with its boundary and the copy has its own link.
 
 `HATCHEDIT` (`HE`) changes the pattern, scale, angle and origin of a hatch, and links it to a boundary or ends the link. The link is saved in DWG and DXF 2000 files. A DXF R12 file has no hatch object, and links made in other programs aren't read: use `HATCHEDIT` and Link for those.
+
+A hatch that has no boundary any more (the boundary was erased, or the file came without it) can give it back: `HATCHGENERATEBOUNDARY` (`HGB`) draws a closed polyline round each loop of the hatch and, if you answer Yes, links the hatch to them.
+
+## A gradient fill
+
+`GRADIENT` (`GD`) fills an area with a gradient instead of a pattern: the same picks as `HATCH`, after it asks the type (linear, cylindrical, spherical, hemispherical, curved, and each of those inverted), one color with a tint or two colors, the angle, and centered or not. In `HATCH` the option `G` does the same. `HATCHEDIT` `G`, or {{ui:Properties}} under Gradient, changes a gradient or turns any hatch into one.
+
+A gradient shows on screen and in plots. Save as DWG 2004 or later and other programs get a real gradient hatch. DXF 2000 and DWG 2000 have no gradient: there CadCraft keeps it for itself and other programs see a solid fill in the first color.
+
+## Trim a hatch
+
+`TRIM` cuts a hatch like any other object. Click the hatch on the side of the cutting edge you want gone: the edges split the hatched area and that piece is removed. In Quick mode every object is a cutting edge; choose the edges first (option `T`) when there are many. A trimmed hatch is no longer linked to its boundary, because it no longer fills it.

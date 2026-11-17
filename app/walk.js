@@ -38,11 +38,13 @@
 
 import { prims, txPrim, txEntity, insertMatrix, ellipsePoints, mMul, mApply, dimParts, attrTexts, textLayout, TAU } from './geom.js';
 import { resolveColor } from './doc.js';
+import { bpParts } from './blockparams.js';   // 0.10 SU.1804
 
 let shxHook = null;
 /** (doc, te) → line primitives for a text in an SHX font, or null (shx-text.js). */
 export function setShxHook(fn) { shxHook = fn; }
 import { hatchLines } from './hatch.js';
+import { gradOf, gradientFill } from './hatch-gradient.js';   // ORS.7: gradient fills
 import { leaderGeometry } from './leader.js';
 import { resolveLt, resolveLw, patternOf, dashPrims } from './linetypes.js';
 import { findPicture } from './pictures.js';
@@ -51,11 +53,12 @@ import { isIsoLinetype } from './plotstyle.js';
 import { clipOut, clipPoly } from './xclip.js';
 import { floorView } from './floors.js';   // 0.9 PLAN2D.3: stacked floors
 import { classView } from './classes.js';   // 0.8 SU.912 (sx-classes): ByClass styles, hidden classes, viewport class overrides
+import { annoView, annoVpKey } from './anno-scale-cad.js';   // ORS.26: annotative objects at several scales (a viewport shows the size for its scale)
 
 /** How strongly what is outside REFEDIT's working set is drawn (0.6 DF.5). */
 export const REF_FADE = 0.3;
 
-export function walk(doc, entities, out, { m = null, plot = false, frozen = null, penLt = null, ltTable = 1 } = {}) {
+export function walk(doc, entities, out, { m = null, plot = false, frozen = null, penLt = null, ltTable = 1, lockFade = 0 } = {}) {   // ORS.28: lockFade 0–0.9 = how much objects on locked layers fade (view.js passes it; plots never do)
   // per-viewport layer overrides (VP.3, frozenSet(vp).ovr): the layers as that viewport shows them
   const ovr = frozen && frozen.ovr;
   if (ovr && ovr.size) {
@@ -111,7 +114,8 @@ export function walk(doc, entities, out, { m = null, plot = false, frozen = null
           const blk = doc.blocks.get(e.block);
           if (!blk) return;
           // the block, then its attributes (visible ones with a value; same layer and colour rules)
-          parts = blk.attdefs?.length || e.attrs ? [...blk.entities, ...attrTexts(e, blk)] : blk.entities;
+          const ents = blk.bp ? bpParts(blk, e.bp) : blk.entities;   // 0.10 SU.1804: several visibility parameters
+          parts = blk.attdefs?.length || e.attrs ? [...ents, ...attrTexts(e, blk)] : ents;
           const im = insertMatrix(e, blk);
           m2 = mm ? mMul(mm, im) : im;
         } else parts = e.type === 'mleader' ? leaderGeometry(e) : dimParts(e, doc.blocks);   // a multileader draws itself, like a dimension
@@ -144,6 +148,7 @@ export function walk(doc, entities, out, { m = null, plot = false, frozen = null
         return;
       case 'point': { const p = P(mm, e.x, e.y); out.point(color, p.x, p.y); return; }
       case 'hatch': {
+        if (out.gradient && e.xd?.CADCRAFT_GRAD) { const gr = gradOf(e), gf = gr && gradientFill(e.loops, gr, mm); if (gf) { out.gradient(gf, o); return; } }   // ORS.7: an output that paints gradients gets one (others: the solid fill below)
         if (e.bg !== undefined && e.bg !== null && !e.solid) out.fill(resolveColor(doc, { ...e, color: e.bg }, byBlock, parentLayer), txLoops(e.loops, mm), true, o);   // background colour under the pattern
         const lines = hatchLines(e, doc);   // a known pattern draws its lines (hatch.js); others show as a tone, as before
         if (lines) { out.stroke(color, mm ? lines.flatMap((q) => txPrim(q, mm)) : lines, lw, o); return; }
@@ -186,8 +191,17 @@ export function walk(doc, entities, out, { m = null, plot = false, frozen = null
   const fv = floorView(doc, frozen);   // 0.9 PLAN2D.3: other floors faded, floors turned off skipped
   const faded = re || fv ? { ...plain, stroke: (c, p, lw, o) => plain.stroke(c, p, lw, fade(o)), fill: (c, l, s, o) => plain.fill(c, l, s, o?.wipe ? o : fade(o)), text: (c, e, o) => plain.text(c, e, fade(o)),
     ...(plain.infinite ? { infinite: (c, e, lw, o) => plain.infinite(c, e, lw, fade(o)) } : {}), ...(plain.pdf ? { pdf: (p) => plain.pdf({ ...p, alpha: (p.alpha ?? 1) * REF_FADE }) } : {}), ...(plain.picture ? { picture: (p) => plain.picture({ ...p, alpha: (p.alpha ?? 1) * REF_FADE }) } : {}) } : plain;
-  for (const e of entities) {
+  // ORS.5 (objhide.js): objects hidden for the session are not drawn. ORS.28 (lockedlayers.js): objects on locked layers draw faded.
+  const orsHid = doc.orsHidden && doc.orsHidden.size ? doc.orsHidden : null;
+  const lk = lockFade > 0 && lockFade < 1 && !plot ? 1 - lockFade : 0, lfade = (o) => ({ ...(o || {}), alpha: (o?.alpha ?? 1) * lk });
+  const lockOut = lk ? { ...plain, stroke: (c, p, lw, o) => plain.stroke(c, p, lw, lfade(o)), fill: (c, l, s, o) => plain.fill(c, l, s, o?.wipe ? o : lfade(o)), text: (c, e, o) => plain.text(c, e, lfade(o)),
+    ...(plain.infinite ? { infinite: (c, e, lw, o) => plain.infinite(c, e, lw, lfade(o)) } : {}), ...(plain.pdf ? { pdf: (p) => plain.pdf({ ...p, alpha: (p.alpha ?? 1) * lk }) } : {}), ...(plain.picture ? { picture: (p) => plain.picture({ ...p, alpha: (p.alpha ?? 1) * lk }) } : {}) } : null;
+  const av = annoView(doc, frozen);   // ORS.26: null unless a drawing uses annotation scale lists
+  for (let e of entities) {
+    if (orsHid && orsHid.has(e.id)) continue;   // ORS.5
     if (re && re.map.get(e.id) === e) { if (e.id === re.ref) continue; out = re.ids.has(e.id) ? plain : faded; } else out = plain;
+    if (av && e.ann) { e = av(e); if (!e) continue; }   // ORS.26: the size for this viewport's scale, or not shown there
+    if (lockOut && out === plain && doc.layers.get(e.layer)?.locked) out = lockOut;   // ORS.28
     if (fv && e.type !== 'viewport') { const f = fv(e); if (f === 2) continue; if (f === 1) out = faded; }
     if (e.type === 'viewport') {
       // the view shows whatever its layer; the border follows the layer like anything else
@@ -246,11 +260,13 @@ export function frozenSet(vp, hasFloors = false) {
   const lov = vp && vp.lov && typeof vp.lov === 'object' ? Object.entries(vp.lov).filter(([k, v]) => k && v && typeof v === 'object') : [];
   const vpc = vp && vp.vpc && typeof vp.vpc === 'object' && Object.keys(vp.vpc).length ? vp.vpc : null;   // 0.8 SU.912 viewport class overrides (vpclass.js)
   const flr = vp && typeof vp.flr === 'string' && vp.flr ? vp.flr : null;   // 0.9 PLAN2D.3: the one floor this viewport shows
-  if (!f.length && !lov.length && !vpc && !flr && !hasFloors) return null;
+  const an = annoVpKey(vp);   // ORS.26: null unless a drawing uses annotation scale lists
+  if (!f.length && !lov.length && !vpc && !flr && !hasFloors && !an) return null;
   const set = new Set(f.map((n) => n.toUpperCase()));
   if (flr) set.flr = flr;
   if (lov.length) set.ovr = new Map(lov.map(([k, v]) => [k.toUpperCase(), v]));
   if (vpc) set.vpc = vpc;
+  if (an) set.anno = an;   // ORS.26
   return set;
 }
 
@@ -258,7 +274,7 @@ export function frozenSet(vp, hasFloors = false) {
 export function frozenKey(set) {
   if (!set) return '';
   const o = set.ovr ? '\u0001' + JSON.stringify([...set.ovr].sort((a, b) => (a[0] < b[0] ? -1 : 1))) : '';
-  return [...set].sort().join('\n') + o + (set.vpc ? '\u0002' + JSON.stringify(set.vpc) : '') + (set.flr ? '\u0003' + set.flr : '') + (!set.size && !set.ovr && !set.vpc && !set.flr ? '\u0004' : '');   // 0.8 SU.912
+  return [...set].sort().join('\n') + o + (set.vpc ? '\u0002' + JSON.stringify(set.vpc) : '') + (set.flr ? '\u0003' + set.flr : '') + (set.anno ? '\u0005' + set.anno.id + ':' + set.anno.s : '') + (!set.size && !set.ovr && !set.vpc && !set.flr && !set.anno ? '\u0004' : '');   // 0.8 SU.912
 }
 
 const mm2 = (ps, m) => (m ? ps.flatMap((q) => txPrim(q, m)) : ps);

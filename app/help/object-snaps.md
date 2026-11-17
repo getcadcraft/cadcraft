@@ -31,7 +31,7 @@ The snaps you can use are:
 | Node | Point objects |
 | Insertion | The insertion point of text and block references |
 
-All of them are on by default except Nearest, which tends to win when you want something else.
+All of them are on by default except Tangent and Nearest. Nearest tends to win when you want something else; turn Tangent on when you need it.
 
 ## Choose your snaps
 
@@ -92,14 +92,14 @@ With {{ui:Polar}} on as well, acquired points track at every polar angle. Up to 
 
 ## Grid
 
-{{ui:Grid}} ({{key:F7}}) shows a grid of dots behind the drawing, spaced in powers of ten that change as you zoom. It is a visual guide only: points do not snap to the grid.
+{{ui:Grid}} ({{key:F7}}) shows a grid of lines behind the drawing, with heavier lines every fifth line; the spacing changes as you zoom. It is only a guide until you turn on {{ui:Grid snap}} ({{key:F9}}): then clicks land on the nearest grid point, unless an object snap takes the point first.
 
 ## Function keys on your computer
 
-{{key:F10}} is Polar and {{key:F11}} is Track.
+{{key:F9}} is Grid snap, {{key:F10}} is Polar and {{key:F11}} is Track.
 
 :::mac
-On a Mac, F3, F7 and F8 usually control Mission Control and media. Hold **fn** with the key, or turn on standard function keys, as described in [Keys, mice and trackpads](common:keys). The status bar buttons always work.
+On a Mac, F3, F7, F8 and F9 usually control Mission Control and media. Hold **fn** with the key, or turn on standard function keys, as described in [Keys, mice and trackpads](common:keys). The status bar buttons always work.
 :::
 
 :::firefox
@@ -116,4 +116,4 @@ On a touch screen there is no hover, so the snap marker only appears where your 
 - **No marker appears.** {{ui:Snap}} is off, or the snap you want is unticked, or the object is on a layer that is off or frozen.
 - **Snaps grab the wrong thing in a busy drawing.** Zoom in. The snap distance is measured in screen pixels, so zooming in makes it smaller on the drawing.
 - **Expecting Shift to give a straight line.** In CadCraft, Shift turns snaps off for one click. Use {{ui:Ortho}} for straight lines.
-- **Expecting points to land on grid dots.** The grid does not snap. Type coordinates for round numbers.
+- **Expecting points to land on grid points.** Turn on {{ui:Grid snap}} ({{key:F9}}), or type coordinates for round numbers.

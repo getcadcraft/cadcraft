@@ -32,8 +32,35 @@ export function charAdvance(ch) {
   return code >= 0x2e80 ? 1000 : 556;   // CJK and the like: about square
 }
 
+// ---- right-to-left scripts (1.0 ORS.17): Hebrew and Arabic-script letters are not in the Helvetica table ----
+const RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC]/;
+const RTL_SPLIT = /([\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC\u200C\u200D]+(?:[ \u00A0]+[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFC\u200C\u200D]+)*)/;
+const RTL_MARK = /\p{Mn}|\p{Me}|[\u200C\u200D]/u;
+/** The built-in face's CSS stack (the screen's drawing font): what a right-to-left stretch is measured in when the page has a measurer. */
+export const BUILTIN_STACK = 'Helvetica, Arial, "Liberation Sans", sans-serif';
+/** Without a measurer (Node, a worker): marks take no room, Arabic-script letters about half an em joined, Hebrew a little more. */
+function rtlGuess(part) {
+  let w = 0;
+  for (const ch of part) {
+    const c = ch.codePointAt(0);
+    if (RTL_MARK.test(ch)) continue;
+    w += ch === ' ' || ch === '\u00a0' ? 278 : c >= 0x0590 && c <= 0x05FF ? 560 : (c >= 0x0660 && c <= 0x0669) || (c >= 0x06F0 && c <= 0x06F9) ? 556 : 500;
+  }
+  return w;
+}
+function advanceRtl(s) {
+  let w = 0;
+  for (const part of s.split(RTL_SPLIT)) {
+    if (!part) continue;
+    if (RTL_RE.test(part)) { const m = measureFont ? measureFont(BUILTIN_STACK, part) : null; w += m !== null && m !== undefined ? m : rtlGuess(part); }
+    else for (const ch of part) w += charAdvance(ch);
+  }
+  return w;
+}
+
 /** Width of a string in 1/1000 em. */
 export function advance(s) {
+  if (RTL_RE.test(s)) return advanceRtl(s);   // ORS.17
   let w = 0;
   for (const ch of s) w += charAdvance(ch);
   return w;

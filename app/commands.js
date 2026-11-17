@@ -48,17 +48,21 @@ import { wblockDoc } from './wblock.js';
 import { withPlain } from './mtext.js';
 import * as TS from './textstyles.js';
 import { listStyles, currentName, styleOf, setCurrent, saveStyle, renameStyle, deleteStyle, applyStyle, differences, findName } from './dimstyles.js';
-import { scalesOf, parseRatio, scaleLine, addScale, editScale, deleteScale, resetScales } from './scales.js';
+import { scalesOf, parseRatio, scaleLine, addScale, editScale, deleteScale, resetScales, ratioName, nOfScale } from './scales.js';
+import { annoScaleOf, annotatives, setAnnoScale, annoTextHeight } from './anno-scale-cad.js';   // 0.10 BK.10
 import { installParametric } from './pcommands.js';
 import { commandApi } from './addons/commands-api.js';
 import { t, has } from './i18n.js';
 import { QS_PROPS, propsFor, quickSelect, similarTo, SIMILAR } from './qselect.js';
 import { findMatches, applyMatches } from './findtext.js';
-import { leaderGeometry } from './leader.js';
+import { leaderGeometry, mleaderHooks } from './leader.js';   // ORS.15: mleaderHooks = MLEADER's Block option (mleader-edit-cmd.js)
 import { mirrorConstraints, resignAmong, trimConstraints } from './ckeep.js';
 import { PATTERNS, patternNames, boundaryAt, loopsOf, hatchLines, hatchIsMetric } from './hatch.js';
 import { parsePat } from './patfile.js';
 import { linkHatch, sourcesOf } from './hatch-assoc.js';   // 0.9 PLAN2D.1
+import { arrayAssocOn, setArrayAssoc, makeArray, fromPlain, explodeArray } from './arrays.js';   // ORS.2: arrays that stay editable
+import { withGradient, askGradient } from './hatch-gradient.js';   // ORS.7: gradient fills
+import { trimHatchAt } from './hatch-trim.js';   // ORS.29: TRIM cuts a hatch
 import { limitsOf, insideLimits, limitsPatch, defaultLimits, CHECKED } from './limits.js';
 import { formatLength, formatArea, parseLength, readLength, readNumber, readAngle, tAngle, fmtAngle, aunitCode, isArithmetic, calcMessage, unitsOf, LUNITS, isImperialFormat, lunitCode, mmPerDrawingUnit } from './units.js';
 import { install3d } from './commands3d.js';
@@ -69,11 +73,16 @@ import { isXrefRoot } from './xref.js';
 import { lassoHits, pointInPoly } from './lasso.js';
 import { curveAt, circleTTR, circleTTT } from './tancircle.js';
 import { setVisibility, freeObjects } from './dyn-blocks.js';
+import { retype } from './keylayout.js';   // ORS.25: a word typed with a non-Latin keyboard layout, read by its physical keys
 import { openVis, closeVis, switchState, hideIds, showFi, hiddenParts, newState, renameState, deleteState, syncCurrent } from './visedit.js';
 import { activeUcs, toWorld as ucsToWorld, toUcs, vecToWorld, setUcs, threePoint, fromObject, cleanUcs, ucsData, UCS_NAME_RE } from './ucs.js';
 import { alignMatrix, alignMoves, distributeMoves } from './align.js';   // 0.6 DF.2
+import { pruneBp, cloneBp } from './blockparams.js';   // 0.10 SU.1804
 import { placementOf, editedRef, syncBlock, attdefsDiffer, applyAttdefs, hasAttributes, refsOf } from './attedit.js';   // 0.6 DF.5
 import { collectPoints, formatPoints, blockTags, UNIT_FACTOR, POINT_FORMATS } from './ptexport.js';   // 0.6 DF.7
+import { offsetGap, copyArrayOffsets, COPY_ARRAY_MAX } from './edit-depth.js';   // ORS.30: OFFSETGAPTYPE, COPY's Array option
+import { isoState } from './isodraft.js';   // ORS.10: ELLIPSE offers Isocircle while isometric drafting is on
+import { expandGroups } from './groups.js';   // ORS.8: a pick or a window brings the rest of a selectable group (PICKSTYLE)
 
 /** FX.34: the object snap words AutoCAD takes at a point prompt: three letters or more of the name (mid, midp, end, cen, int, per …). */
 const SNAP_WORDS = [['end', 'endpoint'], ['mid', 'midpoint'], ['cen', 'center'], ['qua', 'quadrant', 'quad'], ['int', 'intersection'], ['per', 'perpendicular', 'perp'],
@@ -147,7 +156,8 @@ export class Engine {
     const typed = s.trim();
     if (!this.waiting) {
       if (!typed) { if (this.last) return this.run(this.last); return; }
-      return this.run(typed);
+      // ORS.25: not a command as typed (Greek, Cyrillic, Arabic … layout active): the same keys read as Latin (keylayout.js)
+      return this.run(lookup(typed) ? typed : retype(typed, (x) => !!lookup(x), this.host.keyHint?.(s)) || typed);
     }
     const w = this.waiting;
     if (w.kind === 'string') return this.resolve(s);
@@ -157,6 +167,10 @@ export class Engine {
     if (!typed) return this.resolve(w.opts.none === false ? undefined : (w.opts.default !== undefined ? w.opts.default : null));
     const opt = matchOption(typed, w.opts.options);
     if (opt) return this.resolve({ option: opt.key });
+    {   // ORS.25: an option letter typed with a non-Latin layout active (never at a prompt for text: that returned above)
+      const again = retype(typed, (x) => !!matchOption(x, w.opts.options) || (w.kind === 'select' && /^(ALL|L|LAST)$/i.test(x)), this.host.keyHint?.(s));
+      if (again) return this.text(again);
+    }
     if (w.opts.accept) { const v = w.opts.accept(typed); if (v !== null && v !== undefined) return this.resolve({ option: '_typed', value: v }); }   // a command's own token (ZOOM 2x)
     switch (w.kind) {
       case 'point': {
@@ -230,7 +244,8 @@ export class Engine {
       case 'select': {
         const id = this.host.pickAt(raw);
         if (id) {
-          if (w.opts.remove || (w.set.has(id) && this.host.shift)) w.set.delete(id); else w.set.add(id);
+          const gids = expandGroups(this.doc, [id]);   // ORS.8: the object's selectable groups come with it
+          if (w.opts.remove || (w.set.has(id) && this.host.shift)) for (const k of gids) w.set.delete(k); else for (const k of gids) w.set.add(k);
           this.host.setSelection(w.set);
           if (w.opts.single) this.resolve(w.set);
           return true;
@@ -251,7 +266,7 @@ export class Engine {
   window(rect, crossing) {
     const w = this.waiting;
     if (!w || w.kind !== 'select') return;
-    const ids = this.host.pickWindow(rect, crossing);
+    const ids = expandGroups(this.doc, this.host.pickWindow(rect, crossing));   // ORS.8: groups whole
     for (const id of ids) { if (this.host.shift || w.opts.remove) w.set.delete(id); else w.set.add(id); }
     if (!this.host.shift && !w.opts.remove) (w.set.windows ||= []).push(rect);   // STRETCH stretches what these windows hold
     this.host.setSelection(w.set);
@@ -358,6 +373,29 @@ export class Engine {
       return polar(base, angleOf(base, cur), d);
     }
     return null;
+  }
+
+  /**
+   * 0.9.1 (Imtaar): a typed x,y or d<a with no @ and no # at a NEXT-point prompt (one with a rubber-band base) counts from the last
+   * point, as AutoCAD's dynamic input does; the first point of a command stays absolute, # is always absolute, @ always relative.
+   * Returns the text to send instead ("@4,3"; "#*x,y" in world coordinates when the base is not the last point given), or null to
+   * send the text as typed. Only typing at the command line asks this (cadcraft.js submit, setting "Typed coordinates"): scripts,
+   * LISP (command …), macros and assistants call text() directly and keep absolute coordinates, as in AutoCAD.
+   */
+  typedRelative(typed) {
+    const w = this.waiting;
+    if (!w || w.kind !== 'point') return null;
+    const base = w.opts.base || this.base;
+    if (!base) return null;
+    const s = String(typed ?? '').trim().replace(/\s*([,<@#])\s*/g, '$1');
+    if (!/^\*?[^,<@#*]+[,<][^,<@#]+$/.test(s)) return null;
+    const last = this.lastPoint;
+    if (last && Math.abs(last.x - base.x) < 1e-9 && Math.abs(last.y - base.y) < 1e-9) return this.parsePoint('@' + s) ? '@' + s : null;
+    let p;
+    this.lastPoint = base;
+    try { p = this.parsePoint('@' + s); } finally { this.lastPoint = last; }
+    const n = (v) => String(Number(v.toFixed(10)));
+    return p ? '#*' + n(p.x) + ',' + n(p.y) : null;
   }
 
   promptText() {
@@ -871,7 +909,8 @@ def('POLYGON', ['POL'], async (c) => {
 }, { help: () => t('cmd.polygon.regular_polygon') });
 
 def('ELLIPSE', ['EL'], async (c) => {
-  const a = await c.point(t('cmd.ellipse.specify_axis_endpoint_ellipse'), { options: [opt('C', 'Center')] });
+  const a = await c.point(t('cmd.ellipse.specify_axis_endpoint_ellipse'), { options: [opt('C', 'Center'), ...(isoState.on ? [opt('I', 'Isocircle')] : [])] });   // ORS.10
+  if (a.option === 'I') return lookup('_ISOCIRCLE')?.fn(c);   // ORS.10: a circle on the current isometric plane (isodraft-cmd.js)
   let center, major;
   if (a.option === 'C') {
     center = await c.point(t('cmd.ellipse.specify_center_ellipse'));
@@ -937,13 +976,15 @@ def('HATCH', ['H', 'BH', 'BHATCH', '-HATCH'], async (c) => {
   const label = () => (S.pattern === 'SOLID' ? t('cmd.hatch.solid') : S.pattern + ', ' + t('cmd.hatch.scaleangle', { scale: fmt(S.scale), angle: fmt(deg(S.angle)) }));
   c.print(t('cmd.hatch.current', { what: label() }));
   const picks = [];   // [{ loops }] — every area picked or object selected, one hatch at the end
-  const make = (loops) => ({ ...ent(c, { type: 'hatch', loops, solid: S.pattern === 'SOLID' }), ...(S.pattern === 'SOLID' ? {} : { pattern: S.pattern, pscale: S.scale, pangle: S.angle, piso: hatchIsMetric({}, c.doc), ...(E.hatchLib.has(S.pattern) ? { patdef: E.hatchLib.get(S.pattern).lines } : {}) }) });
+  const make = (loops) => (S.pattern === 'GRADIENT' ? withGradient(ent(c, { type: 'hatch', loops, solid: true }), S.grad) : makePlain(loops));   // ORS.7: a gradient fill (hatch-gradient.js)
+  const makePlain = (loops) => ({ ...ent(c, { type: 'hatch', loops, solid: S.pattern === 'SOLID' }), ...(S.pattern === 'SOLID' ? {} : { pattern: S.pattern, pscale: S.scale, pangle: S.angle, piso: hatchIsMetric({}, c.doc), ...(E.hatchLib.has(S.pattern) ? { patdef: E.hatchLib.get(S.pattern).lines } : {}) }) });
   const show = () => c.preview(() => (picks.length ? [make(picks.flatMap((p) => p.loops))] : []));
   for (;;) {
     show();
-    const p = await c.point(t('cmd.hatch.pick'), { none: true, options: [opt('S', t('opt.selectobjects')), opt('P', t('opt.pattern')), { key: 'F', label: t('opt.patfile'), en: 'patFile' }, opt('SC', t('opt.scale')), opt('A', t('opt.angle')), { key: 'AS', label: t('plan2d.opt.assoc'), en: 'ASsociative' }, ...(picks.length ? [opt('U', t('opt.undo'))] : [])] });
+    const p = await c.point(t('cmd.hatch.pick'), { none: true, options: [opt('S', t('opt.selectobjects')), opt('P', t('opt.pattern')), { key: 'F', label: t('opt.patfile'), en: 'patFile' }, opt('SC', t('opt.scale')), opt('A', t('opt.angle')), { key: 'AS', label: t('plan2d.opt.assoc'), en: 'ASsociative' }, { key: 'G', label: t('gradient.opt.gradient'), en: 'Gradient' } /* ORS.7 */, ...(picks.length ? [opt('U', t('opt.undo'))] : [])] });
     if (!p) break;
     if (p.option === 'U') { picks.pop(); continue; }
+    if (p.option === 'G') { c.preview(null); S.grad = await askGradient(c, S.grad); S.pattern = 'GRADIENT'; continue; }   // ORS.7
     if (p.option === 'AS') { S.assoc = S.assoc === false; c.print(t(S.assoc ? 'plan2d.hatch.assoc.on' : 'plan2d.hatch.assoc.off')); continue; }
     if (p.option === 'F') {
       if (!c.host.pickText) { c.print(t('cmd.hatch.pat.nofile')); continue; }
@@ -1167,9 +1208,10 @@ def('MLEADER', ['MLD', 'MLEAD'], async (c) => {
   const E = c.engine, dim = c.doc.current.dim, k = dim.scale || 1;
   E.mleader ??= {};
   const st = { asz: E.mleader.asz ?? dim.asz * k, dogleg: E.mleader.dogleg ?? dim.asz * k, gap: (dim.gap ?? 0.625) * k };
-  let tip;
+  let tip, blockName = null;   // ORS.15: blockName = a block as the content instead of text
   for (;;) {
-    const p = await c.point(t('cmd.mld.tip'), { options: [opt('A', t('opt.arrowsize')), opt('L', t('opt.landing'))] });
+    const p = await c.point(t('cmd.mld.tip'), { options: [opt('A', t('opt.arrowsize')), opt('L', t('opt.landing')), ...(mleaderHooks.ask ? [opt('B', 'Block')] : [])] });
+    if (p.option === 'B') { blockName = await mleaderHooks.ask(c); continue; }   // ORS.15
     if (p.option === 'A') { const v = await c.distance(t('cmd.mld.asz'), { default: st.asz }); if (v >= 0) st.asz = E.mleader.asz = v; continue; }
     if (p.option === 'L') { const v = await c.distance(t('cmd.mld.dogleg'), { default: st.dogleg }); if (v >= 0) st.dogleg = E.mleader.dogleg = v; continue; }
     tip = p; break;
@@ -1180,6 +1222,7 @@ def('MLEADER', ['MLD', 'MLEAD'], async (c) => {
   c.preview(null);
   if (dist(tip, land) < 1e-12) { c.print(t('cmd.mld.same')); return; }
   const e = make(land);
+  if (blockName) { const blk = await mleaderHooks.blockFor(c, e, blockName); if (blk) { c.add({ ...e, blk }); return; } }   // ORS.15: block content
   const textPart = leaderGeometry({ ...e, s: ' ' }).find((x) => x.type === 'text');
   const r = await textWords(c, { ...textPart, s: '', layer: e.layer, color: e.color });
   const made = { ...e, ...(r ? { s: String(r.s ?? ''), h: r.h > 0 ? r.h : e.h, ...(r.ww > 0 ? { ww: r.ww } : {}), ...(r.ls && r.ls !== 1 ? { ls: r.ls } : {}) } : {}) };
@@ -1240,9 +1283,22 @@ async function moveLike(c, copy) {
   }
   for (;;) {
     c.preview((cur) => src.map((e) => txEntity(e, mTranslate(cur.x - base.x, cur.y - base.y))));
-    const p = await c.point(t('cmd.mea.p2'), { base, none: true, options: copy ? [opt('U', 'Undo')] : [] });
+    const p = await c.point(t('cmd.mea.p2'), { base, none: true, options: copy ? [opt('A', 'Array'), opt('U', 'Undo')] : [] });   // ORS.30: Array
     if (!p) return;
     if (p.option === 'U') { undoInside(c); continue; }
+    if (p.option === 'A') {   // ORS.30: a row of n items (the original is the first); the point is the first copy's place, or with Fit the last one's
+      const n = await c.number(t('editdepth.copy.count'), {});
+      if (!Number.isInteger(n) || n < 2 || n > COPY_ARRAY_MAX) { c.print(t('editdepth.copy.count_range', { max: COPY_ARRAY_MAX })); continue; }
+      let fit = false, q;
+      for (;;) {
+        c.preview((cur) => copyArrayOffsets(base, cur, n, fit).flatMap((o) => src.map((e) => txEntity(e, mTranslate(o.dx, o.dy)))).slice(0, 2000));
+        q = await c.point(t(fit ? 'editdepth.copy.fit_point' : 'editdepth.copy.second'), { base, options: fit ? [] : [opt('F', 'Fit')] });
+        if (q.option === 'F') { fit = true; continue; }
+        break;
+      }
+      c.doc.change('COPY', () => { for (const o of copyArrayOffsets(base, q, n, fit)) apply(c, src, mTranslate(o.dx, o.dy), true); });
+      continue;
+    }
     apply(c, src, mTranslate(p.x - base.x, p.y - base.y), copy);
     if (!copy) return;
   }
@@ -1648,11 +1704,12 @@ async function arrayCmd(c, kind) {
     c.preview(() => { const cp = arrayCopies(src, a, 3000); return cp || []; });
     c.print(a.kind === 'rect' ? t('cmd.array.rect.now', { cols: a.cols, rows: a.rows, dx: fmtLen(c, a.dx), dy: fmtLen(c, a.dy) }) : t('cmd.array.polar.now', { items: a.items, fill: fmt(deg(a.fill)), rotate: t(a.rotate ? 'opt.yes' : 'opt.no') }));
     const options = a.kind === 'rect'
-      ? [opt('COU', t('opt.count')), opt('S', t('opt.spacing')), opt('COL', t('opt.columns')), opt('R', t('opt.rows')), opt('X', t('opt.exit'))]
-      : [opt('I', t('opt.items')), opt('F', t('opt.fill')), opt('ROT', t('opt.rotateitems')), opt('X', t('opt.exit'))];
+      ? [opt('COU', t('opt.count')), opt('S', t('opt.spacing')), opt('COL', t('opt.columns')), opt('R', t('opt.rows')), opt('AS', t('arrays.opt.assoc')), opt('X', t('opt.exit'))]   // ORS.2: AS
+      : [opt('I', t('opt.items')), opt('F', t('opt.fill')), opt('ROT', t('opt.rotateitems')), opt('AS', t('arrays.opt.assoc')), opt('X', t('opt.exit'))];
     const k = await c.keyword(t('cmd.array.option'), { options, default: 'X' });
     const o = k?.option || k;
     if (o === 'X' || !o) break;
+    if (o === 'AS') { c.print(t(setArrayAssoc(c.engine, !arrayAssocOn(c.engine)) ? 'arrays.assoc.on' : 'arrays.assoc.off')); continue; }   // ORS.2
     const ask = async (key, def, test, msg, extra = {}) => { const v = await c.number(t(key), { default: def, ...extra }); if (test(v)) return v; c.print(t(msg)); return def; };
     if (o === 'COU' || o === 'COL') a.cols = await ask('cmd.array.cols', a.cols, whole, 'cmd.array.whole');
     if (o === 'COU' || o === 'R') a.rows = await ask('cmd.array.rows', a.rows, whole, 'cmd.array.whole');
@@ -1664,6 +1721,7 @@ async function arrayCmd(c, kind) {
   }
   c.preview(null);
   if (count(a) < 2) { c.print(t('cmd.array.one')); return; }
+  if (arrayAssocOn(c.engine)) { const made = c.doc.change('ARRAY', () => makeArray(c.doc, src, fromPlain(a))); if (made) { c.host.setSelection(new Set([made.id])); c.print(t('arrays.made', { n: count(a) })); return; } }   // ORS.2: one object that stays editable (arrays.js)
   const copies = arrayCopies(src, a);
   if (!copies) { c.print(t('cmd.array.toomany')); return; }
   c.doc.change('ARRAY', () => { for (const e of copies) { const x = { ...e }; delete x.id; c.doc.add(x); } });
@@ -1887,12 +1945,12 @@ def('OFFSET', ['O'], async (c) => {
     if (!['line', 'circle', 'arc', 'poly'].includes(e.type)) { c.print(t('cmd.offset.cannot_offset_object')); continue; }
     c.host.setSelection(new Set([e.id]));
     const distFor = (p) => (through ? Math.min(...prims(e).map((q) => dist(p, primPoint(q, closestT(q, p))))) : d);
-    c.preview((cur) => { const o = offsetEntity(e, distFor(cur), cur); return o ? [o] : []; });
+    c.preview((cur) => { const o = offsetGap(e, distFor(cur), cur, c.engine.offsetGapType | 0); return o ? [o] : []; });   // ORS.30: the corner gap setting (OFFSETGAPTYPE)
     const side = await c.point(through ? t('cmd.offset.specify_through_point') : t('cmd.offset.specify_point_side_offset'), { none: true });
     c.preview(null);
     c.host.setSelection(new Set());
     if (!side) return;
-    const o = offsetEntity(e, distFor(side), side);
+    const o = offsetGap(e, distFor(side), side, c.engine.offsetGapType | 0);   // ORS.30
     if (!o) { c.print(t('cmd.offset.cannot_offset_far')); continue; }
     delete o.id;
     c.doc.change('OFFSET', () => c.doc.add(o));
@@ -2057,6 +2115,7 @@ async function trimOrExtend(c, isTrim) {
   settingsLine();
   if (s.trimMode === 'standard') await chooseEdges(); else c.host.setSelection(new Set());
   const run = (how, doTrim) => {
+    if (doTrim && how.pick) { const hr = trimHatchAt(c.doc, how.pick.id, how.pick.point, edges); if (hr) { c.print(t(hr.error ? 'hatchtrim.err.' + hr.error : 'hatchtrim.done')); return; } }   // ORS.29: a picked hatch loses the piece on that side of the cutting edges (hatch-trim.js)
     if (doTrim) {
       const plan = trimPlan(c, s, edges, how);
       if (plan.refused !== undefined) { c.print(t('cmd.trim.cannot')); return; }
@@ -2342,7 +2401,7 @@ def('EXPLODE', ['X'], async (c) => {
       const e = c.doc.get(id);
       const link = e?.type === 'insert' ? linkOf(c.doc, e.block) : null;
       if (link) { linked.add(link); continue; }
-      const parts = explodeEntity(e, c.doc.blocks);
+      const parts = explodeArray(c.doc, e) || explodeEntity(e, c.doc.blocks);   // ORS.2: an array goes back to plain copies
       if (!parts) continue;
       c.doc.remove(id);
       for (const p of parts) c.doc.add(p);
@@ -2899,6 +2958,22 @@ def('AUNITS', ['ANGUNITS'], async (c) => {
   if (r.aunits) c.print(t('cmd.aunits.typing'));
 }, { noRepeat: true, keepSelection: true, help: () => t('cmd.aunits.help') });
 
+// ---- ANNOSCALE: the drawing's annotation scale (0.10 BK.10; anno-scale-cad.js, the rule is annoscale.js) ----
+// Draw at 1:1; annotative text and dimensions are sized on paper and resized when this scale changes, in one undo step.
+def('ANNOSCALE', ['CANNOSCALE'], async (c) => {
+  const doc = c.doc, cur = annoScaleOf(doc), name = (n) => ratioName(n >= 1 ? 1 : 1 / n, n >= 1 ? n : 1);
+  c.print(t('cmd.annoscale.now', { scale: name(cur), n: annotatives(doc).length }));
+  const typed = (await c.string(t('cmd.annoscale.ask'), { default: name(cur) })).trim();
+  if (!typed) return;
+  const own = scalesOf(doc).find((s) => s.name.toLowerCase() === typed.toLowerCase());
+  const r = own ? { paper: own.paper, drawing: own.drawing } : parseRatio(typed) || (/^\d+(?:\.\d+)?$/.test(typed) ? { paper: 1, drawing: Number(typed) } : null);
+  const res = r ? setAnnoScale(doc, nOfScale(r)) : { error: 'scale' };
+  if (res.error) { c.print(t('cmd.annoscale.err')); return; }
+  c.print(t('cmd.annoscale.done', { scale: name(res.to), n: res.changed }));
+  const h = annoTextHeight(doc);   // the office's paper height for new text (Default Policies), at this scale
+  if (h) { doc.current.textHeight = h; c.print(t('cmd.annoscale.text', { h: formatLength(h, unitsOf(doc.meta)) })); }
+}, { help: () => t('cmd.annoscale.help') });
+
 // ---- SCALELISTEDIT: the drawing's own scales for viewports and plots (0.7 D7.19; scales.js) ----
 
 def('SCALELISTEDIT', ['SCALELIST'], async (c) => {
@@ -3120,7 +3195,7 @@ export function closeBlockEdit(doc, save) {
       doc.change('BEDIT', () => doc.defineBlock({ ...vr.block, entities: vr.block.entities, ...(attdefs.length ? { attdefs } : {}) }));
       followStates(doc, be.name, vr);
     } else {
-      doc.change('BEDIT', () => doc.defineBlock({ name: be.name, base: be.base, entities, attdefs }));
+      doc.change('BEDIT', () => doc.defineBlock({ name: be.name, base: be.base, entities, attdefs, ...(be.bp ? { bp: pruneBp(be.bp, entities) } : doc.blocks.get(be.name)?.bp ? { bp: pruneBp(cloneBp(doc.blocks.get(be.name).bp), entities) } : {}) }));
       if (vr?.plain) be.note = 'cmd.bvstate.plain';
     }
     // 0.6 DF.5: attribute definitions changed → the references follow (values kept), in the same undo step
@@ -3438,13 +3513,16 @@ def('LIBRARY', ['LIB'], async (c) => {
  * Place a reference to `name`: preview, S/R options, then each attribute value the block asks for
  * (definitions that are not constant or preset), each with its default. → the new insert, or null.
  */
+export const insertHooks = { suggest: null };   // ORS.24: (c, name) → null | { option, run() } — places where the block's neighbors repeat (smartblocks-cmd.js)
 export async function placeBlock(c, name, { scale = null, attrs = null } = {}) {
   const blk = c.doc.blocks.get(name);
+  const sug = insertHooks.suggest ? insertHooks.suggest(c, name) : null;   // ORS.24
   let sc = scale ?? c.engine.lastInsertScale ?? 1, rot = c.engine.lastInsertRot ?? 0;
   const values = { ...defaultAttrs(blk), ...(attrs || {}) };
   for (;;) {
     c.preview((cur) => [{ type: 'insert', layer: c.doc.current.layer, block: name, x: cur.x, y: cur.y, sx: sc, sy: sc, rot, attrs: values }]);
-    const p = await c.point(t('cmd.pasteclip.specify_insertion_point'), { options: [opt('S', 'Scale'), opt('R', 'Rotate')] });
+    const p = await c.point(t('cmd.pasteclip.specify_insertion_point'), { options: [opt('S', 'Scale'), opt('R', 'Rotate'), ...(sug && sug.count() ? [sug.option] : [])] });
+    if (sug && p.option === sug.option.key) { const made = await sug.run(); if (made) return made; continue; }   // ORS.24
     if (p.option === 'S') { const v = await c.number(t('cmd.scale.specify_scale_factor'), { default: sc }); if (v) sc = v; c.engine.lastInsertScale = sc; continue; }
     if (p.option === 'R') { const a = await c.angle(t('cmd.mtext.rot'), { default: rot, ucs: true }); rot = normAngle(a ?? 0); c.engine.lastInsertRot = rot; continue; }
     c.preview(null);
@@ -3461,13 +3539,16 @@ export async function placeBlock(c, name, { scale = null, attrs = null } = {}) {
 
 /** INSERT, File: a whole DWG/DXF as one block, or one of its blocks (nested ones come too). → { name, scale } */
 async function insertFromFile(c) {
-  if (!c.host.pickDrawing) { c.print(t('cmd.library.opening_another_drawing_needs')); return null; }
-  const src = await c.host.pickDrawing();
+  if (!c.host.pickDrawing && !c.engine.blocklibSource) { c.print(t('cmd.library.opening_another_drawing_needs')); return null; }   // ORS.23
+  const given = c.engine.blocklibSource || null;   // ORS.23: the Blocks panel's libraries hand over a drawing already read (blocks-panel.js)
+  c.engine.blocklibSource = null;
+  const src = given || await c.host.pickDrawing();
   if (!src) return null;
   const { drawing, fileName } = src;
   const blockNames = (drawing.blocks || []).map((b) => b.name).filter((n) => !n.startsWith('*') && !/^CCLAYOUT_\d+$/i.test(n)).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
   let choice;
-  if (c.host.chooseBlock) choice = await c.host.chooseBlock(fileName, blockNames);
+  if (given?.choice) choice = given.choice;   // ORS.23: { block } or { whole: true }, picked in the panel
+  else if (c.host.chooseBlock) choice = await c.host.chooseBlock(fileName, blockNames);
   else {
     const k = blockNames.length ? await c.keyword(t('cmd.library.insert_whole_drawing_one'), { options: [opt('W', t('cmd.library.whole_drawing')), opt('B', t('opt.block'))], default: 'W' }) : 'W';
     if ((k?.option || k) === 'B') {
@@ -3484,7 +3565,8 @@ async function insertFromFile(c) {
   if (!choice) return null;
   const plan = planCopy(c.doc, drawing, choice.whole ? { whole: fileName } : { block: choice.block });
   let onClash = 'rename';
-  if (plan.clashes.length) {
+  if (plan.clashes.length && given?.onClash) onClash = given.onClash;   // ORS.23: the same definition is here already (blocklib.js clashPolicy): no question
+  else if (plan.clashes.length) {
     const list = plan.clashes.slice(0, 8).join(', ') + (plan.clashes.length > 8 ? ' ' + t('cmd.and_more', { n: plan.clashes.length - 8 }) : '');
     const text = t('cmd.insert.clash', { n: plan.clashes.length, list }) + ' ' + t('cmd.insert.clash_ask');
     if (c.host.choose) {
@@ -3551,7 +3633,8 @@ def('LAYOUT', ['LO', 'NEWLAYOUT'], async (c) => {
 def('MVIEW', ['MV'], async (c) => {
   const lay = c.doc.layout;
   if (!lay) { c.print(t('cmd.mview.viewports_go_layout_open')); return; }
-  const a = await c.point(t('cmd.mview.specify_corner_viewport'));
+  const a = await c.point(t('cmd.mview.specify_corner_viewport'), { options: [{ key: 'P', label: t('vpclip.opt.polygonal'), en: 'Polygonal' }, { key: 'O', label: t('vpclip.opt.object'), en: 'Object' }] });   // ORS.16
+  if (a?.option) return lookup(a.option === 'O' ? 'MVIEWOBJECT' : 'MVIEWPOLYGONAL')?.fn(c);   // ORS.16: a viewport with any outline (vpclip-cmd.js)
   c.preview((cur) => [rect(a, cur)]);
   const b = await c.point(t('cmd.mtext.corner'), { base: a });
   const w = Math.abs(b.x - a.x), h = Math.abs(b.y - a.y);
@@ -3952,9 +4035,10 @@ def('AREA', ['AA'], async (c) => {
 
 def('MEASUREGEOM', ['MEA'], async (c) => {
   for (let first = true; ; first = false) {
-    const k = await c.keyword(t('cmd.mea.option'), { options: [opt('D', t('opt.distance')), opt('R', t('opt.radius')), opt('A', t('opt.angle')), opt('AR', t('opt.area')), ...(first ? [] : [opt('X', t('opt.exit'))])], default: first ? 'D' : 'X' });
+    const k = await c.keyword(t('cmd.mea.option'), { options: [opt('D', t('opt.distance')), opt('R', t('opt.radius')), opt('A', t('opt.angle')), opt('AR', t('opt.area')), opt('Q', t('opt.quick')), ...(first ? [] : [opt('X', t('opt.exit'))])], default: first ? 'D' : 'X' });   // ORS.30: Quick
     const o = k?.option || k;
     if (o === 'X' || !o) return;
+    if (o === 'Q') { await lookup('_MEAQUICK')?.fn(c); continue; }   // ORS.30: live distances and angles round the pointer (edit-depth-cmd.js)
     if (o === 'D') {
       const a = await c.point(t('cmd.mea.p1'));
       c.preview((cur) => [{ type: 'line', x1: a.x, y1: a.y, x2: cur.x, y2: cur.y }]);
@@ -4123,7 +4207,8 @@ def('NAMEDVIEW', ['NV', 'VIEWS'], async (c) => {
 
 def('UNDO', ['U'], async (c) => { const l = c.doc.undo(); c.print(l ? 'Undid ' + l : t('cmd.undo.nothing_undo')); }, { noRepeat: true, help: () => t('cmd.undo.undo_last_command') });
 def('REDO', [], async (c) => { const l = c.doc.redo(); c.print(l ? 'Redid ' + l : t('cmd.redo.nothing_redo')); }, { noRepeat: true, help: () => t('cmd.redo.redo_what_was_undone') });
-def('LAYER', ['LA'], async (c) => { c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, help: () => t('cmd.layer.show_layers_panel') });
+def('LAYER', ['LA', 'DDLMODES', 'LAYERPALETTE', 'CLASSICLAYER'], async (c) => { if (c.host.layerManager) await c.host.layerManager(); else c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, help: () => t('cmd.layer.manager') });   // 0.9.1: the Layer manager dialog
+def('LAYERPANEL', [], async (c) => { c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, help: () => t('cmd.layer.show_layers_panel') });
 def('NEW', [], async (c) => { await c.host.newDrawing?.(); }, { noRepeat: true, help: () => t('cmd.new.start_new_drawing') });
 def('OPEN', [], async (c) => { await c.host.openFile?.(); }, { noRepeat: true, help: () => t('cmd.open.open_dwg_dxf_computer') });
 def('SAMPLES', ['SAMPLE'], async (c) => { if (c.host.openSamples) await c.host.openSamples(); else c.print(t('cmd.samples.browser')); }, { noRepeat: true, help: () => t('cmd.samples.help') });   // 0.6 DF.9

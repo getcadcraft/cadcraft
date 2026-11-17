@@ -15,6 +15,7 @@
  */
 import { deriveJoins, joinKey, JOIN_TOL, kindOf } from './walls/joins.js';
 import { moveJoined, setLengthGrow, squareMove } from './walls/square.js';
+import { relineJoined } from './walls/reline.js';
 import { wallBox, boxesTouch } from './plan2d/walls.js';
 import { mmPerDrawingUnit } from './units.js';
 
@@ -138,6 +139,29 @@ export function refreshJoins(cur, subjects, floorOf, k) {
   return touched;
 }
 
+/**
+ * The join style (0.9 WT.5): a corner's style is on both walls' records. The walls in `drivers` (the ones the person changed: the Join style
+ * command, Properties) say what it is; the partner's record is made to mirror it (st the same, th the other way round). → Set of ids changed.
+ */
+export function mirrorStyles(cur, drivers) {
+  const touched = new Set(), byG = new Map([...cur.values()].filter((w) => w.g).map((w) => [w.g, w]));
+  for (const id of drivers) {
+    const w = cur.get(id);
+    if (!w?.g) continue;
+    for (const r of w.jn || []) {
+      if (r.k !== 'L') continue;
+      const o = byG.get(r.o), i = o ? o.jn.findIndex((x) => x.o === w.g && x.me === r.ot && x.ot === r.me) : -1;
+      if (i < 0 || drivers.has(o.id) && o.id < w.id) continue;   // both changed in one step: the first one says
+      const m = o.jn[i], st = r.st || '', th = r.st ? (r.th ? 0 : 1) : undefined;
+      if ((m.st || '') === st && (st ? (m.th ? 1 : 0) === th : true)) continue;
+      const next = { o: m.o, me: m.me, ot: m.ot, k: m.k, ...(st ? { st, th } : {}) };
+      o.jn = o.jn.map((x, n) => (n === i ? next : x));
+      touched.add(o.id);
+    }
+  }
+  return touched;
+}
+
 export const joinedPredicate = (cur) => (idA, idB) => { const a = cur.get(idA), b = cur.get(idB); return !!(a && b && a.g && b.g && a.jn.some((r) => r.o === b.g)); };
 export function joinedOf(cur, w, byG = null) {
   const m = byG || new Map([...cur.values()].map((x) => [x.g, x]));
@@ -169,7 +193,9 @@ export function kindOfChange(c) {
 /**
  * The user's changes, solved with the one solver BimCraft uses (FX.62 Move, FX.67 Length): a moved wall's joined walls follow and stay
  * joined (their ends slide along their own lines to its new line, so nobody turns: FX.63 here too), a lengthened wall's joined wall at the
- * far end moves square. changes = [{ id, a0, b0, a1, b1 }] on one floor. → { plan: Map id → { a, b } (drawing units), rest: the changes it did not solve }.
+ * far end moves square. Any other change (an end dragged off the wall's line by its grip, the wall turned by ROTATE: walls-plan-10) is a new
+ * line for the wall: lib/walls/reline.js slides each joined wall's end along its own line to it; walls changed together keep their corner.
+ * changes = [{ id, a0, b0, a1, b1 }] on one floor. → { plan: Map id → { a, b } (drawing units), rest: the changes it did not solve }.
  */
 export function solveChanges(cur, floorId, floor, k, changes, pre) {
   const plan = new Map(), rest = [];
@@ -184,10 +210,14 @@ export function solveChanges(cur, floorId, floor, k, changes, pre) {
   let rows = rowsNow();
   if (moves.size) { const m = moveJoined(rows, moves); apply(m); rows = rows.map((r) => { const p = m.get(r.guid); return p ? { ...r, a: p.a, b: p.b } : r; }); }
   const left = [];
+  // a change an earlier step already made (GRIDMOVE moves a wall along the line AND the ends of the walls joined to it: the move has slid those
+  // ends there) is not solved a second time: that moved the wall twice (walls-plan-10)
+  const done = (c, row) => row && Math.hypot(row.a[0] - c.a1.x * k, row.a[1] - c.a1.y * k) <= 1e-6 && Math.hypot(row.b[0] - c.b1.x * k, row.b[1] - c.b1.y * k) <= 1e-6;
   for (const { c, kd } of rest) {
     const w = cur.get(c.id);
-    if (!kd) { left.push(c); continue; }
     const row = rows.find((r) => r.guid === w.g);
+    if (done(c, row)) continue;
+    if (!kd) { left.push(c); continue; }
     // the wall as it stood before: its old ends, then the new length from the fixed end
     const old = { ...row, a: [c.a0.x * k, c.a0.y * k], b: [c.b0.x * k, c.b0.y * k] };
     const mm = Math.hypot(c.b1.x - c.a1.x, c.b1.y - c.a1.y) * k;
@@ -195,7 +225,12 @@ export function solveChanges(cur, floorId, floor, k, changes, pre) {
     apply(m);
     rows = rows.map((r) => { const p = m.get(r.guid); return p ? { ...r, a: p.a, b: p.b } : r; });
   }
-  return { plan, rest: left };
+  // a new line (end grip off the line, ROTATE, MIRROR, SCALE): the joined walls keep their direction (FX.63)
+  if (left.length) {
+    const lines = new Map(left.map((c) => [cur.get(c.id).g, { a: [c.a1.x * k, c.a1.y * k], b: [c.b1.x * k, c.b1.y * k] }]));
+    apply(relineJoined(rows, lines));
+  }
+  return { plan, rest: [] };
 }
 
 export { squareMove };

@@ -747,8 +747,11 @@ export class Mesh {
    * fc (Int32 corners per face), fi (Int32 vertex per corner), fm? (Int32 paint per face), paints?, ff? / vf? (Uint8
    * flags: hidden, selected), hf? (Uint8 per corner: sharp, seam), attrs? [{name, domain, size, type, data}]}; typed
    * arrays as base64 (little-endian). Corner and edge data follow fi's order; vertex data the new vertex order.
+   * `raw` (0.10 PERF.38): each would-be base64 string is { [RAW_B64]: the typed array } instead, so a worker can write the
+   * base64 (file-text.js encodeRaw) and the text comes out the same; Mesh.fromJSON reads either.
    */
-  toJSON() {
+  toJSON({ raw = false } = {}) {
+    const b64 = raw ? rawB64 : b64Text;
     const vmap = new Int32Array(this.nv).fill(-1);
     let nv = 0;
     for (let v = 0; v < this.nv; v++) if (!this.vertDead(v)) vmap[v] = nv++;
@@ -1026,7 +1029,11 @@ export class Mesh {
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 const B64I = new Int16Array(128).fill(-1);
 for (let i = 0; i < 64; i++) B64I[B64.charCodeAt(i)] = i;
-export function b64(arr) {
+export function b64(arr) { return b64Text(arr); }
+/** The key of a typed array waiting for its base64 (Mesh.toJSON({ raw: true })). */
+export const RAW_B64 = '\u0000b64';
+const rawB64 = (arr) => ({ [RAW_B64]: arr });
+function b64Text(arr) {
   const u = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
   const parts = [];
   const CH = 0x8000 * 3;
@@ -1043,6 +1050,8 @@ export function b64(arr) {
 }
 /** A typed array of exactly n elements from base64, or null. */
 export function unb64(s, T, n) {
+  if (s && typeof s === 'object' && ArrayBuffer.isView(s[RAW_B64])) s = s[RAW_B64];   // a raw toJSON (a worker's copy)
+  if (ArrayBuffer.isView(s)) return s instanceof T && s.length === n ? s : null;
   if (typeof s !== 'string' || s.length % 4) return null;
   const bytes = n * T.BYTES_PER_ELEMENT;
   const pad = s.endsWith('==') ? 2 : s.endsWith('=') ? 1 : 0;

@@ -33,7 +33,9 @@ import { textLayout, entityBounds, emptyBounds, validBounds, mApply, mRotate, in
 import { worldAttribs, oneLine } from './attrs.js';
 import { dimGeometry, dimMeasure, dimTextPoint, dimLinePoints, DIM_DEFAULTS } from './dims.js';
 import { PATTERNS, patternFamilies } from './hatch.js';
-import { leaderGeometry, leaderStyle, landing } from './leader.js';
+import { gradOf, toRecord } from './hatch-gradient.js';   // ORS.7: gradient fills
+import { clipXdata } from './vpclip.js';   // ORS.16: a clipped viewport's outline
+import { leaderGeometry, leaderStyle, landing, leaderLines, blockPlace } from './leader.js';   // ORS.15: + several leader lines, block content
 import { patternOf } from './linetypes.js';
 import { isXrefRoot } from './xref.js';
 import { forFile, PARAM_BLOCK } from './gcons.js';
@@ -45,12 +47,15 @@ import { payloadStrings, STYLE_BLOCK, styleSheetName } from './plotstyle.js';
 import { addonsPayload, ADDONS_BLOCK } from './addons-file.js';   // 0.8 AL.6
 import { laserPayload, laserFromPayload, isLaserBlock, LASER_BLOCK } from './laser-file.js';   // 0.7 SU.772: the Laser panel's settings, block CADCRAFT_LASER
 import { classesPayload, CLASSES_BLOCK } from './classes-file.js';   // 0.8 SU.912: classes, design layers, viewport class overrides, block CADCRAFT_CLASSES
+import { tablesPayload, TABLES_BLOCK } from './tables-file.js';   // ORS.1 / ORS.22: block CADCRAFT_TABLES
+import { dwgTableEntity } from './tables-cad.js';   // ORS.1: a table → a real table object
 import { geoPayload, GEO_BLOCK, dwgGeoObjects } from './geodwg.js';
 import { dynSave } from './dyn-blocks.js';
 import { picturePlacement, pictureKey } from './pictures.js';
 import { pdfPlacement, underlayFields } from './pdfmodel.js';   // PDF underlays (0.7 D7.24)
 import { clipPoly, filterOf } from './xclip.js';
 import { keptEntity, linkMleaderLabels } from './dwg-keep.js';   // 0.6.1 FIX-061-SPLINE-MLEADER
+import { dimModelFields, dimxItems } from './dims-file.js';   // ORS.6: ordinate, arc length and jogged dimensions; a dimension's extras
 
 /** The versions Save as offers (newest first). The writer does all six; 2000 opens in every program. */
 export const DWG_VERSIONS = Object.freeze([
@@ -110,6 +115,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   const clipObjects = [];   // WL.16: each clipped reference's dictionaries and SPATIAL_FILTER
   // pictures (0.5 WL.14, pictures.js): each reference to a picture block is an IMAGE; one IMAGEDEF per file
   const picDefs = new Map(), picObjects = [];
+  const tableObjects = [];   // ORS.1: the table style objects of the tables written (tables-cad.js)
   const picDef = (file, size) => {
     const k = pictureKey(file) || 'image';
     if (!picDefs.has(k)) { const h = 'CC' + (0x7A000000 + picDefs.size).toString(16).toUpperCase(); picDefs.set(k, h); picObjects.push({ handle: h, type: 'IMAGEDEF', fileName: String(file || 'image'), size, loaded: true, classVersion: 0, resUnits: 0, pixelSize: { x: 1, y: 1 } }); }
@@ -132,6 +138,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     const x = propsXdata(e, { r12: vkey === '2000' });   // R2000 has no transparency: CADCRAFT keeps it (CCTR)
     if (out.length && Object.keys(x).length) out[0].xdata = { ...(out[0].xdata || {}), ...mergeCc(out[0].xdata, x) };
     if (typeof e.mat === 'string' && e.mat) note('material');
+    if (out.length && !Object.prototype.hasOwnProperty.call(out[0], 'ccSrc')) Object.defineProperty(out[0], 'ccSrc', { value: e, enumerable: false });   // FX.240: dxf2000.js keeps or gives its handle (hidden from every other writer)
     return out;
   }
   function conv0(e) {
@@ -178,6 +185,8 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
       case 'hatch': return e.wipe ? [] : hatch(e, base);   // a dimension's text background: DIMTFILL says it (the reader draws it)
       case 'insert': {
         const blk = doc.blocks.get(e.block);
+        const tbl = !modelOnly && blk ? dwgTableEntity(doc, e, tableObjects) : null;   // ORS.1: a table goes out as a real table object (DXF 2000: a reference + CadCraft's record)
+        if (tbl) { note('table'); return [{ ...base, ...tbl, insert: P(e.x, e.y, z) }]; }
         const ole = blk ? oleForDxf(e, blk, mApply, insertMatrix) : null;   // an OLE object from a DXF (0.7 D7.23)
         if (ole && modelOnly) { note('ole'); return [{ ...base, type: 'OLE2FRAME', dxfOle: ole }]; }   // DXF 2000 writes it as an OLE2FRAME again
         if (ole) note('oleFrame');   // a DWG cannot take an object that came from a DXF (its data's form is not known): its frame is saved
@@ -242,14 +251,16 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     const last = e.pts[e.pts.length - 1], mz = Number.isFinite(e.z) ? e.z : 0;
     const label = String(e.s ?? '').split('\n').map((l) => l.replace(/\\/g, '\\\\').replace(/\{/g, '\\{').replace(/\}/g, '\\}')).join('\\P');
     note('mleaderOut');
+    const bp = txt ? null : blockPlace(e);   // ORS.15: block content → a real MULTILEADER with a block (and its attribute values)
+    const bx = bp && doc.blocks.has(e.blk.name) ? { contentBlock: e.blk.name, blockLabels: Object.entries(e.blk.attrs || {}).map(([tag, v], i) => ({ attdefTag: tag, text: String(v ?? ''), index: i, width: 0 })) } : null;
     return [{
-      ...base, type: 'MULTILEADER', leaderType: 1, contentType: txt ? 2 : 0, landingEnabled: true, doglegEnabled: st.dogleg > 0, landingDistance: st.dogleg,
+      ...base, ...(bx || {}), type: 'MULTILEADER', leaderType: 1, contentType: txt ? 2 : bx ? 1 : 0, landingEnabled: true, doglegEnabled: st.dogleg > 0, landingDistance: st.dogleg,
       arrowSize: st.asz, textLeftAttach: 2, textRightAttach: 2, scale: 1,
       context: {
         scale: 1, textHeight: h, arrowSize: st.asz, landingGap: st.gap, leftAttach: 2, rightAttach: 2, contentBase: P(L.text.x, L.text.y),
-        hasText: !!txt, hasBlock: false,
+        hasText: !!txt, hasBlock: !!bx, ...(bx ? { block: { name: bx.contentBlock, location: P(bp.x, bp.y, mz), scale: P(bp.sx, bp.sx, bp.sx), rotation: 0 } } : {}),
         ...(txt ? { text: { label, location: P(txt.x, txt.y, mz), direction: P(1, 0), width: e.ww > 0 ? e.ww : 0, height: 0, lineSpacing: e.ls || 1, alignment: dir === 1 ? 1 : 3 } } : {}),
-        roots: [{ connection: P(last.x, last.y, mz), direction: P(dir, 0), landingDistance: st.dogleg, lines: [{ points: e.pts.slice(0, -1).map((q) => P(q.x, q.y, mz)) }] }],
+        roots: [{ connection: P(last.x, last.y, mz), direction: P(dir, 0), landingDistance: st.dogleg, lines: leaderLines(e).map((l) => ({ points: l.slice(0, -1).map((q) => P(q.x, q.y, mz)) })) }],   // ORS.15: every leader line
       },
     }];
   }
@@ -294,13 +305,14 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     const rings = (e.loops || []).map((l) => { const pts = []; for (let k = 0; k + 1 < l.length; k += 2) pts.push({ x: l[k], y: l[k + 1] }); return openRing(pts); }).filter((r) => r.length >= 3);
     if (!rings.length) return [];
     const z = Number.isFinite(e.z) ? e.z : 0;
-    if (e.solid && rings.length === 1 && rings[0].length <= 4 && !e.wipe) {
+    const grad = gradOf(e);   // ORS.7: a gradient fill stays a HATCH and carries the format's own gradient record (DWG 2004 and later write it)
+    if (e.solid && rings.length === 1 && rings[0].length <= 4 && !e.wipe && !grad) {
       const [a, b, c, d = c] = rings[0];
       return [{ ...base, type: 'SOLID', points: [P(a.x, a.y, z), P(b.x, b.y, z), P(d.x, d.y, z), P(c.x, c.y, z)], ...(z ? { elevation: z } : {}) }];   // SOLID corners run 1, 2, 4, 3
     }
     const loops = rings.map((r, i) => ({ flags: i ? 0 : 1, polyline: { closed: true, vertices: r.map((p) => ({ x: p.x, y: p.y, bulge: 0 })) } }));
     const more = { ...(z ? { elevation: z } : {}), style: ISLAND[e.island] ?? 0 };   // island detection (P.7): normal 0, outer 1, ignore 2
-    if (e.solid) return [{ ...base, type: 'HATCH', pattern: 'SOLID', solid: true, loops, ...more }];
+    if (e.solid) return [{ ...base, type: 'HATCH', pattern: 'SOLID', solid: true, loops, ...more, ...(grad ? { gradient: toRecord(grad) } : {}) }];
     const lines = patternLines(e);
     if (!lines) note('hatchUnknown');
     return [{ ...base, type: 'HATCH', pattern: String(e.pattern || 'USER').toUpperCase().slice(0, 31), solid: false, patternType: PATTERNS[String(e.pattern || '').toUpperCase()] && !e.patdef ? 1 : 2,
@@ -344,12 +356,16 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
       case 'angular':
         Object.assign(d, { defPoint: P(e.loc.x, e.loc.y), xline1: P(e.p1.x, e.p1.y), xline2: P(e.p2.x, e.p2.y), center: P(e.c.x, e.c.y) });
         break;
-      default: note('other'); return [{ ...base, type: 'INSERT', block: name, insert: P(0, 0) }];
+      default: {
+        const mf = dimModelFields(e, P, { r2000: explodeLeaders });   // ORS.6 (dims-file.js): explodeLeaders = the model feeds the DXF 2000 writer
+        if (!mf) { note('other'); return [{ ...base, type: 'INSERT', block: name, insert: P(0, 0) }]; }
+        Object.assign(d, mf);
+      }
     }
     // this dimension's own settings, as AutoCAD keeps per-dimension overrides (ACAD "DSTYLE" xdata: code, value, …), every
     // variable one for one (dwg-props.js); what no variable holds exactly (arrowhead names, text style, true colours) in CADCRAFT
     d.xdata = { ACAD: dstyleItems(st) };
-    const cc = ccDimItems(st);
+    const cc = [...ccDimItems(st), ...dimxItems(e).map((s) => [1000, s])];   // ORS.6: CCDIMX beside CCDIMST
     if (cc.length) d.xdata.CADCRAFT = cc;
     return [d];
   }
@@ -386,7 +402,8 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     const lov = !modelOnly && e.lov && typeof e.lov === 'object' && Object.keys(e.lov).length ? e.lov : null;
     const vh = lov ? 'CC' + (0x7C000000 + vpOverrides.length).toString(16).toUpperCase() : null;
     if (lov) vpOverrides.push({ h: vh, lov });
-    return { ...base, ...(vh ? { handle: vh } : {}), ...(Number.isFinite(e.tw) && e.tw ? { twist: e.tw } : {}), type: 'VIEWPORT', center: P(e.x, e.y), width: e.w, height: e.h, viewCenter: dcsOf(e), viewTarget: P(0, 0), viewHeight: e.h / (e.s > 0 ? e.s : 1), id, status, ...(frz.length ? { frozenLayers: frz } : {}) };
+    const vclip = clipXdata(e);   // ORS.16: the outline, as extended data on the VIEWPORT
+    return { ...base, ...(vclip ? { xdata: { ...(base.xdata || {}), ...vclip } } : {}), ...(vh ? { handle: vh } : {}), ...(Number.isFinite(e.tw) && e.tw ? { twist: e.tw } : {}), type: 'VIEWPORT', center: P(e.x, e.y), width: e.w, height: e.h, viewCenter: dcsOf(e), viewTarget: P(0, 0), viewHeight: e.h / (e.s > 0 ? e.s : 1), id, status, ...(frz.length ? { frozenLayers: frz } : {}) };
   }
 
   for (const b of doc.blocks.values()) {
@@ -436,6 +453,8 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   if (adPts) blocks.push({ name: ADDONS_BLOCK, base: P(0, 0), entities: adPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   const clPts = classesPayload(doc);   // 0.8 SU.912 (classes-file.js): block CADCRAFT_CLASSES, the same way
   if (clPts) blocks.push({ name: CLASSES_BLOCK, base: P(0, 0), entities: clPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
+  const tbPts = tablesPayload(doc);   // ORS.1 / ORS.22 (tables-file.js): block CADCRAFT_TABLES, the same way
+  if (tbPts) blocks.push({ name: TABLES_BLOCK, base: P(0, 0), entities: tbPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   // the coordinate system and map layers (0.6 GEO-DWG, geodwg.js): CadCraft's copy in block CADCRAFT_GEO; GEODATA below
   const geoPts = geoPayload(doc);
   if (geoPts) blocks.push({ name: GEO_BLOCK, base: P(0, 0), entities: geoPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
@@ -545,6 +564,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
     model.version = ds.version; if (Number.isFinite(ds.maintenance)) model.maintenance = ds.maintenance;
   }
   if (picObjects.length || ovrObjects.length || clipObjects.length || pdfObjects.length) model.objects = [...(model.objects || []), ...picObjects, ...ovrObjects, ...clipObjects, ...pdfObjects];
+  if (tableObjects.length) model.objects = [...(model.objects || []), ...tableObjects];   // ORS.1
   // the location other programs read (GEODATA, in the model space's extension dictionary): DWG 2010 and later only
   const geoObj = !modelOnly && Number(vkey) >= 2010 ? dwgGeoObjects(doc.meta.geo, doc.meta.units || '') : null;
   if (geoObj) {

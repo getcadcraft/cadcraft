@@ -29,7 +29,7 @@ import { aciHex } from './doc.js';
 
 import { t, has } from './i18n.js';
 /** Toolbar groups that only make sense on the 2D tabs: hidden while the 3D tab shows. */
-const HIDE_IN_3D = new Set(['Draw', 'Modify', 'Annotate', 'Parametric', 'Blocks', 'Sheets', 'View']);
+const HIDE_IN_3D = new Set(['Draw', 'Modify', 'Walls', 'Annotate', 'Parametric', 'Blocks', 'Sheets', 'View']);
 
 class CadView3D extends View3D {
   constructor(gl, over, opts, ws) {

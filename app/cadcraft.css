@@ -66,6 +66,26 @@
 .cc-menu > summary { list-style: none; }
 .cc-menu > summary::-webkit-details-marker { display: none; }
 .cc-menu[open] > summary { border-color: var(--ink); background: var(--sheet); }
+/* 0.9.1: a split tool (Arc, Circle): the button, with a slim caret hard against it that opens the ways to draw it */
+.cc-split { display: flex; align-items: stretch; gap: 0; }
+.cc-split > .cc-tool { min-width: 2.3rem; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.cc-split-menu > .cc-split-arrow { min-width: 0; width: .85rem; height: 100%; padding: 0; box-sizing: border-box; justify-content: center; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.cc-split-arrow .bi { font-size: .55rem; color: var(--ink-2); }
+.cc-split { position: relative; }
+.cc-split-menu.cc-menu { position: static; }   /* the list hangs from the whole split (under the button), not from the caret */
+.cc-split-menu .cc-menu-list { right: auto; left: 0; min-width: 19rem; }
+.cc-menu-lab { display: inline-flex; align-items: center; gap: .6rem; }
+.cc-menu-ico { display: inline-flex; color: var(--layer); }
+.cc-menu-ico svg { width: 1.4rem; height: 1.4rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+/* the wall tools' drawings from the CadCraft icon set (0.9 WT.1, walls-ui.js) on the toolbar, its Walls menu and the ribbon menu styles */
+[data-tb-key="Walls"] .cc-menu-list { max-height: min(34rem, calc(100vh - 14rem)); overflow-y: auto; min-width: 19rem; }   /* 18 tools: the menu scrolls on a short screen */
+[data-tb-key="Walls"] .cc-menu-list button { align-items: center; }
+.cc-tool .ccic.cc-wallic { --ic-size: 1.15rem; }
+.cc-menu-ico svg.ccic.cc-wallic { width: 1.4rem; height: 1.4rem; stroke: var(--ic-line); }
+.cc-menu-ico .bi { font-size: 1.15rem; line-height: 1; width: 1.4rem; text-align: center; }
+.cc-in-tool .ccic.cc-wallic { --ic-size: 1.2rem; margin-inline: auto; }
+.cc-in-tool.cc-in-big .ccic.cc-wallic { --ic-size: 1.9rem; }
+.cc-in-tool.cc-in-sm .ccic.cc-wallic, .cc-in-item .ccic.cc-wallic { --ic-size: 1.1rem; margin-inline: 0; }
 .cc-menu-list {
   position: absolute; z-index: 30; top: calc(100% + .25rem); right: 0; min-width: 15rem;
   display: flex; flex-direction: column; padding: .25rem 0;
@@ -120,6 +140,24 @@ body:not([data-shell-tb="labels"]) .cc.cc-top-compact .cc-in-tool > span {
 .cc-linkbtn:hover { text-decoration-thickness: 2px; }
 .cc-sec-tools { display: inline-flex; align-items: baseline; gap: .75rem; }
 .cc-sec-tools .cc-menu > summary { cursor: pointer; }
+/* A section's links (New layer, Library…, the sheet set menu, Samples) sat on the title's line and both were cut short ("La…", "Open a sa…"). Owner 2026-11-12:
+   "the links should be under the title … just an icon on the same line … on open move the icon to the (icon label) link, on close restore the icon link".
+   Open (or a layout whose sections do not fold): the title has its own line, the links a line under it, icon and label. Closed: only the icons, on the title's line. */
+.cc-sec-head { flex-wrap: wrap; }
+.cc-sec-head::before { content: ""; order: 4; flex: 0 0 100%; height: 0; margin-top: -.5rem; }   /* a full-width nothing: what comes after it starts a new line */
+.cc-sec-head > :is(.cc-linkbtn, .cc-sec-tools):not([hidden]) { order: 5; flex: 0 1 auto; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .9rem; text-align: left; }
+.cc-sec-head > .cc-linkbtn { gap: .3rem; }
+.cc-sec-head[data-af] { overflow: visible; }
+.cc-sec-head[data-af] > :is(.cc-linkbtn, .cc-sec-tools) { overflow: visible; white-space: normal; }
+.cc-sec-head[data-af="closed"]::before { display: none; }
+.cc-sec-head:not(:has(> :is(.cc-linkbtn, .cc-sec-tools)))::before { display: none; }
+.cc-sec-head[data-af] > .cc-h { flex: 0 1 auto; }
+.cc-sec-head[data-af="closed"] { flex-wrap: nowrap; }
+.cc-sec-head[data-af="closed"] > :is(.cc-linkbtn, .cc-sec-tools) { order: 0; flex: 0 0 auto; flex-wrap: nowrap; gap: .1rem; }
+.cc-sec-head[data-af="closed"] .cc-linkbtn { font-size: 0; text-decoration: none; padding: .15rem .3rem; border-radius: var(--radius); line-height: 1; list-style: none; }
+.cc-sec-head[data-af="closed"] .cc-linkbtn::-webkit-details-marker { display: none; }
+.cc-sec-head[data-af="closed"] .cc-linkbtn .bi { font-size: 1rem; }
+.cc-sec-head[data-af="closed"] .cc-linkbtn:hover { background: var(--sheet); }
 
 .cc-input, .cc-select {
   width: 100%;
@@ -251,7 +289,11 @@ body:not([data-shell-tb="labels"]) .cc.cc-top-compact .cc-in-tool > span {
 /* FX.35: the pointer is hidden only while the canvas really draws the crosshair in its place (view.renderOver sets the class). With the crosshair
  * dropped (a dialog or pop-up opened and closed under a still pointer, the other pane of a split screen) the ordinary pointer shows. */
 .cc-over.cc-xhair-on { cursor: none; }
+.cc-over.cc-ptr-light { cursor: crosshair; }   /* 0.9.1 the light pointer (pointer-perf.js): the system draws the crosshair */
 .cc-over.is-panning { cursor: grabbing; }
+.cc-ptr-note { position: absolute; z-index: 3; left: 50%; bottom: 1rem; transform: translateX(-50%); display: flex; align-items: flex-start; gap: .5rem; width: max-content; max-width: min(38rem, calc(100% - 2rem)); padding: .6rem .6rem .6rem .9rem; font-size: .875rem; color: var(--ink); background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); }
+.cc-ptr-note[hidden] { display: none; }
+.cc-ptr-note p { margin: 0; }
 .cc-hint {
   position: absolute;
   z-index: 2;
@@ -267,7 +309,10 @@ body:not([data-shell-tb="labels"]) .cc.cc-top-compact .cc-in-tool > span {
 }
 .cc-hint-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; margin-bottom: .35rem; }
 .cc-hint-h { margin: 0; font-weight: 700; font-stretch: 112%; }
-.cc-hint-close { pointer-events: auto; padding: .15rem .35rem; font-size: .8125rem; line-height: 1; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+.cc-hint-close { pointer-events: auto; display: inline-grid; place-items: center; box-sizing: border-box; width: 1.6rem; height: 1.6rem; padding: 0; font-size: .8125rem; line-height: 1; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+/* the x sat low and right in its frame (owner 2026-11-12): the icon font's glyph hangs below the text line, so the button is a square that centres a block-level glyph */
+.cc-hint-close.cc-x { padding: 0; }   /* .cc-x (later in this file) adds side padding that pushed the glyph out of the square */
+.cc-hint-close .bi { display: block; line-height: 1; } .cc-hint-close .bi::before { display: block; vertical-align: 0; line-height: 1; }
 .cc-hint-close:hover { border-color: var(--line); background: var(--sheet); }
 .cc-hint-close:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
 .cc-dyn {   /* dynamic input (F12) by the crosshair */
@@ -621,14 +666,15 @@ html.cc-phone .cc-seltotals { display: none; }
 .cc.is-touch .cc-tab, .cc.is-touch .cc-doctab, .cc.is-touch .cc-doctab-x, .cc.is-touch .cc-doctab-tool, .cc.is-touch .cc-tab-add { min-height: 2.5rem; padding-inline: .9rem; }
 .cc.is-touch { --cc-tabs-h: 2.5rem; }
 .cc.is-touch .cc-toggle { min-height: 2.5rem; min-width: 3rem; }
-.cc-keyrow { display: flex; flex-wrap: wrap; gap: .3rem; padding: .3rem 1rem .45rem; border-top: var(--pen-1) solid var(--grid); }
+.cc-keyrow { display: flex; flex-wrap: nowrap; gap: .3rem; padding: .3rem 1rem .45rem; border-top: var(--pen-1) solid var(--grid); overflow-x: auto; scrollbar-width: none; }   /* 2026-11-12 (owner): one row, Enter never drops onto a second one; the keys share the width, a row too narrow for them scrolls */
+.cc-keyrow > .cc-key { flex: 0 1 auto; min-width: 2.25rem; padding-inline: clamp(.3rem, 1vw, .7rem); }
 .cc-keyrow[hidden] { display: none; }
 .cc-key {
   font: inherit; font-size: .9375rem; font-weight: 600; color: var(--ink); background: var(--sheet); min-width: 2.75rem; min-height: 2.5rem;
   padding: .2rem .7rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; touch-action: manipulation;
 }
 .cc-key.is-char { font-family: var(--font-mono, ui-monospace, monospace); }
-.cc-key.is-enter { margin-left: auto; min-width: 6rem; background: var(--action); color: var(--on-action); border-color: var(--action); }
+.cc-key.is-enter { margin-left: auto; min-width: 5rem; background: var(--action); color: var(--on-action); border-color: var(--action); }
 .cc-key:active { background: var(--sheet-2); }
 .cc-key.is-enter:active { filter: brightness(.9); }
 .cc-key:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: 1px; }
@@ -915,8 +961,7 @@ html.cc-phone .cc-alignpanel { top: auto; bottom: .5rem; }
 
 /* The first-drawing tour (0.7 D7.06, tour.js): a small box over the drawing, bottom right, out of the way of the command line. */
 .cc-hint-tour { margin: .5rem 0 0; }
-.cc-tour { position: absolute; right: .75rem; bottom: 4.5rem; z-index: 20; width: min(21rem, calc(100% - 1.5rem)); padding: .6rem .75rem .7rem; background: var(--sheet); color: var(--ink);
-  border: var(--pen-2) solid var(--action); border-radius: var(--radius); }
+.cc-tour { position: absolute; right: .75rem; bottom: 4.5rem; z-index: 20; }   /* 2026-11-12: colours, width and shadow from .tour-toast (app-shell.css) */
 .cc-tour.is-done { border-color: var(--layer-green, var(--action)); }
 .cc-tour-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .cc-tour-n { font-size: .75rem; font-weight: 600; color: var(--ink-2); }
@@ -992,3 +1037,59 @@ dialog .cc-tablist .cc-tab { min-height: 2.25rem; padding: .45rem .9rem .35rem; 
 .cc-cmd-drop li { padding: .15rem .45rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cc-cmd-drop li[aria-selected="true"], .cc-cmd-drop li:hover { color: var(--sheet); background: var(--ink); }
 .cc-cmd-alias, .cc-cmd-help { opacity: .75; }
+
+/* 0.9.1: the Layer manager dialog (layer-ui.js) */
+.cc-lmdlg { width: min(64rem, calc(100vw - 2rem)); }
+.cc-lm-current { font-size: .875rem; color: var(--ink-2); }
+.cc-lm-body { display: grid; gap: .6rem; padding: .75rem 1rem; }
+.cc-lm-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.cc-lm-bar .cc-lm-search { margin-left: auto; width: min(16rem, 100%); padding: .2rem .45rem; }
+.cc-lm-scroll { max-height: 56vh; overflow: auto; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.cc-lm-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.cc-lm-table th { position: sticky; top: 0; z-index: 1; background: var(--sheet-2); text-align: left; font-weight: 600; white-space: nowrap; padding: .35rem .5rem; border-bottom: var(--pen-1) solid var(--line); }
+.cc-lm-table td { padding: .2rem .5rem; border-bottom: var(--pen-1) solid var(--grid); vertical-align: middle; }
+.cc-lm-table tr.is-sel td { background: color-mix(in srgb, var(--action) 14%, transparent); }
+.cc-lm-table tr.is-current .cc-lm-name { font-weight: 700; }
+.cc-lm-table tr.is-off .cc-lm-name { color: var(--ink-2); }
+.cc-lm-c { text-align: center; width: 1%; white-space: nowrap; }
+.cc-lm-n { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.cc-lm-name { width: 100%; min-width: 9rem; padding: .15rem .35rem; background: transparent; border-color: transparent; }
+.cc-lm-name:hover, .cc-lm-name:focus { border-color: var(--line); background: var(--sheet); }
+.cc-lm-name[readonly] { cursor: default; }
+.cc-lm-sel { padding: .1rem .3rem; max-width: 11rem; }
+.cc-lm-status { background: none; border: 0; padding: 0 .2rem; color: var(--ink-2); cursor: pointer; font-size: 1rem; line-height: 1.4; }
+.cc-lm-status[aria-pressed="true"] { color: var(--layer-green, var(--action)); }
+.cc-lm-note { margin: 0; min-height: 1.2em; }
+.cc-lm-table .cc-swatch { display: inline-block; vertical-align: middle; }
+/* the bill of materials table dialog (0.9.1, bomzones-ui.js): settings beside the column list, the table below */
+.cc-bom-top { display: grid; grid-template-columns: minmax(15rem, 20rem) 1fr; gap: .75rem; align-items: start; }
+@media (max-width: 46rem) { .cc-bom-top { grid-template-columns: 1fr; } }
+.cc-bom-settings { display: grid; gap: .45rem; font-size: .875rem; }
+.cc-bom-field { display: grid; gap: .15rem; }
+.cc-bom-field > span:first-child { color: var(--ink-2); }
+.cc-bom-field .cc-input, .cc-bom-field .cc-select { width: 100%; padding: .2rem .45rem; }
+.cc-bom-pair { display: grid; grid-template-columns: 1fr auto; gap: .35rem; }
+.cc-bom-checks { display: grid; grid-template-columns: 1fr 1fr; gap: .2rem .75rem; }
+.cc-bom-check { display: flex; align-items: center; gap: .3rem; }
+.cc-bom-cols { max-height: 24.5rem; }
+.cc-lm-table th.cc-bom-num { text-align: right; }
+.cc-bom-preview { max-height: 30vh; }
+.cc-bom-caption { caption-side: top; text-align: left; font-weight: 600; padding: .35rem .5rem; }
+.cc-bom-total td { font-weight: 600; border-top: var(--pen-1) solid var(--line); }
+
+/* 2026-11-12 (owner: "align properly"): an open section's head link (Library…, Open a sample) took the .9rem column gap of .cc-sec-tools (the :is() rule above outranks
+   .cc-sec-head > .cc-linkbtn), so its words sat far from the icon, unlike the sheet set's "Set". The icon-to-words gap is one space wide everywhere. */
+.cc-sec-head:not([data-af="closed"]) > .cc-linkbtn:not([hidden]) { column-gap: .25rem; }
+
+/* ---- The Pro skin (shell layouts pro-cad1 … pro-cad4, 0.10 PRO.1): the command window at the chrome's size. Two lines of history over one
+   input line, the history in the fixed-width face, the field framed like the skin's other fields. The size grips, F2 and the fit steps are unchanged. ---- */
+body.ws-skin-pro .cc-cmd { background: var(--pro-panel); border-top: 1px solid var(--pro-line); }
+body.ws-skin-pro .cc:not(.cc-fit-tight) .cc-history { height: 2.375rem; }
+body.ws-skin-pro .cc-history { padding: .125rem .625rem; font: .71875rem/1.45 var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace); color: var(--pro-muted); }
+body.ws-skin-pro .cc-history li { line-height: 1.45; }
+body.ws-skin-pro .cc-history li.is-cmd { color: var(--pro-ink); }
+body.ws-skin-pro .cc-cmdline { padding: .1875rem .5rem .1875rem .625rem; gap: .375rem; background: var(--pro-band); border-top: 1px solid var(--pro-line-2); }
+body.ws-skin-pro .cc-prompt { font-size: .75rem; font-weight: 600; color: var(--pro-ink); }
+body.ws-skin-pro .cc-cmd-input { height: 1.375rem; padding: 0 .375rem; font: 500 .75rem var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace); color: var(--pro-ink); background: var(--pro-field); border: 1px solid var(--pro-line); border-radius: var(--pro-r); }
+body.ws-skin-pro .cc-cmd-input:focus { border: 1px solid var(--pro-accent); }
+body.ws-skin-pro :is(.cc-cmd-btn, .cc-cmd-grip) { color: var(--pro-muted); border-radius: var(--pro-r); }

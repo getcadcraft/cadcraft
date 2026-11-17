@@ -45,6 +45,8 @@ import { DIM_EXTRA, ARROWS, TOL_MODES, dimStyleText, textUnitOf, withTextUnit, t
 import { PATTERNS } from './hatch.js';
 import { LUNITS } from './units.js';
 import { t } from './i18n.js';
+import { withAnnotative, paperSizeOf, annoScaleOf } from './anno-scale-cad.js';
+import { ratioName } from './scales.js';   // 0.10 BK.10: annotative text and dimensions sized by the drawing's annotation scale
 import { stretchRefused, stretchAllowed } from './libplace.js';
 /** "width and depth" / "nothing" for the axes a Library item may be stretched along. */
 const stretchWords = (axes) => axes.map((a) => t('props.stretch.' + a)).join(t('props.stretch.and'));
@@ -59,6 +61,8 @@ const PT_LABEL = { start: 'props.pt.start', end: 'props.pt.end', center: 'props.
 export const pointLabel = (name) => t(PT_LABEL[name] || 'props.pt.pos');
 
 /** A number field written back: absent when it equals its default (keeps entities and files small). */
+/** 0.10 BK.10: an annotative object's size on paper and the scale it is sized for: "2.5 mm at 1:50". */
+const annoPaperText = (doc, e) => { const mm = paperSizeOf(doc, e); return mm === null ? '' : t('props.annpaper.value', { mm: String(Math.round(mm * 100) / 100), scale: ratioName(1, e.as > 0 ? e.as : annoScaleOf(doc)) }); };
 const put = (e, k, v, dflt = 0) => { const n = { ...e }; if (v === dflt || v === undefined || v === null) delete n[k]; else n[k] = v; return n; };
 const num0 = (v) => (Number.isFinite(v) ? v : 0);
 
@@ -244,7 +248,8 @@ const TYPES = {
     { key: 'obl', sec: 'text', kind: 'ang', min: -85, max: 85, get: (e) => deg(e.obl || 0), set: (e, v) => put(e, 'obl', rad(v)) },
     { key: 'ww', sec: 'text', kind: 'len', min: 0, title: 'props.ww.title', get: (e) => num0(e.ww), set: (e, v) => put(e, 'ww', v) },
     { key: 'ls', sec: 'text', kind: 'num', min: 0.25, max: 4, get: (e) => e.ls || 1, set: (e, v) => put(e, 'ls', v, 1) },
-    { key: 'ann', sec: 'text', kind: 'bool', title: 'props.f.ann.title', get: (e) => !!e.ann, set: (e, v) => put(e, 'ann', v ? true : undefined) },
+    { key: 'ann', sec: 'text', kind: 'bool', title: 'props.f.ann.title', get: (e) => !!e.ann, set: (e, v) => (ctx.doc ? withAnnotative(ctx.doc, e, !!v) : put(e, 'ann', v ? true : undefined)) },   // 0.10 BK.10: sized for the drawing's annotation scale
+    { key: 'annpaper', sec: 'text', kind: 'ro', when: (e) => !!e.ann && !!ctx.doc, get: (e) => annoPaperText(ctx.doc, e) },
     ...point('pos', ['x', 'y', 'z']),
   ],
   insert: (ctx) => [
@@ -336,6 +341,8 @@ function dimDefs(ctx) {
   return [
     { key: 'dimstyle', sec: 'general', kind: 'choice', when: (e) => !!e.kind, choices: styles, get: (e) => e.dimstyle || 'Standard',
       set: (e, v) => { const st = ctx.doc?.dimStyles?.get?.(v); const n = { ...e, st: st ? { ...st } : { ...(e.st || {}) } }; if (v === 'Standard') delete n.dimstyle; else n.dimstyle = v; delete n.block; return n; } },
+    { key: 'ann', sec: 'general', kind: 'bool', title: 'props.f.ann.title', when: (e) => !!e.kind, get: (e) => !!e.ann, set: (e, v) => (ctx.doc ? withAnnotative(ctx.doc, e, !!v) : put(e, 'ann', v ? true : undefined)) },   // 0.10 BK.10
+    { key: 'annpaper', sec: 'general', kind: 'ro', when: (e) => !!e.ann && !!e.kind && !!ctx.doc, get: (e) => annoPaperText(ctx.doc, e) },
     { key: 'dimkind', sec: 'geometry', kind: 'ro', get: (e) => (e.kind ? DIM_KINDS[e.kind] : t('props.dim.fromblock', { block: e.block })) },
     { key: 'measured', sec: 'geometry', kind: 'ro', when: (e) => !!e.kind, get: (e) => dimStyleText({ ...e, text: '' }, dimMeasure(e)) },
     ...dimPoints(),

@@ -172,6 +172,8 @@ export function cadHost({ doc, control, selected, onSelection, setSelection, des
 export function mountCadShell(dc) {
   const host = cadHost(dc);
   mountShellModules(host);
+  // BK.147: the drawing's undo list, oldest first, for "Why did this happen?" (assets/js/app-ai-assist.js reads it at each use)
+  window.ccHistorySource = { steps: () => dc.doc.undoStack.map((s) => String(s.label || '')) };
   const reload = () => {
     if (window.ccCalc) ccCalc.load(dc.doc.meta.calcs || null);
     if (window.ccReasons) ccReasons.load(dc.doc.meta.reasons || null);
@@ -182,6 +184,7 @@ export function mountCadShell(dc) {
   // an open replaces the sheets; an undo or redo may move them: reload when what the drawing holds is no longer what the module has
   let calcs = dc.doc.meta.calcs, reasons = dc.doc.meta.reasons, docinfo = dc.doc.meta.docinfo;
   dc.doc.on((why) => {
+    if (why === 'load' && window.ccAssist) window.ccAssist.history.reset('A drawing was opened.');
     if (why === 'load' || dc.doc.meta.calcs !== calcs || dc.doc.meta.reasons !== reasons || dc.doc.meta.docinfo !== docinfo) { calcs = dc.doc.meta.calcs; reasons = dc.doc.meta.reasons; docinfo = dc.doc.meta.docinfo; reload(); }
     else if (window.ccLessons) ccLessons.emit('model', {});
   });

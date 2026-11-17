@@ -15,5 +15,5 @@
     "cabinetcraft",
     "chip",
     "carving",
-    "lightdesign", "pointcloud", "circuit", "chain"]
+    "lightdesign", "pointcloud", "circuit", "chain","default-policies", "mepdraft"]
 }

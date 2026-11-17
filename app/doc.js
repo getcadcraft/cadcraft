@@ -19,6 +19,7 @@
  * 'change' after every change, undo and redo, 'layers', 'load' and 'space'.
  */
 
+import { cleanBp } from './blockparams.js';   // 0.10 SU.1804
 import { DIM_DEFAULTS } from './dims.js';
 import { afterEdit, resolveParametric } from './gcons.js';
 import { Model3D, split3d } from './model3d.js';
@@ -33,6 +34,10 @@ import { cleanAddons } from './addons-file.js';   // 0.8 AL.6
 import { keptJob } from './laser-file.js';   // 0.7 SU.772
 import { shownByFloor, editableOnFloor } from './floors.js';   // 0.9 PLAN2D.3: stacked floors
 import { applyClassData } from './classes-file.js';   // 0.8 SU.912 (sx-classes): classes, design layers, viewport class overrides
+import { applyTablesData } from './tables-file.js';   // ORS.1 / ORS.22: table styles, data links, custom properties, the field setting (block CADCRAFT_TABLES)
+import { adoptFileTables } from './tables-cad.js';   // ORS.1: tables another program wrote get their record
+import { fieldsOnLoad } from './fields-cad.js';   // ORS.22: fields other programs wrote get their record; update on open
+import { annoHidden } from './anno-scale-cad.js';   // ORS.26
 import { shownByClass } from './classes.js';   // 0.8 SU.912: an object in a hidden class is like one on a layer turned off
 // Constraints and parameters (gcons.js, params-doc.js): doc.constraints [] and doc.params {vars, links} are part
 // of the undoable document — doc.setParametric({constraints, params}) inside a change replaces both. A change that
@@ -80,6 +85,7 @@ export class Doc {
     this.params = { vars: [], links: [] };   // params.js
     this.solving = false;           // gcons/params-doc are writing a solved state: no re-solve
     this.onNote = null;             // (message) → void: constraints said something about an edit
+    this.orsHidden = null;          // ORS.5 (objhide.js): a Set of ids hidden for this session (HIDEOBJECTS / ISOLATEOBJECTS); never saved, no undo
     this.liveHook = null;           // Studio Live (0.5 LV.8, live.js): hears each step, routes undo/redo; moves with the drawing in swapContent
     this.addLayer({ name: '0', color: 7 });
     this.model3d = new Model3D(this);   // the 3D model (model3d.js): its edits are ops { m3d } in this history
@@ -190,7 +196,9 @@ export class Doc {
     this.emitLayers();
   }
   emitLayers() { if (this.layersMoved && !this.pending) { this.layersMoved = false; this.emit('layers'); } }
-  visible(e) { const l = this.layers.get(e.layer); return (!l || (l.on && !l.frozen)) && !this.refHidden(e) && shownByClass(this, e) && shownByFloor(this, e); }
+  visible(e) { const l = this.layers.get(e.layer); return (!l || (l.on && !l.frozen)) && !this.refHidden(e) && shownByClass(this, e) && shownByFloor(this, e) && !(this.orsHidden && this.orsHidden.has(e.id)) && !(e.ann && annoHidden(this, e)); }   // ORS.26: an annotative object not listed for the model's annotation scale, with "show all" off   // ORS.5: hidden objects
+  /** ORS.28 (lockedlayers.js): shown and held back from edits by its layer's lock alone (what "pick objects on locked layers" lets a click reach). */
+  lockedOnly(e) { const l = this.layers.get(e.layer); return !!(l && l.locked) && this.visible(e) && !this.refFaded(e) && editableOnFloor(this, e); }
   editable(e) { const l = this.layers.get(e.layer); return this.visible(e) && !(l && l.locked) && !this.refFaded(e) && editableOnFloor(this, e); }
   /** REFEDIT (0.6 DF.5): the reference being edited stays out of sight, and only the working set can be changed. */
   refHidden(e) { const r = this.refEdit; return !!r && e?.id === r.ref && this.space === r.map; }
@@ -238,6 +246,7 @@ export class Doc {
     const ent = { color: null, ...e, layer: e.layer ?? this.current.layer };
     ent.id = this.nextId++;
     if (this.stableKeys) ent.key = newKey();   // a copy (...e) never shares its original's key
+    delete ent.handle;   // nor the handle its original came with from a DXF (FX.240); the next DXF save gives it one
     this.layer(ent.layer);
     map.set(ent.id, ent);
     if (this.refEdit && map === this.refEdit.map) this.refEdit.ids.add(ent.id);   // drawn while editing in place: it joins the working set
@@ -268,6 +277,7 @@ export class Doc {
     if (b.attdefs?.length) after.attdefs = b.attdefs.map((d) => ({ ...d }));
     if (b.xref && typeof b.xref === 'object') after.xref = { ...b.xref };   // a linked drawing (xref.js, 0.4 C35)
     if (b.dyn && typeof b.dyn === 'object') after.dyn = b.dyn;   // a dynamic block (dyn-blocks.js): saving checks it still lines up
+    { const bp = !after.dyn && !after.xref ? cleanBp(b.bp) : null; if (bp) after.bp = bp; }   // 0.10 SU.1804 (blockparams.js)
     this.blocks.set(b.name, after);
     this.pending.ops.push({ block: b.name, before, after });
     return after;
@@ -308,10 +318,32 @@ export class Doc {
     this.layouts = list;
     if (!this.inModel && !list.some((l) => l.entities === this.space)) this.space = this.model;
   }
+  /**
+   * ORS.4 (draworder.js): put a space's objects in a new draw order (the Map's insertion order). `ids` = every id of `map` in the new
+   * order; ids it leaves out keep their relative order after the listed ones. Inside a change: one undo step. The op carries
+   * `space`, not `map`, so the hooks that read object ops (`op.map`) pass over it.
+   */
+  reorder(ids, map = this.space) {
+    this.mustBeInChange();
+    const from = [...map.keys()], seen = new Set(), to = [];
+    for (const id of ids) if (map.has(id) && !seen.has(id)) { seen.add(id); to.push(id); }
+    for (const id of from) if (!seen.has(id)) to.push(id);
+    if (to.every((id, i) => id === from[i])) return false;
+    this.pending.ops.push({ order: true, space: map, from, to });
+    Doc.applyOrder(map, to);
+    return true;
+  }
+  static applyOrder(map, order) {   // ORS.4
+    const ents = new Map(map);
+    map.clear();
+    for (const id of order) if (ents.has(id)) { map.set(id, ents.get(id)); ents.delete(id); }
+    for (const [id, e] of ents) map.set(id, e);
+  }
   mustBeInChange() { if (!this.pending) throw new Error('Edits go through doc.change()'); }   // i18n-ignore: for developers
 
   apply(op, forward) {
     const v = forward ? op.after : op.before;
+    if (op.order) { Doc.applyOrder(op.space, forward ? op.to : op.from); return; }   // ORS.4: draw order
     if (op.layouts) {
       this.layouts = v;
       if (!this.inModel && !v.some((l) => l.entities === this.space)) { this.space = this.model; this.spaceLost = true; }
@@ -400,19 +432,21 @@ export class Doc {
     this.space = this.model;
     this.blockEdit = null;
     this.refEdit = null;
+    this.orsHidden = null;   // ORS.5: ids start again at 1
     this.nextId = 1;
     this.addLayer({ name: '0', color: 7 });
     for (const l of layers) this.addLayer(l);
     for (const b of blocks) this.blocks.set(b.name, { name: b.name, base: b.base || { x: 0, y: 0 }, entities: b.entities, ...(b.attdefs?.length ? { attdefs: b.attdefs } : {}),
       ...(b.xref && typeof b.xref === 'object' ? { xref: { path: String(b.xref.path || '').slice(0, 1024) } } : {}),   // a linked drawing a file names (xref.js)
-      ...(b.dyn && typeof b.dyn === 'object' ? { dyn: b.dyn } : {}) });   // a dynamic block's hidden entities and states (dyn-blocks.js, cad-files 0.5)
+      ...(b.dyn && typeof b.dyn === 'object' ? { dyn: b.dyn } : b.bp && !b.xref && cleanBp(b.bp) ? { bp: cleanBp(b.bp) } : {}) });   // a dynamic block's hidden entities and states (dyn-blocks.js, cad-files 0.5)
     this.dynSrc = arguments[0]?.dynSrc && Array.isArray(arguments[0].dynSrc.objects) ? arguments[0].dynSrc : null;   // the file's dynamic-block objects (dwg-save.js)
-    const seenKeys = new Set();
+    const seenKeys = new Set(), seenHandles = new Set();
     const fill = (map, list, space = 'f') => {   // a file's keys are kept; an object without one (or sharing one) gets the key its place in the file gives, the same for everyone who opens it
       let i = 0;
       for (const e of list) {
         const ent = { color: null, ...e, layer: e.layer || '0', id: this.nextId++ };
         if (this.stableKeys && e.type !== undefined) { if (!validKey(ent.key) || seenKeys.has(ent.key)) ent.key = space + (i); seenKeys.add(ent.key); } else delete ent.key;
+        if (ent.handle !== undefined) { if (typeof ent.handle !== 'string' || seenHandles.has(ent.handle)) delete ent.handle; else seenHandles.add(ent.handle); }   // FX.240: a DXF's handle, never held by two objects
         i++;
         this.layer(ent.layer);
         map.set(ent.id, ent);
@@ -451,6 +485,7 @@ export class Doc {
     const geoIn = cleanGeo(geo ?? meta.geo);   // the coordinate system and map layers kept with the drawing (0.6 GEO-DWG, geodwg.js; untrusted)
     if (geoIn) this.meta.geo = geoIn;
     applyClassData(this, arguments[0]?.classes ?? meta.classes, meta.designLayers); delete this.current.cls;   // 0.8 SU.912 (classes-file.js; untrusted)
+    applyTablesData(this, arguments[0]?.tablesData ?? null); adoptFileTables(this); fieldsOnLoad(this);   // ORS.1 / ORS.22 (tables-file.js, tables-cad.js, fields-cad.js; untrusted)
     this.model3d.fromFile(in3d, this.meta.units, report);
     this.current.layer = '0';
     this.current.linetype = null; this.current.lineweight = null;

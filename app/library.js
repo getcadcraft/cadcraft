@@ -57,9 +57,9 @@ export class LibraryClient {
   }
 
   /** §6.1 → { items[], page, per, total } */
-  async items({ q = '', category = '', kind = '', license = '', maker = '', page = 1, per = 48 } = {}) {
+  async items({ q = '', category = '', kind = '', license = '', maker = '', itemClass = '', page = 1, per = 48 } = {}) {
     const p = new URLSearchParams();
-    for (const [k, v] of Object.entries({ q, category, kind, license, maker })) if (v) p.set(k, v);
+    for (const [k, v] of Object.entries({ q, category, kind, license, maker, class: itemClass })) if (v) p.set(k, v);   // 0.10 BK.21: class = symbol | type | asset
     p.set('page', String(page)); p.set('per', String(per)); p.set('openings', '1');   // doors and windows: this build knows their categories
     const d = await this.call('/items?' + p);
     return { items: Array.isArray(d.items) ? d.items.filter((x) => x && isUuid(x.uuid)) : [], page: +d.page || 1, per: +d.per || per, total: +d.total || 0 };

@@ -10,6 +10,7 @@
  *   angular   c = vertex, p1 and p2 on the two legs, loc = a point on the arc (the sector containing it)
  *   radius    c = centre, p1 on the curve, loc = where the text goes
  *   diameter  c = centre, p1 on the curve, loc = where the text goes
+ *   ordinate, arc, jogged — and the extras jogf / brk / insp: see dimkinds.js (1.0 ORS.6)
  * `text` is '' for the measured value, or an override where '<>' stands for the value.
  * `st` is the dimension style it was drawn with (see DIM_DEFAULTS; sizes × st.scale).
  * `block` names a block holding the geometry another program drew for an imported dimension;
@@ -19,13 +20,15 @@
 import { TAU, dist, angleOf, polar, normAngle, onSweep, FONT_EM } from './geom.js';
 import { advance } from './font.js';
 import { dimValue, styleDimParts } from './dimstyle.js';
+import { measureMore, buildMore, applyExtras } from './dimkinds.js';   // ORS.6: ordinate, arc length, jogged radius; breaks, jog, inspection
 
 import { t } from './i18n.js';
 /** ISO-25-like defaults (the measurements in drawing units, before × scale). */
 export const DIM_DEFAULTS = Object.freeze({ txt: 2.5, asz: 2.5, exe: 1.25, exo: 0.625, gap: 0.625, dli: 3.75, dec: 2, adec: 0, scale: 1, tad: 1, zin: 8 });
 /** Dimension kind names for people (getters: read in the page's language when used). */
+// ORS.6: the last three kinds are dimkinds.js's (named here, not imported: this line runs while the modules are still loading)
 export const DIM_KINDS = {};
-for (const k of ['linear', 'aligned', 'angular', 'radius', 'diameter']) Object.defineProperty(DIM_KINDS, k, { get: () => t('dimkind.' + k), enumerable: true });
+for (const k of ['linear', 'aligned', 'angular', 'radius', 'diameter', 'ordinate', 'arc', 'jogged']) Object.defineProperty(DIM_KINDS, k, { get: () => t('dimkind.' + k), enumerable: true });
 export const DIM_POINT_KEYS = ['p1', 'p2', 'c', 'loc'];
 
 const style = (e) => ({ ...DIM_DEFAULTS, ...(e.st || {}) });
@@ -38,7 +41,7 @@ export function dimMeasure(e) {
     case 'radius': return dist(e.c, e.p1);
     case 'diameter': return 2 * dist(e.c, e.p1);
     case 'angular': return angularSweep(e).sweep;
-    default: return 0;
+    default: return measureMore(e, { angularSweep });   // ORS.6
   }
 }
 
@@ -48,8 +51,10 @@ export function dimMeasure(e) {
  * angle formats. Tolerances are added to the text part by `styleDimParts`.
  */
 export function formatMeasure(e, v = dimMeasure(e)) {
-  return dimValue(e, v).main;
+  return dimValue(asStyled(e), v).main;
 }
+/** ORS.6: a jogged radius is written like a radius (the R before the value, the same style rules). */
+const asStyled = (e) => (e.kind === 'jogged' ? { ...e, kind: 'radius' } : e);
 
 /** What the dimension's text says. */
 export function dimText(e) {
@@ -89,6 +94,13 @@ export function dimGeometry(e) {
 }
 
 function build(e) {
+  const out = dimRawParts(e);
+  if (e.brk || e.insp || Number.isFinite(e.jogf)) applyExtras(e, out, { txt: style(e).txt * (style(e).scale || 1) });   // ORS.6: DIMBREAK, DIMJOGLINE, DIMINSPECT
+  return styleDimParts(asStyled(e), out);
+}
+
+/** The parts before the per-dimension extras and the style are applied (a fresh list; ORS.6: DIMBREAK measures on these). */
+export function dimRawParts(e) {
   const st = style(e), S = st.scale || 1;
   const txt = st.txt * S, asz = st.asz * S, exe = st.exe * S, exo = st.exo * S, gap = st.gap * S;
   const out = [];
@@ -183,9 +195,9 @@ function build(e) {
       }
       break;
     }
-    default: break;
+    default: buildMore(e, { out, line, arrow, text, s, tw, txt, asz, exe, exo, gap, angularSweep, readable }); break;   // ORS.6
   }
-  return styleDimParts(e, out);
+  return out;
 }
 
 /**

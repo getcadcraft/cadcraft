@@ -1,0 +1,19 @@
+{
+  "id": "default-policies",
+  "name": "Default Policies",
+  "version": "0.1.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.5",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "settings",
+    "storage"
+  ],
+  "description": "Say once what a new drawing starts with: its units, the length format and precision, the height of new text and the paper of a new sheet. Save the policies as a small open file to share across an office. A policy you do not set leaves the app's own default as it is; a drawing you already started is not changed.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

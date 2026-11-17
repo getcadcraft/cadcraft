@@ -111,6 +111,15 @@ Pressing {{key:Enter}} after one value without {{key:Tab}} works as direct dista
 - Options appear in square brackets. Type the capital letters of an option (`D` for `[Diameter]`, `CL` for `CLose`) and press {{key:Enter}}. Longer beginnings of the word also work (`DIA`).
 - A default appears in angle brackets, such as `<500>`. Press {{key:Enter}} or right-click to use it.
 
+## Other keyboard layouts and the keypad
+
+Command names, short names and option letters are Latin letters. With a Greek, Cyrillic (Russian, Ukrainian, Belarusian, Serbian, Macedonian, Bulgarian), Hebrew, Arabic, Persian, Thai or Korean layout active you do not need to switch layouts: when the word you typed is not a command, short name or option as it stands, CadCraft reads it by the keys you pressed. The key marked `L` on a Latin keyboard still starts `LINE`, and the `C` key still answers `Close`, whatever letter the layout puts on it. The list of matching commands above the command line follows the same rule. Text you type where a command asks for text (the content of {{cmd:TEXT}}, a name) is never changed.
+
+On layouts whose keypad decimal key gives a comma, that key types a point in the command line and in number boxes, so `12.5` can be typed on the keypad. The comma key of the main keyboard still separates `x,y`.
+
+Both can be turned off in {{ui:Settings}}: {{ui:Commands on a non-Latin keyboard layout}} and {{ui:Keypad decimal key}}.
+
+
 ## The coordinate display
 
 The status bar shows the crosshair's X and Y (in the UCS when one is set), after snaps and Ortho. While a command has a base point it adds `Δ` with the distance and angle from that point, for example `Δ 1500 < 30°`: the numbers you would type as `@1500<30`.

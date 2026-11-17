@@ -10,7 +10,7 @@ keywords: xclip, clip, xclip boundary, bind clipped, dwg, dxf, pdf, r12, open, s
 
 | Format | Open | Save | Notes |
 |---|---|---|---|
-| DXF (text, any version) | Yes | Yes, as DXF R12 or DXF 2000 | Binary DXF is refused: save it as text DXF first. |
+| DXF (text or binary, any version) | Yes | Yes, as DXF R12, DXF 2000 or DXF 2000 (binary) | A binary DXF opens like a text one and saves back as binary. |
 | DWG | Yes | Yes, as DWG (AutoCAD 2000, 2004, 2007, 2010, 2013 or 2018) | Read and written by CadCraft's own DWG library (AutoCAD R13 to 2018 files). Your DWG is never changed. Damaged files, or versions the reader does not handle, are refused with a message. |
 | PDF | Brings a page in: as an underlay or as objects ([PDF underlays](topic:pdf-underlay)) | Yes, by plotting | Vector PDF of a sheet, or of the model at a scale. |
 
@@ -24,6 +24,8 @@ Each drawing you open (or start with {{ui:New}}) gets its own tab over the drawi
 The file is read inside your browser. It is not uploaded anywhere. The history reports how many objects and layers came in and how long it took, and the {{ui:Drawing}} section of the left panel shows the format, for example "DWG 2018 (AC1032)".
 
 The DWG reader is part of CadCraft and is fetched with the first DWG you open after the page loads (a few hundred KB), so there is no separate download to wait for. It reads the file in the background, so the page keeps responding while a big DWG opens.
+
+A DXF is read in pieces of about 4 MB, never as one block of text, so a DXF over 512 MB opens too. What limits it is your computer's memory: while a DXF opens, expect it to use roughly 16 to 20 times the file's size (a 100 MB DXF with about 690,000 objects used about 1.5 GB in our test).
 
 ### What comes in
 

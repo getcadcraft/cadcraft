@@ -31,8 +31,12 @@ In {{cmd:POINTCLOUD}}: `C` colors the points by the file's colors, height, inten
 The 3D tab shows the cloud too, its lowest point on the ground, with the same slice.
 
 :::note
-The cloud is not part of the drawing: it is not saved in the DWG or DXF, undo does not change it, and it is not plotted. Attach it again when you open the drawing later. Files are read on this computer; nothing is uploaded. Very large scans are thinned evenly to 2 million points. E57 files open up to 6 million points and 512 MB for now: export larger scans as LAS or LAZ.
+The cloud is not part of the drawing: it is not saved in the DWG or DXF, undo does not change it. Attach it again when you open the drawing later. Files are read on this computer; nothing is uploaded. Very large scans are thinned evenly to 2 million points. E57 files open up to 6 million points and 512 MB for now: export larger scans as LAS or LAZ.
 :::
+
+## Plot it
+
+{{cmd:PLOT}} prints the cloud with the drawing, under the linework: in a model plot ({{ui:Everything}} includes the cloud's area) and in every layout viewport, in the PDF, the PNG, the SVG and what you send to a printer. It prints what is on screen: the slice if the slice is on, the colors you chose, and hidden when you hid it. On paper the points become small squares, the highest point winning each one, and a plot keeps at most about 400,000 of them (a very dense cloud prints with larger squares). The cloud is plotted only in the drawing it was attached to; it never prints in paper space itself, only through a viewport.
 
 ## Several scans
 

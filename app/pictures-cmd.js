@@ -21,6 +21,7 @@ import { t } from './i18n.js';
 import { commandRegistry } from './commands.js';
 import { addPicture, freePictureName, pictureBlock, pictureFrame, picCorners, findPicture, picturesOf, pictureKey } from './pictures.js';
 import { insertMatrix, mApply } from './geom.js';
+import { mmPerUnit } from './blockcopy.js';   // 0.10 BK.8: a picture's remembered width is kept in mm
 import { placePastedPicture, readAreaClip, areaTakesPaste, areaSize, areaPlacement, areaBytes } from './pastepic.js';
 
 const def = commandRegistry.add, opt = commandRegistry.option;
@@ -42,8 +43,13 @@ def('IMAGEATTACH', ['IAT', 'IMAGEATT'], async (c) => {
   if (rec.error) { c.print(rec.error); return; }
   const at = await c.point(t('pic.prompt.corner', { file: rec.name }));
   if (!at || at.option) return;
-  const width = await c.distance(t('pic.prompt.width', { w: rec.w, h: rec.h }), { base: at, default: rec.w });
-  const W = typeof width === 'number' && width > 0 ? width : rec.w;
+  // 0.10 BK.8 (units on import): a picture has no units; the width typed here IS the question. The width given to this file before is
+  // offered (the shell's per-file memory, in mm, so it holds in a drawing of any units); nothing is placed at a size nobody gave.
+  const IU = typeof window !== 'undefined' ? window.ccImportUnits : null, mmU = mmPerUnit(c.doc.meta?.units), kept = IU && mmU ? IU.recallSize(f.name) : null;
+  const offer = kept ? Number((kept / mmU).toPrecision(9)) : rec.w;
+  const width = await c.distance(kept ? t('pic.prompt.width.kept', { w: rec.w, h: rec.h, width: offer }) : t('pic.prompt.width', { w: rec.w, h: rec.h }), { base: at, default: offer });
+  const W = typeof width === 'number' && width > 0 ? width : offer;
+  if (IU && mmU) IU.rememberSize(f.name, W * mmU);
   const ang = await c.angle(t('pic.prompt.angle'), { base: at, default: 0 });
   const a = typeof ang === 'number' ? ang : 0;
   const px = W / rec.w;

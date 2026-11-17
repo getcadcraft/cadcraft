@@ -22,7 +22,8 @@ import { Doc, NAME_HOOKS } from './doc.js';
 import { gripHooks } from './geom.js';
 import { mmPerDrawingUnit } from './units.js';
 import { floorOf } from './floors.js';
-import { unitsToMm, adoptJoins, dedupeGuids, giveGuids, pruneJoins, refreshJoins, joinedPredicate, joinedOf, solveChanges } from './walls-joins.js';
+import { unitsToMm, adoptJoins, dedupeGuids, giveGuids, pruneJoins, refreshJoins, joinedPredicate, joinedOf, solveChanges, mirrorStyles } from './walls-joins.js';
+import { JOIN_STYLES } from './walls/joinstyle.js';
 import { enforce, followGrids, hasHolds } from './walls-hold.js';
 import {
   isWall, wallData, model, canonical, geometry, followMoves, snapEnd, offsetChain, placeAt, fits, wallBox, boxesTouch, withWallData, wallGrips, wallGripMove, wallGripAct,
@@ -61,6 +62,14 @@ function blockEntities(g, origin, fill, t0) {
 export function solvedChange(doc, label, fn) {
   doc.wallsSolved = true;
   try { return doc.change(label, fn); } finally { doc.wallsSolved = false; }
+}
+/**
+ * Alt held while a wall's grip is placed (walls-plan-10, as BimCraft's FX.67 "Alt + drag breaks the joins"): the wall goes where it is put
+ * and nothing follows it. The hook then drops the records that no longer hold and makes the ones its new place asks for.
+ */
+export function freeChange(doc, label, fn) {
+  doc.wallsFree = true;
+  try { return doc.change(label, fn); } finally { doc.wallsFree = false; }
 }
 
 export function wallHook(doc, ops) {
@@ -129,7 +138,7 @@ function syncWalls(doc, map, recs) {
   // the person's changes, solved with the one solver BimCraft uses (lib/walls/square.js): a moved wall's joined walls follow and stay
   // joined, a typed or dragged length takes the wall joined at the far end with it, nobody turns (FX.62, FX.63, FX.67 for plan walls)
   const left = [];
-  const solvedAlready = !!doc.wallsSolved;
+  const solvedAlready = !!doc.wallsSolved || !!doc.wallsFree;
   if (!solvedAlready) for (const f of new Set(changes.map((c) => floorId.get(c.id)))) {
     const mine = changes.filter((c) => floorId.get(c.id) === f);
     const { plan, rest } = solveChanges(cur, floorId, f, k, mine, pre);
@@ -157,6 +166,8 @@ function syncWalls(doc, map, recs) {
   // the records of every wall that changed are made again against the walls near it (a record that no longer holds goes)
   const subjects = new Set([...[...recs.keys()].filter((id) => cur.has(id)), ...changes.map((c) => c.id), ...followed, ...fresh, ...touched]);
   for (const id of refreshJoins(cur, subjects, (id) => floorId.get(id), k)) touched.add(id);
+  // a corner's join style is on both walls: the wall the person changed says, its partner's record mirrors it (0.9 WT.5)
+  for (const id of mirrorStyles(cur, new Set([...recs.keys()].filter((id) => cur.has(id) && recs.get(id) && isWall(recs.get(id)))))) touched.add(id);
   const byGuid = new Map([...cur.values()].filter((w) => w.g).map((w) => [w.g, w]));
   // every wall that touches anything that changed is drawn again
   const uses = new Map();
@@ -335,6 +346,17 @@ export function wallSection() {
         // 0.9 WT.3 join on / off per end: the wall's own switch (stored with its joins, FX.59)
         ...['a', 'b'].map((end) => ({ key: 'jo.' + end, kind: 'bool', label: t('plan2d.prop.joinoff.' + end), get: (e) => (model(e).jo || '').includes(end), set: (e, v) => edit(e, (w) => { const has = new Set((w.jo || '').split('')); if (v) has.add(end); else has.delete(end); return { ...w, jo: ['a', 'b'].filter((x) => has.has(x)).join('') }; }) })),
       ];
+      // 0.9 WT.5 the join style of the corner at each end (a corner of two walls joined end to end): mitre, butt or square off, and which wall runs through
+      const cornerAt = (w, end) => (w.jn || []).filter((r) => r.me === (end === 'a' ? 'start' : 'end') && r.ot !== 'mid');
+      const setCorner = (e, end, fn) => edit(e, (w) => { const at = cornerAt(w, end); return at.length === 1 ? { ...w, jn: w.jn.map((r) => (r === at[0] ? fn(r) : r)) } : w; });
+      for (const end of ['a', 'b']) {
+        out.push({ key: 'js.' + end, kind: 'choice', label: t('plan2d.prop.joinstyle.' + end), choices: () => JOIN_STYLES.map((s) => [s, t('plan2d.joinstyle.' + s)]),
+          get: (e) => { const at = cornerAt(model(e), end); return at.length === 1 ? at[0].st || 'mitre' : 'mitre'; },
+          set: (e, v) => setCorner(e, end, (r) => (v === 'butt' || v === 'square' ? { o: r.o, me: r.me, ot: r.ot, k: r.k, st: v, th: r.st ? r.th : 1 } : { o: r.o, me: r.me, ot: r.ot, k: r.k })) });
+        out.push({ key: 'jt.' + end, kind: 'bool', label: t('plan2d.prop.through.' + end),
+          get: (e) => { const at = cornerAt(model(e), end); return at.length === 1 && !!at[0].st && !!at[0].th; },
+          set: (e, v) => setCorner(e, end, (r) => (r.st ? { ...r, th: v ? 1 : 0 } : r)) });
+      }
       if (ents.length !== 1) return out;
       model(ents[0]).ops.forEach((o, i) => {
         const name = t(o.k === 'door' ? 'plan2d.prop.door' : 'plan2d.prop.window', { n: i + 1 }), label = (k) => name + ' · ' + t('plan2d.prop.' + k);
@@ -371,6 +393,67 @@ export function wallGripClick(doc, g) {
 }
 /** A grip drag's preview: the wall's outline where it would go. */
 export const wallGripPreview = (e) => (isWall(e) ? wallOutline(model(e)) : null);
+
+/**
+ * A wall grip put at `to` → the walls to write: [{ id, next }] (walls-plan-10, FX.63), or null when the grip is not a wall's.
+ * An end grip: the wall's end. When another SELECTED wall is joined end to end on that corner, its end comes too: the person is moving
+ * the corner, so both walls turn (the deliberate case). With only one wall selected the hook's solver keeps the joined wall's direction.
+ */
+export function wallGripEdits(doc, g, to, selection = null) {
+  const e = doc.get(g.id);
+  if (!isWall(e) || !String(g.key).startsWith('wall:')) return null;
+  const out = [{ id: e.id, next: wallGripMove(e, g.key, to) }];
+  if (g.key !== 'wall:a' && g.key !== 'wall:b') return out;
+  const w = model(e), me = g.key === 'wall:a' ? 'start' : 'end';
+  if (!w?.g || !selection || selection.size < 2) return out;
+  for (const id of selection) {
+    if (id === e.id) continue;
+    const x = doc.get(id);
+    if (!isWall(x) || !doc.editable(x)) continue;
+    const o = model(x), r = o?.g && (w.jn || []).find((j) => j.o === o.g && j.me === me && j.ot !== 'mid');
+    if (r) out.push({ id, next: wallGripMove(x, r.ot === 'start' ? 'wall:a' : 'wall:b', to) });
+  }
+  return out;
+}
+/** Place a wall's grip: one undo step. `free` (Alt held) breaks the joins: nothing follows. → true when the grip was a wall's. */
+export function wallGripCommit(doc, g, to, { selection = null, free = false, label = 'WALL' } = {}) {
+  const edits = wallGripEdits(doc, g, to, selection);
+  if (!edits) return false;
+  const write = () => { for (const x of edits) if (doc.editable(doc.get(x.id))) doc.update(x.id, x.next); };
+  if (free) freeChange(doc, label, write); else doc.change(label, write);
+  return true;
+}
+/**
+ * What a wall grip's drag would do, as outlines: the wall and every wall that would follow it, solved as the hook will solve it (so the
+ * preview shows the joined wall's end sliding along its own line, not the raw cursor). Null when the grip is not a wall's.
+ */
+export function wallGripGhost(doc, g, to, { selection = null, free = false } = {}) {
+  const edits = wallGripEdits(doc, g, to, selection);
+  if (!edits) return null;
+  const moved = edits.map((x) => model(x.next)).filter(Boolean);
+  const raw = () => moved.flatMap((w) => wallOutline(w));
+  if (free || !moved.length || !moved[0].g) return raw();
+  try {
+    const map = doc.space, fl = (x) => (map === doc.model ? floorOf(doc, x) : null) ?? '', k = unitsToMm(doc);
+    const cur = new Map(), floorId = new Map(), pre = new Map(), changes = [];
+    for (const x of map.values()) if (isWall(x)) { const w = model(x); if (w) { cur.set(x.id, w); floorId.set(x.id, fl(x)); } }
+    for (const m of moved) {
+      const w0 = cur.get(m.id);
+      if (!w0) continue;
+      pre.set(m.id, w0); cur.set(m.id, { ...w0, a: m.a, b: m.b, ops: m.ops });
+      if (Math.hypot(w0.a.x - m.a.x, w0.a.y - m.a.y) > 1e-9 || Math.hypot(w0.b.x - m.b.x, w0.b.y - m.b.y) > 1e-9) changes.push({ id: m.id, a0: w0.a, b0: w0.b, a1: m.a, b1: m.b });
+    }
+    if (!changes.length) return raw();
+    const f = floorId.get(moved[0].id);
+    const { plan } = solveChanges(cur, floorId, f, k, changes.filter((c) => floorId.get(c.id) === f), pre);
+    const ids = new Set([...plan.keys(), ...moved.map((m) => m.id)]), out = [];
+    for (const id of ids) { const w = cur.get(id), p = plan.get(id); if (w) out.push(...wallOutline(p ? { ...w, a: p.a, b: p.b } : w)); }
+    return out;
+  } catch (err) {
+    if (err && err.key) return raw();   // the change would be refused: show where the cursor is; the click says why
+    throw err;
+  }
+}
 
 let installed = false;
 export function installWalls() {

@@ -1,0 +1,108 @@
+---
+title: Solución de problemas
+summary: Mensajes que muestra CadCraft y problemas que puede encontrar, cada uno con su causa y su solución.
+keywords: problema, error, no funciona, mensaje, no se puede abrir, comando desconocido, no pasa nada, bloqueado, teclas no funcionan, en blanco, falta, solución
+from: 8299b222
+---
+
+## Abrir archivos
+
+| Mensaje o síntoma | Causa | Solución |
+|---|---|---|
+| "CadCraft abre dibujos DWG y DXF. "…" no es ninguno de ellos." | El archivo no es un `.dwg` ni un `.dxf`. | Abra el propio archivo de dibujo. Se puede incorporar un PDF (Abrir pregunta si importar o adjuntar, véase [Subyacentes PDF](topic:pdf-underlay)); las imágenes se insertan con `IMAGEATTACH`. |
+| "Este DXF binario termina a mitad de un objeto: el archivo está cortado o dañado." | El DXF binario se interrumpe antes de su final. | Escriba RECOVER para abrir lo que se pueda leer, o pida de nuevo el archivo. |
+| "Este archivo no es un DXF legible (código de grupo incorrecto en la línea …)." | El DXF está dañado o no es realmente un DXF. | Pida de nuevo el archivo, o un DWG. |
+| "No se pudo leer este dibujo. Puede estar dañado o guardado en una versión que el lector aún no admite (…)." | El lector de DWG no pudo leerlo. | Pida el DWG guardado en una versión anterior, o un DXF. |
+| "Este dibujo es de AutoCAD R11 / R12 (DWG AC1009), más antiguo de lo que CadCraft puede leer …" | Los archivos DWG de Release 12 y anteriores usan un formato que CadCraft no lee. | En el programa que lo creó, guárdelo como DXF (de cualquier versión) o como un DWG más reciente, y ábralo. El propio Guardar como de CadCraft ofrece DXF R12 para los programas que quieran ese formato antiguo. |
+| "No se pudo abrir …" seguido de un mensaje de red, en el primer DWG | No se pudo descargar el lector de DWG: no tiene conexión y CadCraft no está guardado para uso sin conexión, o la conexión se cortó. | Conéctese e inténtelo de nuevo, o abra un DXF. Haga clic en {{ui:Guardar para uso sin conexión}} y espere a "Listo para uso sin conexión" para que los DWG se abran sin conexión la próxima vez. Véase [Trabajar sin conexión](common:offline). |
+| El botón de uso sin conexión dice "No se pudo guardar" | Algunos archivos no se descargaron. | Compruebe la conexión y haga clic en el botón para volver a intentarlo. |
+| El botón de uso sin conexión dice "Uso sin conexión no disponible" | Las ventanas privadas y algunos equipos gestionados no pueden guardar una copia sin conexión. | Use una ventana normal, o siga conectado. |
+| CadCraft no se abre sin conexión | No se guardó para uso sin conexión en este navegador, o el navegador lo borró. | La próxima vez que tenga conexión, haga clic en {{ui:Guardar para uso sin conexión}} y espere a "Listo para uso sin conexión". |
+| El dibujo se abre, pero faltan partes | Objetos que CadCraft aún no puede dibujar, o capas desactivadas o bloqueadas en el archivo. | Lea "Acerca de este archivo" en el panel izquierdo. Revise el panel {{ui:Capas}}. |
+| El texto se parte en dos líneas | CadCraft dibuja el texto con una fuente de estilo Helvetica, más ancha que algunas fuentes CAD. | Acorte el texto en Propiedades, o acepte la línea adicional. |
+| Un círculo se ve como una elipse, o el texto reflejado se lee al derecho | El objeto se dibujó en un plano inclinado, o se vio desde abajo, en el programa que creó el archivo. CadCraft lo muestra como se ve desde arriba, igual que la vista en planta de ese programa; el texto se mantiene legible. | No hay nada que corregir. Para verlo como lo hace el otro programa, pida el dibujo aplanado, o con los objetos dibujados desde arriba. |
+| Un bloque, círculo o cota está en un lugar distinto al del programa que creó el archivo | Un caso de dibujo que CadCraft interpreta mal. | Avísenos en Discord, con el archivo si puede compartirlo. |
+
+## La línea de comandos
+
+| Mensaje o síntoma | Causa | Solución |
+|---|---|---|
+| "Comando desconocido "…". Escriba HELP para ver la lista." | No hay ningún comando ni alias con ese nombre. | Escriba `HELP`, o consulte la [Referencia de comandos](topic:commands). Algunos comandos conocidos [aún no están disponibles](topic:not-built-yet). |
+| "No existe ese comando" junto a la línea de comandos mientras escribe | Lo que escribe no coincide con nada todavía. | Siga escribiendo, o revise la ortografía. |
+| "Se requiere un punto o una palabra clave de opción." | Lo que escribió no es un punto ni una opción. | Revise el formato: `x,y`, `@dx,dy`, `@d<a` o un solo número. Véase [Introducción de coordenadas y distancias](topic:coordinate-entry). |
+| "Se requiere un número positivo o dos puntos." | Una distancia era negativa o no era un número. | Escriba un número positivo, o haga clic en dos puntos. |
+| "Se requiere un ángulo en grados o dos puntos." | El ángulo no era un número. | Escriba los grados como un número simple. |
+| "Se requiere un número." | Se esperaba un número. | Escriba solo cifras. |
+| "Palabra clave de opción no válida." | Las letras no coinciden con ninguna opción. | Escriba las letras en mayúsculas que aparecen entre corchetes. |
+| `*Cancelar*` | Pulsó {{key:Esc}}, o {{key:Enter}} donde se requería un punto. | Inicie el comando de nuevo. |
+| Lo que escribe no llega a la línea de comandos | Un cuadro de un panel o de un diálogo tiene el cursor. | Pulse {{key:Enter}} o {{key:Esc}}, o haga clic en el dibujo. |
+| El comando usa objetos que no eligió | Se seleccionaron antes de iniciarlo. | Pulse {{key:Esc}} antes del comando. |
+| Una línea fue a un lugar inesperado | `x,y` es absoluto. | Use `@dx,dy` para puntos relativos. |
+| "Termine o cancele primero el comando actual (Esc)." | Pulsó {{key:Mod+S}} mientras un comando estaba en curso. | Pulse {{key:Esc}} y después guarde. |
+| "No se pudo guardar como DWG (AutoCAD 2000): … Pruebe Guardar como y luego DXF." | Algo del dibujo no se pudo escribir como DWG. | Pulse {{key:Mod+Shift+S}}, elija {{ui:DXF R12}} y haga clic en {{ui:Guardar}}. |
+| "No guardado." | Cerró el cuadro {{ui:Guardar una copia como}} con {{ui:Cancelar}} o {{key:Esc}}. | Pulse {{key:Mod+Shift+S}} de nuevo y haga clic en {{ui:Guardar}}. |
+
+## Edición
+
+| Mensaje o síntoma | Causa | Solución |
+|---|---|---|
+| Un objeto no se puede seleccionar | Su capa está bloqueada, desactivada o congelada; o está en una hoja y es el modelo dentro de una ventana gráfica. | Desbloquee la capa, o vaya a la pestaña {{ui:Modelo}}. |
+| "No hay nada allí." | No hay ningún objeto bajo el clic. | Haga zoom y haga clic sobre la propia línea. |
+| "Ningún objeto cruza ese objeto en ese punto." | {{cmd:TRIM}} no encontró ningún objeto que cruce el tramo que eligió. | Compruebe que la línea de corte cruza realmente ese objeto. |
+| "No se puede recortar ese objeto." | Recortar funciona con líneas, arcos, círculos y polilíneas. | Descomponga primero los bloques, o borre y vuelva a dibujar. |
+| "No hay límite en esa dirección." | {{cmd:EXTEND}} no encontró nada a lo que llegar. | Elija más cerca del extremo que debe crecer. |
+| "No se puede desfasar ese objeto." | Desfasar funciona con líneas, arcos, círculos y polilíneas. | Descomponga primero el objeto, o dibuje una línea paralela. |
+| "No se puede desfasar tanto." | El desfase daría la vuelta a la forma. | Use una distancia menor. |
+| "El radio es demasiado grande." o "La distancia es demasiado grande." | El empalme o el chaflán sobrepasaría el final de una línea. | Defina un radio menor con `R`, o distancias menores con `D`. |
+| "Solo se puede recortar el primer o el último segmento de una polilínea abierta." | La esquina entraría en el centro de la polilínea. | Elija dos segmentos contiguos de la polilínea, o use `P` para cada esquina. |
+| "Elija una segunda línea distinta." | La segunda elección era la misma línea, o no era una línea. | Elija otra línea. |
+| "Solo se descomponen polilíneas, referencias de bloque y cotas." | La selección no tenía nada que descomponer. | Seleccione una polilínea, una referencia de bloque o una cota. |
+| "Esa es la capa actual. Haga primero otra capa actual." | Intentó desactivar la capa actual. | Haga clic en el nombre de otra capa y después desactive esta. |
+| "Ya existe una capa llamada …" | Los nombres de capa deben ser únicos. | Elija otro nombre. |
+| "Nada que deshacer." | No queda nada que deshacer, o abrió o inició un dibujo (eso borra el historial). | — |
+
+## Cotas y bloques
+
+| Mensaje o síntoma | Causa | Solución |
+|---|---|---|
+| El texto y las flechas de las cotas son diminutos o enormes | Los tamaños se expresan en unidades de dibujo; la escala global no encaja con el dibujo. | Defina {{cmd:DIMSCALE}} con la escala de trazado; véase [Definir tamaños de cota](topic:dimension-settings). |
+| "Elija un punto dentro del ángulo que quiere medir." | La ubicación de la cota angular está sobre un lado. | Haga clic dentro del ángulo. |
+| "Esas líneas son paralelas." | Las líneas paralelas no tienen ángulo entre ellas. | Elija dos líneas que se unan. |
+| "Elija una cota lineal o alineada." | {{cmd:DIMCONTINUE}} o {{cmd:DIMBASELINE}} necesitan una cota desde la que empezar. | Elija una cota lineal o alineada. |
+| "Este dibujo aún no tiene bloques: F inserta uno desde un archivo, L desde la biblioteca …" | El dibujo no tiene bloques propios. | Escriba `F` o `L`, o cree un bloque con {{cmd:BLOCK}}. |
+| "No hay ningún bloque llamado "…"." | El nombre es incorrecto. | El mensaje enumera los bloques que hay. |
+| "El nombre de un bloque no puede empezar por * ni usar …", seguido de una lista de caracteres | El nombre tiene un carácter que los bloques no admiten. | Use letras, cifras, `-` y `_`. |
+| "Un bloque no puede contener a sí mismo." | La selección contiene una referencia al bloque que se está creando. | Quite esa referencia. |
+| "No hay objetos seleccionados; no se creó nada." | Pulsó {{key:Enter}} antes de seleccionar. | Ejecute {{cmd:BLOCK}} de nuevo y seleccione los objetos. |
+
+## Hojas y trazado
+
+| Mensaje o síntoma | Causa | Solución |
+|---|---|---|
+| "Las ventanas gráficas van en una presentación. Abra primero una pestaña de presentación (o cree una con LAYOUT)." | {{cmd:MVIEW}} en la pestaña {{ui:Modelo}}. | Haga clic primero en una pestaña de hoja. |
+| "Abra antes la presentación con la ventana gráfica." | {{cmd:VPVIEW}} en la pestaña {{ui:Modelo}}. | Haga clic primero en la pestaña de hoja. |
+| La escala de una ventana gráfica parece diez veces errónea | Las unidades del dibujo son incorrectas. | Defina {{ui:Unidades}} en {{ui:Parámetros actuales}}. |
+| "Todavía no hay nada que trazar." | El modelo está vacío. | Dibuje algo, o abra un dibujo. |
+| "Elija la ventana que se va a trazar." | Se eligió {{ui:Una ventana…}} y no se designó ninguna. | Haga clic en {{ui:Elegir}} y elija dos esquinas. |
+| "… más grande que el papel: los bordes quedan cortados." | El área no cabe a esa escala. | Elija una escala menor, un papel más grande, o {{ui:Ajustar al papel}}. |
+| "El navegador bloqueó la nueva pestaña, así que el PDF se descargó." | Las ventanas emergentes están bloqueadas para el sitio. | Abra el PDF descargado, o permita las ventanas emergentes para el sitio. |
+| Los caracteres se imprimen como "?" | Las fuentes del PDF no tienen letra para ellos (ideogramas poco frecuentes, hindi y otras escrituras que necesitan un formato complejo, …), o no se pudo descargar la fuente más grande (sin conexión). Las escrituras europeas, cirílica, griega, hebrea, árabe, persa, urdu, tailandesa, china, japonesa y coreana se imprimen tal cual. | Para escritura árabe, tailandesa, china, japonesa o coreana, trace de nuevo con conexión. Las demás escrituras aún no están disponibles. |
+| Las líneas de construcción aparecen en el PDF | Su capa se traza. | Haga clic en el botón de impresora de la capa. |
+| Todas las líneas tienen el mismo grosor | Su grosor es {{ui:Por defecto}}, así que se imprimen con la anchura de plumilla del diálogo. | Dé a las capas o los objetos un {{ui:Grosor de línea}} en el panel derecho, o elija un {{ui:Grosor de línea}} en el diálogo. Para ver los grosores en pantalla, pulse {{ui:LWT}} en la barra de estado. |
+
+## Teclas y pantalla
+
+| Síntoma | Causa | Solución |
+|---|---|---|
+| F3, F7 o F8 cambia el volumen o abre Control de misión | Teclas de función de Mac. | Mantenga pulsada **fn**, o use los botones de la barra de estado. Véase [Teclas, ratones y paneles táctiles](common:keys). |
+| F7 pregunta por la navegación con cursor | Uso propio de F7 por Firefox. | Elija No; use el botón {{ui:Rejilla}}. |
+| {{key:Mod+N}} abrió una ventana del navegador | El navegador reserva esa tecla. | Haga clic en {{ui:Nueva}} o escriba `NEW`. |
+| {{key:Mod+A}} seleccionó el texto de la línea de comandos | La línea de comandos tenía el cursor. | Haga clic antes en un objeto, o escriba `ALL` en una solicitud `Select objects`. |
+| {{key:Delete}} no borra | La línea de comandos tenía el cursor. | Escriba `E` y pulse {{key:Enter}}. |
+| El clic derecho no hace nada en el panel táctil de un Mac | Un clic con Control puede contar como un clic normal. | Haga clic con dos dedos. |
+| No se desplaza nada en el panel táctil | No hay botón central, y la barra espaciadora no desplaza. | Deslice con dos dedos: la vista 2D se desplaza (el pellizco y la rueda del ratón hacen zoom). O arrastre con el botón derecho pulsado. |
+| El primer {{key:Esc}} salió de pantalla completa | El navegador usa Esc para salir de pantalla completa. | Pulse {{key:Esc}} de nuevo para cancelar el comando. |
+| {{key:F1}} no hace nada en un Mac | F1 es una tecla de brillo. | Mantenga pulsada **fn**, o haga clic en {{ui:Ayuda}}. |
+| Lo que escribe va al cuadro de búsqueda de la ayuda | El panel de ayuda tiene el cursor. | Haga clic en el dibujo. |
+| El dibujo quedó en blanco | Hizo zoom muy lejos. | Haga clic en {{ui:Extensión}}, o haga doble clic en la rueda. |
+| "¿Salir del sitio?" al cerrar la pestaña | Hay cambios sin guardar. | Quédese, guarde con {{key:Mod+S}} y después cierre. |

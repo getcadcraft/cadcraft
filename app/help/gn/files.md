@@ -1,178 +1,180 @@
 ---
-title: Archivo: mba'éichapa oñeabre, mba'éichapa oñeguarda
-summary: Formato CadCraft ojeabre, ojeguarda ha ojeexporta, mba'e oñeguardava térã ojecambia, ha moõ guýpe oho archivo-kuéra.
-keywords: xclip, clip, límite xclip, bind clipped, dwg, dxf, pdf, r12, abrir, guardar, exportar, importar, formatos, conversión, descarga, guardar como, dwg guardar, formato, qsave, xref, xattach, plano vinculado, referencia externa, bind, recargar, desvincular
-from: 6d68b34e
+title: Archivos: qué se abre, qué se guarda
+summary: Los formatos que CadCraft abre, guarda y exporta, qué se mantiene o se convierte, y adónde van los archivos.
+keywords: xclip, clip, límite de xclip, recortar, mantener recorte, dwg, dxf, pdf, r12, abrir, guardar, exportar, importar, formatos, conversión, descarga, saveas, dxfout, guardar como, guardar dwg, formato, qsave, xref, xattach, plano vinculado, referencia externa, bind, recargar, desvincular
+from: b8c5778d
 ---
 
-## Vista general
+## De un vistazo
 
 | Formato | Abrir | Guardar | Notas |
 |---|---|---|---|
-| DXF (texto, cualquier versión) | Heẽ | Heẽ, como DXF R12 térã DXF 2000 | DXF binario ndojeporúi: emboguejy primero como DXF de texto. |
-| DWG | Heẽ | Heẽ, como DWG (AutoCAD 2000, 2004, 2007, 2010, 2013 térã 2018) | Ojeleéva ha ojeguarda CadCraft-pe DWG biblioteca rupive (AutoCAD R13 peve 2018 archivo-kuéra). Ne DWG ndojecambiái. Archivo ojehaʼãva térã versión ndojeleiva'ỹva, ojejoka mensaje rupi. |
-| PDF | Ojegueru peteĩ página: underlay térã objeto rupi ([PDF underlays](topic:pdf-underlay)) | Heẽ, trazando | PDF vectorial peteĩ hoja térã modelo escala-pe. |
+| DXF (texto o binario, cualquier versión) | Heẽ | Heẽ, como DXF R12, DXF 2000 o DXF 2000 (binario) | Un DXF binario se abre igual que uno de texto y se guarda de nuevo como binario. |
+| DWG | Heẽ | Heẽ, como DWG (AutoCAD 2000, 2004, 2007, 2010, 2013 o 2018) | Lo lee y escribe la propia biblioteca DWG de CadCraft (archivos AutoCAD R13 a 2018). Tu DWG nunca se cambia. Los archivos dañados, o las versiones que el lector no maneja, se rechazan con un aviso. |
+| PDF | Trae una página: como base o como objetos ([Bases PDF](topic:pdf-underlay)) | Heẽ, por trazado | PDF vectorial de una hoja, o del modelo a una escala. |
 
-Peteĩ plano ejeabréva (térã ejepyrũ {{ui:Nueva}} rupive) oguereko iñangareko tab área plano ári; plano ndojeporuvaʼekue ndoikóiva ojeheja tab ojeporumba'eháica. Ejepyta tab ojeguejy haguã, {{ui:×}} ejepe ojejoka haguã (CadCraft ojerekuaáta ndaha'éi oñeguardavaʼekue mba'e), térã ojehasa plano opavave peteĩ ári: ehecha [Dividir la pantalla](topic:split-screen).
+Cada plano que abrís (o que empezás con {{ui:New}}) tiene su propia pestaña sobre el área de dibujo; un plano nuevo que nadie tocó todavía se usa en lugar de agregar una pestaña. Hacé clic en una pestaña para cambiar, en su {{ui:×}} para cerrarla (CadCraft pregunta antes si hay cambios sin guardar), o acomodá los planos abiertos lado a lado: ver [Dividir la pantalla](topic:split-screen).
 
 ## Abrir un plano
 
-- Ejapo {{key:Mod+O}}, eclic {{ui:Abrir}}, térã emoñe'ẽ `OPEN`, ha upéi eiporavo archivo.
-- Térã emboguapy `.dwg` térã `.dxf` archivo área plano-pe.
+- Presioná {{key:Mod+O}}, hacé clic en {{ui:Open}}, o escribí `OPEN`, y elegí el archivo.
+- O arrastrá un archivo `.dwg` o `.dxf` sobre el área de dibujo.
 
-Archivo ojeleéta ne navegador-pe. Ndojeguejýi ningo-pe. Historia oñemboguata mboʼépa objeto ha capa ojeike, ha mboyve tiempo, ha {{ui:Plano}} sección panel izquierda-gui ohechauka formato, por ejemplo "DWG 2018 (AC1032)".
+El archivo se lee dentro de tu navegador. No se sube a ningún lado. El historial informa cuántos objetos y capas entraron y cuánto tardó, y la sección {{ui:Drawing}} del panel izquierdo muestra el formato, por ejemplo "DWG 2018 (AC1032)".
 
-DWG ojeleéva ojekopýi CadCraft-pe ha oñeikeha pe primer DWG ojeabréva página ojeguahẽ rire, upévare ndaikatúi oñeikekuaa archivo juvamíva ndaha'éi. Ojeleéva segundo plánope, upévare página ojapyhy ojeikóvo DWG tuichave.
+El lector DWG es parte de CadCraft y se descarga con el primer DWG que abrís después de cargar la página (unos cientos de KB), así que no hay una descarga aparte que esperar. Lee el archivo en segundo plano, de modo que la página sigue respondiendo mientras se abre un DWG grande.
 
-### Mba'épa ojeike
+Un DXF se lee en partes de unos 4 MB, nunca como un bloque de texto, así que un DXF de más de 512 MB también se abre. Lo que limita es la memoria de tu computadora: mientras se abre un DXF, espera que use alrededor de 16 a 20 veces el tamaño del archivo (un DXF de 100 MB con unos 690.000 objetos usó cerca de 1,5 GB en nuestra prueba).
 
-- Línea, arco, círculo, polilínea (arco segmento-kuéra ndive), elipse, punto, texto ha texto ojeheja, sólido, sombreado (patrón estándar ojehechaukáva líneamby, ambue peteĩ tono plano), bloque referencia atributo-kuéra ndive (ojehechaukáva hesakã ojeporuvaʼekue; ehecha [Atributos de bloque](topic:attributes)), cotas, ha layouts viewport-kuéra ndive.
-- Splines ojeike spline-mby (grado, puntos de control, nudos, pesos, puntos de ajuste); ehecha [Splines y polilíneas](topic:splines).
-- Multileaders peteĩ línea guía ha texto ndive ojeike CadCraft multileader-mby oñemoambue hag̃ua (ehecha {{cmd:MLEADER}}). Ambue (bloque, línea guía mokõi térã línea curva ndive) ojehechaukáva ojapóva ambue mbohapy programa-pe ha oñemboguejy peteĩnte; historia ohechauka mboyve.
-- Imágenes ohechauka marco peteĩ archivo nombre ndive peve {{cmd:IMAGE}} rupive emoĩ CadCraft-pe archivo: ehecha [Imágenes en un plano](topic:pictures#show-the-pictures-a-dwg-uses). Wipeouts ohechauka iñangarekópe, ha oĩva hesakã ohechaukaséta.
-- Tablas DWG-pe ojeike ambue mbohapy programa ojapóva rupi.
-- 3D caras model space-pe ojeike pestaña {{ui:3D}}-pe, ndaha'éi 2D objeto-kuéra-icha; ha upéicha bloque-pe ha referencia bloque-pe peteĩ vez. Bloque-pe ha hoja-pe ojechaukakuaa plano, contorno-icha. Ehecha [Modelo en 3D](topic:3d-solids).
-- Capas oguereko color, activo, congelado, bloqueado ha configuración de trazado. DEFPOINTS ndotrazái nunca.
-- Cotas ojeguerekóva punto ojeleíva ojapo cota CadCraft real ha editable. Hepyme ojehechaukáma ambue programa ojapo rupi; peteĩ ojecambia rire, CadCraft ohasa ijeʼẽ estilo-pe.
-- Peteĩ layout ojapo peteĩ tab hoja. Ambue programa-pe peteĩ layout oguereko primer viewport oñemboyke; ha ichupe hoja iñambue, CadCraft ndoikéi upe.
+### Lo que entra
 
-### Mba'épa ndojeike ko'ẽrõ
+- Líneas, arcos, círculos, polilíneas (con segmentos de arco), elipses, puntos, texto y texto de varias líneas, sólidos, sombreados (los patrones estándar dibujados como sus líneas, los demás como un tono plano), referencias de bloque con sus atributos (valores que podés editar; ver [Atributos de bloque](topic:attributes)), cotas, y diseños con sus vistas.
+- Las splines entran como splines (grado, puntos de control, nudos, pesos, puntos de ajuste); ver [Splines y polilíneas](topic:splines).
+- Las multiguías con una línea guía y texto entran como multiguías de CadCraft que podés editar (ver {{cmd:MLEADER}}). Las demás (con un bloque, varias líneas guía o líneas curvas) se dibujan como las dibujó el otro programa y se mueven como una sola pieza; el historial dice cuántas son.
+- Las imágenes (pictures) se muestran como un marco con el nombre de archivo de la imagen hasta que le das a CadCraft el archivo con {{cmd:IMAGE}}: ver [Imágenes en un plano](topic:pictures#show-the-pictures-a-dwg-uses). Los wipeouts se muestran como su marco, y lo que hay debajo sigue visible.
+- Las tablas en un DWG entran como las dibujó el otro programa.
+- Las caras 3D en el espacio del modelo entran en la pestaña {{ui:3D}}, no como objetos 2D; lo mismo pasa con las que están dentro de bloques, una vez por referencia de bloque en el modelo. En un bloque y en una hoja también se dibujan planas, como contornos. Ver [Modelo en 3D](topic:3d-solids).
+- Las capas conservan su color, encendido, congelado, bloqueado y sus configuraciones de trazado. DEFPOINTS nunca se traza.
+- Las cotas se convierten en cotas reales y editables de CadCraft donde se pueden leer sus puntos. Primero se muestran exactamente como las dibujó el otro programa; en cuanto cambiás una, CadCraft la redibuja con su propio estilo.
+- Cada diseño se convierte en una pestaña de hoja. En el otro programa, cada diseño tiene una primera vista oculta que es la propia hoja; CadCraft la deja afuera.
 
-Mba'e CadCraft ndojapóiva ojekuaa ha ndojeikuaái. "Archivo ko'ápe" ñemoñe'ẽ panel izquierda-gui ohechauka "Todavía no se muestra:" ha upéi mba'e mboyve. Tavakuairã: DXF-pe tablas, mallas, ha 3D sólido bloque-kuéra-pe. 3D sólido, región ha cuerpo modelo espacio-pe ohechauka pestaña 3D-pe (ehecha [Modelo en 3D](topic:3d-solids#solids-from-other-programs)). Viewport archivo-pe torcido ohechauka torcido, ha oikuaaukáta guardar-pe; upéicha UCS actual, UCS nombradas ha vista girada.
+### Lo que todavía no entra
 
-Texto ojeporu peteĩ fuente tipo Helvetica. Etiqueta peteĩ línea-pe fuente estrecha original programa-pe ikatu ojehasa mokõi líneaguépe CadCraft-pe.
+Todo lo que CadCraft no puede dibujar se cuenta, no se adivina. El cuadro "Acerca de este archivo" del panel izquierdo lo lista como "Todavía no se muestra:" seguido de cada tipo de objeto y cuántos hay. Casos típicos son las tablas en un DXF, las mallas y los sólidos 3D dentro de bloques. Los sólidos 3D, regiones y cuerpos en el espacio del modelo se muestran en la pestaña 3D (ver [Modelo en 3D](topic:3d-solids#solids-from-other-programs)). Las vistas torcidas en el archivo se muestran giradas, como allí, y conservan el giro al guardar; lo mismo pasa con el UCS actual, los UCS con nombre y una vista girada.
+
+El texto se dibuja con una sola fuente estilo Helvetica. Una etiqueta que entra en una línea con la fuente más angosta del programa original puede pasar a dos líneas en CadCraft.
 
 ## Guardar
 
-Oĩ mbohapy tape oñeguarda haguã. Opavave ojeguarda peteĩ copia.
+Hay tres formas de guardar. Cada una descarga una copia.
 
-- **Guardar**: ejapo {{key:Mod+S}}, eclic {{ui:Guardar}}, térã emoñe'ẽ `SAVE` (térã `QSAVE`). Ojeguarda plano formato-pe: DWG ojeabre DWG-gui, DXF ojeabre DXF-gui. DWG oikuaauka versión oikóva (2018 archivo 2018-pe oñeguarda). Plano pyahu oipuru formato ha DWG versión emboguejy ha ojeporuvaʼekue Guardar como-pe ko navegador-pe; ndaikuaái rupi, DWG AutoCAD 2000 formato-pe.
-- **Guardar como**: ejapo {{key:Mod+Shift+S}}, eclic {{ui:Guardar como}}, térã emoñe'ẽ `SAVEAS`. {{ui:Guardar una copia como}} diálogo ohechauka {{ui:DWG}}, {{ui:Versión}} lista (AutoCAD 2018, 2013, 2010, 2007, 2004 térã 2000), {{ui:DXF R12}} ha {{ui:DXF 2000}}, peteĩteĩ pe archivo nombre ndive ojeguardáta, ha plano formato ha versión actual ojeporaporã. Eclic {{ui:Guardar}} ojeguarda haguã, térã {{ui:Cancelar}} (térã {{key:Esc}}) ndojeguardaiha; historia upérõ ohechauka "No guardado." Mba'e ejeporu ojekeha: {{key:Mod+S}} upéicha ojeporu ko plano-pe upe rire, ha navegador-pe plano pyahu-kuéra ojepyrũ upénte.
-- **DXFOUT**: emoñe'ẽ `DXFOUT`. Oñeguarda DXF R12 copia ojeguahẽvo, ha upe ojeguejýva {{key:Mod+S}} ojeguarda plano formato-pe.
+- **Guardar**: presioná {{key:Mod+S}}, hacé clic en {{ui:Save}}, o escribí `SAVE` (también `QSAVE`). Guarda en el formato del plano: DWG si abriste un DWG, DXF si abriste un DXF. Un DWG conserva la versión con la que llegó (un archivo 2018 se guarda como 2018). Un plano nuevo usa el formato y la versión DWG que elegiste por última vez en Guardar como en este navegador; si nunca elegiste una, DWG en formato AutoCAD 2000.
+- **Guardar como**: presioná {{key:Mod+Shift+S}}, hacé clic en {{ui:Save as}}, o escribí `SAVEAS`. El cuadro {{ui:Save a copy as}} ofrece {{ui:DWG}}, con una lista {{ui:Version}} (AutoCAD 2018, 2013, 2010, 2007, 2004 o 2000), {{ui:DXF R12}} y {{ui:DXF 2000}}, cada uno con el nombre de archivo que va a dar, y con el formato y la versión actuales del plano ya elegidos. Hacé clic en {{ui:Save}} para descargar, o en {{ui:Cancel}} (o {{key:Esc}}) para no guardar nada; el historial entonces dice "No guardado." Lo que elegís queda: {{key:Mod+S}} lo usa para este plano desde ese momento, y los planos nuevos en este navegador empiezan con esa elección.
+- **DXFOUT**: escribí `DXFOUT`. Siempre descarga una copia DXF R12, y el próximo {{key:Mod+S}} igual guarda en el formato propio del plano.
 
-Navegador oguahẽ `<plano nombre>.dwg` térã `<plano nombre>.dxf`. Opavave guardar ha **descarga pyahu**; archivo ojeabrevaʼekue ndojejoaporái ni ojecambiái. Historia ohechauka, ejemplo: "Copia guardada como Plan.dwg (DWG (AutoCAD 2018)). Tu Plan.dxf original ndojecambiáiva." DXF-pe ohechauka "(DXF R12, ojepyta opavave CAD programa-pe)". Ha upe ári línea ohechauka mba'e ojecambiáva hape.
+El navegador descarga `<nombre del plano>.dwg` o `<nombre del plano>.dxf`. Cada guardado es una **nueva descarga**; el archivo que abriste nunca se sobrescribe ni se cambia. El historial lo confirma, por ejemplo "Se guardó una copia como Plan.dwg (DWG (AutoCAD 2018)). Tu original Plan.dxf no cambió." Para un DXF dice "(DXF R12, se abre en cualquier programa CAD)". Las líneas debajo listan todo lo que cambió en el camino.
 
-CadCraft escritorio aplicación-pe ojapórõ, guardar ohaiha ambue escritorio programa-icha: {{key:Mod+S}} oguarda plano ejeabréva archivo-pe, bien formato ha versión-pe, ha historia ohechauka moõ guýpe oñeguardaháicha. {{ui:Guardar como}} ha exportaciones ohechauka sistema diálogo, ha `.dwg`, `.dxf` térã `.ccsheets` archivo mboguetéva dos vez ojepyrũ CadCraft-pe.
+Cuando CadCraft corre en la aplicación de escritorio, guardar funciona como en otros programas de escritorio: {{key:Mod+S}} escribe el plano de vuelta en el archivo que abriste, en su propio formato y versión, y el historial dice dónde se guardó. {{ui:Save as}} y las exportaciones muestran el cuadro de guardado del sistema, y un archivo `.dwg`, `.dxf` o `.ccsheets` que hacés doble clic se abre en CadCraft.
 
-PDF-pe, trazar (ehecha upe ári).
+Para un PDF, trazá en cambio (ver más abajo).
 
-## Mba'épa DWG oguarda ha ojecambia
+## Qué guarda y qué cambia un DWG
 
-CadCraft ojapo DWG navegador-pe, ha upe DWG biblioteca-gui ojeleéva rupi. Ejeporu versión Guardar como-pe: AutoCAD 2000 formato (archivo versión AC1015) ojeabrevaʼekue heta programa-pe, tuichavéva. Pyahu formato-kuéra (2004, AC1018, 2018 peve, AC1032) ojekuaáta color verdadero rehe. Mba'eve ndojeguahẽi; DWG guardar ndoikóiva offline.
+CadCraft escribe el DWG por sí mismo, dentro de tu navegador, con la misma biblioteca DWG con la que lo lee. Elegí la versión en Guardar como: el formato AutoCAD 2000 (versión de archivo AC1015) se abre en la mayoría de programas, incluso en los viejos; los formatos más nuevos (2004, AC1018, hasta 2018, AC1032) también conservan colores verdaderos. Nada se sube, y guardar un DWG funciona sin conexión.
 
-Opavave versión ojehechaukava'ekue mbohapy ambue programa DWG leedor-pe ha CadCraft-pe ojeleéva ojeguardavaʼekue archivo. CadCraft DWG ndojeabréi aún AutoCAD-pe.
+Cada versión se verifica volviendo a leer los archivos guardados con los lectores DWG de otros tres programas y con el propio CadCraft. Un DWG de CadCraft todavía no se abrió en el propio AutoCAD.
 
-### Mba'épa DWG oguarda
+### Lo que un DWG conserva
 
-- Línea, arco, círculo, elipse, punto, ha polilínea arco segmento-kuéra ndive.
-- Peteĩ línea texto alineación ha ancho factor ndive.
-- Mokõi línea ha ojehesa texto, texto multilínea-icha. Ambue programa ojehesa tuichave upe ancho ndive.
-- Color objeto-kuéra: capa rupi, bloque rupi, 255 color estándar, ha color verdadero 2004 formato ha pyahúva.
-- Capas color, tipo de línea, grosor ha activo, congelado, bloqueado ha trazado configuración; objeto-kuéra tipo de línea, grosor ha escala propia, tipo de línea patrón-kuéra ha plano escala tipo de línea.
-- Plano unidades ha longitud formato (decimal, pie ha pulgada, fracciones…).
-- Bloque punto base ndive ha atributo definición-kuéra, invisible, constante ha preestablecido ndive.
-- Bloque referencia escala, rotación ha atributo valor ndive.
-- Relleno sólido ha patrón sombreado, patrón, escala ha ángulo ndive (patrón mismo línea, ambue programa oñemboguejýpe).
-- Cotas, cota real ramo: ambue programa oñeme'ẽ ojeporúvo. Peteĩteĩ oguereko ijeʼẽ configuración (texto altura, flecha tamaño, decimales, longitud formato) ha iñe'ẽ, ha opavave DWG cota dibujo copia.
-- Hojas (layouts): peteĩteĩ hoja papel tamaño ha unidades ndive, ojeporu mba'e ojedibuja hi'ãva, ha viewports view ha escala ndive.
-- Vista nombre-kuéra.
-- Multileaders, multileader-icha.
-- Capa ha bloque nombre tiempo ojeikuaaukáva, mayúscula ha minúscula. (DXF R12 oguarda mayúscula-pe.)
+- Líneas, arcos, círculos, elipses, puntos y polilíneas con sus segmentos de arco.
+- Texto de una línea con su alineación y factor de ancho.
+- Texto de varias líneas y texto ajustado, como texto de varias líneas. El otro programa lo vuelve a ajustar desde el mismo ancho.
+- Colores de objeto: por capa, por bloque, los 255 colores estándar, y colores verdaderos en el formato 2004 y posteriores.
+- Capas con su color, tipo de línea, grosor de línea y sus configuraciones de encendido, congelado, bloqueado y trazado; los tipos de línea, grosores y escalas propios de los objetos, los patrones de tipo de línea y la escala de tipo de línea del plano.
+- Las unidades del plano y el formato de longitud (decimal, pies y pulgadas, fracciones…).
+- Bloques con su punto base y sus definiciones de atributos, incluidos los invisibles, constantes y predefinidos.
+- Referencias de bloque con su escala, rotación y valores de atributos.
+- Rellenos sólidos, y sombreados con patrón con su patrón, escala y ángulo (las líneas propias del patrón, para que otros programas dibujen las mismas líneas que CadCraft).
+- Cotas, como cotas reales: otros programas las vuelven a medir cuando se estiran. Cada una conserva sus propias configuraciones (altura de texto, tamaño de flecha, decimales, formato de longitud) y su texto, y lleva la copia dibujada que tiene toda cota DWG.
+- Hojas (diseños): cada hoja con su tamaño de papel y unidades, lo que se dibuja en ella, y sus vistas con su vista y escala.
+- Vistas con nombre.
+- Multiguías, como multiguías.
+- Nombres de capa y de bloque como los escribiste, en mayúsculas y minúsculas. (DXF R12 los escribe en mayúsculas.)
 
-### Mba'épa DWG ojecambia
+### Lo que un DWG cambia
 
-Peteĩteĩ ko'ã ojejoka historia guardar rire, ojeporúva ndive.
+Cada uno de estos cambios aparece en el historial después de guardar, cuando corresponde a tu plano.
 
-| En CadCraft | En DWG ojeguardaháicha |
+| En CadCraft | En el DWG guardado |
 |---|---|
-| Color verdadero (color picker rupive ojeporaveva), 2000 formato-pe | Color estándar iñambue: 2000 formato-pe 255 añoite. Guardar como 2004 térã pyahúva ojekuaáta |
-| Hoja vista nombre-kuéra | Papel espacio vista: DWG ndoikuaaiva mba'e hoja, upévare CadCraft ojeabrérõ, primer hoja-pe oĩ |
-| Multilínea texto ancho factor ndive | Ancho letra normal: DWG-pe ancho factor ojeporu peteĩ línea texto-pe añoite |
-| Capa térã bloque nombre ndaikatúi DWG-pe | Ojecambia: link de plano ojeporaveva ndive `Base\|Walls` oguahẽ `Base$0$Walls`, ha ambue signo `_` |
+| Colores verdaderos (elegidos con el cuentagotas), en el formato 2000 | El color estándar más cercano: el formato 2000 solo tiene los 255. Guardá como 2004 o posterior para conservarlos |
+| Vistas con nombre de una hoja | Vistas del espacio de papel: un DWG no dice a qué hoja pertenecen, así que cuando CadCraft vuelve a abrir el archivo pertenecen a la primera hoja |
+| Texto de varias líneas con factor de ancho | Ancho de letra normal: en un DWG el factor de ancho solo se aplica al texto de una línea |
+| Nombres de capa o de bloque con caracteres que DWG no permite | Cambiados: un nombre de un plano vinculado como `Base\|Muros` pasa a `Base$0$Muros` (la forma en que se nombra al enlazar un plano vinculado), y los demás caracteres pasan a `_` |
 
-### Mba'éichapa R12, ha mba'e ojecambia
+### Por qué R12, y qué se convierte
 
-DXF-pe guardar rire, CadCraft ojapo DXF R12, opavave CAD programa ojeabrevéva. Ha'e ojeguejyva pyahu mba'e-kuéra, upévare mba'e heta ojapo ijeʼẽ yvyapýpe:
+Cuando guardás como DXF, CadCraft escribe DXF R12, la versión que puede abrir cualquier programa CAD. Es más antigua que algunas funciones, así que algunas cosas se escriben de forma más simple:
 
-| En CadCraft | En DXF R12 ojeguardaháicha |
+| En CadCraft | En el archivo R12 guardado |
 |---|---|
-| Multilínea texto | Peteĩ texto objeto línea peteĩ-pe |
-| Elipses | Polilíneas elipse-icha |
-| Sombreados (ojeabre archivo-gui) | Ijeʼẽ contorno añoite |
-| Color verdadero (color picker rupive) | Color estándar iñambue |
-| Grosor ha objeto escala propia | Oñeñeʼẽ: R12-pe ndoikói (tipos de línea oñeguardava) |
-| Capa ha bloque nombre | Mayúscula-pe ojeguarda; espacio ha ambue signo `_` ojapo, ha nombre 31 signo peve (“Title block” oguahẽ `TITLE_BLOCK`) |
-| Capas oñeguardáva ndotrazái | Ambue programa ojetrazáta (CadCraft ohechauka ojesarekóva plano tiene hoja) |
-| Cotas | Cota real bloque ijeʼẽ ndive, ambue programa ohechauka ahecha haguã |
-| Multileaders | Línea, flecha ha texto oñemboguejýva |
-| Vista nombre-kuéra | Oñeguarda, nombre mayúscula-pe; hoja vista primer hojápe ojevolve |
-| Hoja pluralidad | Primer hoja opavave programa ohechauka papel espacio; ambue oñeguarda bloque `CCLAYOUT_1`, `CCLAYOUT_2` … ojevolve hoja CadCraft ojeabrérõ |
+| Texto de varias líneas | Un objeto de texto por línea |
+| Elipses | Polilíneas que siguen la elipse |
+| Sombreados (de archivos abiertos) | Solo sus contornos |
+| Colores verdaderos (elegidos con el cuentagotas) | El color estándar más cercano |
+| Grosores de línea, y escalas de tipo de línea propias de los objetos | Se omiten: R12 no tiene ninguno (los tipos de línea se mantienen) |
+| Nombres de capa y de bloque | Escritos en mayúsculas; los espacios y demás caracteres pasan a `_`, y los nombres se cortan a 31 caracteres ("Title block" pasa a `TITLE_BLOCK`) |
+| Capas configuradas para no trazarse | Otros programas las trazarán (CadCraft recuerda la configuración cuando el plano tiene una hoja) |
+| Cotas | Cotas reales con su propio bloque dibujado, para que otros programas las muestren como las ves |
+| Multiguías | Las líneas, la punta de flecha y el texto que dibujan |
+| Vistas con nombre | Se mantienen, con nombres en mayúsculas; las vistas de una hoja vuelven en la primera hoja |
+| Varias hojas | La primera hoja es el espacio de papel que muestra cualquier programa; las demás se guardan como bloques llamados `CCLAYOUT_1`, `CCLAYOUT_2` … que CadCraft convierte de nuevo en hojas al abrir el archivo |
 
-Historia ohechauka ko'ã opavave ojejoka tembiapo.
+El historial enumera cada una de estas que correspondió a tu plano.
 
 :::tip
-Plano ojeporuvaʼekue ára mboyve, DXF-pe guardar ha upe DXF ejeabré ohechaukapa. Opavave CadCraft ojeikeva ikatu ojeguardaháicha, cotas, bloques ha hoja opavave.
+Para seguir trabajando en un plano durante varios días, guardá como DXF y abrí ese DXF la próxima vez. Todo lo que CadCraft puede dibujar sobrevive al ida y vuelta, incluidas las cotas, los bloques y todas las hojas.
 :::
 
-## Links de planos (referencias externas)
+## Vínculos a planos (referencias externas)
 
-{{cmd:XATTACH}} (`XA`, térã {{ui:Bloques}} › {{ui:Más}} › {{ui:Vincular un plano (xref)}}) oñemoĩ ambue DWG térã DXF: eiporavo archivo, ha upéi eclic moõ guýpe ohóta ({{key:Enter}} ohupi 0,0-pe). Ojeike peteĩ bloque archivo nombre ndive, escala tuichave planos unidades iñambuépe. Capa ha bloque nombre oguereko link nombre mboyve, `Plan|Walls`, `Plan|Door`, upévare ndojehérei ndéve: ejepyta térã ejejoka capa ha bloque ndéve. Link ndojecambiaiha: ambue plano ojecambia rire, recargá. Mba'e ejeporuva link capa-pe (color, tipo de línea, grosor, activo/inactivo, congelado, bloqueado, trazado) oñeguarda recargar-pe, DWG guardar-pe link oĩ rire, ha ambue plano ohechauka upe.
+{{cmd:XATTACH}} (`XA`, o {{ui:Blocks}} › {{ui:More}} › {{ui:Link a drawing (xref)}}) vincula otro DWG o DXF: elegís el archivo, y después hacés clic donde va ({{key:Enter}} lo pone en 0,0). Entra como un bloque con el nombre del archivo, a la escala correcta cuando los dos planos tienen unidades distintas. Sus capas y bloques conservan sus nombres con el nombre del vínculo delante: `Plan|Muros`, `Plan|Puerta`, así que nunca se mezclan con los tuyos: encendé y apagá las capas vinculadas, congelalas o bloquealas como las tuyas. Un vínculo es de solo lectura: si cambiás el otro plano, recargalo. Lo que configurás en las capas de un vínculo (color, tipo de línea, grosor, encendido/apagado, congelado, bloqueado, trazado) se mantiene al recargar, al guardar el plano como DWG mientras el vínculo sigue siendo un vínculo, y cuando otro plano vincula este.
 
-{{cmd:XREF}} (`XR`): `?` ohechauka link-kuéra (ojeikeva térã ndaha'éi, mba'e archivo, mboyve referencia); `A` oñemoĩ; `R` ojevolve peteĩ archivo-gui (ejeiporavo archivo ojeguahẽ: navegador ndoikuaái eremiko carpeta); `B` ojapo bloque ha capa `Plan$0$Walls` nombre-pe; `D` oñemboguejy peteĩ (referencia ha capa oho). Peteĩteĩ oñeguejy mba'e rehe.
+{{cmd:XREF}} (`XR`): `?` lista los vínculos (cargados o no, qué archivo, cuántas referencias); `A` agrega; `R` recarga uno desde su archivo (elegí de nuevo el archivo: el navegador no puede acceder a tus carpetas por sí mismo); `B` enlaza uno (pasa a ser bloques y capas comunes con nombres como `Plan$0$Walls`); `D` desvincula uno (se van sus referencias y capas). Cada una es un paso de deshacer.
 
-{{cmd:XCLIP}} (`XC`) ojecorta bloque referencia ha links: ejeporavo, `N` peteĩ límite pyahu rehe, upéi `R` mokõi esquina ndive térã `P` polígono punto-kuéra ndive ({{key:Enter}} ojapo polígono); `D` oñeguejy recorte. Upe ojehechaukáva ojetrazáta, ha recorte referencia ndive ojevolve. DWG ha DXF 2000 recorte oñeguarda; DXF R12 referencia opavave oñeguarda ha ojehecha.
+{{cmd:XCLIP}} (`XC`) recorta referencias de bloque y vínculos: seleccionalos, `N` para un nuevo límite, después `R` y dos esquinas o `P` y los puntos de un polígono ({{key:Enter}} lo cierra); `D` quita el recorte. Solo se muestra y se traza lo que queda dentro, y el recorte se mueve con la referencia. DWG y DXF 2000 conservan los recortes; DXF R12 guarda la referencia completa y lo indica. Cuando enlazás un vínculo que tiene referencias recortadas, {{cmd:XREF}} `B` pregunta: `A` enlaza todo, `C` conserva solo la parte recortada de cada referencia (las líneas y arcos se cortan en el límite; los textos y bloques anidados se mantienen cuando su punto de inserción está dentro).
 
-Ejeabréva plano ikatu oñemoĩ link CadCraft ndojehechaiva: ohechauka mboyve ndojekargavaʼekue. Ehecha {{cmd:XREF}}, `R`, ha eiporavo peteĩteĩ archivo.
+Un plano que abrís puede vincular archivos que CadCraft no puede ver: indica cuántos no están cargados. Usá {{cmd:XREF}}, `R` y elegí cada archivo para verlos.
 
-Oñeguardáramo, link ojekargava **bloque ojejoka** archivo-pe (ambue programa ohecha bloque ha capa `Plan$0$…` nombre-pe), ha historia ohechauka. Link ndojekargavaʼekue ojeguarda archivo-pe link-icha, DWG ha DXF-pe.
+Cuando guardás, un vínculo cargado se **enlaza** dentro del archivo (otros programas ven bloques y capas comunes con nombres `Plan$0$…`), y el historial lo dice. Un vínculo que no está cargado sigue siendo un vínculo a su archivo, tanto en DWG como en DXF.
 
-## Ojehechauka 3D-pe
+## Abrir en 3D
 
-{{ui:Vista}} › {{ui:Más}} › {{ui:Abrir en ModelCraft}} ({{cmd:OPENIN3D}}) oipe'a plano 3D modelado app-pe pestaña pyahúpe, DWG-icha, ndojeguahẽi. Upépe ojecambiáva oikoty; upépe oguardá. Menú ítem ohechauka tenonde upe app oikuaaukuaáva plano.
+{{ui:View}} › {{ui:More}} › {{ui:Open in ModelCraft}} ({{cmd:OPENIN3D}}) abre el plano en la aplicación de modelado 3D en una pestaña nueva, como DWG, sin subirlo. Los cambios que hagas allí quedan allí; guardalos allí. El elemento del menú solo aparece donde esa aplicación puede recibir un plano entregado.
 
-## Trazar PDF
+## Trazar un PDF
 
-Ejapo {{key:Mod+P}}, eclic {{ui:Trazar}}, térã emoñe'ẽ `PLOT`. PDF navegador-pe oñemoĩ ha ojeguahẽ, térã pestaña pyahúpe ojehechaukáva imprimi haguã. Ehecha [Trazar a PDF](topic:plot-pdf).
+Presioná {{key:Mod+P}}, hacé clic en {{ui:Plot}}, o escribí `PLOT`. El PDF se crea dentro del navegador y se descarga, o se abre en una pestaña nueva para imprimir. Ver [Trazar a PDF](topic:plot-pdf).
 
-## Moõ guýpe oho archivo-kuéra
+## Dónde van los archivos
 
-Opavave guardar ha trazar ha descarga; archivo oho navegador ojeguahẽvaʼekue lugar-pe, ojeporúvaicha Downloads carpeta. Peteĩteĩ vez carpeta ojeiporavo haguã, navegador descarga configuración ojecambia; [Navegadores y computadoras](common:browsers) ohechauka moõ.
+Cada guardado y cada trazado es una descarga, así que los archivos van a donde tu navegador ponga las descargas: normalmente la carpeta Descargas. Para elegir una carpeta cada vez, cambiá la configuración de descargas en tu navegador; [Navegadores y computadoras](common:browsers) muestra dónde.
 
-Ndaipóri ojeabrevaʼekue térã ojeguardaháicha ojeʼe ore-pe. Ehecha [Dónde van tus archivos](common:your-files).
+Nada de lo que abrís o guardás se envía a nosotros. Ver [Dónde van tus archivos](common:your-files).
 
 ## Archivos de proyecto PLN y PLA
 
-CadCraft ojeabre DWG ha DXF planos, ndaha'éi Archicad archivo-kuéra (`.pln`, `.pla`, `.tpl`, `.bpn`). Peteĩ ojeabréramo, ohechauka mba'e. Archicad-pe, guarda ejeporavo hoja térã vista DWG-pe ha upéi ejeabre CadCraft-pe, térã modelo IFC-pe exporta ha BimCraft-pe ejeabre. BimCraft ojeikuaaukáva archivo, CadCraft ohechauka {{ui:Abrir en BimCraft}}.
+CadCraft abre planos DWG y DXF, no los archivos propios de Archicad (`.pln`, `.pla`, `.tpl`, `.bpn`). Al abrir uno, te indica de qué se trata. En Archicad, guardá las vistas o diseños que necesitás como DWG y abrilos aquí, o exportá el modelo como IFC y abrilo en BimCraft. Cuando BimCraft puede recibir el archivo, CadCraft ofrece {{ui:Open in BimCraft}}.
 
 ## Si la página se cierra antes de guardar
 
-CadCraft ojeguarda peteĩteĩ plano ojecambiáva copia, ko navegador-pe añoite, peteĩ momento rire ndejeporúi. Pestaña ojejoka, navegador ojejoka térã computadora ojepyrũ guarda mboyve, CadCraft ojeporandu **¿Recuperar tu trabajo?** ojepyrũmbaite: {{ui:Recuperar}} ojeabre plano, ndojeguardái, pestaña pyahúpe. Plano guarda rire, copia ojeguejy. Ehecha [Recuperar tu trabajo](common:recover).
+CadCraft guarda una copia de cada plano que cambiás, solo en este navegador, un momento después de dejar de editar. Si la pestaña se cierra, el navegador se detiene o la computadora se reinicia antes de que guardes, CadCraft pregunta **¿Recuperar tu trabajo?** la próxima vez que arranca: {{ui:Recover}} vuelve a abrir el plano, sin guardar, en su propia pestaña. Guardar el plano elimina su copia. Ver [Recuperar tu trabajo](common:recover).
 
 ## En línea y sin conexión
 
-Ojeabre, dibujo, guardar (DWG ha DXF) ha trazar oñeme'ẽ nde computadora-pe, upévare ndaipórirõ conexión CadCraft ojepyrũ rire.
+Abrir, dibujar, guardar (DWG y DXF) y trazar se hacen todos en tu computadora, así que funcionan sin conexión una vez que CadCraft cargó.
 
-Conexión'ỹ CadCraft ojeporuvaʼekue, ejepyta {{ui:Guardar para usar sin conexión}} pe barra pyahúpe, conectado mboyve. Etiqueta ohechauka tiempo ("Guardando 40 de 212") ha oñemboty "Listo sin conexión". Oñeguardava copia DWG leedor oguereko, mbohapy 5 MB; upévare **DWG archivo ojeabre sin conexión** oñeguarda rire. Ejepyta mokõi vez {{ui:Guardar otra vez (obtener la versión más nueva)}} térã {{ui:Quitar la copia sin conexión}} haguã. "No se pudo guardar" ohechauka archivo-kuéra ndojeguahẽi: ehecha conexión ha eclic eme'ẽ jey. "Sin conexión no disponible" ohechauka ko navegador ndojeguardaiha (ventana privada térã computadora oiporuvaʼekue).
+Para usar CadCraft sin ninguna conexión, hacé clic en {{ui:Save for offline}} en la barra superior mientras estás en línea. La etiqueta va contando ("Guardando 40 de 212") y termina en "Listo sin conexión". La copia guardada incluye el lector DWG, unos 5 MB en total, así que **los archivos DWG también se abren sin conexión** una vez guardada. Hacé clic de nuevo en el botón para {{ui:Save again (get the newest version)}} o {{ui:Remove the offline copy}}. "No se pudo guardar" significa que algunos archivos no se descargaron: revisá la conexión y hacé clic para intentar de nuevo. "Sin conexión no disponible" significa que esta ventana del navegador no puede guardar una copia (ventanas privadas y algunas computadoras administradas).
 
-Oñeguardaʼỹre, DWG leedor ojeguahẽ DWG ojeabréramo página ojepyrũ rire, upévare sin conexión ndojeabréi DWG; DXF archivo ndoipotái. Ndejepyta jey página sin conexión, CadCraft oñeguarda ndeve.
+Sin una copia guardada, el lector DWG se descarga la primera vez que abrís un DWG después de cargar la página, así que abrir un DWG sin conexión puede fallar; los archivos DXF nunca lo necesitan. No recargues la página sin conexión a menos que CadCraft esté guardado.
 
-Ehecha [Trabajar sin conexión](common:offline) ambue detalle-pe.
+Ver [Trabajar sin conexión](common:offline) para los detalles.
 
 :::offline
-Ko'ẽrõ ndaipórirõ conexión. Planos DWG térã DXF-pe oguarda ha trazar normalmente, DXF archivo ojeabre. DWG archivo ojeabre CadCraft ohechauka "Listo sin conexión" térã DWG leedor ojekargava pestaña-pe.
+Ahora no tenés conexión. Los planos se guardan como DWG o DXF y se trazan con normalidad, y los archivos DXF se abren. Los archivos DWG se abren si CadCraft muestra "Listo sin conexión", o si el lector DWG ya se cargó en esta pestaña.
 :::
 
-## Restricciones en archivos
+## Restricciones en los archivos
 
-Restricciones ha parámetros (ehecha [Restringir un plano](topic:constraints)) DWG ha DXF-pe ojeguarda. Peteĩteĩ restringido objeto oguereko peteĩ nota CadCraft (datos extendidos), ha bloque `CADCRAFT_PARAMETRIC` ndojeporuvaʼekue oguereko restricciones ha parámetro tabla. Ambue programa archivo ojeabre normalmente ha ko'ã ndoikuaái; purga ojepuru rire ikatu oñeity bloque. Notas ojeikuaa objeto ijeʼẽ clave-gui, ndaha'éi archivo handle-gui, upévare programa handle ojecambia ndojehasa. Ambue programa objeto restringido ojeity térã ojecambia rire, CadCraft archivo ojeabre rire restricción ojejoka ha mboyve ohechauka. Restricción ndoguerekoʼỹre archivo ojeabre restricciónʼỹi.
+Las restricciones y los parámetros (ver [Restringir un plano](topic:constraints)) se guardan tanto en DWG como en DXF. Cada objeto restringido lleva una pequeña nota de CadCraft (datos extendidos), y un bloque sin uso llamado `CADCRAFT_PARAMETRIC` guarda las restricciones y la tabla de parámetros. Otros programas abren el plano normalmente e ignoran ambas cosas; pueden eliminar el bloque sin uso cuando purgan. Las notas se refieren a los objetos por su propia clave, no por los identificadores del archivo, así que un programa que renumera los identificadores no las rompe. Cuando otro programa eliminó o cambió un objeto restringido, CadCraft descarta las restricciones de ese objeto al abrir el archivo y dice cuántas. Un archivo sin ellas se abre sin restricciones.
 
-Sketch ojeguahẽva parte modelador-gui (`.json`) ojeabre: ehecha [Mover sketches a y desde otros modeladores de piezas](topic:solidworks-sketches).
+Un boceto exportado desde un modelador de piezas (`.json`) también se abre: ver [Mover bocetos hacia y desde otros modeladores de piezas](topic:solidworks-sketches).
 
 ## Todavía no disponible
 
-- Multileaders multileader objeto-icha DXF guardado-pe (R12-pe ndoguerekoi: ojeguarda ojedibujáva mba'e-icha).
-- Imágenes DXF guardado-pe (marco-icha oguarda; DWG-pe imagen-icha oñeguarda), ha wipeouts ojehe'ỹva mba'e iñangarekópe.
-- DXF 2000 hetaveguasúva versión guardar.
-- Nube guardar ha computadora apopy ojeikóva.
+- Multiguías como objetos multiguía en un DXF guardado (R12 no tiene ninguno: se guardan como lo que dibujan).
+- Imágenes en un DXF guardado (se guardan como sus marcos; DWG las conserva como imágenes), y wipeouts que ocultan lo que hay debajo.
+- Guardar una versión DXF más nueva que 2000.
+- Guardado en la nube y sincronización entre computadoras.
 
-Ehecha [Todavía no construido](topic:not-built-yet) opavave mba'e-kuéra.
+Ver [Todavía no hecho](topic:not-built-yet) para la lista completa.

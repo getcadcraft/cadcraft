@@ -75,7 +75,7 @@ export function openHistory(o) {
       return rec.bytes;
     }
     const safeName = (r) => (doc.meta.name || 'Drawing') + ' (' + (r.cloud ? t('hist.cloud.version', { n: r.no }) : whenText(r.at)) + ')';
-    const extOfRow = (r) => (r.format === 'dxf' || r.format === 'dxf2000' ? '.dxf' : '.dwg');
+    const extOfRow = (r) => (r.format === 'dxf' || r.format === 'dxf2000' || r.format === 'dxf2000b' /* ORS.18 */ ? '.dxf' : '.dwg');
     const busyOn = (text) => { st.busy = !!text; status.textContent = text || ''; for (const b of dlg.querySelectorAll('button[data-act]')) b.disabled = st.busy; };
     const status = el('p', { className: 'cc-note', role: 'status', 'aria-live': 'polite' });
 

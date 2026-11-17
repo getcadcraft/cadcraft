@@ -328,18 +328,21 @@ export function install3d(def, opt, lookup) {
     } catch (err) { c.print(err.message); }
   }
   def('UNION', ['UNI'], async (c) => {
+    if (await lookup('_UNION2D')?.fn(c)) return;   // ORS.13: on the 2D tab with regions in the drawing, 2D regions are joined (region2d-cmd.js)
     const ws = await need3d(c);
     if (!ws) return;
     const a = await pickSolids(c, ws, t('cmd.bool.what.union'));
     if (a) await runBoolean(c, 'union', a, []);
-  }, { help: () => t('cmd.bool.help.union') });
+  }, { help: () => t('region.bool.help.union') });   // ORS.13: the help line names the 2D path too
   def('INTERSECT', ['IN'], async (c) => {
+    if (await lookup('_INTERSECT2D')?.fn(c)) return;   // ORS.13: the 2D path, as in UNION
     const ws = await need3d(c);
     if (!ws) return;
     const a = await pickSolids(c, ws, t('cmd.bool.what.intersect'));
     if (a) await runBoolean(c, 'intersect', a, []);
-  }, { help: () => t('cmd.bool.help.intersect') });
+  }, { help: () => t('region.bool.help.intersect') });   // ORS.13
   def('SUBTRACT', ['SU'], async (c) => {
+    if (await lookup('_SUBTRACT2D')?.fn(c)) return;   // ORS.13: the 2D path, as in UNION
     const ws = await need3d(c);
     if (!ws) return;
     const a = await pickSolids(c, ws, t('cmd.bool.what.from'));
@@ -350,7 +353,7 @@ export function install3d(def, opt, lookup) {
     const keep = a.filter((x) => !b.includes(x));
     if (!keep.length) { c.print(t('cmd.bool.same')); return; }
     await runBoolean(c, 'subtract', keep, b);
-  }, { help: () => t('cmd.bool.help.subtract') });
+  }, { help: () => t('region.bool.help.subtract') });   // ORS.13
 
   // ---- files ----
   async function export3d(c, kind) {

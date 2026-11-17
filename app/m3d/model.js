@@ -2046,11 +2046,13 @@ export class Model {
     this.images.set(id, { name: cleanText(name, 120), mime, data, avg: isColor(avg) ? avg.toLowerCase() : null });
     return id;
   }
-  /** The images some face or placement still uses, for the file. */
+  /** The images some face or placement still uses, for the file. A mesh definition's faces are read from the mesh shown
+   *  (0.10 PERF.38: never through the push/pull copy its `faces` getter builds, seconds at 500k faces on every autosave). */
   imagesJSON() {
     const used = new Set();
     for (const d of this.defs.values()) {
-      for (const f of d.faces.values()) if (isImagePaint(f.color)) used.add(imageId(f.color));
+      if (d.mesh) { const ms = d.shown; for (let f = 0; f < ms.nf; f++) { if (ms.faceDead(f)) continue; const c = ms.facePaint(f); if (isImagePaint(c)) used.add(imageId(c)); } }
+      else for (const f of d.faces.values()) if (isImagePaint(f.color)) used.add(imageId(f.color));
       for (const i of d.insts.values()) if (isImagePaint(i.color)) used.add(imageId(i.color));
     }
     return [...this.images].filter(([id]) => used.has(id)).map(([id, im]) => ({ id, ...im }));
@@ -2850,7 +2852,7 @@ export class Model {
     return {
       format: 'modelcraft-clip', version: 1, source: this.uid, units: this.units,
       m: mmul(ctx.m, inst.m), box: scratch.bbox(top, ident()),
-      top: defToJSON(top), defs: [...need.values()].map(defToJSON),
+      top: defToJSON(top), defs: [...need.values()].map((d) => defToJSON(d)),
     };
   }
   /**
@@ -3107,11 +3109,15 @@ export class Model {
   }
 
   // ---- files ----
-  /** The model in its file form; `noDefs`: defs: 0 in place of the definitions (Snap's head). */
-  toJSON(noDefs = false) {
+  /**
+   * The model in its file form; `noDefs`: defs: 0 in place of the definitions (Snap's head). 0.10 PERF.38, for a worker:
+   * `raw` = meshes' typed arrays not yet base64 (Mesh.toJSON raw; file-text.js writes the same text from it), `shown` =
+   * each mesh definition's mesh as it shows (its modifiers applied), for a worker that has no modifier hooks.
+   */
+  toJSON(noDefs = false, { raw = false, shown = false } = {}) {
     return {
       format: FORMAT, version: [...this.defs.values()].some((d) => d.mesh) ? MESH_FILE_VERSION : 1, units: this.units, nextId: this.nextId,
-      defs: noDefs ? 0 : [...this.defs.values()].map(defToJSON),
+      defs: noDefs ? 0 : [...this.defs.values()].map((d) => defToJSON(d, raw, shown)),
       guides: [...this.guides].map(([id, g]) => ({ id, ...g })),
       ...(this.lights.size ? { lights: [...this.lights].map(([id, L]) => ({ id, ...structuredLight(L) })) } : {}),
       ...(this.sections.size ? { sections: [...this.sections].map(([id, s]) => ({ id, p: s.p.slice(), n: s.n.slice(), name: s.name })), activeSection: this.activeSection } : {}),
@@ -3322,8 +3328,8 @@ export function cleanScene(s) {
 export function copyOwnGeometry(src, dst) {
   defFromJSON(dst, { ...defToJSON(src), insts: [] });
 }
-function defToJSON(d) {
-  if (d.mesh) return { ...meshHead(d), mesh: d.mesh.toJSON() };
+export function defToJSON(d, raw = false, shown = false) {
+  if (d.mesh) return { ...meshHead(d), mesh: (shown ? d.shown : d.mesh).toJSON({ raw }) };
   return {
     id: d.id, kind: d.kind, name: d.name, next: d.next, ...(d.starter ? { starter: d.starter } : {}), ...(d.dyn ? { dyn: { src: d.dyn.src, size: d.dyn.size.slice() } } : {}),
     ...(isStacked(d) ? { mods: { src: d.mods.src, ops: structuredClone(d.mods.ops) } } : {}),

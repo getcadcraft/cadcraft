@@ -7,6 +7,8 @@
  *   ribbon      the Drafting classic menu style's tabs (fromInput takes the first ribbon style); the 3D tab's tools count as built
  *               (they open the 3D tab first), "Open in 3D" only where that app takes a hand-off
  *   toolbox     the toolbar's groups, the buttons on the toolbar itself (a group's More menu stays in the ribbon and the toolbar)
+ *               In a layout that has the toolbox column the app's toolbar is not shown as well, and each group's More menu is the group's More
+ *               button in the column (0.10)
  *   slots       level (the current layer), document (the drafting aids), layout (split the view), units (the coordinates), and for the
  *               view bar scale (zoom window / previous), detail (line weights), fit (zoom extents)
  *   palettes    properties (the right panel's Properties and Parameters), browser (the project browser: sheets, blocks, linked
@@ -144,7 +146,16 @@ export async function createCadcraftWorkspace({ root, doc, view, engine, cad, t,
       const keep = (id) => { const c = reg.get(id); return !(c?.optional && !c.in3d && !target(c)); };   // "Open in 3D" only where that app takes the drawing
       return { ...g, large: g.large.filter(keep), stacks: g.stacks.map((s) => s.filter(keep)).filter((s) => s.length) };
     }).filter((g) => g.large.length || g.stacks.length) })).filter((tb) => tb.groups.length),
-    toolbox: () => base.toolbox().map((g) => ({ ...g, tools: g.tools.filter((id) => target(reg.get(id))?.getAttribute('role') !== 'menuitem') })).filter((g) => g.tools.length),
+    // a group's More menu stays out of the toolbox, except the wall tools': every one of them is a tool of the Walls group (0.9 WT.1, walls-plan-10).
+    // 0.10 (owner 2026-11-11, "smaller toolbars is better"): in a layout with a toolbox column the toolbar is not shown as well (toolbarIn below; the
+    // engine marks the toolbar data-ws-in="toolbox"), and then the column is the one place for tools: each group's More menu becomes the
+    // group's More button in the column (`more`), a named list beside it.
+    toolbarIn: ['toolbox'],
+    toolbox: () => {
+      const whole = base.toolbar?.()?.dataset.wsIn === 'toolbox';
+      const inMenu = (id) => { const b = target(reg.get(id)); return b?.getAttribute('role') === 'menuitem' && !b.closest('[data-tb-key="Walls"]'); };
+      return base.toolbox().map((g) => ({ ...g, tools: g.tools.filter((id) => !inMenu(id)), ...(whole ? { more: g.tools.filter(inMenu) } : {}) })).filter((g) => g.tools.length || g.more?.length);
+    },
     tool,
     can(id, block) {
       const c = reg.get(cid(id));
@@ -189,7 +200,9 @@ export async function createCadcraftWorkspace({ root, doc, view, engine, cad, t,
       ctx = c; lastView = viewNow();
       if (c.has('palettes')) {
         const right = root.querySelector('.cc-right') || document.querySelector('.cc-right');
-        moveHome(document.querySelector('.cc-right > .cc-sec:not([data-params-sec])'), propsBox);
+        // palettes in the RIGHT panel: the engine has already moved that panel's own sections into its "More panels" tab (.ws-model-slot), so Properties is looked for there too
+        // (2026-11-13: the Properties palette of Vector, Sketch, Rhino and PRO-cad4 was empty in CadCraft)
+        moveHome(document.querySelector('.cc-right > .cc-sec:not([data-params-sec])') || document.querySelector('.cc-right .ws-model-slot > .cc-sec:not([data-params-sec])'), propsBox);
         moveHome(document.querySelector('[data-params-sec]'), propsBox);
         // the palettes fill the left panel: Layers, the palette a drafter keeps open, goes to the right panel the Properties left
         if (c.block('palettes')?.place === 'left-panel') moveHome(document.querySelector('[data-layers-sec]'), right);

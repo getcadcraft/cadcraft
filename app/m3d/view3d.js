@@ -25,6 +25,7 @@ import { add, sub, mul, dot, norm, apply, invert, dist, bboxAdd, IDENT } from '.
 import { faceTris, faceNormal, edgeFaces, smoothNormals, paintHex, isMaterialPaint, isImagePaint, imageId, imageUV, MESH_HOOKS } from './model.js';
 import { FL_DEAD, FL_HIDE, FL_SHARP, FL_SEAM } from './mesh.js';
 import { sunPosition } from './sun.js';
+import { Camera } from './camera.js';
 import { dimLayout, dimTextBox, dimText, dimTextSize, sectionLayout } from './infer.js';
 import { formatLength } from './units.js';
 import { viewImage } from './viewimage.js';
@@ -227,13 +228,15 @@ export class View3D {
       return c;
     };
     let nPlain = 0;
-    for (let i = 0; i < T.n; i++) if (faceKind[T.face[i]] < 0) nPlain++;
+    const perMat = new Int32Array(matKeys.length);   // triangles in each textured group (0.10 PERF.7: typed arrays, not pushes)
+    for (let i = 0; i < T.n; i++) { const mk = faceKind[T.face[i]]; if (mk < 0) nPlain++; else perMat[mk]++; }
     const vOf = new Int32Array(mesh.nh).fill(-1);
     const pos = new Float32Array(nPlain * 9), nor = new Float32Array(nPlain * 9), col = new Float32Array(nPlain * 9);
     const index = new Uint32Array(nPlain * 3);
     let nv = 0, k = 0;
-    const mats = matKeys.map((id) => ({ id, pos: [], nor: [], col: [], uv: [] }));
+    const mats = matKeys.map((id, i) => ({ id, pos: new Float32Array(perMat[i] * 9), nor: new Float32Array(perMat[i] * 9), col: new Float32Array(perMat[i] * 9), uv: new Float32Array(perMat[i] * 6), o: 0 }));
     const fn = [0, 0, 0];
+    const imgK = new Map();   // an image paint's eight numbers (imageUV's), read once per paint instead of once per corner
     for (let i = 0; i < T.n; i++) {
       const f = T.face[i], mk = faceKind[f];
       if (mk >= 0) {
@@ -242,10 +245,19 @@ export class View3D {
         if (b.ts === undefined) b.ts = uvA && !img && !uvp && tex && tex.tile ? tex.tile(b.id) : null;
         const c = st ? stretchColor(st[f], this._stA || (this._stA = new THREE.Color()), stPal) : color(f);
         mesh.faceNormal(f, fn);
+        let ik = null;
+        if (!uvA && !uvp && img) { ik = imgK.get(paint); if (!ik) imgK.set(paint, (ik = paint.split('|')[1].split(',').map(Number))); }
         for (let q = 0; q < 3; q++) {
-          const h = T.tri[i * 3 + q], v = hV[h] * 3, p = [P[v], P[v + 1], P[v + 2]];
-          const w = uvA ? (b.ts ? [uvA[h * 2] * b.ts[0], uvA[h * 2 + 1] * b.ts[1]] : [uvA[h * 2], uvA[h * 2 + 1]]) : uvp ? [0, 0] : img ? imageUV(paint, p) : tex.uv(p, fn);
-          b.pos.push(p[0], p[1], p[2]); b.nor.push(N[h * 3], N[h * 3 + 1], N[h * 3 + 2]); b.col.push(c.r, c.g, c.b); b.uv.push(w[0], w[1]);
+          const h = T.tri[i * 3 + q], v = hV[h] * 3, o = b.o * 3, u = b.o * 2;
+          const x = P[v], y = P[v + 1], z = P[v + 2];
+          b.pos[o] = x; b.pos[o + 1] = y; b.pos[o + 2] = z;
+          b.nor[o] = N[h * 3]; b.nor[o + 1] = N[h * 3 + 1]; b.nor[o + 2] = N[h * 3 + 2];
+          b.col[o] = c.r; b.col[o + 1] = c.g; b.col[o + 2] = c.b;
+          if (uvA) { if (b.ts) { b.uv[u] = uvA[h * 2] * b.ts[0]; b.uv[u + 1] = uvA[h * 2 + 1] * b.ts[1]; } else { b.uv[u] = uvA[h * 2]; b.uv[u + 1] = uvA[h * 2 + 1]; } }
+          else if (uvp) { b.uv[u] = 0; b.uv[u + 1] = 0; }
+          else if (ik) { b.uv[u] = ik[0] * x + ik[1] * y + ik[2] * z + ik[3]; b.uv[u + 1] = ik[4] * x + ik[5] * y + ik[6] * z + ik[7]; }   // = imageUV(paint, p)
+          else { const w = tex.uv([x, y, z], fn); b.uv[u] = w[0]; b.uv[u + 1] = w[1]; }
+          b.o++;
         }
         continue;
       }
@@ -760,6 +772,21 @@ export class View3D {
     this.ground.scale.set(R * 10, R * 10, 1);
   }
 
+  /** 0.9 RH.1: draw the model from another camera (a saved camera's JSON) into a 2-D canvas of the same size; the overlay (axes, guides, selection) is not drawn. */
+  renderPaneTo(json, ctx2d) {
+    const sc = this._paneCam || (this._paneCam = new Camera());
+    sc.set(json); sc.setSize(this.w, this.h); sc.clip(this.radius || 20);
+    const tc = this.tcam;
+    tc.matrix.fromArray(invert(sc.view()));
+    tc.matrixWorldNeedsUpdate = true;
+    tc.updateMatrixWorld(true);
+    tc.projectionMatrix.fromArray(sc.proj());
+    tc.projectionMatrixInverse.copy(tc.projectionMatrix).invert();
+    this.renderer.render(this.scene, tc);
+    const c = ctx2d.canvas, g = this.gl;
+    if (c.width !== g.width || c.height !== g.height) { c.width = g.width; c.height = g.height; }
+    ctx2d.drawImage(g, 0, 0);
+  }
   draw() {
     const u = this.ui();
     const key = this.model.version + '|' + u.path.join('/') + '|' + JSON.stringify(this.style) + '|' + u.sel.map((s) => s.t + s.id).join(',') + '|' + this.c.bg + '|' + !!u.present + '|' + !!u.hideRest + '|' + !!u.showHidden;
@@ -767,6 +794,7 @@ export class View3D {
     if (this.meshEditState) this.buildMeshEdit();   // 0.7 MD.2: the mesh being edited
     if (this.curveEditState) this.buildCurveEdit();   // 0.7 MD.6: the curve being edited
     this.cam.clip(this.radius || 20);
+    this.panes?.drawOthers();   // 0.9 RH.1: the other views of a four-view window are drawn first; the active one last, so it is what stays on the canvas
     const tc = this.tcam;
     tc.matrix.fromArray(invert(this.cam.view()));
     tc.matrixWorldNeedsUpdate = true;

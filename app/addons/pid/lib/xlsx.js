@@ -1,14 +1,21 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-/* A copy of takeoffcraft/dev/xlsx.js (an add-on may not import outside its own folder); only the workbook author line differs. */
 /**
- * xlsx.js — a minimal Office Open XML workbook writer, and the zip it lives in. No library.
- * DOM-free (tested in Node: unzipped and read back by a spreadsheet reader).
+ * xlsx.js — THE Office Open XML workbook writer, and the zip it lives in (0.10 BK.39, session bk-r3-schedules-10). No library,
+ * no imports, DOM-free. One copy for every host: canonical in lib/tables/, byte-identical in <app>/dev/tables/ by
+ * `node tools/tables/sync.mjs`. It is TakeoffCraft's writer (0.4 K6) and BimCraft's COBie writer (0.7 LC.12) made one:
+ * takeoffcraft/dev/xlsx.js and bimcraft/dev/assets-bim-xlsx.js now only hand their app's name and currency to this file.
  *
- *   const bytes = await writeXlsx([{ name, cols: [widths], rows: [[cell, …], …], freeze: 1 }])
+ *   const bytes = await writeXlsx([{ name, cols: [widths], rows: [[cell, …], …], freeze: 1 }], { title, creator, currency, created, stamp })
  *   cell = null | 'text' | 12.5 | { v, f (formula, no "="), s (style key) }
+ *   creator   the program named in the file ('CadCraft' when none is given)
+ *   currency  the symbol of the two money formats ('$' when none is given)
+ *   created   the workbook's creation time (default now) · stamp: the date on the zip entries (default none: 1980-01-01, so two
+ *             writes of the same workbook are the same bytes)
  *
- * Strings are inline (no shared-string table); formulas carry their computed value so a
- * reader that doesn't recalculate still shows the right number. Styles: STYLE keys below.
+ * Strings are inline (no shared-string table) and are never formulas: text that a spreadsheet would take for a formula if it
+ * were typed (= + - @ first) is stored with quotePrefix when it has no style of its own, so it shows as the text it is and stays
+ * text when the cell is edited. A formula is only ever what the caller gave as `f`; it carries its computed value so a reader
+ * that does not recalculate still shows the right number. Styles: STYLE keys below.
  * The zip is deflated with CompressionStream('deflate-raw') when the runtime has it, else stored.
  */
 
@@ -35,10 +42,10 @@ async function deflateRaw(bytes) {
   } catch { return null; }
 }
 
-/** files: [{ name, data: Uint8Array | string }] → zip bytes. */
+/** files: [{ name, data: Uint8Array | string }] → zip bytes. `date` null = 1980-01-01 00:00 on every entry (repeatable bytes). */
 export async function zip(files, { compress = true, date = new Date() } = {}) {
-  const dosTime = ((date.getHours() << 11) | (date.getMinutes() << 5) | (date.getSeconds() >> 1)) & 0xFFFF;
-  const dosDate = (((date.getFullYear() - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate()) & 0xFFFF;
+  const dosTime = date ? ((date.getHours() << 11) | (date.getMinutes() << 5) | (date.getSeconds() >> 1)) & 0xFFFF : 0;
+  const dosDate = date ? (((date.getFullYear() - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate()) & 0xFFFF : 0x21;
   const chunks = [], central = [];
   let offset = 0;
   for (const f of files) {
@@ -70,18 +77,19 @@ export async function zip(files, { compress = true, date = new Date() } = {}) {
   return out;
 }
 
-// ---- workbook ----
-/** Style keys → cellXfs index (order matches styles.xml below). */
-export const STYLE = { none: 0, head: 1, qty: 2, pct: 3, rate: 4, money: 5, bold: 6, boldMoney: 7, text: 8, int: 9 };
 
-const STYLES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+// ---- workbook ----
+/** Style keys → cellXfs index (order matches styles.xml below). `typed` / `typedHead`: text kept as typed (quotePrefix). */
+export const STYLE = { none: 0, head: 1, qty: 2, pct: 3, rate: 4, money: 5, bold: 6, boldMoney: 7, text: 8, int: 9, typed: 10, typedHead: 11 };
+
+const stylesXml = (currency) => { const c = String(currency || '$').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
-<numFmts count="4"><numFmt numFmtId="164" formatCode="#,##0.00"/><numFmt numFmtId="165" formatCode="0.0#%"/><numFmt numFmtId="166" formatCode="&quot;$&quot;#,##0.00##"/><numFmt numFmtId="167" formatCode="&quot;$&quot;#,##0.00"/></numFmts>
+<numFmts count="4"><numFmt numFmtId="164" formatCode="#,##0.00"/><numFmt numFmtId="165" formatCode="0.0#%"/><numFmt numFmtId="166" formatCode="&quot;${c}&quot;#,##0.00##"/><numFmt numFmtId="167" formatCode="&quot;${c}&quot;#,##0.00"/></numFmts>
 <fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>
 <fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>
 <borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top/><bottom style="thin"><color auto="1"/></bottom><diagonal/></border></borders>
 <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
-<cellXfs count="10">
+<cellXfs count="12">
 <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>
 <xf numFmtId="0" fontId="1" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/>
 <xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
@@ -92,9 +100,11 @@ const STYLES_XML = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xf numFmtId="167" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>
 <xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
 <xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>
+<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" quotePrefix="1"/>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" quotePrefix="1"/>
 </cellXfs>
 <cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
-</styleSheet>`;
+</styleSheet>`; };
 
 /** XML text: escape, and drop characters XML 1.0 forbids (a name from a file could hold them). */
 export function xmlText(s) {
@@ -104,6 +114,8 @@ export function xmlText(s) {
 
 export function colName(i) { let s = ''; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
 export const ref = (r, c) => colName(c) + (r + 1);
+/** Text a spreadsheet would run as a formula if a person typed it. */
+export const looksLikeFormula = (s) => /^[=+\-@\t\r]/.test(String(s));
 
 /** Sheet names: ≤ 31 chars, none of []:*?/\ , unique. */
 export function sheetName(name, used = new Set()) {
@@ -114,19 +126,21 @@ export function sheetName(name, used = new Set()) {
   return n;
 }
 
+const numStr = (n) => (Object.is(n, -0) ? '0' : String(n));
 function cellXml(v, r, c) {
   if (v === null || v === undefined || v === '') return '';
   const cell = typeof v === 'object' ? v : { v };
-  const s = STYLE[cell.s] ?? (typeof cell.v === 'string' ? 0 : 0);
-  const at = ' r="' + ref(r, c) + '"' + (s ? ' s="' + s + '"' : '');
+  let s = STYLE[cell.s] ?? 0;
   if (cell.f) {
+    const at = ' r="' + ref(r, c) + '"' + (s ? ' s="' + s + '"' : '');
     const val = typeof cell.v === 'number' && Number.isFinite(cell.v) ? '<v>' + numStr(cell.v) + '</v>' : '';
     return '<c' + at + '><f>' + xmlText(cell.f) + '</f>' + val + '</c>';
   }
-  if (typeof cell.v === 'number') return Number.isFinite(cell.v) ? '<c' + at + '><v>' + numStr(cell.v) + '</v></c>' : '';
-  return '<c' + at + ' t="inlineStr"><is><t xml:space="preserve">' + xmlText(cell.v) + '</t></is></c>';
+  if (typeof cell.v === 'number') return Number.isFinite(cell.v) ? '<c r="' + ref(r, c) + '"' + (s ? ' s="' + s + '"' : '') + '><v>' + numStr(cell.v) + '</v></c>' : '';
+  const text = String(cell.v);
+  if (looksLikeFormula(text)) s = s === 0 ? STYLE.typed : s === 1 ? STYLE.typedHead : s;
+  return '<c r="' + ref(r, c) + '"' + (s ? ' s="' + s + '"' : '') + ' t="inlineStr"><is><t xml:space="preserve">' + xmlText(text) + '</t></is></c>';
 }
-const numStr = (n) => (Object.is(n, -0) ? '0' : String(n));
 
 function sheetXml(sh) {
   const cols = (sh.cols || []).map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join('');
@@ -137,11 +151,13 @@ function sheetXml(sh) {
 }
 
 /** sheets: [{ name, rows, cols?, freeze? }] → .xlsx bytes. */
-export async function writeXlsx(sheets, { title = '', compress = true } = {}) {
+export async function writeXlsx(sheets, { title = '', creator = 'CadCraft', currency = '$', created = new Date(), stamp = null, compress = true } = {}) {
   const used = new Set();
   const named = sheets.map((s) => ({ ...s, name: sheetName(s.name, used) }));
+  const formulas = named.some((s) => s.rows.some((row) => (row || []).some((v) => v && typeof v === 'object' && v.f)));
+  const X = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
   const files = [
-    { name: '[Content_Types].xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    { name: '[Content_Types].xml', data: X + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
       + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'
       + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
       + '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
@@ -149,24 +165,24 @@ export async function writeXlsx(sheets, { title = '', compress = true } = {}) {
       + '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
       + '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
       + '</Types>' },
-    { name: '_rels/.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    { name: '_rels/.rels', data: X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
       + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
       + '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
       + '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'
       + '</Relationships>' },
-    { name: 'docProps/core.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-      + '<dc:title>' + xmlText(title) + '</dc:title><dc:creator>CadCraft</dc:creator>'
-      + '<dcterms:created xsi:type="dcterms:W3CDTF">' + new Date().toISOString().replace(/\.\d+Z$/, 'Z') + '</dcterms:created></cp:coreProperties>' },
-    { name: 'docProps/app.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>TakeoffCraft</Application></Properties>' },
-    { name: 'xl/workbook.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    { name: 'docProps/core.xml', data: X + '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+      + '<dc:title>' + xmlText(title) + '</dc:title><dc:creator>' + xmlText(creator) + '</dc:creator>'
+      + '<dcterms:created xsi:type="dcterms:W3CDTF">' + created.toISOString().replace(/\.\d+Z$/, 'Z') + '</dcterms:created></cp:coreProperties>' },
+    { name: 'docProps/app.xml', data: X + '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"><Application>' + xmlText(creator) + '</Application></Properties>' },
+    { name: 'xl/workbook.xml', data: X + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
       + '<bookViews><workbookView/></bookViews><sheets>' + named.map((s, i) => '<sheet name="' + xmlText(s.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join('') + '</sheets>'
-      + '<calcPr calcId="191029" fullCalcOnLoad="1"/></workbook>' },
-    { name: 'xl/_rels/workbook.xml.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + (formulas ? '<calcPr calcId="191029" fullCalcOnLoad="1"/>' : '') + '</workbook>' },
+    { name: 'xl/_rels/workbook.xml.rels', data: X + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
       + named.map((s, i) => '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('')
       + '<Relationship Id="rId' + (named.length + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
       + '</Relationships>' },
-    { name: 'xl/styles.xml', data: STYLES_XML },
+    { name: 'xl/styles.xml', data: stylesXml(currency) },
     ...named.map((s, i) => ({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s) })),
   ];
-  return zip(files, { compress });
+  return zip(files, { compress, date: stamp });
 }

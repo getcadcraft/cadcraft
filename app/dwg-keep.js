@@ -36,7 +36,7 @@ export function keepFingerprint(one) {
   switch (one.type) {
     case 'poly': parts = [one.closed ? 1 : 0, one.w ?? 0, one.z ?? 0, ...(one.pts || []).map((p) => [p.x, p.y, p.b || 0, p.sw ?? '', p.ew ?? ''])]; break;
     case 'insert': parts = pick(one, ['block', 'x', 'y', 'z', 'sx', 'sy', 'sz', 'rot', 'attrs']); break;
-    case 'mleader': parts = pick(one, ['pts', 's', 'h', 'dir', 'ww', 'ls', 'st', 'z']); break;
+    case 'mleader': parts = pick(one, ['pts', 's', 'h', 'dir', 'ww', 'ls', 'st', 'z', 'more', 'blk']); break;   // ORS.15: + its other leader lines and block content
     default: parts = pick(one, Object.keys(one).filter((k) => !['id', 'layer', 'color', 'lt', 'lw', 'lts', 'tr', '_dwg'].includes(k)).sort());
   }
   return JSON.stringify(parts, (k, v) => round(v));

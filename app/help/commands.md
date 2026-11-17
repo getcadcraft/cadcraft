@@ -69,6 +69,7 @@ Aliases: `EL`.
 
 - `Specify axis endpoint of ellipse [Center]`, `Specify other endpoint of axis`, `Specify distance to other axis`
 - `C`: `Specify center of ellipse`, `Specify endpoint of axis`, then the distance to the other axis.
+- `I` (`Isocircle`, only while {{cmd:ISODRAFT}} is on): center, then radius or `Diameter`: the ellipse a circle shows as on the current isometric plane.
 
 ### HATCH
 
@@ -77,8 +78,29 @@ Aliases: `H`, `BH`, `BHATCH`; or {{ui:Hatch}} in the toolbar. Prints the current
 - `Pick internal point [Select objects/Pattern/SCale/Angle]`, repeated (`Undo` once there is an area): each click adds the closed area round it, with the closed shapes inside it as islands. Enter makes one hatch of all of them.
 - `S`: `Select closed objects` (closed polylines, circles, closed ellipses).
 - `P`: `Enter a pattern name, SOLID, or ? for the list <current>`. `SC`: `Specify pattern scale`. `A`: `Specify pattern angle`.
+- `G` (Gradient): the fill is a gradient instead of a pattern. See {{cmd:GRADIENT}} for its questions.
 
 See [Hatch and fill areas](topic:hatch).
+
+### GRADIENT
+
+Aliases: `GD`. Fills an area with a gradient of one or two colors. It asks the gradient first, then goes on as {{cmd:HATCH}} does (`Pick internal point`, `S` for closed objects, {{key:Enter}} to finish).
+
+- `Enter a gradient option [Type/One color/TWo colors/Angle/Centered/eXit] <X>`, repeated; it prints the gradient as it is now each time.
+- `T`: `LINEAR`, `CYLINDER`, `SPHERICAL`, `HEMISPHERICAL`, `CURVED`, or one of them inverted (`INVCYLINDER`, `INVSPHERICAL`, `INVHEMISPHERICAL`, `INVCURVED`). The first letters are enough.
+- `O`: one color, then its tint from 0 to 1 (0 shades it to black, 0.5 is the color itself, 1 tints it to white). `TW`: the first and the second color. A color is a number from 1 to 255, three numbers such as `255,128,0`, or `#rrggbb`.
+- `A`: the angle the gradient runs at. `C`: centered Yes or No (No moves the middle of the gradient to one side).
+- It refuses a color or a type it does not know, and a tint outside 0 to 1.
+
+{{cmd:HATCHEDIT}} `G` and Properties (Gradient) change a gradient later, or turn any hatch into one. A gradient is drawn on screen and plotted. DWG 2004 and later keep it as a real gradient hatch; DXF 2000 and DWG 2000 keep it for CadCraft, and other programs see a solid fill in the first color.
+
+### HATCHGENERATEBOUNDARY
+
+Aliases: `HGB`. Makes the boundary again from a hatch that lost it. `Select hatches` (or select them first), then `Link each hatch to its new boundary, so the hatch follows it? [Yes/No] <Yes>`.
+
+- Each loop of the hatch becomes a closed polyline on the hatch's layer; the new polylines are left selected. A curved edge comes back as the short straight pieces the hatch keeps.
+- With Yes the hatch follows its new boundary, as a hatch made with {{cmd:HATCH}} does. One undo step.
+- It says so when no hatch was selected.
 
 ### POINT
 
@@ -109,6 +131,28 @@ Aliases: `DT`, `DTEXT`; or {{ui:Text}} in the toolbar. Single-line text; each li
 - `Specify rotation angle of text <0>`
 - `Enter text`, repeated: each Enter starts the next line below. Enter on an empty line ends. {{key:Space}} types a space here.
 
+### DIVIDE
+
+Alias: `DIV`. {{cmd:DIVIDE}} puts marks on a line, arc, circle, polyline, spline or ellipse that cut it into equal parts. Pick the object, then give the number of parts (2 to 32767). An open object gets one mark fewer than parts; a closed one gets a mark on its start too. The object itself is not cut. The marks are points; `Block` asks for a block of this drawing instead and whether it turns to follow the object. Lengths along splines and ellipses are measured along short chords. It refuses text, hatches and other objects that have no length.
+
+### MEASURE
+
+Alias: `ME`. {{cmd:MEASURE}} puts a mark every given length along a line, arc, circle, polyline, spline or ellipse, counting from the end nearest where you picked it (a closed object: from its start). Give the length by typing it or by two points. The far end of an open object gets no mark. `Block` places a block at each mark instead of a point. It refuses a length of 0, one longer than the object, and one that would make more than 32767 marks.
+
+### BOUNDARY
+
+Aliases: `BO`, `BPOLY`. {{cmd:BOUNDARY}} makes a closed polyline round the area that holds the point you pick, from whatever lines, arcs, circles, polylines and curves bound it on screen. Pieces that lie on an arc or circle come back as arc segments; pieces of ellipses and splines come back as short straight segments. With `Islands` on (the start setting) each closed area inside it gets its own polyline too. Keep picking points; Enter ends. The objects that bound the area are left as they are. It says so when no closed area holds the point.
+
+### BLEND
+
+{{cmd:BLEND}} draws a spline between the ends of two open curves. Pick each curve near the end to join. `CONtinuity` chooses `Tangent` (the spline leaves and arrives along both curves) or `Smooth` (it also bends the way they bend at the ends); the choice is kept for the session. The two curves are not changed. It refuses closed objects and two ends that already meet.
+
+### REGION
+
+Alias: `REG`. {{cmd:REGION}} turns closed objects into regions: flat areas you can join, cut and measure. Select circles, closed polylines, closed ellipses or closed splines, or lines, arcs and open polylines that close a loop end to end; each loop becomes one region and replaces the objects it came from. Arcs stay arcs; ellipses and splines become short straight segments. What is not closed and closes no loop is left as it is, and it says how many. In the drawing a region is one or more closed polylines held together as an unnamed group, so a click selects the whole region and a copy is a region of its own; other programs that open the file see closed polylines.
+
+With regions in the drawing, {{cmd:UNION}}, {{cmd:SUBTRACT}} and {{cmd:INTERSECT}} on the 2D tab work on regions: `UNION` joins the selected regions into one (regions that are apart become one region of several outlines), `SUBTRACT` asks for the regions to subtract from and then the ones to take away (a hole stays part of the region), `INTERSECT` keeps the area they all share. Each says the area of the result and is one undo step. They refuse when nothing would be left or nothing is shared. On the 3D tab, and in a drawing with no regions, the same commands work on solids as before.
+
 ## Modify
 
 
@@ -138,6 +182,8 @@ Aliases: `M`.
 ### COPY
 
 Aliases: `CO`, `CP`. Copies as many times as you give points.
+
+`Array` at the second-point prompt makes a row in one go: give the number of items (the original counts as one), then the point where the first copy goes; the others follow at the same spacing. `Fit` makes that point the place of the last copy instead, with the others spread evenly between.
 
 - `Select objects`
 - `Specify base point [Displacement]`
@@ -204,13 +250,53 @@ Aliases: `AR`; or {{ui:Array}}. `Select objects`, then `Enter array type [Rectan
 - Rectangular starts at 4 columns × 3 rows, spaced 1.5 times the objects' size, shown as a preview. `Enter an option [COUnt/Spacing/COLumns/Rows/eXit] <X>`: `COU` asks columns and rows, `S` the distances between columns and between rows (negative goes left or down), `COL` and `R` one direction each.
 - Polar asks `Specify center point of array`, starts at 6 items all the way round, rotated. `Enter an option [Items/Fill angle/ROTate items/eXit] <X>`: `I` items, `F` the angle to fill (+ counterclockwise, − clockwise), `ROT` Yes or No.
 - {{key:Enter}} (eXit) makes the copies, as plain objects. One undo step.
+- `AS` (ASsociative) switches between plain copies and an array that stays editable: one object you change later with {{cmd:ARRAYEDIT}}, by its grips or in Properties. The choice is remembered ({{cmd:ARRAYASSOCIATIVITY}}); it starts on plain copies.
+
+### ARRAYPATH
+
+Copies along a curve. `Select objects`, then `Select path curve`: a line, arc, circle, ellipse, polyline or spline (not one of the objects being arrayed). The path starts at its end nearer the objects, and the first item is the objects where they are.
+
+- `Enter an option [Method/Items/SPacing/ALign/ASsociative/eXit] <X>`, with a preview. `M`: `Divide` spreads the items evenly over the whole path, `Measure` puts one every so far along it. `I`: the number of items (with Measure, 0 means as many as fit; a number past the end of the path is held to what fits). `SP`: the distance between items along the path (switches to Measure). `AL`: Yes turns each item to follow the path, No keeps them upright.
+- `AS` as in {{cmd:ARRAY}}. With it on, the array keeps its own copy of the path's shape: editing the path curve afterwards does not move the items.
+- It refuses a path that is not a curve, and one item.
+
+### ARRAYEDIT
+
+Changes an array made with ASsociative. `Select array` (or select it first). It prints what the array is now, then asks until {{key:Enter}}:
+
+- Rectangular: `COL` columns and their spacing, `R` rows and their spacing, `A` the angle the columns run at.
+- Polar: `I` items, `F` the fill angle, `ROT` rotate items Yes or No.
+- Path: `M` Divide or Measure, `I` items, `SP` spacing, `AL` align with the path.
+- `S` (Source) opens the objects the array repeats, on their own, like the block editor. Draw and edit there; {{cmd:ARRAYCLOSE}} saves or discards, and every item follows.
+- `REP` (REPlace): `Select replacement objects`, `Specify base point of the replacement objects`, then click the items to replace, {{key:Enter}}. Those items show the replacement instead; the replacement objects leave the drawing and live in the array. `RES` (RESet) shows the source objects in every item again.
+- Each change is one undo step. It refuses plain copies, a plain block reference and an array on a locked layer.
+
+The same numbers are in Properties under Array, and the array has grips: its base point moves it, the grip at the second item sets the spacing, the grip past the last item sets the count (polar: the second item sets how many items, the last item the fill angle). {{cmd:EXPLODE}} turns an array back into plain copies.
+
+### ARRAYCLOSE
+
+Ends {{cmd:ARRAYEDIT}} Source: `Save the changes to the array's source objects? [Save/Discard] <Save>`. It says so when no array's source objects are open. {{cmd:BCLOSE}} does the same.
+
+### ARRAYASSOCIATIVITY
+
+`Enter new value for ARRAYASSOCIATIVITY (1 = arrays stay editable, 0 = plain copies)`. Sets what {{cmd:ARRAY}}, ARRAYRECT, ARRAYPOLAR and {{cmd:ARRAYPATH}} start on; their option `AS` changes the same setting. Remembered in this browser.
 
 ### OFFSET
 
 Aliases: `O`. Lines, arcs, circles and polylines.
 
+Where a polyline moves outward and its straight segments come apart at a corner, {{cmd:OFFSETGAPTYPE}} decides how the gap is closed.
+
 - `Specify offset distance [Through] <last distance, or Through>`
 - `Select object to offset`, then `Specify point on side to offset` (or, with Through, `Specify through point`), repeated until Enter.
+
+### OFFSETGAPTYPE
+
+- `Offset corner gaps: 0 extend, 1 fillet, 2 chamfer`: how {{cmd:OFFSET}} closes the gaps at the outer corners of a polyline. `0` extends the segments until they meet (the start setting), `1` joins them with an arc round the old corner, `2` with a straight cut. Inner corners and arc segments are not affected. Kept for this session.
+
+### EXTRIM
+
+{{cmd:EXTRIM}} trims everything on one side of an edge. Pick the cutting edge (a line, arc, circle, polyline, ellipse, spline or construction line), then pick a point on the side to clear: every line, arc, circle, polyline and construction line that crosses the edge loses its part on that side, where it starts at the edge. While you choose the side, the pieces that would go follow the pointer. For a closed edge the sides are inside and outside. Objects that only touch the edge, and text, hatches, splines and ellipses that cross it, are left as they are. One undo step.
 
 ### TRIMEXTENDMODE
 
@@ -221,6 +307,8 @@ Aliases: `O`. Lines, arcs, circles and polylines.
 Aliases: `TR`. Prints `Current settings: Quick mode (TRIMEXTENDMODE 1), edges: No extend, dragging draws a path` first. In Quick mode every visible object is a cutting edge, and an object nothing crosses is erased; in Standard mode it asks `Select cutting edges (Enter = every object)` first and cuts only at those.
 
 - `Select object to trim or shift-select to extend [cuTting edges/Fence/Crossing/mOde/Edge/eRase/Undo]`, repeated: click the piece to remove (it shows grey and dashed while the pointer rests on it), drag a path through several pieces (all go in one step), or click two empty spots for a fence between them. {{key:Shift}} extends instead. `T` chooses cutting edges (Standard mode), `F` asks fence points, `C` two window corners (pieces partly inside go), `O` asks `Enter a trim mode option [Quick/Standard]`, `E` asks `Enter an implied edge extension mode [Extend/No extend]` (EDGEMODE), `R` erases objects you select, `U` undoes the last pick or drag. Enter ends. See [Trim and extend](topic:trim-and-extend).
+
+- A click on a hatch cuts the hatch: the cutting edges split the hatched area, and the piece you clicked is taken away (no drawn outline is left where it was). The hatch keeps its pattern or gradient; a hatch that was linked to its boundary is not linked afterwards, because it no longer fills it. It says so when no cutting edge splits the hatch there, when the click is off the hatch, and when nothing would be left (use {{cmd:ERASE}}). A dragged path or fence does not cut hatches.
 
 ### EXTEND
 
@@ -280,9 +368,25 @@ Aliases: `MA`, `PAINTER`. `Select source object`, then `Select destination objec
 
 ### EXPLODE
 
-Aliases: `X`. Polylines become lines and arcs, block references become their objects, dimensions become lines, arrowheads and text.
+Aliases: `X`. Polylines become lines and arcs, block references become their objects, dimensions become lines, arrowheads and text. An array that stays editable ({{cmd:ARRAYEDIT}}) becomes plain copies of its objects.
 
 - `Select objects`
+
+### GROUP
+
+Alias: `G`. {{cmd:GROUP}} gives the selected objects a name they share. Select the objects, then type a name (no spaces; `?` lists the groups; Enter makes an unnamed group) and, for a named group, an optional description. From then on a click on one of them, or a window that takes one, selects them all, so they move, copy and erase together; each object is still its own object. An object can be in several groups. A copy of a whole group is a new unnamed group; a copy of one member on its own joins the group. Groups belong to the space they were made in (the model or a sheet). They are kept when you save as DWG or DXF and open the file again in CadCraft; DXF 2000 files also carry them as group objects for other programs, and groups made in another program are read when a DXF or DWG is opened.
+
+### UNGROUP
+
+{{cmd:UNGROUP}} takes groups apart: select objects of the groups (each group they are in is taken apart) or type `Name` and the group's name. The objects stay in the drawing. One undo step brings the groups back.
+
+### GROUPEDIT
+
+{{cmd:GROUPEDIT}} changes one group. Pick one of its objects, or `Name` and its name; a group that is already selected is taken as it is. Then: `Add` objects (picked one at a time, not group by group), `Remove` objects, `REName` the group, change its `Description`, or set `Selectable` (whether a click on one object selects the whole group). `eXit` or Enter ends. A group with no objects left is gone.
+
+### PICKSTYLE
+
+- `Group selection: 0 a click selects one object, 1 its whole group`: with `1` (the start setting) a click or a window on a grouped object selects its whole group; with `0` single objects, so you can edit one member. Kept for this session.
 
 ## Clipboard
 
@@ -395,6 +499,58 @@ Aliases: `DCO`, `DIMCONT`. Continues from the last linear or aligned dimension m
 
 Aliases: `DBA`, `DIMBASE`. Like {{cmd:DIMCONTINUE}}, but every dimension starts from the first origin and is stacked further out.
 
+### DIMORDINATE
+
+Aliases: `DOR`, `DIMORD`. `Specify feature location`, then `Specify leader endpoint [Xdatum/Ydatum/Text]`. Writes how far the feature is from the UCS origin along X or along Y, on a leader: a leader that runs mostly up or down reads X, one that runs sideways reads Y; `Xdatum` and `Ydatum` fix which. Set the origin first with {{cmd:UCS}} (without one it is the drawing's 0,0). Grips move the feature, the origin and the leader's end, and the value follows. Saved as a real ordinate dimension in DWG and DXF. Refuses a leader end on the feature itself.
+
+### DIMARC
+
+Aliases: `DAR`. `Select arc or polyline arc segment`, then `Specify arc length dimension location [Text]`. Measures along the arc (not the chord) and writes the arc symbol before the value. Refuses a full circle, a line or a straight polyline segment. A DWG keeps it as an arc length dimension; a DXF keeps it as an angular dimension with the length as its text, and CadCraft opens it as an arc length dimension again.
+
+### DIMJOGGED
+
+Aliases: `DJO`, `JOG`. `Select arc or circle`, `Specify center location override`, `Specify jog location`. A radius dimension for a curve whose center is far away or off the sheet: the dimension line starts at the point you give instead of the center, with a jog in it, and still writes the true radius. A DWG keeps it as a jogged radius dimension; a DXF keeps it as a radius dimension, and CadCraft opens it jogged again.
+
+### DIMJOGLINE
+
+Aliases: `DJL`. `Select dimension to add jog [Remove]`, then `Specify jog location (or press Enter)`. Puts a jog symbol on the line of a linear or aligned dimension, to show the distance is not drawn to scale; the value does not change. `Remove` takes it off. Refuses other kinds of dimension.
+
+### QDIM
+
+No aliases. `Select geometry to dimension`, then `Specify dimension line position [Continuous/Staggered/Baseline/Ordinate/Radius/Diameter/datumPoint]`. Dimensions several objects in one step, from the ends of lines and polyline segments, centers of circles and arcs, points and block references. A position above or below the objects measures across, one beside them measures up. `Continuous` chains the points, `Baseline` measures all from the first, `Staggered` nests pairs from the middle out, `Ordinate` gives each point its distance from the datum (`datumPoint` picks a new one), `Radius` and `Diameter` dimension every circle and arc picked. The mode is remembered. Everything it makes is one undo step. Says so when there are fewer than two points, or no arcs or circles for Radius and Diameter.
+
+### DIMBREAK
+
+Aliases: `DBREAK`. `Select dimensions to add or remove breaks`, then `Break where other objects cross [Auto/Manual/Remove] <Auto>`. `Auto` leaves a gap in the dimension and extension lines wherever another object crosses them, and works the gaps out again when those objects or the dimension move. `Manual` (one dimension) asks two points and leaves a gap between them. `Remove` takes every gap off. The gap is 1.5 times the dimension's text height.
+
+### DIMSPACE
+
+No aliases. `Select base dimension`, `Select dimensions to space`, `Enter spacing value or Auto <Auto>`. Moves the dimension lines of parallel linear and aligned dimensions (or angular ones about the same vertex) so they sit the same distance apart, counted from the base dimension, each on the side it is on. `0` lines them up with the base; `Auto` is twice the base dimension's text height. Dimensions that are not parallel to the base are left alone.
+
+### DIMINSPECT
+
+No aliases. `Select dimensions`, `Inspection frame shape [Round/Angular/None/remove] <Round>`, `Enter label`, `Enter inspection rate <100%>`. Draws a frame round the value with a label before it and the inspection rate after it. `remove` takes the frame off. Tolerance text stays with the value.
+
+### DIMOVERRIDE
+
+Aliases: `DOV`, `DIMOVER`. `Enter dimension variable name to override or Clear`, `Enter new value for …`, again until Enter, then `Select dimensions`. Changes those settings on the selected dimensions only; the dimension style is not changed. Takes the variables that are a number or a switch (`DIMTXT`, `DIMASZ`, `DIMSCALE`, `DIMDEC`, `DIMSE1` …). `Clear` puts the selected dimensions back on their style. Refuses a name that is not such a variable and a value it cannot take.
+
+### DIMREASSOCIATE
+
+Aliases: `DRE`, `DIMREASSOC`. `Select dimensions`, then for each one its extension line origins (`Specify first extension line origin on an object`: snap to an end or the middle of a line, a polyline corner, a center; Enter keeps that point free), or for a radius, diameter, jogged radius or arc length dimension `Select arc or circle`. The dimension is then tied to those objects: when they move or change size it follows in the same undo step and measures again. Moving a tied point by hand, or erasing the object, ends that tie. The tie is saved in DWG and DXF 2000 as CadCraft's own data; other programs see an ordinary dimension.
+
+### DIMDISASSOCIATE
+
+Aliases: `DDA`, `DIMDISASSOC`. `Select dimensions`. Frees them from the objects they are tied to; nothing moves.
+
+### CENTERMARK
+
+Aliases: `CM`, `DIMCENTER`, `DCE`. `Select circle or arc to add center mark`, again until Enter. Draws a cross at the center and four center lines to just beyond the curve (linetype CENTER), as plain lines on the current layer; sized from the arrow size and overall scale of the current dimension settings, turned with the UCS. They do not follow the circle if it moves.
+
+### CENTERLINE
+
+Aliases: `CL`. `Select first line`, `Select second line`. Draws a line midway between two lines (along the bisector when they meet), a little longer than they are, in linetype CENTER. A plain line: it does not follow the two lines.
+
 ### DIMSCALE, DIMTXT, DIMASZ, DIMDEC, DIMGAP, DIMEXE, DIMEXO
 
 No aliases. Each asks `Enter new value for … <current>` and sets that size for **new** dimensions: overall scale, text height, arrow size, decimal places (up to 8), gap round the text, extension beyond the dimension line, offset from the origin. See [Set dimension sizes](topic:dimension-settings).
@@ -421,7 +577,81 @@ Aliases: `RC`. Prints `Arc length: … Type: …`, then `Specify first point [Ar
 
 ### MLEADER
 
-Aliases: `MLD`; or {{ui:Leader}}. `Specify leader arrowhead location [Arrowhead size/Landing distance]`, `Specify leader landing location`, then the text in the in-place box (or, without it, `Enter text (an empty line ends)`). Saved as a real multileader in DWG; DXF keeps the lines, arrowhead and text it draws.
+Aliases: `MLD`; or {{ui:Leader}}. `Specify leader arrowhead location [Arrowhead size/Landing distance/Block]`, `Specify leader landing location`, then the text in the in-place box (or, without it, `Enter text (an empty line ends)`). `Block` asks a block name first and the multileader shows that block instead of text. More leader lines: {{cmd:MLEADEREDIT}}. Saved as a real multileader in DWG; DXF keeps the lines, arrowhead and text it draws.
+
+### MLEADEREDIT
+
+Aliases: `MLE`. `Select a multileader`, then `Specify leader arrowhead location [Remove leaders/Block content/Text content]`: each point adds a leader line from a new arrowhead to the same landing, until Enter. `Remove leaders` then takes off the leader line you click (a multileader keeps at least one). `Block content` asks a block name and shows that block instead of the text (its attributes are asked for); `Text content` puts text back. Each leader line has its own grip. A DWG keeps every leader line and the block in one multileader.
+
+### MLEADERALIGN
+
+Aliases: `MLA`. `Select multileaders`, then `Select multileader to align to [Distribute/Spacing/Use current spacing]` and `Specify direction`. Moves the other multileaders' landings (and their text or block) onto the line through the picked one's landing in that direction; the arrowheads stay where they point. `Spacing` also sets them an equal distance apart; `Distribute` asks two points and spreads them evenly between. Needs at least two multileaders.
+
+### MLEADERCOLLECT
+
+Aliases: `MLC`. `Select multileaders`, then `Specify collected multileader location [Vertical/Horizontal]` (Enter keeps the first one's place). Makes one multileader out of several: block content goes into a new block that holds every block side by side or one under the other; text content becomes one note with a line for each. The first multileader keeps its leader lines; the others are removed. Refuses a mix of text and block content.
+
+### TABLE
+
+Aliases: `TB`; or {{ui:Annotate}} › {{ui:More}} › {{ui:Table}}. Makes a table: one object that you move, copy, rotate, scale and plot like any other, with its cells kept as data.
+
+- `Number of data rows or [Paste/File/Style] <3>`, then `Number of columns <3>`, `Text height` and `Top left corner of the table`. The table gets a title row (one merged cell) and a header row above the data rows.
+- `P`: a table from spreadsheet cells on the clipboard (text with a tab between cells). Pressing {{key:Ctrl+V}} with such cells on the clipboard does the same, unless CadCraft's own copy is the newer one (or CadCraft cannot tell: then it pastes its own copy and says so). `F`: a table from a `.csv` or tab-separated file. The first row becomes the header row; column widths fit the text.
+- `S`: choose the table style for this table (see {{cmd:TABLESTYLE}}).
+- It refuses a row or column count that is not a whole number, and more cells than a table holds (2,000 rows, 200 columns, 40,000 cells).
+- {{cmd:EXPLODE}} turns a table into lines and text. Saved as DWG a table is a real table object other programs can edit; saved as DXF it is a block that draws it, and CadCraft opens it as a table again.
+
+### TABLEDIT
+
+Aliases: `TABLEEDIT`, `TABEDIT`; or double-click a cell. Edits a table.
+
+- `Pick a cell to type in (Enter to finish) or [Row/Column/Size/Merge/Unmerge/Align/Height/Kind/CLear]`. Click a cell, or with a table selected type its name (`B3`: column B, row 3; the title row is row 1). In the browser a box opens over the cell: {{key:Enter}} keeps the text, {{key:Tab}} goes to the next cell, {{key:Alt+Enter}} starts a new line, {{key:Esc}} leaves the cell as it was.
+- A text that starts with `=` is a formula: `=A3+B3`, `=B3*C3`, `=Sum(B3:B9)`, `=Average(B3:B9)`, `=Count(B3:B9)`, `=Min(…)`, `=Max(…)`, with `+ - * / ^`, brackets and functions such as `sqrt` and `round`. The cell shows the value; a formula that names its own cell, a cell outside the table or a cell without a number shows `####` and the command line says why.
+- `R` / `C`: `Insert` or `Delete` rows or columns at a picked cell (how many, and above or below, left or right). Formulas follow the cells they name.
+- `S`: the column's width and the row's height. A row is never lower than its text needs. A selected table also has a grip on each column's and each row's edge.
+- `M`: merge from one picked cell to another; `U`: unmerge. `A`: alignment (`TL` top left … `MC` middle center … `BR` bottom right). `H`: this cell's own text height (0 = the style's). `K`: make the row a title, header or data row. `CL`: empty the cell.
+- It refuses a table on a locked layer, deleting every row or column, and a merge that would cut another merged cell in two.
+
+### TABLESTYLE
+
+Aliases: `TS`. Lists the table styles with how many tables use each, then `Table style: [New/Set/Edit/Delete/Apply]`.
+
+- A style holds the text height and alignment of title, header and data rows, the cell margin, and which borders are drawn (outer, between rows, between columns).
+- `N` makes a style from the current one and makes it current; `S` sets the current style (new tables take it); `E` edits one: tables that use it are redrawn; `A` gives selected tables the current style; `D` deletes one (not Standard, not the current one; tables that used it keep their look).
+- Styles are saved with the drawing (DWG and DXF).
+
+### TABLEEXPORT
+
+Saves what a table shows as a CSV file (a formula as its value). `Select a table`, or select one first. Text cells that start with `=`, `+`, `-` or `@` get a leading `'` so a spreadsheet does not run them.
+
+### TABLEPASTE
+
+Aliases: `PASTETABLE`. Makes a table from spreadsheet cells on the clipboard, then asks its top left corner. The same as {{cmd:TABLE}} › `Paste`.
+
+### DATALINK
+
+Aliases: `DL`. `Data link: [New/List/Remove] <New>`. `N` asks for a CSV file, places a table of it and remembers the file's name; `L` lists the links with their file, size, when it was read and how many tables use it; `R` removes a link (its tables stay as plain tables).
+
+### DATALINKUPDATE
+
+Aliases: `DLU`. Reads a data link's file again and refills the tables linked to it (rows and columns are added or removed to match). A browser cannot open a file by itself, so it asks you to choose the file again. With several links it asks which one.
+
+### FIELD
+
+Puts a field in the drawing: text that works itself out. `Field: [Date/Filename/Sheet/Property/Object/Expression/Code] <Date>`:
+
+- `D`: now, or the saved, created or plotted date, and a format (`yyyy-MM-dd`, `d MMMM yyyy`, `HH:mm`). `F`: the file name, with or without its extension. `S`: the sheet's number, its title, or how many sheets there are. `P`: a drawing property by name (see {{cmd:DWGPROPS}}). `O`: pick an object, then what to read (area, length, perimeter, radius, diameter, layer, name, x, y, text, rotation, color) and the decimals. `E`: a formula. `C`: a text with codes typed as they are, such as `Sheet %<sheetnumber>% of %<sheetcount>%`.
+- Then `Select a text, a table cell or a block with attributes to put it in (Enter: a new text)`: a picked text gets the field added after what it holds; a table cell likewise; a block reference asks which attribute; {{key:Enter}} asks a height and a point for a new text.
+- On screen a field has a light gray background; a plot and a PDF never have it. Typing over a field's text by hand ends the field. A field that cannot be worked out shows `####`.
+- An object's field finds its object by the key CadCraft keeps on objects (Settings › CadCraft › Merge-friendly files); with keys turned off it refuses.
+
+### UPDATEFIELD
+
+Aliases: `UPDATEFIELDS`. `Select the objects whose fields to update (Enter: every field) or [Settings]`. `S` sets when fields update by themselves: type the letters of `O` open, `S` save, `P` plot, `R` regen (all four to start with), or `NONE`.
+
+### DWGPROPS
+
+Aliases: `DRAWINGPROPS`. Lists the drawing's properties, then `Change: [Title/Subject/Author/Company/Keywords/coMments/cUstom/Remove/eXit]`. The first six are the ones the {{ui:Drawing details}} panel shows; `U` adds your own name and value, `R` removes one. Fields read them (`%<prop:title>%`, `%<prop:Client>%`) and follow at once. It refuses a custom name that is one of the built-in ones or holds `%`, `<`, `>`, a quote or a backslash.
 
 ## Parametric
 
@@ -462,6 +692,18 @@ Alias `DCON`: `Select associative dimension to convert [LInear/Horizontal/Vertic
 Alias `SWMACRO`. Downloads a macro (.swb) that rebuilds the model as one constrained sketch in SolidWorks. See [Move sketches to and from other part modelers](topic:solidworks-sketches).
 
 ## Blocks
+
+### ANNOSCALE
+
+Aliases: `CANNOSCALE`. Says the drawing's annotation scale and how many annotative objects it holds, then asks `New annotation scale`: type `1:50`, `1:100`, `2:1`, a bare number (`50` is 1:50) or the name of one of the drawing's own scales. Every annotative text and dimension is resized so it prints at the same size at the new scale, in one undo step; objects that are not annotative are left alone, and so is an object that keeps a list of scales without the new one ({{cmd:OBJECTSCALE}}). See [Units, papers and scales](topic:units-papers-scales#annotate-by-scale).
+
+### OBJECTSCALE
+
+Aliases: `OBJSCALE`. `Select annotative objects`, then `Annotation scales of the selected objects [Add/Delete/Current scale/List/eXit] <Add>`. An annotative text or dimension keeps a list of annotation scales. `Add` and `Delete` ask a scale (`1:50`, `2:1`, a bare number, or the name of one of the drawing's own scales); `Current scale` adds the drawing's annotation scale; `List` prints each object's scales. A viewport whose scale is in an object's list shows the object at the size that prints its paper height at that scale, on screen and in plots. The last scale cannot be deleted. Objects that are not annotative are left out: turn Annotative on in Properties first. The lists are saved in DWG and DXF as CadCraft's own data. See [Units, papers and scales](topic:units-papers-scales#annotate-by-scale).
+
+### ANNOALLVISIBLE
+
+Aliases: `ANNOALL`. `Show annotative objects at all scales [ON/OFF]`. On (as a drawing starts): an annotative object also shows in a viewport, or in the model, whose scale is not in its list, at the size it has. Off: it is not shown there, and cannot be picked in the model. The switch is one undo step; it is not kept in the file.
 
 ### SCALELISTEDIT
 
@@ -539,6 +781,7 @@ Aliases: `I`, `DDINSERT`.
 
 - `Enter block name or [File/Library] <last block>` (case does not matter). `F` asks for a DWG or DXF, then the whole drawing or one of its blocks; a name already used asks {{ui:Keep existing}} or {{ui:Rename}}. `L` opens the library panel.
 - `Specify insertion point [Scale/Rotate]`. `S` asks `Specify scale factor`, `R` asks `Specify rotation angle`; both are remembered.
+- When the block already stands next to objects that repeat elsewhere without it, a line says how many places are suggested and the prompt gains `suGgested`: `G` shows them; click near one to put the block there, `A` for all of them, {{key:Enter}} to go back. They take the rotation of their neighbors and default attribute values. Drawings over 20,000 objects in the open space are not searched.
 - Then `Enter <prompt> (<TAG>) <default>` for each attribute the block asks for. See [Block attributes](topic:attributes).
 
 ### LIBRARY
@@ -561,6 +804,63 @@ Aliases: `PU`. Removes block definitions that nothing uses. No questions.
 
 Or {{ui:Blocks}} › {{ui:More}} › {{ui:Delete blocks}}. `Select block to delete [Name/eXit]`: pick a block reference, or `N` for the list of blocks with a filter (choose several), or `X` / {{key:Enter}} to end. Every reference goes — in the model, on every sheet and inside other blocks — and then the definition, and the command line says what was deleted and what couldn't be. Unnamed blocks and linked drawings are not offered. The prompt comes back for the next block; the whole command is one undo step.
 
+### PASTEBLOCK
+
+{{cmd:PASTEBLOCK}} pastes what you copied ({{cmd:COPYCLIP}}, {{cmd:COPYBASE}}) as one block: pick the insertion point and one reference to a new block goes there, selected. The block gets a name of its own (`A$C` and a number); {{cmd:RENAME}} gives it yours. One undo step removes the reference and the block.
+
+### BLOCKREPLACE
+
+{{cmd:BLOCKREPLACE}} asks for the block to replace and the block to put in its place (`?` lists the blocks), then changes every reference in the model, on every sheet and inside other blocks. Each reference keeps its place, scale, rotation, layer and the values of the attributes both blocks have; attributes only the new block has start at their defaults, and it tells you which values were dropped. When nothing uses the old block any more it offers to remove it. It refuses linked drawings and a replacement that would put a block inside itself. One undo step.
+
+### MINSERT
+
+{{cmd:MINSERT}} places a block in rows and columns: block name, insertion point, scale, rotation, number of rows and columns, and the distances between them. The whole set turns with the rotation. Each one is its own reference (10,000 at most), so any of them can be moved or erased afterward.
+
+### BLOCKSPALETTE
+
+Aliases: `BLOCKSPAL`; or {{ui:Blocks}} › {{ui:More}} › {{ui:Blocks panel}}. Shows the {{ui:Blocks}} panel with the cursor in its filter. Each block has a small picture; the ones placed most recently come first. The two buttons beside the filter switch between a list and a grid of pictures. Click a picture (or {{ui:Insert}}) to place the block with {{cmd:INSERT}}, or drag it onto the drawing to place it where you drop it.
+
+{{ui:Libraries}}, under the list: {{ui:Add a drawing}} takes a DWG or DXF file of your own and lists its blocks with pictures, and the whole drawing as one block. Placing one copies its definition (and the blocks it nests, and their layers) into this drawing, as {{cmd:INSERT}}'s `File` option does; a block that is already here with the same definition is used without a question, one of the same name that differs asks {{ui:Keep existing}} or {{ui:Rename}}. In a browser the file stays until the page closes. In CadCraft Studio {{ui:Add a folder}} lists the drawings in a folder, each opened when you click it, and files and folders are remembered. The small x removes a library from the list; the file is not touched. The shared {{ui:Library}} is a different thing: see [Insert from a file or the library](topic:insert-from-file-and-library).
+
+### BCONVERT
+
+Or {{ui:Blocks}} › {{ui:More}} › {{ui:Convert repeats to blocks}}. Finds geometry that repeats and turns every copy into a reference to one block.
+
+- `Select the objects that repeat, or [Block]`: the objects of one copy. `B` names an existing block instead, to find loose copies of its objects.
+- `A copy may be: mirrored = No, scaled = No; layer, color, linetype and lineweight = Match … [Mirrored/Scaled/Properties]`: `M`, `S` and `P` switch what counts as a copy; {{key:Enter}} searches. The settings are remembered.
+- `Name for the new block <Block1>`, then `Specify the block's base point` ({{key:Enter}} takes the lower left corner of the selection).
+- It says how many other sets of objects are the same geometry, highlights everything it would replace, and asks `Yes/No`.
+
+A copy is the same objects moved and turned by any angle (and mirrored or scaled by one factor when those are on): every object must have its counterpart, to within a millionth of the selection's size. Each reference gets its own rotation and scale (a mirrored one a negative Y scale), and the layer its objects shared. Objects on locked layers are left alone and counted. It searches the open space (the model or the open sheet). A very large search stops at a work limit and says so. One undo step.
+
+### BSEARCH
+
+Or {{ui:Blocks}} › {{ui:More}} › {{ui:Find blocks}}. `Find blocks by [Name/Attribute/Geometry] <Name>`:
+
+- `N`: part of a block name, or a pattern with `*` and `?`. Lists each block with its references here and in the whole drawing.
+- `A`: an attribute value, or `TAG=value`. Lists the blocks whose references hold it, with the values found. Constant attributes count.
+- `G`: select objects, or one block reference, and the blocks whose shape is at least 85% alike are listed, best first. Size, rotation and mirroring do not count. The measure compares the distances between points spread along the outlines, so it finds look-alikes; use {{cmd:BCONVERT}} to find exact copies.
+
+The references found in the open space are selected, ready for the next command.
+
+### BREPLACE
+
+Or {{ui:Blocks}} › {{ui:More}} › {{ui:Replace blocks}}. `Replace [Selected/All]`: `S` replaces the block references you select with the block you name; `A` asks for a block and its replacement and changes every reference, as {{cmd:BLOCKREPLACE}} does (the same code). A reference keeps its place, scale, rotation, layer and the values of attributes both blocks have; values the new block has no place for are dropped and named. `?` lists the blocks. One undo step.
+
+### DATAEXTRACTION
+
+Aliases: `EATTEXT`, `DX`; or {{ui:Blocks}} › {{ui:More}} › {{ui:Data extraction}}. Lists blocks, their attributes and object properties as a table or a CSV file.
+
+- Works on the selection, or asks `Select objects (Enter: everything in this space)`.
+- `List: [Blocks/Objects/All]` when the selection holds both. Unnamed blocks, tables and bills of materials are never listed.
+- It prints the columns to choose from (name, type, layer, X, Y, rotation, scale, length, area, color, linetype, space, and one per attribute tag), then `Columns, by name or number with commas between`. {{key:Enter}} takes the starred ones: the name and every attribute for blocks; type, layer and length for objects.
+- `Put identical rows together with a count? [Yes/No] <Yes>`, then `Put the list in a: [Table/Csv] <Table>`. A table is an ordinary table ({{cmd:TABLEDIT}} edits it) and is not live: run the command again after the drawing changes.
+- It refuses a column that is not in the list. A table holds 1,999 rows of data; a CSV file takes them all.
+
+### COUNTTABLE
+
+Counts the block references of the selection (or of the open space) and puts the counts in a table (`Block`, `Count`) or a CSV file. For a count that follows the drawing by itself see {{cmd:BOMTABLE}}.
+
 ## Sheets and plotting
 
 ### LAYOUT
@@ -571,7 +871,20 @@ Aliases: `LO`, `NEWLAYOUT`; or the {{ui:+}} button under the drawing. A new shee
 
 Aliases: `MV`. On a sheet only ({{cmd:VPORTS}} on a sheet does the same).
 
-- `Specify corner of viewport`, `Specify opposite corner`. The viewport shows the whole model at a standard scale.
+- `Specify corner of viewport [Polygonal/Object]`, `Specify opposite corner`. The viewport shows the whole model at a standard scale.
+- `P` (Polygonal): click the corners of the outline (`Undo`, `Close`), {{key:Enter}} when done. It refuses fewer than three corners.
+- `O` (Object): `Select a closed object for the viewport's outline`: a closed polyline, a circle or an ellipse on the sheet. The viewport takes its shape (curves as short straight pieces); the object stays as it was. It refuses an object that is not closed.
+
+### VPCLIP
+
+Clips a viewport that is already on the sheet. `Select viewport to clip` (or select it first), then `Select the object to clip to [Polygonal/Delete]`:
+
+- Click a closed polyline, circle or ellipse, or {{key:Enter}} (or `P`) to click the corners of a polygon.
+- `D` (Delete, offered when the viewport is clipped) makes it a rectangle again: the box round the outline it had.
+- What the viewport shows does not move on the paper, and its scale stays. The model is drawn and plotted only inside the outline, and the border follows it. One undo step.
+- A clipped viewport has a grip at each corner of its outline, besides its center and the four corners of its box (dragging a box corner stretches the outline with it). Properties shows Outline: Rectangle, or Clipped with the number of corners.
+- DWG and DXF 2000 files keep the outline for CadCraft. Other programs open the viewport as the rectangle round it; DXF R12 keeps the rectangle only.
+- On the model tab it says viewports are on sheets.
 
 ### VPORTS
 
@@ -615,6 +928,18 @@ Aliases: `PRINT`, `PUBLISH`, `EXPORTPDF`; or {{key:Mod+P}}. Opens the {{ui:Plot 
 
 Aliases: `STYLESMANAGER`, `PSTABLES`; or {{ui:Edit tables…}} in the {{ui:Plot to PDF}} dialog. Opens {{ui:Plot style tables}}: what each color prints as (color, gray, ink, lineweight), kept with the drawing. See [Plot style tables](topic:plot-pdf#plot-style-tables).
 
+### CHSPACE
+
+{{cmd:CHSPACE}} moves objects between a sheet and the model through a viewport, scaled and turned so they look the same from the other side. On a sheet, select objects and they go to the model (pick the viewport when the sheet has more than one). While you work on the model through a viewport ({{cmd:MSPACE}}), the selected objects come to the sheet. It says how many times bigger or smaller they became. Viewports stay on their sheet. One undo step.
+
+### ISODRAFT
+
+{{cmd:ISODRAFT}} turns isometric drafting `ON` or `OFF`, or goes straight onto the `Left`, `Top` or `Right` plane. While it is on: Ortho ({{key:F8}}) keeps lines along the plane's two axes (left: 90° and 150°; top: 30° and 150°; right: 30° and 90°), polar tracking ({{key:F10}}) follows the same axes, snap to grid ({{key:F9}}) uses the isometric grid, and the grid ({{key:F7}}) is drawn with lines at 30°, 90° and 150°. {{cmd:ELLIPSE}} gains `Isocircle`: give a center and a radius (or `Diameter`) and it draws the ellipse a circle shows as on the current plane. The drawing stays flat: these are aids for drawing a pictorial view, not a 3D model. The setting is for this session and is not saved in the file.
+
+### ISOPLANE
+
+{{cmd:ISOPLANE}} chooses the plane isometric drafting works on: `Left`, `Top` or `Right`. Enter goes to the next plane. While isometric drafting is on, {{key:F5}} does the same in the middle of a command; while it is off, {{key:F5}} is left to the browser.
+
 ## Inquiry
 
 ### CAL
@@ -642,6 +967,8 @@ Aliases: `AA`; or {{ui:View}} › {{ui:More}} › {{ui:Area}}. Prints the area a
 
 Aliases: `MEA`. `Enter an option [Distance/Radius/Angle/ARea] <Distance>`; after each measurement it asks again, with `eXit` the default.
 
+`Quick` measures round the pointer as you move it: the distance to the nearest object to the right, above, left and below (along the axes of the current UCS), drawn as you go, and the angle where two of those neighbours are straight and meet. A click writes the four distances, the clear width and height and the angles to the history; Enter goes back to the options. It reads what is on screen.
+
 - `D`: two points, as {{cmd:DIST}}.
 - `R`: `Select arc or circle`; prints the radius and diameter.
 - `A`: an arc (its included angle), a line and then a second line (the angle between them, toward their far ends), or {{key:Enter}} and three points (vertex, then the two ends).
@@ -654,6 +981,10 @@ No aliases. `Specify point`; prints its X and Y.
 ### LIST
 
 Aliases: `LI`, `LS`. `Select objects`; prints each object's type, layer and main measurements.
+
+### MASSPROP
+
+{{cmd:MASSPROP}} gives the section properties of the regions and closed objects you select, taken together: area, perimeter, bounding box, centroid, moments of inertia about the X and Y axes through the origin, the product of inertia, radii of gyration, the same moments about the centroid, and the principal moments with the directions of their axes. Holes in a region count as holes. Figures are in drawing units and exact for outlines made of lines and arcs; ellipses and splines are measured as short straight segments, and it says so. After the report it asks whether to write it to a text file. Objects that are not closed are left out, and it says how many.
 
 ## View, file and other
 
@@ -828,6 +1159,20 @@ Aliases: `AP`; or {{ui:View}} › {{ui:More}} › {{ui:Load application…}}. Th
 
 {{cmd:ALIASEDIT}} (or {{ui:View}} › {{ui:More}} › {{ui:Edit aliases…}}) opens your aliases file (`ALIAS, *COMMAND` lines); {{ui:Save}} applies it. {{cmd:REINIT}} applies it again. See [Edit command aliases](topic:command-aliases).
 
+### LISPEDIT
+
+Aliases: `VLIDE`; or {{ui:View}} › {{ui:More}} › {{ui:LISP editor}}. Opens the LISP editor, a window that stays open beside the drawing.
+
+- The text: line numbers, the partner of the parenthesis at the cursor marked (red when it has none), {{key:Enter}} indents the new line under the open parenthesis, {{key:Tab}} types two spaces, {{key:Esc}} leaves the text.
+- {{ui:Load into the drawing}} ({{key:Ctrl+Shift+Enter}}): reads every form, as {{cmd:APPLOAD}} does with the file, and makes its `c:` commands. The file shows in {{cmd:APPLOAD}}'s list.
+- {{ui:Run selection}} ({{key:Ctrl+Enter}}): evaluates the selected forms, or the form the cursor is in.
+- {{ui:Stop}}: ends a routine that is running.
+- {{ui:Console}}: what the routine printed, and each error with its line; click an error to go there. The text is run one top-level form at a time, so the line is the form's, or inside it the line that calls the function the error names.
+- {{ui:New}}, {{ui:Open}}, {{ui:Save}} ({{key:Ctrl+S}}): a `.lsp` file. The text is also kept in this browser, so closing the window does not lose it.
+- Beside the text: the functions the routine defines, the ones it calls that this LISP does not have yet, the ones it calls that are neither defined in it nor built in, and the full lists of what is built and what is not.
+
+A text with a parenthesis that is never closed, or a string that never ends, is not run: the line is named. There is no step-by-step debugger, breakpoints or watch window. See [Run LISP routines](topic:run-lisp).
+
 ### HELP
 
 Aliases: `?`. Prints every command, its aliases and a one-line description in the command line history. It does not open this help: press {{key:F1}} or click {{ui:Help}} for that.
@@ -860,3 +1205,132 @@ Say what is selected, one sentence per object (line length, ends and angle; circ
 
 Turn spoken commands on or off. They are recognised on this computer; where the browser cannot do that, voice stays off unless you choose the browser's online service in Settings.
 
+### TOUCHCROSSHAIR
+
+Alias: `TCX`. The offset crosshair for drafting with a finger, so the fingertip does not cover the point you pick. While it is on, one finger on the drawing does not pick: it moves a crosshair that sits above the finger and to one side. Object snaps and tracking follow the crosshair. Lifting the finger picks nothing and leaves the crosshair where it is. To pick, press the {{ui:Click}} button in the corner of the drawing, or tap anywhere on the drawing with a second finger. Hold {{ui:Click}} while you move the other finger to drag (a selection window, a lasso, a grip). A finger pressed and held still, or the {{ui:Enter}} button, is Enter. Two fingers pan and zoom as before. Near the bottom edge and the far side edge the crosshair closes in on the finger, so every part of the drawing can be reached. A pen and a mouse always pick directly.
+
+{{cmd:TOUCHCROSSHAIR}} says the state and asks `ON`, `OFF`, `Auto` (on only where a finger is the only pointer, so it is off on a computer with a mouse), `Distance` (how far the crosshair sits from the finger, 24 to 240 pixels) or `Side` (`Left`: up and to the left, for the right hand; `Right` for the left hand; the buttons move to the other corner). The same choices are in Settings › CadCraft, and on a device with a touch screen the status bar has an {{ui:Offset crosshair}} switch. The choices are kept in this browser.
+
+### WHOHAS
+
+Says who has a drawing open. In CadCraft Studio on a computer, opening a DWG or DXF writes a small lock file beside it (`Plan.dwg.cclock`: who, since when, which version), refreshes it every minute while the drawing is open, and removes it when the drawing is closed. Opening a drawing someone else has open says who and since when and offers {{ui:Open read-only}} (Save then asks for a new name), {{ui:Open anyway}} (the other person is told at their next refresh) or {{ui:Cancel}}. Saving over a file someone else has open asks first. A lock that has not been refreshed for five minutes is said to be stale: the other copy closed without saving or the computer is asleep.
+
+{{cmd:WHOHAS}} asks `Current` (the open drawing), `File` (pick one), `FOlder` (pick a folder: every drawing in it that is open somewhere is listed), `Path` (type a full path) or `Name` (the name others see; your account's name when you are signed in). Studio can reach only folders you have chosen: for a drawing opened from a folder that was never chosen it says once that it cannot note the drawing as open; `FOlder` chooses the folder, and locks work there from then on. The lock is a note for people, not a barrier: another program can still write the file. In a browser there are no folders to look in, and the command says so.
+
+
+### OVERKILL
+
+Deletes duplicate objects and tidies overlapping lines and arcs, for drawings that arrive full of doubled linework. `Select objects to clean up`, {{key:Enter}}, then {{key:Enter}} again to clean up with the settings shown, or change one first:
+
+- `Tolerance`: how close two coordinates must be to count as the same (0.000001 to start with; 0 means exactly the same).
+- `Ignore`: properties that may differ between two objects that are otherwise the same. Type a name to switch it: `Color`, `LAyer`, `LType`, `ltScale`, `LWeight`, `THickness`, `TRansparency`, or `None` / `All`. {{key:Enter}} when done.
+- `Overlap`: on or off. On, lines along one straight line that overlap become one line (a line lying inside another is simply deleted), and arcs on one circle that overlap become one arc; arcs that close a full turn become a circle, and an arc lying on a circle is deleted.
+- `Ends`: on or off. On, lines along one straight line and arcs on one circle that only touch end to end become one piece.
+
+Every type of object is checked for duplicates: two objects are duplicates when their geometry is the same within the tolerance and their layer, color, linetype, linetype scale, lineweight, thickness, transparency and height match (less the ones you ignore). Lines and open polylines also match when drawn the other way round. The first object in the draw order stays and keeps its own properties. The command reports how many objects it checked and deleted: duplicates, overlapping pieces merged, pieces joined end to end. One {{cmd:UNDO}} takes it all back. The settings last until you close the drawing window.
+
+It leaves alone: objects on locked layers and hidden objects. It does not merge lines with a height (Z) (exact duplicates of them still go), and it does not touch segments inside a polyline (they are not thinned), a line lying on a polyline's segment, and a closed polyline drawn the other way round.
+
+### DRAWORDER
+
+Changes which objects are drawn in front. `Select objects to re-order`, {{key:Enter}}, then `Above objects`, `Under objects`, `Front` or `Back` ({{key:Enter}} = `Back`). `Above objects` and `Under objects` ask for the reference objects: the selection goes right in front of the front-most of them, or right behind the back-most. The selected objects keep their own order among themselves. One undo step. The order is saved with the drawing in DWG and DXF, where it is the order the objects are written in.
+
+On screen CadCraft draws filled areas (solid hatches, wide polylines, masks) first, then linework, then text, so text always reads over a fill; the draw order shows among filled objects and among pictures. Other programs that open the file draw every object in the saved order.
+
+### TEXTTOFRONT
+
+Brings text, dimensions and leaders in front of everything else in the open space: `Text`, `Dimensions`, `Leaders` or `All` ({{key:Enter}} = `All`). One undo step. Says so when there is none, or when they are already at the front.
+
+### HATCHTOBACK
+
+Sends every hatch of the open space behind everything else, so fills stop covering linework and text in the saved file. No prompts. One undo step.
+
+### ISOLATEOBJECTS
+
+Alias: `ISOLATE`. Shows only the selected objects: everything else in the open space goes out of sight until {{cmd:UNISOLATEOBJECTS}}. Unlike {{cmd:LAYISO}} it works on the objects you pick, whatever their layers, and changes no layer. Hidden objects are not drawn, picked, snapped to, zoomed to or plotted, and commands that take `ALL` pass them over. What you draw while objects are isolated shows as usual.
+
+This is for the session only: nothing about it is saved with the drawing, it is not an undo step, and opening the drawing again shows everything. While objects are hidden the status bar shows a button with their number; click it to show them again.
+
+### HIDEOBJECTS
+
+Hides the selected objects until {{cmd:UNISOLATEOBJECTS}}. The same rules as {{cmd:ISOLATEOBJECTS}}: for the session only, not saved, not an undo step.
+
+### UNISOLATEOBJECTS
+
+Aliases: `UNISOLATE`, `UNHIDE`. Shows every object hidden by {{cmd:ISOLATEOBJECTS}} or {{cmd:HIDEOBJECTS}} again, and says how many came back.
+
+### LAYLOCKFADE
+
+Sets how objects on locked layers look and whether a click reaches them. It says the current state, then takes:
+
+- a number from 0 to 90: the fade amount in percent (50 to start with). 0 turns the fade off.
+- `ON` or `OFF`: fade on or off, keeping the amount.
+- `Pick`, then `Yes` or `No`: may a click select objects on locked layers while no command is running? `No` (the default): they cannot be picked at all. `Yes`: a click or a window selects them so {{ui:Properties}} can show them; they still cannot be changed, and a command's own `Select objects` never takes them.
+
+Object snaps find objects on locked layers either way. Plots are never faded. Both settings are yours, not the drawing's, and are also in {{ui:Settings}} under {{ui:Locked layers}}.
+
+### BURST
+
+Explodes block references and keeps what their attributes say. `Select block references to burst`, {{key:Enter}}: each reference is replaced by the block's objects, and each visible attribute's value becomes plain text on that attribute's own layer (an attribute on layer 0 lands on the reference's layer, like the block's other objects on layer 0). Invisible attributes are dropped. A block inside the block stays a block reference. One undo step; it reports the references burst and the attribute values turned into text.
+
+It refuses a linked drawing by name (bind it first, or copy from it with {{cmd:NCOPY}}), and leaves other selected objects alone. For block references {{cmd:EXPLODE}} gives the same objects; {{cmd:BURST}} takes block references only and counts the attribute text.
+
+### TXT2MTXT
+
+Alias: `T2M`. Joins single-line texts into one paragraph text. `Select single-line text to join`, {{key:Enter}}, then `Paragraph` (the lines run together and wrap at the widest line's width) or `Lines` (each text stays a line of its own); {{key:Enter}} takes the one used last. The lines are ordered top to bottom, then left to right, along the direction of the top text. The paragraph hangs from the top text's upper-left corner and takes its height, rotation, style, layer and color. One undo step.
+
+Text that is already paragraph text, blank text and other objects in the selection are left alone, and the command says how many.
+
+### NCOPY
+
+Copies objects out of a block reference or a linked drawing into the drawing, without exploding anything. `Pick an object inside a block reference or a linked drawing`: the object nearest the pick is copied where it shows, however many blocks deep it sits; pick more, then {{key:Enter}}. Next `Base point to move the copies`: {{key:Enter}} leaves them in place, or give a base point and a second point. The whole command is one undo step.
+
+A copy takes the layer it shows on: an object on layer 0 inside a block lands on the layer of the reference it sat in, and a ByBlock color becomes that reference's color. From a linked drawing, layer `Plan|Walls` becomes `Plan$0$Walls` (the name binding the link gives it), made with the linked layer's color, linetype and lineweight. An attribute's value is copied as text. Block references on locked layers cannot be picked.
+
+### FLATTEN
+
+Sets the height (Z) and the thickness of the selected objects to 0. `Select objects to flatten`, {{key:Enter}}. It also flattens the objects inside the block definitions the selection uses (and the blocks inside those), so every reference to those blocks changes; linked drawings are left as they are. One undo step; it reports how many objects changed, and says so when none had a height or a thickness.
+
+What CadCraft keeps of the third dimension in a 2D drawing is: a height on circles, arcs, ellipses, points, text, block references, hatches, leaders and polylines (their elevation), a height at each end of a line, and a thickness on lines, circles, arcs, polylines, points and text, as the file had them. {{cmd:FLATTEN}} clears exactly those. It does not touch the 3D model on the 3D tab, 3D faces or solids, and an object drawn in a tilted plane was already brought into the drawing plane when the file was opened.
+
+### BREAKLINE
+
+Draws a line with a break symbol, for a view that is cut short. It says the current size and extension, then `First point of the break line` (or `Size` / `Extension` to change them first), `Second point`, and `Where the break symbol sits`: click along the line, or {{key:Enter}} for the middle. The result is one polyline on the current layer: the line, running past each point by the extension, with a Z-shaped stroke as tall as the size and half as long.
+
+`Size` and `Extension` are remembered as your settings (the size starts at twice the dimension text height times the dimension scale; the extension at half the size). {{key:Enter}} repeats the command.
+
+### AUDIT
+
+Checks the open drawing for damage and repairs it. {{cmd:AUDIT}} looks at every object in the model, on the sheets and inside blocks, and at the layer table, and lists what it finds by kind:
+
+- numbers that are not finite or are absurdly large;
+- objects with no size: a line of no length, a circle of no radius, a polyline with one place, text with no letters or height, a block reference of zero scale;
+- objects on a layer the drawing does not have; references to a block that is not there; text and dimension style names and linetype names that are not in the drawing;
+- blocks that contain themselves, directly or through other blocks;
+- objects that share an id, a key or a file handle;
+- dimensions without the points they are measured from, and hatches whose boundary is not a closed outline.
+
+Then it asks `Fix them? [Yes/No]`. `No` changes nothing. `Yes` repairs everything in one undo step: what cannot be drawn is removed (bad numbers, no size, missing block, broken dimension, a hatch with no usable boundary, the reference that closes a circle of blocks); a missing layer is made; unknown style and linetype names go back to the defaults; a shared key is replaced. It prints how many objects were removed and how many repaired. The same findings appear in the Problems panel, each with its own {{ui:Repair}}.
+
+It refuses nothing, but it only checks what CadCraft itself draws: data kept for other programs (3D solids, OLE objects) is not opened.
+
+
+### RECOVER
+
+Opens a damaged DXF or DWG. {{cmd:RECOVER}} asks for the file, reads what can be read instead of refusing the file, lists what it skipped or assumed, then checks and repairs the drawing as {{cmd:AUDIT}} does with `Yes`.
+
+- DXF: lines that are not part of a code and value pair are skipped until the pairs line up again; a section with no end is closed; a file that is cut short is read up to the cut; a binary DXF that is cut short is read up to its last whole value. When a section, a block or an object still cannot be read, it is left out and named, and the reading goes on past it.
+- DWG: objects that fail their checks or cannot be decoded are left out, and a lost object list is rebuilt by walking the object data.
+
+The file on disk is not changed. The recovered drawing opens unsaved: save it under a new name. A file from which nothing at all can be read is refused, with the reason.
+
+
+### LEGACYTEXT
+
+Converts text typed with old 8-bit Vietnamese fonts to Unicode. Short names `TEXTTOUNICODE` and `VNTEXT`.
+
+Older Vietnamese drawings hold their text as Western characters that only the font turns into Vietnamese: TCVN3 text in the ABC fonts (`.VnTime`, `.VnArial`, and the upper-case fonts whose names end in `H`), and VNI text in the VNI fonts (`VNI-Times`). CadCraft shows such text as it reads as soon as the drawing is open, by the font of its text style, of the object, or of a run inside paragraph text; the file still holds the old characters.
+
+{{cmd:LEGACYTEXT}} says how many texts it found in each encoding and asks `Convert … to Unicode?`. `Yes` rewrites every one (model, sheets, blocks, attribute values and definitions) and gives the text styles a Unicode font (Times New Roman, Arial or Courier New by the old font's kind), in one undo step. Formatting inside paragraph text is kept.
+
+When no text uses a known font (a style that lost its font name), it asks `Read selected texts as [Tcvn3/Vni/None]`: choose the encoding and select the texts. Text that is already Unicode is left alone. Dimension text overrides and multileader text are not converted.

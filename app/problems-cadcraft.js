@@ -41,15 +41,23 @@ export function isEmpty(e) {
   if (e.type === 'circle' || e.type === 'arc') return num(e.r) && e.r <= tol;
   return false;
 }
+const keyMemo = new WeakMap();   // entity object → its shape key (0.10 PERF.30: an edit makes a new object, so only edited objects are keyed again)
 /** A string that two entities share only when they are the same shape on the same layer (the id never counts). */
 export function shapeKey(e) {
+  if (e && typeof e === 'object') { const m = keyMemo.get(e); if (m !== undefined) return m; }
   const o = {};
   for (const k of Object.keys(e).sort()) { if (k === 'id' || k === 'key' || k === 'handle') continue; o[k] = e[k]; }
-  try { return JSON.stringify(o); } catch (err) { return null; }
+  let r; try { r = JSON.stringify(o); } catch (err) { r = null; }
+  if (e && typeof e === 'object') keyMemo.set(e, r);
+  return r;
 }
 
-/** The ids a fix erases: 'audit.empty' → zero-size objects, 'audit.duplicate' → the second and later copies of a shape. */
-export function auditIds(doc, what) {
+const auditMemo = new WeakMap();   // doc → { version, empty, dup }
+/** Both findings in one pass, kept while the drawing's version does not move (the panel asks for each of them). */
+function auditBoth(doc) {
+  const ver = doc && typeof doc.version === 'number' ? doc.version : null;
+  const m = auditMemo.get(doc);
+  if (m && ver !== null && m.version === ver) return m;
   const empty = [], dup = [], seen = new Map();
   for (const e of doc && typeof doc.everyEntity === 'function' ? doc.everyEntity() : []) {
     if (e.id === undefined) continue;
@@ -58,7 +66,15 @@ export function auditIds(doc, what) {
     if (k === null) continue;
     if (seen.has(k)) dup.push(e.id); else seen.set(k, e.id);
   }
-  return what === 'audit.empty' ? empty : what === 'audit.duplicate' ? dup : [];
+  const r = { version: ver, empty, dup };
+  if (doc && typeof doc === 'object') auditMemo.set(doc, r);
+  return r;
+}
+
+/** The ids a fix erases: 'audit.empty' → zero-size objects, 'audit.duplicate' → the second and later copies of a shape. */
+export function auditIds(doc, what) {
+  const r = auditBoth(doc);
+  return what === 'audit.empty' ? r.empty.slice() : what === 'audit.duplicate' ? r.dup.slice() : [];
 }
 
 export function cadProblems({ doc, report = null } = {}, { t = (k) => k, shx = null } = {}) {

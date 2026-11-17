@@ -70,6 +70,10 @@ Click {{ui:Library credits}}. Each item is listed with its attribution line and 
 
 Licenses such as CC BY ask you to credit the author where you use the work. Put the lines on the drawing, in the specification or in the project notes.
 
+## Symbols and assets
+
+The Library has three kinds of item: Symbols (drawing conventions, 2D), Types (what an element is made of) and Assets (physical objects). In the {{ui:Library}} tab, the {{ui:Kind of item}} list shows Symbols and assets together, only Symbols, or only Assets. Types are what a BimCraft project is built from, so CadCraft does not list them.
+
 ## Sign in to the library
 
 Click {{ui:Sign in to the library}}. A small window opens on the site; once you are signed in there, CadCraft can show your team's items and register what you place, so you hear when an item you used changes. The sign-in lasts for this browser tab. Revoke it any time from your account's security page.

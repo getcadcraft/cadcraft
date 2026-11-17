@@ -1,178 +1,182 @@
 ---
-title: Faylasha: waxa la furi karo, waxa la kaydiyo
-summary: Qaababka CadCraft furo, kaydiyo iyo soo dhoofiyo, waxa la hayo ama la beddelo, iyo halka faylashu tagaan.
-keywords: xclip, clip, xadka xclip, xadka jaran, bind clipped, dwg, dxf, pdf, r12, fur, kaydi, dhoofin, soo geli, qaababka, beddelid, soo deji, saveas, dxfout, kaydi sida, dwg kaydi, qaab, qsave, xref, xattach, naqshad xidhan, tixraac dibadda, ku xidh, dib u rari, ka fur, ka saar
-from: 6d68b34e
+title: Faylasha: waxa furmaya, waxa kaydinaya
+summary: Qaababka CadCraft furo, kaydiyo iyo dhoofiyo, waxa la ilaaliyo ama la beddelo, iyo meesha faylasha tagaan.
+keywords: xclip, clip, xclip boundary, bind clipped, dwg, dxf, pdf, r12, fur, kaydi, dhoofi, soo geli, qaababka, beddelka, soo dejinta, saveas, dxfout, kaydi sida, dwg kaydi, qaab, qsave, xref, xattach, naqshad xiran, tixraac dibada, bind, dib u rar, detach
+from: b8c5778d
 ---
 
-## Aragti kooban
+## Hadda
 
-| Qaab | Fur | Kaydi | Qoraal |
+| Qaabka | Fur | Kaydi | Qoraal |
 |---|---|---|---|
-| DXF (qoraal, nooc kasta) | Haa | Haa, sida DXF R12 ama DXF 2000 | DXF binary ah waa la diidaa: marka hore u kaydi qoraal DXF ahaan. |
-| DWG | Haa | Haa, sida DWG (AutoCAD 2000, 2004, 2007, 2010, 2013 ama 2018) | Waxa akhriya oo qoraa maktabadda DWG ee CadCraft (faylasha AutoCAD R13 ilaa 2018). DWG-gaaga looma beddelo. Faylasha dhaawacan, ama noocyada aan akhrin karin, waa la diidaa iyada oo fariin la siinayo. |
-| PDF | Wuxuu keenaa bog: sida underlay ama sida walxo ([PDF underlays](topic:pdf-underlay)) | Haa, marka la daabacayo | PDF vector oo ah xaashi, ama moodeelka miisaan ku jira. |
+| DXF (qoraal ama binary, nooc kasta) | Haa | Haa, sida DXF R12, DXF 2000 ama DXF 2000 (binary) | DXF binary wuxuu u furmaa sida qoraal, wuxuuna dib ugu kaydiyaa binary. |
+| DWG | Haa | Haa, sida DWG (AutoCAD 2000, 2004, 2007, 2010, 2013 ama 2018) | Waxaa akhrisa oo qora maktabadda DWG ee CadCraft (faylasha AutoCAD R13 ilaa 2018). DWG-gaaga waligiis looma beddelo. Faylasha dhaawacan, ama noocyada aan akhrisku wax ka qaban karin, waa la diidaa iyadoo fariin la siinayo. |
+| PDF | Wuxuu soo geliyaa bog: sida hoos-lakab ama sida walxo ([PDF hoos-lakabyo](topic:pdf-underlay)) | Haa, markaad daabacayso | PDF vector ah oo xaashi, ama moodeelka miisaan. |
 
-Naqshad kasta oo aad furto (ama ku bilowdo {{ui:Cusub}}) wuxuu helaa tab gooni ah oo ka sarreeya goobta naqshadda; naqshad cusub oo aan weli ninna taabin ayaa la isticmaalaa halkii tab cusub lagu dari lahaa. Guji tab si aad u beddesho, {{ui:×}} si aad u xirto (CadCraft wuxuu marka hore weydiin doonaa haddii wax aan la kaydin ku jiraan), ama u kala saar naqshadaha furan dhinac dhinac: eeg [Kala qaybi shaashadda](topic:split-screen).
+Fayl kasta oo aad furto (ama aad ku bilowdo {{ui:Cusub}}) wuxuu helaa tab gaar ah oo ka sarreeya goobta naqshadda; naqshad cusub oo aan weli la taabanin ayaa halkii tab cusub la isticmaalaa. Guji tab si aad u beddesho, {{ui:×}}-kiisa si aad u xidho (CadCraft wuxuu kugu weydiin doonaa marka ay jiraan isbeddello aan la kaydin), ama u ridi naqshadaha furan side-by-side: eeg [Kala qaybi shaashadda](topic:split-screen).
 
-## Furidda naqshadda
+## Furidda naqshad
 
-- Riix {{key:Mod+O}}, guji {{ui:Fur}}, ama ku qor `OPEN`, kadibna dooro faylka.
+- Taabo {{key:Mod+O}}, guji {{ui:Fur}}, ama ku qor `OPEN`, kadibna dooro faylka.
 - Ama jiid fayl `.dwg` ama `.dxf` oo ku dhig goobta naqshadda.
 
-Faylka waxa lagu akhriyaa browser-kaaga. Ma la soo rarayo meel kasta. Taariikhdu waxay sheegtaa inta walxood iyo lakab ku soo galay iyo inta waqti ay qaadatay, qaybta {{ui:Naqshad}} ee panelka bidix waxay muujinaysaa qaabka, tusaale ahaan "DWG 2018 (AC1032)".
+Faylka waxaa lagu akhriyaa browser-kaaga. Uma soo dirto meel kale. Taariikhdu waxay sheegaysaa inta walxood iyo lakabyo ah ee soo gashay iyo inta waqti ay qaadatay, qaybta {{ui:Naqshad}} ee dhinaca bidix waxay muujinaysaa qaabka, tusaale ahaan "DWG 2018 (AC1032)".
 
-Akhriyaha DWG waa qayb ka mid ah CadCraft waxaana la soo dejiyaa DWG-ga ugu horreeya ee aad furto kadib markii bogga la soo rarayo (dhowr boqol KB), sidaas darteed looma baahna soo dejin gooni ah. Wuxuu faylka ku akhriyaa background-ka, sidaas darteed bogga wuu sii jawaabayaa inta DWG weyn la furayo.
+Akhriska DWG waa qayb ka mid ah CadCraft waxaana la soo dejiyaa DWG-da ugu horraysa ee aad furto kadib markii bogga la soo rarey (dhowr boqol KB), sidaas darteed ma jirto soo dejin gaar ah oo sugaysa. Wuxuu faylka ka akhriyaa gadaal, sidaas darteed bogga wuu jawaabayaa inta DWG weyn ay furmayso.
 
-### Waxa soo galaya
+DXF waxaa lagu akhriyaa qaybo ah oo dhan 4 MB, weligeed qoraal weyn oo keliya, sidaas darteed DXF ka weyn 512 MB ayaa furmaya. Waxa xadaya waa xusuusta kumbiyuutarkaaga: inta DXF ay furmayso, ku filo inuu isticmaalo qiyaastii 16 ilaa 20 jeer cabbirka faylka (DXF 100 MB ah oo leh ku dhawaad 690,000 walxood wuxuu isticmaalay ku dhawaad 1.5 GB tijaabadeenna).
 
-- Xariiqyo, qaansooyin, goobo, polilaynno (oo leh qaybo qaanso), ellipse-yo, bar-yo, qoraal iyo qoraal lafo-lafo, solids, hatches (naqshadaha caadiga ah oo loo sawiray xariiqyadooda, kuwa kale midab siman), tixraacyada bloogga oo leh sifooyinkooda (qiimayaal aad beddeli karto; eeg [Sifooyinka bloogga](topic:attributes)), cabbiro, iyo layouts oo leh viewports-kooda.
-- Splines waxay soo galaan sidii splines (darajada, barta xakamaynta, knots, miisaanka, fit points); eeg [Splines iyo polylines](topic:splines).
-- Multileaders oo leh hal xariiq hoggaan iyo qoraal waxay soo galaan sidii multileaders CadCraft oo aad beddeli karto (eeg {{cmd:MLEADER}}). Kuwa kale (oo leh bloog, dhowr xariiq hoggaan, ama xariiqyo qalloocan) waxa loo sawiray sidii barnaamijkii kale sawiray, waxayna u dhaqmaan sida hal walax; taariikhdu waxay sheegtaa inta ay yihiin.
-- Sawirada (images) waxay muujinayaan goob leh magaca faylka sawirka ilaa aad siiso CadCraft faylka {{cmd:IMAGE}}: eeg [Sawirada naqshadda](topic:pictures#show-the-pictures-a-dwg-uses). Wipeouts waxay muujinayaan goobtooda, wixii ka hoosaysana wuu muuqdaa.
-- Miisaska DWG-ga waxay yimaadaan sidii barnaamijkii kale u sawiray.
-- Wejiyada 3D ee model space waxay yimaadaan tab-ka {{ui:3D}}, ma aha walxo 2D; sidaas oo kale kuwa ku jira bloogyada, mar kasta oo tixraac bloog ah ku jira moodeelka. Bloogga dhexdiisa iyo xaashiga waxa lagu sawiraa sidii qaab-dhis bannaan, sida khadadka. Eeg [Moodeelka 3D](topic:3d-solids).
-- Lakabyadu waxay hayaan midabkooda, shidan, qabsan, qufulan iyo dejinta plot-ka. DEFPOINTS weligiis lama daabacdo.
-- Cabbiradu waxay noqdaan cabbiro dhab ah oo la beddeli karo oo CadCraft ah marka barashooyinkooda la akhriyi karo. Marka hore waxa lagu muujiyaa sidii barnaamijkii kale u sawiray; marka aad mid beddesho, CadCraft wuxuu dib u sawiraa qaabkiisa.
-- Layout kasta wuxuu noqdaa tab xaashi. Barnaamijka kale, layout kasta wuxuu leeyahay viewport koowaad oo qarsan oo ah xaashiga laftiisa; CadCraft waa ka reebaa.
+### Waxa soo gala
 
-### Waxa aan weli soo gelin
+- Xariiqyada, qowsaha, goobooyinka, polilaynnada (oo leh qaybo qowsaha), ellipse-yada, dhibcaha, qoraalka iyo qoraalka saf badan, soolidyada, hatch-yada (qaababka caadiga ah oo loo sawiray xariiqyadooda, kuwa kale waa midab fiican), tixraacyada bloogyada oo leh sifooyinkooda (qiimo aad tafatiri karto; eeg [Sifooyinka bloogga](topic:attributes)), cabbirrada, iyo habeynta leh aragtiyadooda.
+- Splines-ka waxay soo galaan sida splines (darajada, dhibcaha xakameynta, koofiyadda, miisaanka, dhibcaha habaynta); eeg [Splines iyo polylines](topic:splines).
+- Multileaders oo leh hal xariiq tilmaame iyo qoraal waxay soo galaan sida CadCraft multileaders oo aad tafatiri karto (eeg {{cmd:MLEADER}}). Kuwa kale (oo leh bloog, xariiqyo tilmaame oo badan ama xariiqyo qanjaruufan) waxaa lagu sawiraa sida barnaamijka kale u sawiray oo hal mar ayay dhaqaaqaan; taariikhdu waxay sheegaysaa inta ay tahay.
+- Sawirrada (images) waxay muuqdaan sida gaashaan oo leh magaca faylka sawirka ilaa aad siiso CadCraft faylka {{cmd:IMAGE}}: eeg [Sawirrada naqshadda](topic:pictures#show-the-pictures-a-dwg-uses). Wipeouts waxay muuqdaan sida gaashaankooda, waxayna wali muuqdaan waxa ka hooseeya.
+- Miisaska DWG waxay soo galaan sida barnaamijka kale u sawiray.
+- Saddex-cabbirka ee goobta moodeelka waxay soo galaan tab-ka {{ui:3D}}, ma aha walxo 2D; sidaas oo kale kuwa ku jira bloogyada, hal mar tixraac kasta oo bloog ah moodeelka. Gudaha bloog iyo xaashi waa la sawiraa sidii toosan, sida jaangooyooyin. Eeg [Moodeelka 3D](topic:3d-solids).
+- Lakabyadu waxay ilaaliyaan midabkooda, on, frozen, locked iyo dejinta daabacaadda. DEFPOINTS weligeed lama daabacayo.
+- Cabbirradu waxay noqdaan cabbirro CadCraft ah oo la tafatiri karo, goobaha dhibcahoodu la akhriyi karo. Marka hore waxay muuqdaan sidii barnaamijka kale u sawiray; markaad mid bedesho, CadCraft wuu dib u sawiraa qaabkiisa.
+- Layout kasta wuxuu noqdaa tab xaashi ah. Barnaamijka kale layout kasta wuxuu leeyahay aragti hore oo qarsan oo ah xaashiga laftiisa; CadCraft ka reebaa taas.
 
-Wax CadCraft aan awoodin inuu sawiro waa la tiriyaa, looma malaynayo. Sanduuqa "About this file" ee panelka bidix wuxuu ku qoran yahay "Aan weli la muujin:" oo ku xiga nooc walax kasta iyo tiradeeda. Kiisaska caadiga ah waa miisaska DXF, meshes, iyo 3D solids ku jira bloogyada. 3D solids, regions iyo bodies ee model space waxay muuqdaan tab-ka 3D (eeg [Moodeelka 3D](topic:3d-solids#solids-from-other-programs)). Viewports-ka faylka laga leexiyay waxay muuqdaan leexisan sida halkaas, oo waxay hayaan leexintaas markay kaydiyo; sidaas oo kale UCS-ka hadda jira, UCS-yada magacaysan iyo aragga la leexiyay.
+### Waxa weli soo gelin
 
-Qoraalka waxa lagu sawiraa hal font oo qaab Helvetica ah. Silsilad qoraal oo ku habboon hal xariiq barnaamijka asalka ah oo font-ka ballaca yar ku jirta ayaa laga yaabaa in ay laba xariiq noqoto CadCraft.
+Wax CadCraft aanu sawiri karin waa la tiriyaa, looma qiyaaso. Sanduuqa "About this file" ee dhinaca bidix wuxuu ku liistaa "Not shown yet:" oo ku xigta nooc kasta oo walxood iyo tirada. Kiisaska caadiga ah waa miisaska DXF-ka, meshes, iyo soolidyada 3D ee bloogyada ku jira.
+
+Soolidyada 3D, gobollada iyo jidhyada moodeelka waxay muuqdaan tab-ka 3D (eeg [Moodeelka 3D](topic:3d-solids#solids-from-other-programs)). Aragtiyada faylka ku jira ee la rogay waxay muuqdaan iyagoo rogan, sidii halkaas, oo waxay ilaaliyaan rogaankooda marka aad kaydiso; sidaas oo kale UCS-ka hadda jira, UCS-yada magacyaga leh iyo aragta la rogay.
+
+Qoraalku wuxuu lagu sawiraa hal xarfo oo Helvetica ah. Silsilad ku dhex jirta barnaamijka asalka ah oo ku habboon hal xariiq ayaa laba xariiq ku noqon karta CadCraft.
 
 ## Kaydinta
 
-Waxa jira saddex siyaabood oo lagu kaydiyo. Mid kasta wuxuu soo dejiyaa nuqul.
+Waxaa jira saddex siyaabood oo lagu kaydiyo. Mid kasta wuxuu soo dejiyaa nuqul.
 
-- **Kaydi**: riix {{key:Mod+S}}, guji {{ui:Kaydi}}, ama ku qor `SAVE` (iyo `QSAVE`). Wuxuu kaydinayaa qaabka naqshadda: DWG haddii aad furtay DWG, DXF haddii aad furtay DXF. DWG wuxuu hayaa nooca uu ku imid (faylka 2018 wuxuu kaydiyaa 2018). Naqshad cusub waxay isticmaashaa qaabka iyo nooca DWG ee aad ugu dambeyn dooratay {{ui:U kaydi sida}} browser-kan; haddii aadan mid dooran, waa DWG qaabka AutoCAD 2000.
-- **U kaydi sida**: riix {{key:Mod+Shift+S}}, guji {{ui:U kaydi sida}}, ama ku qor `SAVEAS`. Wada-hadalka {{ui:Ka kaydi nuqul ahaan sida}} wuxuu bixiyaa {{ui:DWG}}, liiska {{ui:Version}} (AutoCAD 2018, 2013, 2010, 2007, 2004 ama 2000), {{ui:DXF R12}} iyo {{ui:DXF 2000}}, mid kasta oo leh magaca faylka ay bixin doonto, iyo qaabka iyo nooca hadda ee naqshadda oo horeba loo doortay. Guji {{ui:Kaydi}} si aad u soo dejiso, ama {{ui:Jooji}} (ama {{key:Esc}}) si aanad wax kaydin; taariikhdu markaas waxay leedahay "Lama kaydin." Waxa aad doortay waa soo jeedaa: {{key:Mod+S}} wuxuu isticmaalaa mar kasta naqshadan ka dib, naqshadaha cusubna browser-kan waxay ku bilaabaan.
-- **DXFOUT**: ku qor `DXFOUT`. Had iyo jeer wuxuu soo dejiyaa nuqul DXF R12 ah, {{key:Mod+S}} xiga weli wuxuu kaydinayaa qaabka naqshadda.
+- **Kaydi**: taabo {{key:Mod+S}}, guji {{ui:Kaydi}}, ama ku qor `SAVE` (ama `QSAVE`). Waxay ku kaydinaysaa qaabka naqshadda: DWG haddii aad furatay DWG, DXF haddii aad furatay DXF. DWG wuxuu ilaaliyaa nooca uu ku yimid (fayl 2018 wuxuu u kaydiyaa 2018). Naqshad cusub waxay isticmaashaa qaabka iyo nooca DWG ee aad ugu dambeyntii doorateen {{ui:U kaydi sida}} browser-kan; haddii aadan dooran mar, waa DWG qaabka AutoCAD 2000.
+- **U kaydi sida**: taabo {{key:Mod+Shift+S}}, guji {{ui:U kaydi sida}}, ama ku qor `SAVEAS`. Wada-hadalka {{ui:Ka kaydi nuqul ahaan sida}} wuxuu bixiyaa {{ui:DWG}}, liis {{ui:Nooca}} (AutoCAD 2018, 2013, 2010, 2007, 2004 ama 2000), {{ui:DXF R12}} iyo {{ui:DXF 2000}}, mid kasta oo leh magaca faylka ay bixin doonto, iyo qaabka iyo nooca hadda ee naqshadda oo horay loo doortay. Guji {{ui:Kaydi}} si aad soo dejiso, ama {{ui:Jooji}} (ama {{key:Esc}}) si aanad waxba u kaydin; taariikhdu markaas waxay leedahay "Not saved." Waxa aad doorato waa la xasuustaa: {{key:Mod+S}} wuxuu isticmaalaa midka loo doortay naqshadan kadibna, naqshadaha cusub ee browser-kan waxay ka bilaabmaan.
+- **DXFOUT**: ku qor `DXFOUT`. Had iyo jeer wuxuu soo dejiyaa nuqul DXF R12, {{key:Mod+S}} xiga wali wuxuu ku kaydinayaa qaabka naqshadda laftiisa.
 
-Browser-ku wuxuu soo dejiyaa `<drawing name>.dwg` ama `<drawing name>.dxf`. Kaydin kasta waa **soo dejin cusub**; faylka aad furtay weligiis lama qori ama lama beddelo. Taariikhdu waxay xaqiijinaysaa, tusaale ahaan "Nuqul ayaa loo kaydiyay sida Plan.dwg (DWG (AutoCAD 2018)). Asalkii Plan.dxf ma beddelmin." DXF-ka waxay leedahay "(DXF R12, barnaamij CAD kasta wuu furi karaa)". Xariiqyada hoose waxay liistaan wax kasta oo ku beddelmay jidka.
+Browser-ku wuxuu soo dejiyaa `<drawing name>.dwg` ama `<drawing name>.dxf`. Kaydinta kasta waa **soo dejin cusub**; faylka aad furatay weligeed looma qoro ama looma beddelo. Taariikhdu waa xaqiijisaa, tusaale ahaan "Saved a copy as Plan.dwg (DWG (AutoCAD 2018)). Your original Plan.dxf is unchanged." DXF-ka waxa ay tidhi "(DXF R12, opens in any CAD program)". Sadarada hoostooda waxay liistaan wax kasta oo isbeddelay intii lagu jiray.
 
-Marka CadCraft ku shaqeeyo app-ka desktop-ka, kaydintu waxay u shaqeysaa sida barnaamijyada desktop-ka kale: {{key:Mod+S}} wuxuu dib ugu qoraa naqshadda faylka aad furtay, qaabkiisa iyo nooceeda, taariikhduna wuxuu sheegaa meesha lagu kaydiyay. {{ui:U kaydi sida}} iyo soo dhoofinta waxay muujinayaan wada-hadalka kaydinta nidaamka, faylka `.dwg`, `.dxf` ama `.ccsheets` oo aad laba jeer ku dhufato wuxuu ku furmaa CadCraft.
+Marka CadCraft uu ku socdo barnaamijka desktop-ka, kaydintu waxay u shaqaynaysaa sida barnaamijyada kale ee desktop-ka: {{key:Mod+S}} wuxuu dib ugu qorayaa naqshadda faylka aad furatay, qaabkiisa iyo noocaa, taariikhduna waxay sheegaysaa halka laga kaydiyay. {{ui:U kaydi sida}} iyo dhoofinta waxay muujinayaan wada-hadalka nidaamka ee kaydinta, faylka `.dwg`, `.dxf` ama `.ccsheets` aad laba-jeer ku dhufato wuxuu ku furmaa CadCraft.
 
-PDF ahaan, daabac halkii (eeg hoose).
+PDF ah, daabac halkii (eeg hoos).
 
-## Waxa DWG-gu hayaa iyo waxa uu beddelo
+## Waxa DWG ilaaliya oo beddela
 
-CadCraft wuxuu qoraa DWG-ga isagu, browser-kaaga gudihiisa, isagoo isticmaalaya isla maktabada DWG ee uu ku akhriyo. Dooro nooca {{ui:U kaydi sida}} ku jira: qaabka AutoCAD 2000 (nooca faylka AC1015) ayaa ugu badan barnaamijyada furi kara, kuwa hore ka sokow; qaababka cusub (2004, AC1018, ilaa 2018, AC1032) waxay sidoo kale hayaan midabyo run ah. Looma soo rarayo meel kasta, kaydinta DWG waxay shaqeysaa xidhiidh la'aan.
+CadCraft wuxuu qoraa DWG-ga isagu, browser-kaaga gudihiisa, isagoo isticmaalaya isla maktabada DWG ee uu ku akhriyo. Doorashada nooca ku dhex jirta U kaydi sida: qaabka AutoCAD 2000 (nooca faylka AC1015) waxa uu ku furmaa barnaamijyada ugu badan, kuwa hore ku jiraba; qaababka cusub (2004, AC1018, ilaa 2018, AC1032) waxay sidoo kale ilaaliyaan midabyada run ah. Waxba lama soo dirto, kaydinta DWG-na way shaqeysaa adigoon internet-ka isticmaalin.
 
-Nooc kasta waa la hubiyaa iyadoo faylasha la kaydiyay dib loo akhrinayo iyadoo la isticmaalayo akhriyeyaasha DWG-ga saddex barnaamij oo kale iyo CadCraft laftiisa. DWG-ga CadCraft weli AutoCAD-ka lagama furin.
+Nooc kasta waxa lagu hubiyaa iyadoo faylasha la kaydiyay dib loo akhrinayo siddeed barnaamijyo kale oo DWG akhriyayaasha iyo CadCraft laftiisa. DWG CadCraft ah weli lama furin AutoCAD laftiisa.
 
-### Waxa DWG-gu hayaa
+### Waxa DWG ilaaliya
 
-- Xariiqyo, qaansooyin, goobo, ellipse-yo, bar-yo, iyo polilaynno oo leh qaybahooda qaanso.
-- Qoraal hal xariiq oo leh isku-toosnaantiisa iyo factor-ka ballacda.
-- Qoraal lafo-lafo iyo qoraal la duubay, sida qoraal lafo-lafo ah. Barnaamijka kale wuu dib u duubaa isla ballaca.
-- Midabka walxaha: sida lakabka, sida bloogga, 255 midab caadi ah, iyo midabyo run ah qaabka 2004 iyo ka dambeeya.
-- Lakabyada oo leh midabkooda, nooca xariiqda (linetype), ballaca xariiqda (lineweight) iyo dejinta shidan, qabsan, qufulan iyo plot; nooca xariiqda ee walxaha, ballaca xariiqda ee walxaha, iyo miisaanka nooca xariiqda; qaababka nooca xariiqda iyo miisaanka nooca xariiqda ee naqshadda.
-- Unugyada naqshadda iyo qaabka dhererka (decimal, feet and inches, fractions…).
-- Bloogyada oo leh barta saldhigga iyo qeexidda sifooyinka, oo ay ku jiraan kuwa aan muuqan, kuwa joogtada ah iyo kuwa horay loo dejiyay.
-- Tixraacyada bloogga oo leh miisaankooda, leexintooda iyo qiimayaasha sifooyinka.
-- Midabka buuxa, iyo hatches-ka qaabaysan oo leh qaabkooda, miisaankooda iyo xagalkooda (xariiqyada qaabka laftiisa, si barnaamijyada kale u sawiraan xariiqyada CadCraft sawiro).
-- Cabbiro, sida cabbiro dhab ah: barnaamijyada kale dib ayay u cabbiraan marka la fidiyo. Mid kasta wuxuu hayaa dejintiisa (dhererka qoraalka, cabbirka falkaadka, tobanaalliyada, qaabka dhererka) iyo qoraalkiisa, waxayna qaadaa nuqulka la sawiray ee cabbir kasta oo DWG ah.
-- Xaashiyo (layouts): xaashi kasta oo leh cabbirka warqadiisa iyo unugyadiisa, waxa lagu sawiray, iyo viewports-kiisa oo leh aragtiisa iyo miisaankiisa.
-- Aragtiyo magacaysan.
+- Xariiqyada, qowsaha, goobooyinka, ellipse-yada, dhibcaha, iyo polylines oo leh qaybahooda qowsaha.
+- Qoraal hal-xariiq ah oo leh jihadiisa iyo factor-ka ballaadhka.
+- Qoraal saf badan iyo qoraal la duubay, sida qoraal saf badan. Barnaamijka kale wuu mar kale duubayaa isla ballaadhkaas.
+- Midabyada walxaha: sida lakabka, sida bloogga, 255 midab oo caadi ah, iyo midabyo run ah qaabka 2004 iyo ka dambeeya.
+- Lakabyada oo leh midabkooda, nooca khadka, ballaadhka xariiqda iyo dejinta on, frozen, locked iyo daabacaadda; nooca khadka gaarka ah ee walxaha, ballaadhyada iyo miisaanka nooca khadka, qaababka nooca khadka iyo miisaanka nooca khadka ee naqshadda.
+- Unugyada naqshadda iyo qaabka dherarka (decimal, fiit iyo inji, jajab…).
+- Bloogyada oo leh base point-kooda iyo qeexida sifooyinka, oo ay ku jiraan kuwa aan muuqan, kuwa joogto ah iyo kuwa horay loo dejiyay.
+- Tixraacyada bloogyada oo leh miisaankooda, wareejintooda iyo qiyamka sifooyinkooda.
+- Buuxinta adag, iyo hatches-ka qaabaysan oo leh qaabkooda, miisaankooda iyo xagashadooda (xariiqyada qaabka laftiisa, si barnaamijyada kale ay u sawiraan xariiqyada uu CadCraft sawiro).
+- Cabbirrada, sida cabbirro run ah: barnaamijyada kale way dib u cabbiraan markay fidinayaan. Mid kasta wuxuu ilaaliyaa dejintiisa (dherarka qoraalka, cabbirka fallaadha, meelaha tobanka, qaabka dherarka) iyo qoraalkiisa, wuxuuna sitaa nuqulka la sawiray ee cabbir DWG kasta leedahay.
+- Xaashiyaha (layouts): xaashi kasta oo leh cabbirka warqadiisa iyo unugyadiisa, waxa lagu sawiray, iyo aragtiyadiisa oo leh muuqaalkooda iyo miisaankooda.
+- Aragtiyo magacyo leh.
 - Multileaders, sida multileaders.
-- Magacyada lakabka iyo bloogga sida aad u qortay, xarfaha waaweyn iyo yar. (DXF R12 wuxuu ku qoraa xarfaha waaweyn.)
+- Magacyada lakabka iyo bloogga sida aad ku qortay, xarafyo waaweyn iyo kuwa yaryar. (DXF R12 wuxuu ku qoraa xarafyo waaweyn.)
 
-### Waxa DWG-gu beddelo
+### Waxa DWG beddela
 
-Mid kasta oo ka mid ah waxyaabahan waa lagu liisanayaa taariikhda kaydinta kadib, marka ay khusayso naqshaddaada.
+Mid kasta oo ka mid ah waa la diiwaan geliyaa taariikhda markaad kaydiso, marka ay ku khusayso naqshaddaada.
 
-| CadCraft-ka | DWG-ga la kaydiyay |
+| Gudaha CadCraft | Gudaha DWG-ga la kaydiyay |
 |---|---|
-| Midabyo run ah (la doortay color picker-ka), qaabka 2000 | Midabka caadiga ah ee ugu dhow: qaabka 2000 wuxuu leeyahay 255 oo keliya. Kaydi sida 2004 ama ka dambeeya si aad u hayso |
-| Aragtiyo magacaysan oo xaashi | Aragtiyo paper-space: DWG ma sheegto xaashiga; marka CadCraft mar kale furo faylka, waxay u hoos galaan xaashiga ugu horreeya |
-| Qoraal lafo-lafo oo leh factor ballac | Ballac xaraf caadi ah: DWG-ga factor-ka ballacda wuxuu khuseeyaa oo keliya qoraalka hal xariiq |
-| Magacyada lakabka ama bloogga oo leh xarfo DWG aan ogolayn | La beddelay: magac laga soo xidhay naqshad xidhan sida `Base\|Walls` wuxuu noqdaa `Base$0$Walls` (habka magaca loo bixiyo marka naqshad xidhan la xidho), xarfaha kale waxay noqdaan `_` |
+| Midabyo run ah (la doortay midab-doorashaha), qaabka 2000 | Midabka caadiga ah ee ugu dhow: qaabka 2000 wuxuu leeyahay 255 oo keliya. Kaydi sida 2004 ama ka dambeeya si aad u ilaaliso |
+| Aragtiyo magacyo leh oo xaashi ah | Aragtiyo warqad: DWG ma sheegto xaashiga, sidaas darteed marka CadCraft uu mar kale furo faylka waxay ku jiraan xaashigii ugu horeeyay |
+| Qoraal saf badan oo leh factor ballaadh | Ballaadhka xarafka caadiga ah: DWG-ga, factor-ka ballaadhka wuxuu khusayaa oo keliya qoraal hal-xariiq ah |
+| Magacyada lakabka ama bloogga oo leh xarafyo DWG aan oggolayn | Waa la beddelay: magac laga soo xidhay naqshad xiran sida `Base\|Walls` wuxuu noqdaa `Base$0$Walls` (sida ay u magacowdo xidhitaanka naqshad xiran), xarafyada kale waxay noqdaan `_` |
 
-### Sababta R12, iyo waxa beddela
+### Maxaa sababta R12, iyo waxa beddela
 
-Marka aad DXF u kaydiso, CadCraft wuxuu qoraa DXF R12, nooca ay furi karaan barnaamijyada CAD oo dhan. Waa ka hor qaar ka mid ah astaamaha, sidaas darteed qaar ka mid ah waxyaabaha waxa lagu qoraa qaab fudud:
+Markaad u kaydiso DXF, CadCraft wuxuu qoraa DXF R12, nooca ay furi karaan dhammaan barnaamijyada CAD. Waa ka hor jirta qaar ka mid ah astaamaha, sidaas darteed qaar ka mid ah waxyaabaha waxaa lagu qoraa qaab ka sahlan:
 
-| CadCraft-ka | Faylka R12 ee la kaydiyay |
+| Gudaha CadCraft | Faylka R12 ee la kaydiyay |
 |---|---|
-| Qoraal lafo-lafo | Hal walax qoraal oo xariiq kasta |
-| Ellipse-yo | Polilaynno raacaya ellipse-ka |
-| Hatches (faylasha la furay) | Xadkooda oo keliya |
-| Midabyo run ah (la doortay color picker-ka) | Midabka caadiga ah ee ugu dhow |
-| Ballaca xariiqyada, iyo miisaanka nooca xariiqda ee walxaha | La saaray: R12 midna ma laha (nooca xariiqda waa la hayaa) |
-| Magacyada lakabka iyo bloogga | Waxa lagu qoraa xarfo waaweyn; meelaha bannaan iyo xarfaha kale waxay noqdaan `_`, magacyadana waa la gooyaa 31 xaraf ("Title block" wuxuu noqdaa `TITLE_BLOCK`) |
-| Lakabyo loo dejiyay inaan la daabacin | Barnaamijyada kale way daabacayaan (CadCraft wuu xasuustaa dejinta marka naqshaddu leedahay xaashi) |
-| Cabbiro | Cabbiro dhab ah oo leh bloogooda sawiran, si barnaamijyada kale ay u muujiyaan sidaad aragto |
-| Multileaders | Xariiqyada, falkaadka iyo qoraalka ay sawiraan |
-| Aragtiyo magacaysan | La hayaa, magacyada xarfaha waaweyn; aragtiyada xaashiga ayaa ku soo laabanaya xaashiga ugu horreeya |
-| Dhowr xaashi | Xaashiga ugu horreeya waa paper space oo dhan barnaamij kasta tuso; kuwa kale waxa la hayaa sida bloogyo magacyadoodu yahay `CCLAYOUT_1`, `CCLAYOUT_2` … kuwaas oo CadCraft dib ugu beddelo xaashiyo marka uu faylka furo |
+| Qoraal saf badan | Walxo qoraal oo kala duwan saf kasta |
+| Ellipse-yada | Polylines oo raacaya ellipse-ka |
+| Hatches (faylasha la furay) | Xadadkooda oo keliya |
+| Midabyo run ah (la doortay midab-doorashaha) | Midabka caadiga ah ee ugu dhow |
+| Ballaadhyada xariiqda, iyo miisaanka nooca khadka ee walxaha | Waa la iska daayay: R12 midkoodna ma leh (noocyada khadka waa la ilaaliyaa) |
+| Magacyada lakabka iyo bloogga | Waa la qoraa xarafyo waaweyn; meelaha bannaan iyo xarafyada kale waxay noqdaan `_`, magacyadana waa la gooyaa 31 xaraf ("Title block" wuxuu noqdaa `TITLE_BLOCK`) |
+| Lakabyada loo dejiyay inaan la daabicin | Barnaamijyada kale way daabici doonaan (CadCraft wuxuu xasuustaa dejinta marka naqshaddu leedahay xaashi) |
+| Cabbirrada | Cabbirro run ah oo leh bloogooyinkooda sawiray, si barnaamijyada kale ay u muujiyaan sidaad arkaysid |
+| Multileaders | Xariiqyada, madaxa fallaadha iyo qoraalka ay sawiraan |
+| Aragtiyo magacyo leh | Waa la ilaaliyaa, magacyadana waxay noqdaan xarafyo waaweyn; aragtiyada xaashiga waxay ku soo noqdaan xaashiga ugu horreeya |
+| Xaashiyo badan | Xaashiga ugu horreeya waa warqadda ay barnaamij kasta muujiyo; kuwa kale waxaa loo ilaaliyaa sida bloogyo magacooda `CCLAYOUT_1`, `CCLAYOUT_2` … kuwaas oo CadCraft u beddelo xaashiyo marka uu faylka furo |
 
-Taariikhdu wuxuu liisanayaa mid kasta oo ku dhacay naqshaddaada.
+Taariikhdu waxay liistaa mid kasta oo ka mid ah kuwan oo khusayay naqshaddaada.
 
 :::tip
-Si aad ugu sii shaqeyso naqshad maalmo badan, kaydi sida DXF oo mar kale fur DXF-kaas xiga. Wax kasta oo CadCraft sawiri karo ayaa badbaadaya wareegga oo dhan, oo ay ku jiraan cabbiro, bloogyo iyo dhammaan xaashiyada.
+Si aad u sii shaqeysid naqshad maalmo badan, u kaydi DXF oo markaad xiga furo DXF-kaas. Wax kasta oo CadCraft sawiri karo wuu ku badbaadaa wareegga, oo ay ku jiraan cabbirro, bloogyo iyo xaashiyo oo dhan.
 :::
 
-## Naqshadaha xidhan (tixraacyada dibadda)
+## Xariiqyo xiran (tixraacyo dibada)
 
-{{cmd:XATTACH}} (`XA`, ama {{ui:Bloogyo}} › {{ui:Wax dheeraad ah}} › {{ui:Ku xidh naqshad (xref)}}) wuxuu xidhaa DWG ama DXF kale: dooro faylka, kadibna guji meesha ay tagayso ({{key:Enter}} wuxuu dhigaa 0,0). Waxay u timaadaa hal bloog oo magaciisu yahay magaca faylka, miisaan sax ah marka laba naqshadood ay unugyo kala duwan leeyihiin. Lakabyadeeda iyo bloogyadeeda waxay hayaan magacyadooda oo magaca xidhiidhka ayaa hore ku yaal, tusaale `Plan|Walls`, `Plan|Door`, si aanay ula dhex-jirin kuwaaga: shid oo demi lakabyada xidhan, qabso ama qufulo sida lakabyadaada. Xidhiidhku waa akhris kaliya: naqshadda kale beddel oo dib u soo rar. Dejinta aad ku samayso lakabyada xidhiidhka (midabka, nooca xariiqda, ballaca xariiqda, on/off, freeze, lock, plot) waa la hayaa markaad dib u soo rarto, markaad naqshadda u kaydiso DWG intuu xidhiidhku weli yahay xidhiidh, iyo markii naqshad kale ku xidho kan.
+{{cmd:XATTACH}} (`XA`, ama {{ui:Blocks}} › {{ui:Wax dheeraad ah}} › {{ui:Ku xidh naqshad (xref)}}) wuxuu xidhaa DWG ama DXF kale: dooro faylka, kadibna guji meesha ay tagayso ({{key:Enter}} wuxuu dhigayaa 0,0). Waxay ku imaan doontaa sida hal bloog oo magaceedu yahay magaca faylka, cabbirka saxda ah marka labada naqshadood ay kala unugyo duwan yihiin. Lakabyadeeda iyo bloogyadeeda waxay ilaaliyaan magacyadooda oo magaca xidhitaanka ayaa hor ku jira, sida `Plan|Walls`, `Plan|Door`, si aanay u isku qasin kuwaaga: u demi ama u xir lakabyada xidhan sida kuwaaga. Xidhitaanku waa akhris keliya: beddel naqshadda kale oo mar kale soo rar. Waxa aad dejiso lakabyada xidhitaanka (midabka, nooca khadka, ballaadhka, on/off, freeze, lock, daabacaad) waa la ilaaliyaa markaad mar kale soo raro, markaad naqshadda u kaydiso sida DWG intii xidhitaankuna weli yahay xidhitaan, iyo markaad naqshad kale ku xidho tan.
 
-{{cmd:XREF}} (`XR`): `?` wuxuu liistaa xidhiidhada (la soo raray ama aan la soo rarin, faylka, tirada tixraacyada); `A` wuxuu xidhaa; `R` wuxuu mid dib u soo rarayaa faylkiisa (dib u dooro faylka: browser-ku ma gaari karo galalkaaga isaga keligiis); `B` wuxuu xidhiidhka ka dhigaa bloogyo iyo lakabyo caadi ah oo magacyadoodu yahay `Plan$0$Walls`; `D` wuxuu ka saaraa mid (tixraacyadiisa iyo lakabyadiisa way baxaan). Mid kasta waa hal tallaabo oo {{ui:Ka noqo}}.
+{{cmd:XREF}} (`XR`): `?` wuxuu liistaa xidhitaanada (la soo rarey ama aan la soo rarin, faylka ay yihiin, inta tixraac); `A` wuxuu ku xidhaa; `R` wuxuu mar kale soo rarayaa mid faylkiisa (dooro faylka mar kale: browser-ku ma gaari karo folders-kaaga isagu keligiis); `B` wuxuu ku xiraa mid (wuxuu noqonayaa bloogyo iyo lakabyo caadi ah oo magacyadoodu yahay `Plan$0$Walls`); `D` wuxuu ka saaraa mid (tixraacyadiisa iyo lakabyadiisa way baxaan). Mid kasta waa hal tallaabo oo dib loo celin karo.
 
-{{cmd:XCLIP}} (`XC`) wuxuu jaraa tixraacyada bloogga iyo xidhiidhada: dooro, `N` boundary cusub, kadibna `R` iyo laba geesood ama `P` iyo barta poligonka ({{key:Enter}} wuu xidhaa). `D` wuxuu ka saaraa jarka. Wixii ku jira keliya ayaa muuqda oo daabacma, jarku wuxuu raacaa tixraaca. DWG iyo DXF 2000 waxay hayaan jarka; DXF R12 wuxuu kaydiyaa tixraaca oo dhan wuuna sheegaa. Marka aad bind-garayso xidhiidh leh tixraacyo la jaray, {{cmd:XREF}} `B` wuxuu weydiinayaa: `A` wuxuu bind-garayaa wax kasta, `C` wuxuu hayaa oo keliya qaybta la jaray ee tixraac kasta (xariiqyada iyo qaansooyinka waa la jaraa xadka; qoraallada iyo bloogyada gudaha way sii jiraan haddii barta geliska ku jirto).
+{{cmd:XCLIP}} (`XC`) wuxuu jarayaa tixraacyada bloogyada iyo xidhitaanada: dooro iyaga, `N` si aad xuduud cusub u samayso, kadibna `R` iyo laba geesood, ama `P` iyo dhibcaha poligon (taabashada {{key:Enter}} wuu xidhaa); `D` wuu ka saaraa jarka. Wixii ku jira xuduudka oo keliya ayaa muuqda oo daabacan, jarku wuxuu raacaa tixraaca. DWG iyo DXF 2000 waxay ilaaliyaan jarrada; DXF R12 wuxuu kaydiyaa tixraaca oo dhan oo wuu sheegaa. Markaad xidhitaan leh tixraacyo jaran ku xirto, {{cmd:XREF}} `B` wuxuu weydiinayaa: `A` wuxuu ku xiraa wax walba, `C` wuxuu ilaaliyaa qaybta jarran ee tixraac kasta oo keliya (xariiqyada iyo qowsaha waa la jaraa xuduudka; qoraalada iyo bloogyada dhex-jira waa ay ku sii jiraan haddii dhibcooda gelinta ku jiro xuduudka).
 
-Naqshad aad furto waxay xidhi kartaa faylal aan CadCraft arki karin: wuxuu sheegaa inta aan la soo rarin. Isticmaal {{cmd:XREF}}, `R` oo dooro faylal kasta si aad u aragto.
+Naqshad aad furto ayaa xidhitaanno ku xidhan karta faylal aan CadCraft arki karin: wuxuu sheegayaa inta aan la soo rarin. Isticmaal {{cmd:XREF}}, `R` oo dooro fayl kasta si aad u aragto.
 
-Markaad kaydiso, xidhiidh la soo rarray waa la **bind-gareeyaa** faylka (barnaamijyada kale waxay arkaan bloogyo iyo lakabyo caadi ah oo magacyadoodu yahay `Plan$0$…`), taariikhduna way sheegtaa. Xidhiidh aan la soo rarin wuxuu ahaanayaa xidhiidh faylkiisa, DWG iyo DXF labaduba.
+Markaad kaydiso, xidhitaan la soo raray ayaa **la xiraa** faylka (barnaamijyada kale waxay arkaan bloogyo iyo lakabyo caadi ah oo magacyadoodu yahay `Plan$0$…`), taariikhduna way sheegaysaa. Xidhitaan aan la soo rarin waxa uu ahaan doonaa xidhitaan ku xiran faylkiisa, DWG iyo DXF labadaba.
 
-## Ku fur 3D
+## Ka fur 3D
 
-{{ui:Muuqaal}} › {{ui:Wax dheeraad ah}} › {{ui:Ka fur ModelCraft}} ({{cmd:OPENIN3D}}) wuxuu naqshadda ku furaa app-ka moodeelka 3D ee tab cusub, DWG ahaan, isagoo aan la soo rarin. Wixii laga beddelo halkaas wuu halkaas ku sii jiraa; halkaas ku kaydi. Walxaha menu-gu wuxuu muujinayaa oo keliya meesha app-kaas uu qaadan karo naqshadda la gacan siiyay.
+{{ui:Aragti}} › {{ui:Wax dheeraad ah}} › {{ui:Ku fur ModelCraft}} ({{cmd:OPENIN3D}}) wuxuu furaa naqshadda barnaamijka moodelka 3D tab cusub, sida DWG, adigoon soo dirin. Isbeddelada halkaas lagu sameeyo halkaas ayay ku sii jiraan; kaydi halkaas. Badhanka wuxuu muuqdaa kaliya meesha barnaamijkaas uu qaadan karo naqshadda la gudbiyay.
 
-## Daabacida PDF
+## Daabacaadda PDF
 
-Riix {{key:Mod+P}}, guji {{ui:Daabac}}, ama ku qor `PLOT`. PDF-ka waxa lagu sameeyaa browser-ka gudihiisa, waana la soo dejiyaa, ama tab cusub ayaa lagu furaa si loo daabaco. Eeg [Daabac PDF](topic:plot-pdf).
+Taabo {{key:Mod+P}}, guji {{ui:Daabac}}, ama ku qor `PLOT`. PDF-ka waxaa lagu sameeyaa browser-ka gudihiisa oo la soo dejiyaa, ama tab cusub ayaa lagu furaa si loo daabaco. Eeg [Daabac PDF](topic:plot-pdf).
 
-## Faylasha halka ay tagaan
+## Halka faylasha tagaan
 
-Kaydin kasta iyo daabac kasta waa soo dejin, sidaas darteed faylashu waxay degaan meesha browser-ku soo dejinta u dhigo: caadi ahaan galka Downloads. Si aad fooli u dooratid mar kasta, beddel dejinta soo dejinta browser-kaaga; [Browser-ada iyo kombiyuutarrada](common:browsers) wuxuu tusayaa meesha.
+Kaydinta kasta iyo daabacaad kasta waa soo dejin, markaa faylasha waxay ku degaan meesha browser-ku soo dejinta ku dhigo: badanaa folder-ka Downloads. Si aad folder u dooratid mar kasta, beddel dejinta soo dejinta browser-kaaga; [Browsers iyo kumbiyuutarada](common:browsers) waxay tusaysaa meesha.
 
-Wax aad furto ama kaydiso looma dirayo annagu. Eeg [Faylashaadu halka ay tagaan](common:your-files).
+Waxa aad furto ama kaydiso uma diraayo annaga. Eeg [Halka faylasha aad tagaan](common:your-files).
 
 ## Faylasha mashruuca PLN iyo PLA
 
-CadCraft wuxuu furaa naqshadaha DWG iyo DXF, ma aha faylasha Archicad-ka (`.pln`, `.pla`, `.tpl`, `.bpn`). Markaad furto mid ka mid ah, wuxuu kuu sheegayaa waa maxay. Archicad-ka, kaydi muuqaalada ama layouts-ka aad u baahan tahay sida DWG oo halkan ku fur, ama soo dhoofi moodeelka sida IFC oo ku fur BimCraft. Meesha BimCraft ka qaadan karo faylka, CadCraft wuxuu bixiyaa {{ui:Ku fur BimCraft}}.
+CadCraft wuxuu furaa naqshadaha DWG iyo DXF, ma aha faylasha Archicad-ka (`.pln`, `.pla`, `.tpl`, `.bpn`). Markaad furto mid, wuxuu kuu sheegayaa waa maxay. Archicad-ka, kaydi aragtiyada ama layouts-ka aad u baahan tahay DWG oo halkan ku fur, ama dhoofi moodelka IFC oo ku fur BimCraft. Meesha BimCraft uu faylka qaadi karo, CadCraft wuxuu bixiyaa {{ui:Ku fur BimCraft}}.
 
-## Haddii bogga la xiro ka hor intaadan kaydin
+## Haddii bogga xirmo ka hor intaadan kaydin
 
-CadCraft wuxuu hayaa nuqul kasta oo naqshad aad beddesho, browser-kan oo keliya, wax yar kadib markaad joojiso tafatirka. Haddii tab-ka la xiro, browser-ku joogsado ama kombiyuutarku dib u bilowdo ka hor intaadan kaydin, markii ugu horreysay ee uu bilaabo CadCraft wuxuu weydiin doonaa **Ma soo kabsanaysaa shaqadaada?** {{ui:Soo kabso}} wuxuu dib u furaa naqshadda, aan la kaydin, tab gooni ah. Naqshadda kaydinta ayaa tirtira nuqulkeeda. Eeg [Soo kabso shaqadaada](common:recover).
+CadCraft wuxuu hayaa nuqul ah naqshad kasta oo aad beddesho, browser-kan keliyah, wax yar kadib markaad joojiso tafatirka. Haddii tab-ka xirmo, browser-ku joogsado ama kumbiyuutarku dib u bilowdo ka hor intaadan kaydin, CadCraft wuxuu weydiinayaa **Soo kabso shaqadaada?** marka xiga ee uu bilowdo: {{ui:Soo kabso}} wuxuu mar kale furaa naqshadda, aan la kaydin, tab gaar ah. Naqshadda oo la kaydiyo nuqulkeeda ayaa ka saaraa. Eeg [Soo kabso shaqadaada](common:recover).
 
-## Khadka ku jira iyo khadka ka baxsan
+## Khadka ku jira iyo ka baxsan
 
-Furidda, naqshadda, kaydinta (DWG iyo DXF) iyo daabacidda oo dhan waxay ku dhacaan kombiyuutarkaaga, sidaas darteed waxay shaqeeyaan xidhiidh la'aan marka CadCraft mar la soo rarayo.
+Furidda, sawirka, kaydinta (DWG iyo DXF) iyo daabacaadda dhammaan waxay ka dhacaan kumbiyuutarkaaga, sidaas darteed waxay shaqeeyaan adigoon xiriir lahayn marka CadCraft soo rarmo.
 
-Si aad CadCraft ugu isticmaasho xidhiidh la'aan dhammaan ah, guji {{ui:Kaydi khadka ka baxsan}} bar-ka sare inta aad khadka ku jirto. Calaamaddu waa tirinaysaa ("Kaydinta 40 ka 212") waxayna dhammaanaysaa "Diyaar khadka ka baxsan". Nuqulka la kaydiyay wuxuu ku jiraa akhriyaha DWG, oo ku dhow 5 MB oo dhan, sidaas darteed **DWG-yadu sidoo kale way ku furmaan khadka ka baxsan** markii la kaydiyo. Guji badhanka mar kale si aad u hesho {{ui:Mar kale kaydi (hel nooca ugu dambeeyay)}} ama {{ui:Ka saar nuqulka khadka ka baxsan}}. "Lama kaydin" waxay ka dhigan tahay in qaar ka mid ah faylasha aan la soo dejin: hubi xidhiidhka oo guji si aad mar kale isku daydo. "Khadka ka baxsan lama heli karo" waxay ka dhigan tahay in daaqaddan browser-ku aanu nuqul hayn karin (daaqadaha gaarka ah iyo kombiyuutarada la maamulo).
+Si aad CadCraft u isticmaasho adigoon xiriir lahayn gebi ahaanba, guji {{ui:Kaydi khadka ka baxsan}} sadarka sare intaad khadka ku jirto. Calaamaddu waxay tirinaysaa ("Saving 40 of 212") oo waxay ku dhammaataa "Offline ready". Nuqulka la kaydiyay wuxuu ku jiraa maktabada DWG, qiyaastii 5 MB oo wadar ahaan, sidaas darteed **faylasha DWG waxay furmaan sidoo kale khadka ka baxsan** marka la kaydiyo. Dib u guji badhanka si aad u helo {{ui:Kaydi mar kale (hel nooca ugu dambeeya)}} ama {{ui:Ka saar nuqulka khadka ka baxsan}}. "Could not save" waxay ka dhigan tahay in qaar ka mid ah faylasha aan la soo dejin: hubi xiriirka oo guji si aad mar kale isku daydo. "Offline not available" waxay ka dhigan tahay in daaqaddan browser-ka aanay nuqul hayn karin (daaqadaha gaarka ah iyo kumbiyuutarrada la maamulo qaarkood).
 
-Haddii aan nuqul la kaydin, akhriyaha DWG waa la soo deshaa markii ugu horreysay ee aad furto DWG kadib markii bogga la soo rarayo, sidaas darteed furidda DWG xidhiidh la'aan way fashilmi kartaa; faylasha DXF weligood uma baahna. Ha dib u soo rarin bogga xidhiidh la'aan haddii CadCraft aan la kaydin.
+Haddii nuqul la kaydin aanu jirin, maktabada DWG waxaa la soo dejiyaa markii ugu horreysay ee aad furto DWG kadib markii bogga la soo rarey, sidaas darteed furidda DWG khadka ka baxsan way fashilmi karaa; faylasha DXF waligood ma u baahnaadaan. Ha dib u soo rarin bogga khadka ka baxsan inta CadCraft aan la kaydin.
+
+Eeg [Shaqada khadka ka baxsan](common:offline) faahfaahinta.
 
 :::offline
-Hadda khadka ma jirto. Naqshadaha waxay kaydiyaan DWG ama DXF oo waxay daabacaan si caadi ah, faylasha DXF waa furmaan. Faylasha DWG waa furmaan haddii CadCraft muujiyo "Diyaar khadka ka baxsan", ama haddii akhriyaha DWG uu horey ugu soo rarnaa tab-kan.
+Hadda waad ka baxsan tahay xiriirka. Naqshadaha waxay kaydiyaan sida DWG ama DXF waxayna si caadi ah u daabacaan, faylasha DXF waa ay furmaan. Faylasha DWG waa ay furmaan haddii CadCraft uu muujiyo "Offline ready", ama haddii maktabada DWG horay loo soo rarey tab-kan.
 :::
 
-Eeg [Shaqada khadka ka baxsan](common:offline) faahfaahin dheeraad ah.
+## Caqabadaha faylasha ku jira
 
-## Xaddidaadda faylasha
+Caqabadaha iyo cabbirrada (eeg [Qeex naqshad](topic:constraints)) waa la kaydiyaa DWG iyo DXF labadaba. Walx kasta oo la xaddidayo wuxuu sidoo kale qaadaa xusuus yar oo CadCraft ah (extended data), bloog aan la isticmaalin oo magacaysan `CADCRAFT_PARAMETRIC` ayaa hayaa caqabadaha iyo miisaska cabbirrada. Barnaamijyada kale waxay furaan naqshadda si caadi ah oo iska indha tiraan labadaba; waxay tirtiri karaan bloogga aan la isticmaalin markay nadiifiyaan. Xusuusta waxay tixraacaan walxaha furaha ay leeyihiin, ma aha qabashooyinka faylka, sidaas darteed barnaamij dib u lambarka qabashooyinka ah ma jebiyo. Markaad barnaamij kale tirtiro ama beddelo walax xaddidan, CadCraft wuxuu ka saaraa xaddidaadyadii ku saabsan marka uu faylka furo, wuxuuna sheegaa inta ay tahay. Faylka aan lahayn waa la furaa iyada oo aan xaddidaad lahayn.
 
-Xaddidaadaha iyo halbeegyada (eeg [Xaddid naqshad](topic:constraints)) waxa lagu kaydiyaa DWG iyo DXF labaduba. Walax kasta oo xaddidan wuxuu leeyahay qoraal yar oo CadCraft ah (extended data), iyo bloog aan la isticmaalin oo magaciisu yahay `CADCRAFT_PARAMETRIC` ayaa hayaa xaddidaadaha iyo miiska halbeegyada. Barnaamijyada kale naqshadda si caadi ah ayay furaan, labadaba way ka tegaan; waxa laga yaabaa in ay tirtiraan bloogga aan la isticmaalin marka ay nadiifiyaan. Qoraalladu walxaha waxay ku tixraacaan furahooda walxaha, ma aha handles-ka faylka, sidaas darteed barnaamij dib u lambarka handles-ka ma jabinayo. Markii barnaamij kale tirtiro ama beddelo walax xaddidan, CadCraft wuxuu ka saaraa xaddidaadda walaxdaas marka faylka la furo, wuxuuna sheegaa inta. Fayl aan xaddidaad lahayn wuxuu ku furmaa xaddidaad la'aan.
+Faylka qaab `.json` oo ka soo dhoofay modeler-ka qaybaha ayaa sidoo kale furma: eeg [Sawirrada u dhoofi iyo ka soo gal modeler-ada kale ee qaybaha](topic:solidworks-sketches).
 
-Sawirka laga soo dhoofiyay qalabka qaybaha (`.json`) waa furmaa: eeg [Guuri sawirada qalabyada qaybaha kale iyo ka soo celi](topic:solidworks-sketches).
+## Aan wali la heli karin
 
-## Weli ma diyaar
+- Multileaders sida walxaha multileader ah ee DXF la kaydiyay (R12 ma leh; waxaa loo kaydiyaa sida waxa ay sawiraan).
+- Sawirrada DXF-ka la kaydiyay (waxaa loo kaydiyaa sida gaashaankooda; DWG wuxuu ilaaliyaa sida sawirro), iyo wipeouts oo qariya waxa ka hooseeya.
+- Kaydinta DXF nooc ka cusub 2000.
+- Kaydinta daruurta iyo wada-shaqeynta kumbiyuutarrada dhexdooda.
 
-- Multileaders sida walxaha multileader ah ee DXF la kaydiyay (R12 ma leh; waxaa loo kaydiyaa sida ay sawiraan).
-- Sawirada DXF la kaydiyay (waxay u kaydiyaan sida frames; DWG wuxuu hayaa sidii sawiro), iyo wipeouts oo qarsa wixii hoostooda ku jiray.
-- Kaydinta DXF nooc ka dambeeya 2000.
-- Kaydinta daruurta iyo wada-shaqaynta kombiyuutarrada.
-
-Eeg [Weli lama dhisin](topic:not-built-yet) liiska oo dhan.
+Eeg [Weli lama dhisin](topic:not-built-yet) liiska buuxa.

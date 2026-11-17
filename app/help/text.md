@@ -128,7 +128,15 @@ The mask covers lines under the text, on screen and when you plot. DWG 2004 or l
 
 All text is drawn in a Helvetica-style font, on screen and in PDFs. Text from opened drawings keeps its words, height and position, but not its original font (the name of a font inside paragraph text is kept in the file, see above).
 
-In plotted PDFs, text in any European script, Cyrillic or Greek prints as itself (the PDF carries the letters it needs, and you can still select and search the text). Chinese, Japanese and Korean text prints as itself too (the plot fetches a larger font the first time it is needed). Characters no font has a letter for, such as Arabic, print as "?", and the history says how many there were.
+In plotted PDFs, text in any European script, Cyrillic or Greek prints as itself (the PDF carries the letters it needs, and you can still select and search the text). Chinese, Japanese and Korean text prints as itself too (the plot fetches a larger font the first time it is needed). Arabic, Persian, Urdu and Hebrew text prints as itself as well (see the next section). Characters no font has a letter for print as "?", and the history says how many there were.
+
+## Right-to-left text: Arabic, Persian, Urdu, Hebrew
+
+Type the text as you would anywhere else: {{cmd:TEXT}} and {{cmd:MTEXT}} draw each line in reading order. A line whose first letter is Arabic or Hebrew reads right to left; numbers and Latin words inside it keep their own left-to-right order, and Arabic-script letters are joined. A line that starts with a Latin letter stays left to right with the right-to-left words in place inside it. Each paragraph of a multi-line text has its own direction, and a wrapped paragraph keeps it on every line.
+
+The text is stored as you typed it, so DWG and DXF files exchange it with other programs unchanged. The insertion point and the justification ({{ui:Left}}, {{ui:Center}}, {{ui:Right}}) mean the same side as for any text: a right-to-left note that should hang from its right end wants {{ui:Right}}.
+
+On screen the letters come from your system's fonts. In a plotted PDF, Hebrew uses the same embedded font as Latin text; Arabic-script text makes the plot fetch one more font (under 1 MB, once), and the whole PDF then prints in that font. That font has no shape of its own for three Urdu characters (heh goal, yeh barree and the Urdu full stop): they print in the nearest Arabic letter's shape. A drawing that has both Arabic-script and Chinese, Japanese or Korean text prints one of the two as "?", because a plot carries one font. Text in a loaded SHX font is ordered and joined when the font holds the letters at their Unicode places; for old fonts whose letters are already shaped, use {{ui:Reverse}} in {{cmd:SHXFONTS}} as before.
 
 ## Common mistakes
 

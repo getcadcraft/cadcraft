@@ -16,7 +16,7 @@ The quick reference for every format is in [Coordinate and distance entry](topic
 
 1. Open CadCraft. If a drawing is open, click {{ui:New}} first.
 2. Press {{key:Esc}} so that nothing is selected. The right panel reads {{ui:Current settings}}.
-3. Set {{ui:Units}} to {{ui:Millimetres}}. Nothing is resized; this only tells sheets and plots what a unit means.
+3. Set {{ui:Units}} to {{ui:Millimeters}}. Nothing is resized; this only tells sheets and plots what a unit means.
 
 ## Absolute coordinates: the first point
 

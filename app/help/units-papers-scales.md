@@ -11,7 +11,7 @@ keywords: units, millimeters, inches, feet, feet and inches, architectural, engi
 You draw at full size, in drawing units. What one unit stands for is the drawing's **Units** setting:
 
 1. Press {{key:Esc}} so nothing is selected, on the {{ui:Model}} tab.
-2. In {{ui:Current settings}}, choose {{ui:Units}}: {{ui:Unitless}}, {{ui:Millimetres}}, {{ui:Centimetres}}, {{ui:Metres}}, {{ui:Inches}} or {{ui:Feet}}.
+2. In {{ui:Current settings}}, choose {{ui:Units}}: {{ui:Unitless}}, {{ui:Millimeters}}, {{ui:Centimeters}}, {{ui:Meters}}, {{ui:Inches}} or {{ui:Feet}}.
 
 Dimensions can write their lengths in millimetres, centimetres, metres or kilometres whatever the drawing unit: see [Dimensions in mm, cm, m or km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).
 
@@ -93,6 +93,30 @@ Text and dimension sizes are in the units of the space you draw in.
 | 3/32" text | 0.09375 | — | 4.5 |
 
 For dimensions, keep the sizes as paper sizes and set the overall scale ({{cmd:DIMSCALE}}) to the plot scale: 50 for 1:50, 48 for 1/4" = 1'-0". See [Set dimension sizes](topic:dimension-settings).
+
+## Annotate by scale
+
+Draw the model at full size and let CadCraft do the sums above for you.
+
+1. Select the text or the dimensions that should keep their size on paper. In Properties tick {{ui:Annotative}}. {{ui:Size on paper}} then reads, for example, `2.5 mm at 1:50`.
+2. Type {{cmd:ANNOSCALE}} and the scale the drawing will be printed at, such as `1:100`.
+
+Every annotative text and dimension is resized so it prints at the same size at the new scale: 2.5 mm text is 125 tall in a millimetre drawing at 1:50 and 250 tall at 1:100. A paragraph's width changes with it; a dimension's text, arrows and gaps change together (its overall scale). It is one undo step, and objects that are not annotative are never changed.
+
+The setting is saved in DWG and DXF: other programs read the annotative flag, and CadCraft also keeps the scale each object is sized for.
+
+If your office sets paper heights in the Default Policies add-on (Settings › Global › Default Policies › Annotation sizes on paper), {{cmd:ANNOSCALE}} also sets the height new text starts with to the office's height for notes at that scale. See [Default Policies](topic:default-policies).
+
+### One object at several scales
+
+A sheet often shows the same plan at 1:100 and a part of it at 1:50. Give the notes and dimensions both scales and each viewport shows them at their paper size:
+
+1. Select the annotative text and dimensions and type `OBJECTSCALE`.
+2. Choose `Add` and type the scale, for example `1:50`. (`Current scale` adds the drawing's annotation scale; `List` shows what each object keeps; `Delete` takes one off.)
+
+A viewport whose scale is in an object's list shows it at the size for that scale: 2.5 mm text is drawn 250 tall through a 1:100 viewport and 125 tall through a 1:50 one, on screen and in the plot. The object stays where it is; only its size differs. In a viewport at a scale that is not in the list the object shows at the size it has, until you type `ANNOALLVISIBLE` and choose `OFF`: then it is left out there. {{cmd:ANNOSCALE}} resizes the objects that list the new scale and leaves the others as they are.
+
+The lists are saved in DWG and DXF as CadCraft's own data. Another program sees each object as annotative, at the one scale it is sized for. The ANNOALLVISIBLE switch is not kept in the file.
 
 ## Line weights and linetypes
 

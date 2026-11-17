@@ -11,6 +11,7 @@
  *   await toPdf(list, { pen, title, font })       → { bytes: Uint8Array, report }   (font: false = Helvetica only)
  *   setPdfFont(bytes | async () => bytes | null)  where the embedded font comes from (default: the app's vendor folder)
  *   drawPreview(ctx, list, { pxPerMm, pen })      the same on a canvas
+ *   setPlotCloud(() => CloudAttach | null)       FX.297: the point cloud under the drawing is plotted too (a view with `cloud: true`: the model, each viewport)
  *   toSvg(list, { pen, title, font })             → { text, report }   the same as an SVG document (0.7 D7.20)
  *   await toPngBlob(list, { dpi, pen, font })     → { blob, w, h, dpi, capped }   the same as a PNG (browser; pngSize() is the size rule)
  *
@@ -30,11 +31,14 @@ import { peekVector, preparePdfs } from './pdfhost.js';
 import { emitPdf } from './pdf-emit.js';
 import { textLayout, textCorners, viewportCorners, viewportMatrix, mMul, mApply, FONT_EM, emptyBounds, growPt, validBounds, primBounds, clipInfinite } from './geom.js';
 import { UNIT_MM, makePaper, sOf, nOf, scaleLabel } from './sheets.js';
-import { fillRichLine, runColor } from './mtext-draw.js';
+import { fillRichLine, fillPlainLine, runColor } from './mtext-draw.js';
+import { plainVisual, runVisual, hasGlyph, hasRtl } from './bidi-text.js';   // ORS.17: right-to-left text
 import { STACK_SCALE } from './geom.js';
 import { CP1252, SUBST, charAdvance, advance, familyOf } from './font.js';
 import { applyPen, builtinTable, penStyleOf } from './plotstyle.js';
 import { hatchLines } from './hatch.js';
+import { gradientBands } from './hatch-gradient.js';   // ORS.7: gradient fills plot as flat bands
+import { viewportOutline } from './vpclip.js';   // ORS.16: clipped viewports
 import { readTtf, FontUse, fontObjects, missingGlyphs } from './pdf-font.js';
 
 export const PEN_WIDTHS = [0.13, 0.18, 0.25, 0.35, 0.5, 0.7];
@@ -50,7 +54,7 @@ export function layoutSheet(doc, layout) {
   for (const e of layout.entities.values()) {
     if (e.type !== 'viewport' || e.on === false) continue;   // a viewport turned off plots its frame only (P.7)
     // the layers frozen in this viewport are left out of its view (VP.1)
-    views.push({ clip: viewportCorners(e).map((q) => mApply(toMm, q)), m: mMul(toMm, viewportMatrix(e)), entities: doc.model.values(), frozen: frozenSet(e, !!doc.meta?.floors) });
+    views.push({ cloud: true, clip: viewportOutline(e).map((q) => mApply(toMm, q)) /* ORS.16: its outline */, m: mMul(toMm, viewportMatrix(e)), entities: doc.model.values(), frozen: frozenSet(e, !!doc.meta?.floors) });
   }
   views.push({ clip: null, m: toMm, entities: layout.entities.values() });
   return { w: p.w * k, h: p.h * k, views, name: layout.name };
@@ -70,7 +74,7 @@ export function modelSheet(doc, { area, paper = 'iso-a3', portrait = false, n = 
   const m = [s, 0, 0, s, W / 2 - cx * s, H / 2 - cy * s];
   const clip = [{ x: MARGIN, y: MARGIN }, { x: W - MARGIN, y: MARGIN }, { x: W - MARGIN, y: H - MARGIN }, { x: MARGIN, y: H - MARGIN }];
   return {
-    w: W, h: H, views: [{ clip, m, entities: doc.model.values() }], name: doc.meta.name || 'Drawing1',
+    w: W, h: H, views: [{ cloud: true, clip, m, entities: doc.model.values() }], name: doc.meta.name || 'Drawing1',
     scale: { s, n: nOf(doc, 'mm', s), label: n ? scaleLabel(doc, 'mm', s) : (nOf(doc, 'mm', s) >= 1 ? '1:' + fmt(nOf(doc, 'mm', s), 4) : fmt(1 / nOf(doc, 'mm', s), 4) + ':1') + ' (fitted)', fits: s <= sFit * (1 + 1e-9) },
   };
 }
@@ -82,7 +86,14 @@ const FILL_PATTERN = { horizontal: ['LINE', 0, 0.5], vertical: ['LINE', Math.PI 
 
 // Display list: per view, fills, then strokes grouped by colour, then points and text
 
-export function displayList(doc, sheet, { mono = true, style } = {}) {
+/** 0.10 FX.297: where a plot finds the point cloud attached to the drawing (cloud-cad.js CloudAttach); cadcraft.js sets it. */
+let cloudSource = null;
+export function setPlotCloud(fn) { cloudSource = fn; }
+
+export function displayList(doc, sheet, { mono = true, style, cloud } = {}) {
+  // the point cloud under the model (FX.297): in a model plot and in each viewport, never in paper space; only the drawing it was attached to
+  const pc = cloud === undefined ? cloudSource?.() : cloud;
+  const cloudOf = pc && pc.has?.() && pc.visible && pc.doc === doc ? pc : null;
   const table = style || builtinTable(mono ? 'monochrome' : 'colour');
   const pens = new Map();   // colour|lineweight → what it prints as (0.6 DC.14)
   const pen = (c, lw = -3) => { const k = c + '|' + lw; let p = pens.get(k); if (!p) pens.set(k, (p = applyPen(table, c, lw))); return p; };
@@ -115,6 +126,7 @@ export function displayList(doc, sheet, { mono = true, style } = {}) {
           for (const l of loops) for (let i = 0; i + 3 < l.length; i += 2) l2.push({ k: 'L', x1: l[i], y1: l[i + 1], x2: l[i + 2], y2: l[i + 3] });
         }
       },
+      gradient(g, o) { for (const b of gradientBands(g)) fills.push({ color: ink(b.color), loops: b.loops, alpha: alphaOf(o) }); },   // ORS.7 (hatch-gradient.js): bands painted in order
       text(color, e, o) { texts.push({ color: ink(color), e, alpha: alphaOf(o) }); },
       // a text's background mask (0.5 WL.8): the paper's white, or its own colour on a colour plot
       mask(color, loop, o) { masks.push({ color: o?.wipe || black ? '#ffffff' : ink(color), loop }); },
@@ -128,7 +140,14 @@ export function displayList(doc, sheet, { mono = true, style } = {}) {
       // a PDF underlay (0.7 D7.24) prints as the vectors and text of its page (`await preparePdfs(doc)` reads them first)
       pdf(p) { const rec = findPdf(doc, p.file), vec = rec && peekVector(rec, p.page, p.layers); if (vec) emitPdf(vec, p, this); },
     }, { m: v.m, plot: true, frozen: v.frozen || null, penLt: table.pens && Object.keys(table.pens).length ? (c) => penStyleOf(table, c).lt : null, ltTable: table.ltScale > 0 ? table.ltScale : 1 });
-    return { clip: v.clip, pictures, fills, masks, strokes: [...strokes].map(([k, prims]) => { const [color, lw, a, cap, join] = k.split('|'); return { color, lw: +lw, alpha: +a, ...(cap ? { cap } : {}), ...(join ? { join } : {}), prims }; }), points, texts };
+    let cloudDots = null;
+    if (cloudOf && v.cloud && v.m) {
+      const pts = v.clip && v.clip.length ? v.clip : [{ x: 0, y: 0 }, { x: sheet.w, y: sheet.h }];
+      const box = pts.reduce((b, q) => ({ minX: Math.min(b.minX, q.x), minY: Math.min(b.minY, q.y), maxX: Math.max(b.maxX, q.x), maxY: Math.max(b.maxY, q.y) }), { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity });
+      box.minX = Math.max(box.minX, 0); box.minY = Math.max(box.minY, 0); box.maxX = Math.min(box.maxX, sheet.w); box.maxY = Math.min(box.maxY, sheet.h);
+      cloudDots = cloudOf.plotDots(v.m, box);
+    }
+    return { ...(cloudDots ? { cloud: cloudDots } : {}), clip: v.clip, pictures, fills, masks, strokes: [...strokes].map(([k, prims]) => { const [color, lw, a, cap, join] = k.split('|'); return { color, lw: +lw, alpha: +a, ...(cap ? { cap } : {}), ...(join ? { join } : {}), prims }; }), points, texts };
   });
   return { w: sheet.w, h: sheet.h, name: sheet.name, views, ...(files.size ? { pictureFiles: files } : {}) };
 }
@@ -165,7 +184,7 @@ export async function toPdf(list, { pen = 0.25, title = list.name, maxDpi = 0, f
   const page = await pageOf(list, pen, { images, maxDpi, use: fu.use });
   const embedded = fu.use ? await fontObjects(fu.use, objectsBefore(1, images), deflate) : null;
   const bytes = assemble([page], title, images, embedded);
-  return { bytes, report: { missing: page.missing, texts: page.texts, size: bytes.length, compressed: page.flate, pictures: page.pictures, shrunk: page.shrunk, kept: page.kept, ...fontReport(fu, embedded) } };
+  return { bytes, report: { missing: page.missing, texts: page.texts, size: bytes.length, compressed: page.flate, pictures: page.pictures, cloud: page.cloud, shrunk: page.shrunk, kept: page.kept, ...fontReport(fu, embedded) } };
 }
 
 /**
@@ -193,6 +212,16 @@ export function setPdfFont(src) { fontSource = src; fontCache = null; }
 export function setPdfCjkFont(src) { cjkSource = src; cjkCache = null; }
 /** The Thai font (FX.3; assets/vendor/thai-sans: Noto Sans Thai with Latin, OFL-1.1, ~220 KB): fetched the first time a plot has Thai text. */
 export function setPdfThaiFont(src) { thaiSource = src; thaiCache = null; }
+/** ORS.17: the font for Arabic-script text (assets/vendor/rtl-sans: DejaVu Sans, with Latin, Hebrew, Arabic and the joined Arabic forms, ~760 KB): fetched the first time a plot needs it. */
+let rtlSource = null, rtlCache = null;
+export function setPdfRtlFont(src) { rtlSource = src; rtlCache = null; }
+async function loadRtlFont() {
+  if (!rtlCache) rtlCache = (async () => {
+    const urls = [new URL('../../../vendor/rtl-sans/current/DejaVuSans.ttf', import.meta.url).href];
+    return readTtf(await fetchFont(rtlSource, urls), { name: 'DejaVuSans', family: 'DejaVu Sans' });   // i18n-ignore (a font's name)
+  })();
+  try { return await rtlCache; } catch (err) { rtlCache = null; throw err; }
+}
 async function fetchFont(src, urls) {
   let bytes = null;
   if (src instanceof Uint8Array || src instanceof ArrayBuffer) bytes = src;
@@ -240,14 +269,16 @@ async function fontFor(lists, want) {
   try { font = await loadFont(); } catch (err) { return { use: null, error: err.message || String(err) }; }
   // Liberation Sans has Latin, Greek and Cyrillic; anything it lacks takes the Thai font (Thai + Latin) or the CJK font (Han, kana, Hangul + Latin).
   // One font prints the whole file: the first of the two that leaves nothing missing, else the one that leaves the fewest.
-  const lack = (f) => lines.reduce((n, line) => n + missingGlyphs(f, line), 0);
+  const lack = (f) => lines.reduce((n, line) => n + missingGlyphs(f, hasRtl(line) ? plainVisual(line, undefined, hasGlyph(f)) : line), 0);   // ORS.17: counted as it will print (joined forms)
   if (lack(font)) {
     const hasThai = lines.some((line) => /[\u0E00-\u0E7F]/.test(line));
     let best = font, bestLack = lack(font), err = '';
     const hasCjk = lines.some((line) => /[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]/.test(line));
     const tries = [];
+    const hasArab = lines.some((line) => hasRtl(line));   // ORS.17: Arabic-script text (Hebrew alone prints in Liberation Sans and never gets here)
+    if (hasArab) tries.push([loadRtlFont, 'right-to-left']);
     if (hasThai) tries.push([loadThaiFont, 'Thai']);
-    if (hasCjk || !hasThai) tries.push([loadCjkFont, 'CJK']);   // (a Thai-only drawing never reads the big CJK font)
+    if (hasCjk || (!hasThai && !hasArab)) tries.push([loadCjkFont, 'CJK']);   // (a Thai-only or Arabic-only drawing never reads the big CJK font)
     for (const [load, label] of tries) {
       if (!bestLack) break;
       let f;
@@ -269,7 +300,7 @@ const fontReport = (fu, embedded) => (embedded ? { font: embedded.name, fontGlyp
  */
 async function pageOf(list, pen, { images = [], maxDpi = 0, use = null } = {}) {
   const out = new Ops(use);
-  let missing = 0, nTexts = 0, nPics = 0, shrunk = 0, kept = 0;
+  let missing = 0, nTexts = 0, nPics = 0, shrunk = 0, kept = 0, nCloud = 0;
   const xobjects = new Map();   // image index → /Im<n>
   out.raw((72 / 25.4).toFixed(9) + ' 0 0 ' + (72 / 25.4).toFixed(9) + ' 0 0 cm');   // everything after this is in mm
   for (const v of list.views) {
@@ -296,6 +327,16 @@ async function pageOf(list, pen, { images = [], maxDpi = 0, use = null } = {}) {
       out.raw('Q');
       out.alpha(1);
       nPics++;
+    }
+    if (v.cloud) {   // FX.297: the point cloud, under the linework: one small square per cell
+      const w = v.cloud.cell * 1.04;
+      out.alpha(1);
+      for (const g of v.cloud.groups) {
+        out.fillColor(g.color);
+        for (let i = 0; i + 1 < g.pts.length; i += 2) out.raw(num(g.pts[i]) + ' ' + num(g.pts[i + 1]) + ' ' + num(w) + ' ' + num(w) + ' re');
+        out.raw('f');
+      }
+      nCloud += v.cloud.n;
     }
     out.raw('1 J 1 j ' + num(pen) + ' w');
     for (const f of v.fills) {
@@ -337,7 +378,7 @@ async function pageOf(list, pen, { images = [], maxDpi = 0, use = null } = {}) {
   }
   const content = new TextEncoder().encode(out.lines.join('\n') + '\n');
   const packed = await deflate(content);
-  return { w: list.w, h: list.h, content: packed || content, flate: !!packed, missing, texts: nTexts, alphas: out.alphas, xobjects: [...xobjects.keys()], pictures: nPics, shrunk, kept, font2: out.font2 };
+  return { w: list.w, h: list.h, content: packed || content, flate: !!packed, missing, texts: nTexts, alphas: out.alphas, xobjects: [...xobjects.keys()], pictures: nPics, cloud: nCloud, shrunk, kept, font2: out.font2 };
 }
 
 class Ops {
@@ -380,7 +421,7 @@ class Ops {
     this.fillColor(color);
     lay.lines.forEach((line, i) => {
       if (!line) return;
-      const enc = this.use ? this.use.encode(line) : winAnsi(line);
+      const enc = this.use ? this.use.encode(lay.rtl ? plainVisual(line, lay.rtl[i], hasGlyph(this.use.font)) : line) : winAnsi(line);   // ORS.17: drawn left to right, joined
       missing += enc.missing;
       if (this.use) this.font2 = true;
       const w = enc.width / 1000 * fs * wf;
@@ -415,15 +456,26 @@ Ops.prototype.richText = function richText(e, color, lay) {
       this.strokeColor(col);
       this.raw(num(thick) + ' w ' + num(a.x) + ' ' + num(a.y) + ' m ' + num(b.x) + ' ' + num(b.y) + ' l S');
     };
-    for (const r of lay.runs[i]) {
-      const st = r.st || {}, col = runColor(st, color), size = base * r.hf * (r.stack ? STACK_SCALE : 1), lx = x0 + r.x, thick = Math.max(0.05, e.h * 0.06);
+    // ORS.17: a line with right-to-left text: each piece as the string to draw left to right, placed by the PDF font's own widths
+    const rtlLine = lay.rtl && this.use && lay.runs[i].some((r) => r.level !== undefined);
+    const vis = rtlLine ? lay.runs[i].map((r) => (r.stack ? null : runVisual(r, hasGlyph(this.use.font)))) : null;
+    const xs = [];
+    if (rtlLine) {
+      let x = 0;
+      for (let k = 0; k < lay.runs[i].length; k++) { const r = lay.runs[i][k]; xs.push(x); x += r.stack ? r.w : this.use.encode(vis[k]).width / 1000 * base * r.hf * wf; }
+      const shift = e.ha === 'center' ? -x / 2 : e.ha === 'right' ? -x : 0;
+      for (let k = 0; k < xs.length; k++) xs[k] += shift;
+    }
+    for (let k = 0; k < lay.runs[i].length; k++) {
+      const r = lay.runs[i][k];
+      const st = r.st || {}, col = runColor(st, color), size = base * r.hf * (r.stack ? STACK_SCALE : 1), lx = rtlLine ? xs[k] : x0 + r.x, thick = Math.max(0.05, e.h * 0.06);
       if (r.stack) {
         const bar = ly + 0.36 * e.h * r.hf, cw = (str) => advance(str) / 1000 * size * wf;
         put(r.stack.num, size, lx + (r.w - cw(r.stack.num)) / 2, bar + 0.12 * e.h * r.hf, st, col);
         put(r.stack.den, size, lx + (r.w - cw(r.stack.den)) / 2, bar - 0.12 * e.h * r.hf - 0.718 * size, st, col);
         if (r.stack.sep !== '^') rule(lx, bar, r.w, col, thick);
       } else {
-        put(r.text, size, lx, ly, st, col);
+        put(vis ? vis[k] : r.text, size, lx, ly, st, col);
         if (st.u) rule(lx, ly - 0.14 * e.h * r.hf, r.w, col, thick);
         if (st.o) rule(lx, ly + 1.16 * e.h * r.hf, r.w, col, thick);
         if (st.k) rule(lx, ly + 0.36 * e.h * r.hf, r.w, col, thick);
@@ -569,6 +621,15 @@ export function drawPreview(ctx, list, { pxPerMm, pen = 0.25, font = 'Helvetica,
     ctx.save();
     ctx.setTransform(...T);
     if (v.clip) { ctx.beginPath(); v.clip.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath(); ctx.clip(); }
+    if (v.cloud) {   // FX.297: the point cloud under the linework
+      const w = v.cloud.cell * 1.04;
+      ctx.globalAlpha = 1;
+      for (const g of v.cloud.groups) {
+        ctx.fillStyle = g.color; ctx.beginPath();
+        for (let i = 0; i + 1 < g.pts.length; i += 2) ctx.rect(g.pts[i], g.pts[i + 1], w, w);
+        ctx.fill();
+      }
+    }
     ctx.lineWidth = Math.max(pen, 0.6 / pxPerMm);
     for (const f of v.fills) {
       ctx.globalAlpha = f.alpha ?? 1;
@@ -602,7 +663,7 @@ export function drawPreview(ctx, list, { pxPerMm, pen = 0.25, font = 'Helvetica,
       ctx.fillStyle = t.color; ctx.font = fs.toFixed(2) + 'px ' + (familyOf(e.font, font) || font);
       ctx.textAlign = e.ha === 'center' ? 'center' : e.ha === 'right' ? 'right' : 'left'; ctx.textBaseline = 'alphabetic';
       if (lay.runs) lay.lines.forEach((_, i) => fillRichLine(ctx, lay, i, e, { scale: pxPerMm, family: font, color: t.color }));   // inline format codes (mtext.js)
-      else lay.lines.forEach((line, i) => ctx.fillText(line, 0, -lay.baselines[i] * pxPerMm));
+      else lay.lines.forEach((line, i) => fillPlainLine(ctx, line, 0, -lay.baselines[i] * pxPerMm, lay.rtl, i));   // ORS.17
       ctx.setTransform(...T);
     }
     ctx.globalAlpha = 1;
@@ -658,6 +719,10 @@ export function toSvg(list, { pen = 0.25, title = list.name, font = 'Helvetica, 
     const clip = v.clip && v.clip.length >= 3;
     if (clip) out.push(`<clipPath id="v${vi}"><path d="M${v.clip.map((p) => num(p.x) + ' ' + num(p.y)).join('L')}Z"/></clipPath>`);
     out.push(`<g transform="matrix(1 0 0 -1 0 ${num(list.h)})"${clip ? ` clip-path="url(#v${vi})"` : ''}>`);
+    if (v.cloud) {   // FX.297: the point cloud: one path of small squares per colour
+      const w = num(v.cloud.cell * 1.04);
+      for (const g of v.cloud.groups) { const d = []; for (let i = 0; i + 1 < g.pts.length; i += 2) d.push(`M${num(g.pts[i])} ${num(g.pts[i + 1])}h${w}v${w}h-${w}z`); out.push(`<path d="${d.join('')}" fill="${g.color}"/>`); }
+    }
     for (const f of v.fills) { const d = svgLoops(f.loops); if (d) out.push(`<path d="${d}" fill="${f.color}" fill-rule="evenodd"${svgOpacity(f.alpha).replace('opacity', 'fill-opacity')}/>`); }
     for (const s of v.strokes) {
       const d = svgPath(s.prims);
@@ -673,7 +738,8 @@ export function toSvg(list, { pen = 0.25, title = list.name, font = 'Helvetica, 
       lay.lines.forEach((line, i) => {
         if (!line) return;
         texts++;
-        out.push(`<text transform="${tf}" x="0" y="${num(-lay.baselines[i])}" font-family="${xml(font)}" font-size="${num(fs)}" text-anchor="${anchor}" fill="${t.color}"${svgOpacity(t.alpha)} xml:space="preserve">${xml(line)}</text>`);
+        const rl = !!(lay.rtl && lay.rtl[i]);   // ORS.17: a right-to-left line; start and end swap sides with the direction
+        out.push(`<text transform="${tf}" x="0" y="${num(-lay.baselines[i])}" font-family="${xml(font)}" font-size="${num(fs)}" text-anchor="${rl ? (anchor === 'start' ? 'end' : anchor === 'end' ? 'start' : anchor) : anchor}"${rl ? ' direction="rtl"' : ''} fill="${t.color}"${svgOpacity(t.alpha)} xml:space="preserve">${xml(line)}</text>`);
       });
     }
     out.push('</g>');
@@ -733,5 +799,8 @@ export function extentsOf(doc) {
   for (const f of list.views[0].fills) for (const l of f.loops) for (let i = 0; i + 1 < l.length; i += 2) growPt(b, l[i], l[i + 1]);
   for (const t of list.views[0].texts) for (const p of textCorners(t.e)) growPt(b, p.x, p.y);
   for (const p of list.views[0].points) growPt(b, p.x, p.y);
+  const pc = cloudSource?.();   // FX.297: "Everything" includes the point cloud attached to this drawing
+  const cb = pc && pc.has?.() && pc.visible && pc.doc === doc ? pc.bbox() : null;
+  if (cb) { growPt(b, cb.minX, cb.minY); growPt(b, cb.maxX, cb.maxY); }
   return validBounds(b) ? b : null;
 }

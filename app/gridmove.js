@@ -70,6 +70,8 @@ export function planGridMove(doc, id, distance, opts = {}) {
   const off = (p) => Math.abs((p.x - line.x1) * nx + (p.y - line.y1) * ny);
   const inside = (p) => off(p) <= tol && along(p) >= -reach && along(p) <= L + reach;
   const updates = [], counts = { moved: 0, stretched: 0, dims: 0, notes: 0 };
+  let tag = null;
+  const tagOfLine = () => (tag ??= (gridLines(doc).find((g) => g.id === id)?.tag || '\u0000'));   // looked up only when a wall carries a grid lock
   let n = 0;
   for (const e of doc.entities.values()) {
     if (++n > LOOK_MAX) break;
@@ -86,9 +88,14 @@ export function planGridMove(doc, id, distance, opts = {}) {
       // a plan wall (0.9 FX.59, walls-plan-09): its ends are what sit on the line, not its insert point. An end on the line goes with it
       // (the wall stretches or shortens, the corner keeps its joins); a wall with both ends on the line moves whole. The insert point
       // used to decide, which carried a whole wall away when it merely started on the line.
+      // walls-plan-10: a wall lying ALONG the line (both ends on the line it runs on, whatever the grid line's own length) moves whole: with
+      // only one end inside the drawn grid line it used to be stretched, which turned it. A wall locked along this grid line (WALLGRID) is left
+      // to its lock: the wall hook moves it square, at its distance, and its joined walls follow.
       const w = wallModel(e);
+      if (w && w.h?.some((h) => h.kind === 'line' && h.to?.grid !== undefined && h.to.grid === tagOfLine())) { counts.moved++; continue; }
       if (w) {
-        const ia = inside(w.a), ib = inside(w.b);
+        const lies = off(w.a) <= tol && off(w.b) <= tol && Math.max(along(w.a), along(w.b)) >= -reach && Math.min(along(w.a), along(w.b)) <= L + reach;
+        const ia = lies || inside(w.a), ib = lies || inside(w.b);
         if (ia || ib) { out = wallCanonical(e, { ...w, a: ia ? { x: w.a.x + dx, y: w.a.y + dy } : w.a, b: ib ? { x: w.b.x + dx, y: w.b.y + dy } : w.b }); (ia && ib ? counts.moved++ : counts.stretched++); }
       }
     } else {

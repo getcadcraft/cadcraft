@@ -61,6 +61,14 @@ $__tools = [
         ['EXPLODE', 'asterisk', Lang::t('ui.explode'), Lang::t('ui.explode.title')],
         ['ERASE', 'eraser', Lang::t('ui.erase'), Lang::t('ui.erase_e_delete')],
     ],
+    // 0.9 WT.1 (walls-plan-10): the plan wall tools. The fifth entry names the tool's drawing in the CadCraft icon set (walls-ui.js puts it in
+    // place of the Bootstrap icon once the set has loaded); the rest of the tools are in this group's More menu below.
+    'Walls' => [   // i18n-ignore: group id (label toolbar.group.walls; data-tb-key keeps arranged toolbars)
+        ['WALL', 'bricks', Lang::t('plan2d.toolbar.wall'), Lang::t('plan2d.walls.title.wall'), 'wallplan'],
+        ['WALLRECT', 'square', Lang::t('plan2d.walls.btn.rect'), Lang::t('plan2d.walls.title.rect'), 'wallrect'],
+        ['WALLSPLIT', 'scissors', Lang::t('plan2d.walls.btn.split'), Lang::t('plan2d.walls.title.split'), 'wallsplit'],
+        ['WALLOFFSET', 'distribute-vertical', Lang::t('plan2d.walls.btn.offset'), Lang::t('plan2d.walls.title.offset'), 'walloffset'],
+    ],
     'Annotate' => [   // i18n-ignore: group id (label toolbar.group.annotate; data-tb-key keeps arranged toolbars)
         ['DIMLINEAR', 'arrow-left-right', Lang::t('ui.linear'), Lang::t('ui.linear_dimension_horizontal_vertical')],
         ['DIMALIGNED', 'arrows-angle-contract', Lang::t('ui.aligned'), Lang::t('ui.aligned_dimension_dal')],
@@ -105,6 +113,7 @@ $__more = [
         ['DOOR', Lang::t('plan2d.toolbar.door'), 'DR'],
         ['WINDOW', Lang::t('plan2d.toolbar.window'), 'WN'],
         ['POINT', Lang::t('toolbar.point'), 'PO'],
+        ['GRADIENT', Lang::t('toolbar.gradient'), 'GD'],   // ORS.7 (hatch-extras-cmd.js)
         ['ARC 3P', Lang::t('toolbar.arc.3p'), 'A 3P'],
         ['ARC SCE', Lang::t('toolbar.arc.sce'), 'A SCE'],
         ['ARC SCA', Lang::t('toolbar.arc.sca'), 'A SCA'],
@@ -122,23 +131,75 @@ $__more = [
         ['RAY', Lang::t('toolbar.ray'), 'RAY'],
         ['SKETCHLIVE', Lang::t('input.cmd.draw.sketchlive'), 'SKL'],   // 0.8 EG.55: a pen stroke becomes precise geometry as the pen lifts
         ['SKETCHFIX', Lang::t('input.cmd.draw.sketchfix'), 'SKF'],
+        ['DIVIDE', Lang::t('toolbar.divide'), 'DIV'],   // ORS.9 (draft-small-cmd.js)
+        ['MEASURE', Lang::t('toolbar.measurealong'), 'ME'],   // ORS.9
+        ['BOUNDARY', Lang::t('toolbar.boundary'), 'BO'],   // ORS.9
+        ['BLEND', Lang::t('toolbar.blend'), 'BLEND'],   // ORS.9
+        ['REGION', Lang::t('toolbar.region'), 'REG'],   // ORS.13 (region2d-cmd.js)
     ],
     'Annotate' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['DIMCONTINUE', Lang::t('toolbar.dimcontinue'), 'DCO'],
         ['DIMBASELINE', Lang::t('toolbar.dimbaseline'), 'DBA'],
+        ['DIMORDINATE', Lang::t('toolbar.dimordinate'), 'DOR'],   // ORS.6 (dims-ors-cmd.js)
+        ['DIMARC', Lang::t('toolbar.dimarc'), 'DAR'],   // ORS.6
+        ['DIMJOGGED', Lang::t('toolbar.dimjogged'), 'DJO'],   // ORS.6
+        ['DIMJOGLINE', Lang::t('toolbar.dimjogline'), 'DJL'],   // ORS.6
+        ['QDIM', Lang::t('toolbar.qdim'), 'QDIM'],   // ORS.6
+        ['DIMBREAK', Lang::t('toolbar.dimbreak'), 'DIMBREAK'],   // ORS.6
+        ['DIMSPACE', Lang::t('toolbar.dimspace'), 'DIMSPACE'],   // ORS.6
+        ['DIMINSPECT', Lang::t('toolbar.diminspect'), 'DIMINSPECT'],   // ORS.6
+        ['DIMOVERRIDE', Lang::t('toolbar.dimoverride'), 'DOV'],   // ORS.6
+        ['DIMREASSOCIATE', Lang::t('toolbar.dimreassociate'), 'DRE'],   // ORS.6 (dims-assoc.js)
+        ['DIMDISASSOCIATE', Lang::t('toolbar.dimdisassociate'), 'DDA'],   // ORS.6
+        ['CENTERMARK', Lang::t('toolbar.centermark'), 'CM'],   // ORS.6
+        ['CENTERLINE', Lang::t('toolbar.centerline'), 'CL'],   // ORS.6
+        ['MLEADEREDIT', Lang::t('toolbar.mleaderedit'), 'MLE'],   // ORS.15 (mleader-edit-cmd.js)
+        ['MLEADERALIGN', Lang::t('toolbar.mleaderalign'), 'MLA'],   // ORS.15
+        ['MLEADERCOLLECT', Lang::t('toolbar.mleadercollect'), 'MLC'],   // ORS.15
+        ['OBJECTSCALE', Lang::t('toolbar.objectscale'), 'OBJSCALE'],   // ORS.26 (objectscale-cmd.js)
+        ['ANNOALLVISIBLE', Lang::t('toolbar.annoallvisible'), 'ANNOALL'],   // ORS.26
         ['REVCLOUD', Lang::t('toolbar.revcloud'), 'RC'],
+        ['TXT2MTXT', Lang::t('toolbar.txt2mtxt'), 'T2M'],   // ORS.12 (cleanup-tools-cmd.js)
+        ['BREAKLINE', Lang::t('toolbar.breakline'), 'BREAKLINE'],   // ORS.12
+        ['LEGACYTEXT', Lang::t('toolbar.legacytext'), 'LEGACYTEXT'],   // ORS.21: old Vietnamese font text to Unicode (legacy-text-cmd.js)
+        ['TABLE', Lang::t('toolbar.table'), 'TB'],   // ORS.1 (tables-cmd.js)
+        ['TABLEDIT', Lang::t('toolbar.tabledit'), 'TABLEDIT'],   // ORS.1
+        ['TABLESTYLE', Lang::t('toolbar.tablestyle'), 'TS'],   // ORS.1
+        ['TABLEEXPORT', Lang::t('toolbar.tableexport'), 'TABLEEXPORT'],   // ORS.1
+        ['TABLEPASTE', Lang::t('toolbar.tablepaste'), 'TABLEPASTE'],   // ORS.1
+        ['DATALINK', Lang::t('toolbar.datalink'), 'DL'],   // ORS.1
+        ['DATALINKUPDATE', Lang::t('toolbar.datalinkupdate'), 'DLU'],   // ORS.1
+        ['FIELD', Lang::t('toolbar.field'), 'FIELD'],   // ORS.22 (fields-cmd.js)
+        ['UPDATEFIELD', Lang::t('toolbar.updatefield'), 'UPDATEFIELD'],   // ORS.22
+        ['DWGPROPS', Lang::t('toolbar.dwgprops'), 'DWGPROPS'],   // ORS.22
         ['REDLINE', Lang::t('input.cmd.annotate.redline'), 'RDL'],   // 0.8 EG.19: a MarkupCraft redline package → revision clouds and a log
     ],
     'Blocks' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['BEDIT', Lang::t('toolbar.bedit'), 'BE'],
         ['ATTDEF', Lang::t('toolbar.attdef'), 'ATT'],
+        ['BURST', Lang::t('toolbar.burst'), 'BURST'],   // ORS.12 (cleanup-tools-cmd.js)
+        ['NCOPY', Lang::t('toolbar.ncopy'), 'NCOPY'],   // ORS.12
         ['COUNT', Lang::t('toolbar.count'), 'COUNT'],
+        ['BOMZONE', Lang::t('input.cmd.blocks.bomzone'), 'BOMZONE'],   // 0.9.1: live bills of materials by zone (bomzones-cmd.js)
+        ['BOMTABLE', Lang::t('input.cmd.blocks.bomtable'), 'BOM'],
+        ['BOMEDIT', Lang::t('input.cmd.blocks.bomedit'), 'BOMEDIT'],
+        ['BOMUPDATE', Lang::t('input.cmd.blocks.bomupdate'), 'BOMUPDATE'],
+        ['BOMEXPORT', Lang::t('input.cmd.blocks.bomexport'), 'BOMEXPORT'],
         ['XATTACH', Lang::t('toolbar.xattach'), 'XA'],
         ['XREF', Lang::t('toolbar.xref'), 'XR'],
         ['DELBLOCKS', Lang::t('toolbar.delblocks'), 'DELBLOCKS'],
+        ['BLOCKSPALETTE', Lang::t('toolbar.blockspalette'), 'BLOCKSPAL'],   // ORS.23 (blocks-panel.js)
+        ['BCONVERT', Lang::t('toolbar.bconvert'), 'BCONVERT'],   // ORS.24 (smartblocks-cmd.js)
+        ['BSEARCH', Lang::t('toolbar.bsearch'), 'BSEARCH'],   // ORS.24
+        ['BREPLACE', Lang::t('toolbar.breplace'), 'BREPLACE'],   // ORS.24
+        ['PASTEBLOCK', Lang::t('toolbar.pasteblock'), 'PASTEBLOCK'],   // ORS.9 (draft-small-cmd.js)
+        ['BLOCKREPLACE', Lang::t('toolbar.blockreplace'), 'BLOCKREPLACE'],   // ORS.9
+        ['MINSERT', Lang::t('toolbar.minsert'), 'MINSERT'],   // ORS.9
         ['EATTEDIT', Lang::t('toolbar.eattedit'), 'EATTEDIT'],   // 0.6 DF.5
         ['BATTMAN', Lang::t('toolbar.battman'), 'BATTMAN'],
         ['TAGS', Lang::t('input.cmd.blocks.tags'), 'TAGS'],   // 0.8 SU.915: block attributes as tags that feed schedules
+        ['DATAEXTRACTION', Lang::t('toolbar.dataextraction'), 'DX'],   // ORS.11 (dataextract-cmd.js)
+        ['COUNTTABLE', Lang::t('toolbar.counttable'), 'COUNTTABLE'],   // ORS.11
         ['DIAGRAM', Lang::t('input.cmd.blocks.diagram'), 'DIAGRAM'],   // 0.8 SU.883
         ['GDSIN', Lang::t('input.cmd.blocks.gds'), 'GDS'],   // 0.8 SU.752
         ['OLELIST', Lang::t('input.cmd.blocks.ole'), 'OLES'],   // 0.8 D7.23: OLE objects a drawing carries (ole-cmd.js)
@@ -149,6 +210,13 @@ $__more = [
         ['DIST', Lang::t('toolbar.measure'), 'DI'],
         ['AREA', Lang::t('toolbar.area'), 'AA'],
         ['MEASUREGEOM', Lang::t('toolbar.measuregeom'), 'MEA'],
+        ['ISODRAFT', Lang::t('toolbar.isodraft'), 'ISODRAFT'],   // ORS.10 (isodraft-cmd.js)
+        ['ISOPLANE', Lang::t('toolbar.isoplane'), 'ISOPLANE'],   // ORS.10
+        ['MASSPROP', Lang::t('toolbar.massprop'), 'MASSPROP'],   // ORS.13 (region2d-cmd.js)
+        ['ISOLATEOBJECTS', Lang::t('toolbar.isolateobjects'), 'ISOLATE'],   // ORS.5 (objhide-cmd.js)
+        ['HIDEOBJECTS', Lang::t('toolbar.hideobjects'), 'HIDEOBJECTS'],
+        ['UNISOLATEOBJECTS', Lang::t('toolbar.unisolateobjects'), 'UNISOLATE'],
+        ['LAYLOCKFADE', Lang::t('toolbar.laylockfade'), 'LAYLOCKFADE'],   // ORS.28 (lockedlayers-cmd.js)
         ['SPLIT 2V', Lang::t('toolbar.split.2v'), 'SPLIT'],
         ['SPLIT 2H', Lang::t('toolbar.split.2h'), 'SPLIT'],
         ['SPLIT 4', Lang::t('toolbar.split.4'), 'SPLIT'],
@@ -167,26 +235,100 @@ $__more = [
         ['POINTCLOUDATTACH', Lang::t('toolbar.pcattach'), 'PCATTACH'],   // 0.5 SG.1
         ['POINTCLOUD', Lang::t('toolbar.pointcloud'), 'PC'],
         ['LINKVIEWS', Lang::t('toolbar.linkviews'), 'LINKVIEWS'],
+        ['TOUCHCROSSHAIR', Lang::t('toolbar.touchcrosshair'), 'TCX'],   // ORS.20: the offset crosshair for fingers (touch-crosshair-cmd.js)
+        ['WHOHAS', Lang::t('toolbar.whohas'), 'WHOHAS'],   // ORS.27: who has a drawing open (drawing-lock-cmd.js); here, since File has no More menu
+        ['AUDIT', Lang::t('toolbar.audit'), 'AUDIT'],   // ORS.14: check and repair the drawing (audit-cmd.js); here, since File has no More menu
+        ['RECOVER', Lang::t('toolbar.recover'), 'RECOVER'],   // ORS.14: open a damaged file
         ...($__3dUrl ? [['OPENIN3D', Lang::t('toolbar.open3d', ['app' => $__3dApp['name']]), 'OPENIN3D']] : []),
         // customizing (session cad-lisp): here, since a File "More" would push the toolbar to three rows at 1440 px
         ['APPLOAD', Lang::t('toolbar.appload'), 'AP'],
         ['ALIASEDIT', Lang::t('toolbar.aliasedit'), 'ALIASEDIT'],
+        ['LISPEDIT', Lang::t('toolbar.lispedit'), 'VLIDE'],   // ORS.31 (lispedit-ui.js)
         ['SHORTCUTS', Lang::t('toolbar.shortcuts'), 'KEYS'],   // 0.5 WL.18
         ['LASER', Lang::t('toolbar.laser'), 'LASER'],   // 0.7 SU.772: the Laser panel (laser-cad.js)
         ['FLOORS', Lang::t('plan2d.toolbar.floors'), 'FLR'],   // 0.9 PLAN2D.3: stacked floors (floors-ui.js)
         ['CLASSES', Lang::t('sx.classes.toolbar'), 'CLS'],   // 0.8 SU.912: the Classes panel (classes-ui.js)
         ['DOCUMENTS', Lang::t('sx.vault.toolbar'), 'DOCS'],   // 0.8 SU.1058: the Documents panel (vault-ui.js)
     ],
+    // the wall tools not on the toolbar itself: [command, label, what to type, the drawing in the CadCraft icon set, the Bootstrap icon until it loads]
+    'Walls' => [   // i18n-ignore (the group's key in $__tools, not shown)
+        ['WALLROT', Lang::t('input.cmd.wall.rectrot'), 'WALLROT', 'wallrectrot', 'diamond'],
+        ['WALLPOLY', Lang::t('input.cmd.wall.polygon'), 'WP', 'wallpoly', 'hexagon'],
+        ['WALLARC', Lang::t('input.cmd.wall.arccentre'), 'WARC', 'wallarcc', 'circle-half'],
+        ['WALLTAN', Lang::t('input.cmd.wall.arctangent'), 'WALLTAN', 'walltan', 'bezier'],
+        ['WALLPICK', Lang::t('input.cmd.wall.pick'), 'WALLPICK', 'wallpick', 'cursor'],
+        ['WALLTRACE', Lang::t('input.cmd.wall.trace'), 'WALLTRACE', 'walltrace', 'magic'],
+        ['WALLSPLITGAP', Lang::t('input.cmd.wall.splitgap'), 'WALLSPLITGAP', 'wallsplitgap', 'distribute-horizontal'],
+        ['WALLDELSEG', Lang::t('input.cmd.wall.delsegment'), 'WALLDELSEG', 'walldelseg', 'eraser'],
+        ['WALLREJOIN', Lang::t('input.cmd.wall.connect'), 'WALLREJOIN', 'walljoin', 'link'],
+        ['WALLDIM', Lang::t('input.cmd.wall.editdim'), 'WALLDIM', 'walleditdim', 'arrow-left-right'],
+        ['WALLSTRETCH', Lang::t('input.cmd.wall.boxstretch'), 'WALLSTRETCH', 'wallbox', 'bounding-box'],
+        ['WALLHOLD', Lang::t('input.cmd.wall.alignlock'), 'WALLHOLD', 'wallalignlock', 'lock'],
+        ['WALLHOLDDIM', Lang::t('input.cmd.wall.lockdim'), 'WALLHOLDDIM', 'walllockdim', 'lock-fill'],
+        ['WALLGRID', Lang::t('input.cmd.wall.gridlock'), 'WALLGRID', 'grid', 'grid-3x3'],
+        ['WALLUNHOLD', Lang::t('input.cmd.wall.unlock'), 'WALLUNHOLD', '', 'unlock'],
+        ['WALLHOLDS', Lang::t('input.cmd.wall.locks'), 'WALLHOLDS', 'checklist', 'list-check'],
+        ['WALLJOINSTYLE', Lang::t('input.cmd.wall.joinstyle'), 'WALLJOINSTYLE', 'walljoinstyle', 'bounding-box-circles'],   // 0.9 WT.5
+        ['WALLDISJOIN', Lang::t('input.cmd.wall.disallow'), 'WALLDISJOIN', 'walldisjoin', 'slash-circle'],
+        ['WALLJOINS', Lang::t('input.cmd.wall.joins'), 'WALLJOINS', 'walljoinsw', 'link-45deg'],
+    ],
+    'Sheets' => [   // i18n-ignore (the group's key in $__tools, not shown)
+        ['VPCLIP', Lang::t('toolbar.vpclip'), 'VPCLIP'],   // ORS.16 (vpclip-cmd.js)
+    ],
     'Modify' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['ARRAY', Lang::t('toolbar.array'), 'AR'],
+        ['ARRAYPATH', Lang::t('toolbar.arrays.path'), 'ARRAYPATH'],   // ORS.2 (arrays-cmd.js)
+        ['ARRAYEDIT', Lang::t('toolbar.arrays.edit'), 'ARRAYEDIT'],
+        ['ARRAYCLOSE', Lang::t('toolbar.arrays.close'), 'ARRAYCLOSE'],
+        ['ARRAYASSOCIATIVITY', Lang::t('toolbar.arrays.assoc'), 'ARRAYASSOCIATIVITY'],
+        ['HATCHGENERATEBOUNDARY', Lang::t('toolbar.hatchgb'), 'HGB'],   // ORS.29 (hatch-extras-cmd.js)
         ['JOIN', Lang::t('toolbar.join'), 'J'],
         ['MATCHPROP', Lang::t('toolbar.matchprop.long'), 'MA'],
         ['BREAK', Lang::t('toolbar.break'), 'BR'],
         ['LENGTHEN', Lang::t('toolbar.lengthen'), 'LEN'],
+        ['OVERKILL', Lang::t('toolbar.overkill'), 'OVERKILL'],   // ORS.3 (overkill-cmd.js)
+        ['DRAWORDER', Lang::t('toolbar.draworder'), 'DRAWORDER'],   // ORS.4 (draworder-cmd.js)
+        ['TEXTTOFRONT', Lang::t('toolbar.texttofront'), 'TEXTTOFRONT'],
+        ['HATCHTOBACK', Lang::t('toolbar.hatchtoback'), 'HATCHTOBACK'],
+        ['FLATTEN', Lang::t('toolbar.flatten'), 'FLATTEN'],   // ORS.12 (cleanup-tools-cmd.js)
         ['ALIGN', Lang::t('toolbar.align'), 'AL'],   // 0.6 DF.2
         ['ALIGNPANEL', Lang::t('toolbar.alignpanel'), 'ALP'],
+        ['CHSPACE', Lang::t('toolbar.chspace'), 'CHSPACE'],   // ORS.9 (draft-small-cmd.js)
+        ['EXTRIM', Lang::t('toolbar.extrim'), 'EXTRIM'],   // ORS.30 (edit-depth-cmd.js)
+        ['OFFSETGAPTYPE', Lang::t('toolbar.offsetgaptype'), 'OFFSETGAPTYPE'],   // ORS.30
+        ['GROUP', Lang::t('toolbar.group'), 'G'],   // ORS.8 (groups-cmd.js)
+        ['UNGROUP', Lang::t('toolbar.ungroup'), 'UNGROUP'],   // ORS.8
+        ['GROUPEDIT', Lang::t('toolbar.groupedit'), 'GROUPEDIT'],   // ORS.8
+        ['PICKSTYLE', Lang::t('toolbar.pickstyle'), 'PICKSTYLE'],   // ORS.8
     ],
 ];
+// 0.9.1 (FX.155): a small drawing for each way to draw an arc or circle (start / centre / end marked, as the classic drafting menus do). 20 x 20, stroke and fill from the page's colours.
+$__ico = static function (string $body): string { return '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">' . $body . '</svg>'; };
+$__d = static fn (float $x, float $y, float $r = 1.4): string => '<circle cx="' . $x . '" cy="' . $y . '" r="' . $r . '" fill="currentColor" stroke="none"/>';
+$__l = static fn (string $path): string => '<path d="' . $path . '" stroke-width="1" stroke-dasharray="1.6 1.6" opacity=".7"/>';
+$__arc = '<path d="M3 17A14 14 0 0 1 17 3" stroke-width="1.8"/>';
+$__splitIcons = [
+    'ARC 3P'  => $__ico($__arc . $__d(3, 17) . $__d(12.9, 12.9) . $__d(17, 3)),
+    'ARC SCE' => $__ico($__arc . $__l('M3 3V17M3 3H17') . $__d(3, 17, 2.2) . $__d(3, 3) . $__d(17, 3)),
+    'ARC SCA' => $__ico($__arc . $__l('M3 3V17') . '<path d="M3 8A5 5 0 0 0 8 3" stroke-width="1"/>' . $__d(3, 17, 2.2) . $__d(3, 3)),
+    'ARC SCL' => $__ico($__arc . $__l('M3 3V17M3 17L17 3') . $__d(3, 17, 2.2) . $__d(3, 3)),
+    'ARC SEA' => $__ico($__arc . $__l('M3 17L17 3') . '<path d="M8 17A5 5 0 0 0 6.5 13.5" stroke-width="1"/>' . $__d(3, 17, 2.2) . $__d(17, 3)),
+    'ARC SED' => $__ico($__arc . $__l('M3 17H12') . '<path d="M10.5 15.5L12.5 17L10.5 18.5" stroke-width="1.2"/>' . $__d(3, 17, 2.2) . $__d(17, 3)),
+    'ARC SER' => $__ico($__arc . $__l('M3 3L12.9 12.9') . $__d(3, 17, 2.2) . $__d(17, 3)),
+    'ARC CSE' => $__ico($__arc . $__l('M3 3V17M3 3H17') . $__d(3, 3, 2.2) . $__d(3, 17) . $__d(17, 3)),
+    'ARC CSA' => $__ico($__arc . $__l('M3 3V17') . '<path d="M3 8A5 5 0 0 0 8 3" stroke-width="1"/>' . $__d(3, 3, 2.2) . $__d(3, 17)),
+    'ARC CSL' => $__ico($__arc . $__l('M3 3V17M3 17L17 3') . $__d(3, 3, 2.2) . $__d(3, 17)),
+    'ARC CON' => $__ico('<path d="M3 19.5V17" stroke-width="1.8"/>' . $__arc . $__d(3, 17, 2)),
+    'CIRCLE T'   => $__ico('<circle cx="10" cy="10" r="5" stroke-width="1.8"/><path d="M1 5H19M5 1V19" stroke-width="1"/>'),
+    'CIRCLE TTT' => $__ico('<path d="M10 1.5L18.5 17H1.5Z" stroke-width="1"/><circle cx="10" cy="12" r="4.4" stroke-width="1.8"/>'),
+];
+// 0.9.1 (FX.155): the toolbar's Arc and Circle buttons each carry a drop-down of their ways to draw (they sat only under Draw › More)
+$__splits = ['Draw' => ['ARC' => [], 'CIRCLE' => []]]; $__inSplit = ['Draw' => []];   // i18n-ignore: group id
+foreach ($__more['Draw'] as $__m) {
+    $__w = explode(' ', $__m[0], 2)[0];
+    if (isset($__splits['Draw'][$__w]) && str_contains($__m[0], ' ')) { $__splits['Draw'][$__w][] = $__m; $__inSplit['Draw'][$__m[0]] = true; }
+}
+
 ?>
 <main id="main" class="cc" data-cadcraft
       data-pdf-worker="<?= e($__manifest['pdfWorker'] ?? '') ?>"
@@ -202,17 +344,34 @@ $__more = [
       <div class="cc-tool-group" role="group" data-tb-key="<?= e($__group) ?>" aria-label="<?= e($__glabel) ?>">
         <span class="cc-tool-label" aria-hidden="true"><?= e($__glabel) ?></span>
         <div class="cc-tool-row">
-          <?php foreach ($__items as [$__cmd, $__icon, $__label, $__title]): ?>
+          <?php foreach ($__items as $__it): [$__cmd, $__icon, $__label, $__title] = $__it; $__cc = $__it[4] ?? ''; /* the tool's drawing in the CadCraft icon set (wall tools) */ ?>
+            <?php $__sp = $__splits[$__group][$__cmd] ?? []; /* 0.9.1: Arc and Circle carry a drop-down of their ways to draw, next to the button */ ?>
+            <?php if ($__sp): ?><div class="cc-split" data-split="<?= e($__cmd) ?>"><?php endif; ?>
             <button type="button" class="cc-tool" data-cmd="<?= e($__cmd) ?>" title="<?= e($__title) ?>">
-              <i class="bi bi-<?= e($__icon) ?>" aria-hidden="true"></i><span><?= e($__label) ?></span>
+              <i class="bi bi-<?= e($__icon) ?>" aria-hidden="true"<?php if ($__cc): ?> data-ccic="<?= e($__cc) ?>"<?php endif; ?>></i><span><?= e($__label) ?></span>
             </button>
+            <?php if ($__sp): ?>
+              <details class="cc-menu cc-split-menu" data-split-menu="<?= e($__cmd) ?>">
+                <summary class="cc-tool cc-split-arrow" title="<?= Lang::e('toolbar.split.more', ['tool' => $__label]) ?>" aria-label="<?= Lang::e('toolbar.split.more', ['tool' => $__label]) ?>"><i class="bi bi-caret-down-fill" aria-hidden="true"></i></summary>
+                <div class="cc-menu-list" role="menu" aria-label="<?= Lang::e('toolbar.split.more', ['tool' => $__label]) ?>">
+                  <?php foreach ($__sp as [$__scmd, $__slabel, $__skey]): ?>
+                    <button type="button" role="menuitem" data-cmd="<?= e($__scmd) ?>"><span class="cc-menu-lab"><span class="cc-menu-ico" aria-hidden="true"><?= $__splitIcons[$__scmd] ?? '' ?></span><?= e($__slabel) ?></span> <kbd><?= e($__skey) ?></kbd></button>
+                  <?php endforeach; ?>
+                </div>
+              </details>
+            </div><?php endif; ?>
           <?php endforeach; ?>
           <?php if (!empty($__more[$__group])): ?>
             <details class="cc-menu" data-group-menu="<?= e($__group) ?>">
               <summary class="cc-tool" title="<?= Lang::e('toolbar.more.title', ['group' => $__glabel]) ?>"><i class="bi bi-three-dots" aria-hidden="true"></i><span><?= Lang::e('toolbar.more') ?></span></summary>
               <div class="cc-menu-list" role="menu" aria-label="<?= Lang::e('toolbar.more.title', ['group' => $__glabel]) ?>">
-                <?php foreach ($__more[$__group] as [$__cmd, $__label, $__key]): ?>
+                <?php foreach ($__more[$__group] as $__m): [$__cmd, $__label, $__key] = $__m; ?>
+                  <?php if (isset($__inSplit[$__group][$__cmd])) continue; ?>
+                  <?php if (!empty($__m[4])): /* a wall tool: its icon beside its name */ ?>
+                  <button type="button" role="menuitem" data-cmd="<?= e($__cmd) ?>"><span class="cc-menu-lab"><span class="cc-menu-ico" aria-hidden="true"><i class="bi bi-<?= e($__m[4]) ?>"<?php if (!empty($__m[3])): ?> data-ccic="<?= e($__m[3]) ?>"<?php endif; ?>></i></span><?= e($__label) ?></span> <kbd><?= e($__key) ?></kbd></button>
+                  <?php else: ?>
                   <button type="button" role="menuitem" data-cmd="<?= e($__cmd) ?>"><?= e($__label) ?> <kbd><?= e($__key) ?></kbd></button>
+                  <?php endif; ?>
                 <?php endforeach; ?>
               </div>
             </details>
@@ -356,9 +515,10 @@ $__more = [
       <div class="cc-sec-head">
         <h2 class="cc-h"><?= Lang::e('ui.layers') ?></h2>
         <span class="cc-sec-tools">
-          <button type="button" class="cc-linkbtn" data-layer-new><i class="bi bi-plus-lg" aria-hidden="true"></i> <?= Lang::e('ui.new_layer') ?></button>
+          <button type="button" class="cc-linkbtn" data-cmd="LAYER" data-layer-manager title="<?= Lang::e('layermgr.open.title') ?>" aria-label="<?= Lang::e('layermgr.title') ?>"><i class="bi bi-layers-half" aria-hidden="true"></i></button>
+          <button type="button" class="cc-linkbtn" data-layer-new title="<?= Lang::e('ui.new_layer') ?>"><i class="bi bi-plus-lg" aria-hidden="true"></i> <?= Lang::e('ui.new_layer') ?></button>
           <details class="cc-menu" data-layer-menu>
-            <summary class="cc-linkbtn" title="<?= Lang::e('layers.tools.title') ?>"><?= Lang::e('layers.tools') ?></summary>
+            <summary class="cc-linkbtn" title="<?= Lang::e('layers.tools.title') ?>"><i class="bi bi-sliders" aria-hidden="true"></i> <?= Lang::e('layers.tools') ?></summary>
             <div class="cc-menu-list" role="menu" aria-label="<?= Lang::e('layers.tools.title') ?>">
               <?php foreach ([['LAYISO', 'layers.tools.iso'], ['LAYUNISO', 'layers.tools.uniso'], ['LAYOFF', 'layers.tools.off'], ['LAYFRZ', 'layers.tools.frz'], ['LAYMCUR', 'layers.tools.mcur'], null, ['LAYON', 'layers.tools.on'], ['LAYTHW', 'layers.tools.thw'], null, ['LAYGROUP N', 'plan2d.tools.group.new'], ['LAYGROUP S', 'plan2d.tools.group.std'], ['LAYGROUP P', 'plan2d.tools.group.prefix'], null, ['LAYMRG', 'layers.tools.mrg'], ['LAYDEL', 'layers.tools.del'], ['RENAME', 'layers.tools.ren']] as $__lt): ?>
                 <?php if (!$__lt): ?><hr><?php continue; endif; ?>
@@ -382,7 +542,7 @@ $__more = [
     <section class="cc-sec" data-blocks-sec>
       <div class="cc-sec-head">
         <h2 class="cc-h"><?= Lang::e('ui.blocks') ?></h2>
-        <button type="button" class="cc-linkbtn" data-library><i class="bi bi-collection" aria-hidden="true"></i> <?= Lang::e('ui.library_2') ?></button>
+        <button type="button" class="cc-linkbtn" data-library title="<?= Lang::e('ui.library_2') ?>"><i class="bi bi-collection" aria-hidden="true"></i> <?= Lang::e('ui.library_2') ?></button>
       </div>
       <ul class="cc-blocks" data-block-list></ul>
       <p class="cc-note" data-blocks-empty><?= Lang::e('ui.no_blocks_yet_select') ?> <strong><?= Lang::e('ui.make') ?></strong> <?= Lang::e('ui.or_type') ?> <kbd>B</kbd><?= Lang::e('ui.turn_them_into_block') ?> <kbd>I</kbd> <?= Lang::e('ui.then') ?> <kbd>F</kbd> <?= Lang::e('ui.brings_one_another_drawing') ?> <strong><?= Lang::e('ui.library_2') ?></strong> <?= Lang::e('ui.places_library_items') ?></p>
@@ -392,7 +552,7 @@ $__more = [
         <h2 class="cc-h" id="cc-ss-head"><?= Lang::e('sheetset.h') ?></h2>
         <span class="cc-sec-tools">
           <details class="cc-menu" data-sheetset-menu>
-            <summary class="cc-linkbtn" title="<?= Lang::e('sheetset.menu.title') ?>"><?= Lang::e('sheetset.menu') ?></summary>
+            <summary class="cc-linkbtn" title="<?= Lang::e('sheetset.menu.title') ?>"><i class="bi bi-list-ul" aria-hidden="true"></i> <?= Lang::e('sheetset.menu') ?></summary>
             <div class="cc-menu-list" role="menu" aria-label="<?= Lang::e('sheetset.menu.title') ?>">
               <?php foreach ([['open', 'sheetset.m.open'], ['new', 'sheetset.m.new'], null, ['add', 'sheetset.m.add'], ['newsheet', 'sheetset.m.newsheet'], ['subset', 'sheetset.m.subset'], ['rename', 'sheetset.m.rename'], ['remove', 'sheetset.m.remove'], ['renumber', 'sheetset.m.renumber'], ['numbering', 'sheetset.m.numbering'], ['props', 'sheetset.m.props'], null, ['publish', 'sheetset.m.publish'], ['publishdwg', 'sx.classes.ss.publishdwg'], ['update', 'sheetset.m.update'], ['list', 'sheetset.m.list'], ['archive', 'sheetset.m.archive'], null, ['undo', 'sheetset.m.undo'], ['redo', 'sheetset.m.redo'], ['download', 'sheetset.m.download'], ['close', 'sheetset.m.close']] as $__ss): ?>
                 <?php if (!$__ss): ?><hr><?php continue; endif; ?>
@@ -408,7 +568,7 @@ $__more = [
     <section class="cc-sec">
       <div class="cc-sec-head">
         <h2 class="cc-h"><?= Lang::e('ui.drawing') ?></h2>
-        <button type="button" class="cc-linkbtn" data-cmd="SAMPLES"><i class="bi bi-journal-richtext" aria-hidden="true"></i> <?= Lang::e('toolbar.samples') ?></button><?php /* 0.6 DF.9 */ ?>
+        <button type="button" class="cc-linkbtn" data-cmd="SAMPLES" title="<?= Lang::e('toolbar.samples') ?>"><i class="bi bi-journal-richtext" aria-hidden="true"></i> <?= Lang::e('toolbar.samples') ?></button><?php /* 0.6 DF.9 */ ?>
       </div>
       <dl class="cc-dl" data-info></dl>
       <div data-report></div>
@@ -433,7 +593,7 @@ $__more = [
         <li><kbd>DLI</kbd> <?= Lang::e('ui.dimensions') ?> <kbd>B</kbd> <?= Lang::e('ui.makes_block') ?> <strong>+</strong> <?= Lang::e('ui.under_drawing_makes_sheet') ?> <kbd>Ctrl</kbd>+<kbd>P</kbd> <?= Lang::e('ui.plots_pdf') ?></li>
         <li><?= Lang::e('ui.drop_dwg_dxf_here') ?></li>
       </ul>
-      <p class="cc-hint-tour"><button type="button" class="btn-line btn-sm-cc" data-hint-tour><?= Lang::e('ui.hint.tour') ?></button></p>
+      <p class="cc-hint-tour d-flex flex-wrap gap-2"><button type="button" class="btn-line btn-sm-cc" data-hint-sample><i class="bi bi-lightning-charge" aria-hidden="true"></i> <?= Lang::e('ui.hint.trysample') ?></button><button type="button" class="btn-line btn-sm-cc" data-hint-tour><?= Lang::e('ui.hint.tour') ?></button></p>
     </div>
     <div class="cc-drop" data-drop hidden><span><i class="bi bi-box-arrow-in-down-right" aria-hidden="true"></i> <?= Lang::e('ui.drop_dwg_dxf_open') ?></span></div>
     <div class="cc-busy" data-busy hidden><span data-busy-text><?= Lang::e('ui.working') ?></span></div>
@@ -559,6 +719,8 @@ $__more = [
     <output class="cc-coords" data-coords>0, 0</output>
     <span class="cc-status-msg" data-status></span>
     <span class="cc-seltotals" data-seltotals hidden aria-live="polite"></span>
+    <?php /* ORS.5: objects hidden for the session (objhide.js, cleanup-ui.js); a click shows them again */ ?>
+    <button type="button" class="cc-toggle" data-ors-hidden hidden aria-pressed="true" title="<?= Lang::e('objhide.status.title') ?>"><i class="bi bi-eye-slash" aria-hidden="true"></i> <span data-ors-hidden-n></span></button>
     <div class="cc-toggles">
       <button type="button" class="cc-toggle" data-toggle="grid" aria-pressed="true" title="<?= Lang::e('ui.grid_f7') ?>"><?= Lang::e('ui.grid') ?></button>
       <button type="button" class="cc-toggle" data-toggle="gsnap" aria-pressed="false" title="<?= Lang::e('ui.gridsnap_f9') ?>"><?= Lang::e('ui.gridsnap') ?></button>

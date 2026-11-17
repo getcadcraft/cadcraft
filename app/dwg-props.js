@@ -30,6 +30,7 @@ import { DIM_DEFAULTS } from './dims.js';
 import { DIM_EXTRA, ARROWS, TOL_MODES } from './dimstyle.js';
 import { nearestAci } from './doc.js';
 import { validKey } from './file-keys.js';
+import { cleanScaleList, noteAnnoMulti } from './anno-scale-cad.js';   // ORS.26: an annotative object's list of scales
 
 // ---------------------------------------------------------------------------- transparency
 
@@ -86,6 +87,8 @@ export function propsXdata(e, { r12 = false } = {}) {
   if (e.type === 'hatch' && !e.solid && (Number.isFinite(e.ox) || Number.isFinite(e.oy)) && (e.ox || e.oy)) cc.push('CCHORG:' + (+e.ox || 0) + ',' + (+e.oy || 0));
   if (e.type === 'hatch' && e.assoc) cc.push('CCHASSOC');   // the boundary objects are not written, so the file's own flag stays off
   if (typeof e.key === 'string' && validKey(e.key)) cc.push('CCKEY:' + e.key);   // DC.27 H4: the object's stable key (file-keys.js)
+  if (e.ann && Number.isFinite(e.as) && e.as > 0 && e.as !== 1) cc.push('CCAS:' + e.as);   // 0.10 BK.10: the annotation scale an annotative object is sized for (anno-scale-cad.js)
+  if (e.ann && Array.isArray(e.asl) && e.asl.length) cc.push(...chunks('CCASL:', e.asl.filter((n) => Number.isFinite(n) && n > 0).slice(0, 32).join(',')));   // ORS.26: every annotation scale it keeps
   if (cc.length) x.CADCRAFT = cc.map((s) => [1000, s]);
   if (typeof e.url === 'string' && e.url) x.PE_URL = [[1000, e.url.slice(0, 255)]];
   if (e.ann) x.AcadAnnotative = [[1000, 'AnnotativeData'], [1002, '{'], [1070, 1], [1070, 1], [1002, '}']];
@@ -116,6 +119,9 @@ export function propsFromXdata(xd) {
   if (ann && ann.some(([c, v]) => c === 1000 && /^AnnotativeData$/i.test(String(v)))) {
     const ints = ann.filter(([c]) => c === 1070).map(([, v]) => +v);
     if (ints[1] === 1 || (ints.length === 1 && ints[0] === 1)) out.ann = true;
+    const as = cc.find((s) => s.startsWith('CCAS:'));   // 0.10 BK.10
+    if (out.ann && as && Number.isFinite(+as.slice(5)) && +as.slice(5) >= 0.01 && +as.slice(5) <= 100000) out.as = +as.slice(5);
+    if (out.ann) { const l = cleanScaleList(joined(cc, 'CCASL:').split(',').filter(Boolean).map(Number)); if (l) { out.asl = l; if (out.as === undefined) out.as = 1; noteAnnoMulti(); } }   // ORS.26 (anno-scale-cad.js; no CCAS = sized for 1:1)
   }
   const bg = (app('HATCHBACKGROUNDCOLOR') || []).find(([c]) => c === 1071);
   if (bg) { const c = colorFromWord(bg[1]); if (c !== undefined) out.bg = c; }

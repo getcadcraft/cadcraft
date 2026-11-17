@@ -61,9 +61,8 @@ export function installTour({ root, stage, doc, host, el, t, print, focusCommand
           el('button', { type: 'button', className: 'cc-x', 'aria-label': t('tour.skip.all'), title: t('tour.skip.all'), dataset: { tourSkipAll: '' }, onclick: () => close('skipped') }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' }))),
         el('p', { className: 'cc-tour-h' }, t('tour.' + step.id + '.h')),
         el('p', { className: 'cc-tour-p' }, t('tour.' + step.id + '.p', { cmd: step.cmd, alias: step.alias })),
-        el('div', { className: 'cc-tour-foot' },
-          el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { tourSkip: '' }, onclick: () => go(at + 1) }, t('tour.skip.step')),
-          el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { tourSkipAll: '' }, onclick: () => close('skipped') }, t('tour.skip.all'))));
+        el('div', { className: 'cc-tour-foot' },   // one button, Next; the X closes the tour (owner 2026-11-12)
+          el('button', { type: 'button', className: 'btn-plot btn-sm-cc', dataset: { tourSkip: '' }, onclick: () => go(at + 1) }, t('tour.next'))));
     }
     panel.replaceChildren(...kids);
   }
@@ -71,7 +70,7 @@ export function installTour({ root, stage, doc, host, el, t, print, focusCommand
     clearTimeout(timer);
     at = n;
     base = snapshot(doc);
-    if (!panel) { panel = el('div', { className: 'cc-tour', role: 'region', 'aria-label': t('tour.title'), 'aria-live': 'polite', dataset: { tour: '' } }); stage.append(panel); }
+    if (!panel) { panel = el('div', { className: 'cc-tour tour-toast', role: 'region', 'aria-label': t('tour.title'), 'aria-live': 'polite', dataset: { tour: '' } }); stage.append(panel); }
     panel.classList.remove('is-done');
     if (at >= STEPS.length) put('done');
     draw();

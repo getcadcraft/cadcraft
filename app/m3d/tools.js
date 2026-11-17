@@ -36,9 +36,13 @@ import {
 import { parseValue, formatLength } from './units.js';
 import { collider } from './collide.js';
 import { t } from "./i18n.js";
+import * as ARCS from '../arcs/arcs.js';
+
+/** The ten AutoCAD-style arc methods (0.9 FX.137), one tool name each: arc3p, arcsce, arcsca, … → the id arcs.js solves by. Continue is left out. */
+const ARC_TOOL_IDS = Object.fromEntries(ARCS.METHOD_IDS.filter((id) => id !== 'CON').map((id) => ['arc' + id.toLowerCase(), id]));
 
 /** Tool names in the page's language (getters: the catalog is read when a name is asked for). */
-export const TOOL_NAMES = Object.defineProperties({}, Object.fromEntries(['select', 'line', 'rect', 'circle', 'polygon', 'arc', 'arcc', 'curve', 'follow', 'offset', 'paint', 'push', 'move', 'rotate', 'scale', 'erase', 'tape', 'protractor', 'dim', 'section', 'orbit', 'pan', 'zoom', 'place', 'paste', 'pick', 'axes', 'sculpt', 'light', 'divide'].map((k) => [k, { get: () => t('m3d.toolname.' + k), enumerable: true }])));
+export const TOOL_NAMES = Object.defineProperties({}, Object.fromEntries(['select', 'line', 'rect', 'circle', 'polygon', 'arc', 'arcc', ...Object.keys(ARC_TOOL_IDS), 'curve', 'follow', 'offset', 'paint', 'push', 'move', 'rotate', 'scale', 'erase', 'tape', 'protractor', 'dim', 'section', 'orbit', 'pan', 'zoom', 'place', 'paste', 'pick', 'axes', 'sculpt', 'light', 'divide'].map((k) => [k, { get: () => t('m3d.toolname.' + k), enumerable: true }])));
 /** Single-key shortcuts (lower case; ' ' = Space). */
 export const TOOL_KEYS = { ' ': 'select', l: 'line', r: 'rect', c: 'circle', n: 'polygon', a: 'arc', f: 'offset', b: 'paint', p: 'push', m: 'move', q: 'rotate', s: 'scale', e: 'erase', t: 'tape', d: 'dim', o: 'orbit', h: 'pan', z: 'zoom' };
 
@@ -64,7 +68,7 @@ export class Tools {
     if (this.tool) this.tool.cancel();
     this.name = name;
     this.lock = null;
-    const C = { select: SelectTool, line: LineTool, rect: RectTool, circle: CircleTool, polygon: CircleTool, arc: ArcTool, arcc: ArcCenterTool, curve: CurveTool, follow: FollowTool, offset: OffsetTool, paint: PaintTool, push: PushTool, move: MoveTool, rotate: RotateTool, scale: ScaleTool, erase: EraseTool, tape: TapeTool, protractor: ProtractorTool, dim: DimTool, section: SectionTool, orbit: CamTool, pan: CamTool, zoom: CamTool, place: PlaceTool, paste: PasteTool, pick: PickTool, axes: AxesTool, sculpt: SculptTool, light: LightTool, divide: DivideTool }[name] || EXTRA_TOOLS.get(name) || SelectTool;
+    const C = (ARC_TOOL_IDS[name] ? ArcMethodTool : null) || { select: SelectTool, line: LineTool, rect: RectTool, circle: CircleTool, polygon: CircleTool, arc: ArcTool, arcc: ArcCenterTool, curve: CurveTool, follow: FollowTool, offset: OffsetTool, paint: PaintTool, push: PushTool, move: MoveTool, rotate: RotateTool, scale: ScaleTool, erase: EraseTool, tape: TapeTool, protractor: ProtractorTool, dim: DimTool, section: SectionTool, orbit: CamTool, pan: CamTool, zoom: CamTool, place: PlaceTool, paste: PasteTool, pick: PickTool, axes: AxesTool, sculpt: SculptTool, light: LightTool, divide: DivideTool }[name] || EXTRA_TOOLS.get(name) || SelectTool;
     this.tool = new C(this, name, arg);
     this.host.toolSet?.(name);
     this.host.overlay(null);
@@ -729,6 +733,109 @@ class ArcCenterTool extends ClickTool {
       return true;
     }
     return false;
+  }
+  cancel() { this.reset(); }
+}
+
+
+/**
+ * The ten arc methods (0.9 FX.137), driven by the shared lib/arcs: the steps are ROLES[method] (start, centre, second point, end, then an
+ * angle, chord length, direction or radius). Drawn on the plane the Arc-from-center tool uses: the face of the first click, else level.
+ * Clicks give points; for the last step the pointer is read through ARCS.pointerValue. Typed: segments (12s) any time, a distance along
+ * the cursor for a point, degrees for an angle or direction (red axis of the plane = 0, minus = clockwise), a length for a chord or radius
+ * (minus = the other way round). Drawn as the same tagged arc edges as the other arc tools, one undo step.
+ */
+class ArcMethodTool extends ClickTool {
+  constructor(T, name) { super(T, name); this.id = ARC_TOOL_IDS[name]; this.roles = ARCS.ROLES[this.id]; this.segs = ARC_SEGS; this.reset(); }
+  get role() { return this.roles[this.vals.length]; }
+  get hint() {
+    if (!this.o) return t('m3d.tool.arcm_first_' + this.roles[0]);
+    return t('m3d.tool.arcm_' + this.role);
+  }
+  get vcbLabel() {
+    if (!this.o) return t('m3d.vcb.segments');
+    const r = this.role;
+    return r === 'angle' ? t('m3d.vcb.angle') : r === 'radius' ? t('m3d.vcb.radius') : r === 'direction' ? t('m3d.vcb.direction') : t('m3d.vcb.length');
+  }
+  reset() { this.o = null; this.n = null; this.U = null; this.V = null; this.vals = []; this.pickedPts = []; this.last3 = null; this.curP = null; this.busy = false; }
+  to2(p) { const d = sub(p, this.o); return { x: dot(d, this.U), y: dot(d, this.V) }; }
+  to3(q) { return add(this.o, add(mul(this.U, q.x), mul(this.V, q.y))); }
+  flat(p) { return sub(p, mul(this.n, dot(sub(p, this.o), this.n))); }
+  /** Edge-run of an arc in the plane (a 2D {cx, cy, r, a0, a1} → 3D points). */
+  points(arc) {
+    const ctr = this.to3({ x: arc.cx, y: arc.cy });
+    const u0 = add(mul(this.U, Math.cos(arc.a0)), mul(this.V, Math.sin(arc.a0)));
+    return arcPts(ctr, this.n, u0, arc.r, Math.min(ARCS.sweep(arc), 2 * Math.PI), this.segs);
+  }
+  /** The input the pointer stands for now, as the display text for the value box. */
+  show(val) {
+    const r = this.role;
+    if (r === 'angle' || r === 'direction') return String(Math.round((val * 180) / Math.PI * 100) / 100);
+    if (r === 'length' || r === 'radius') return this.fmt(Math.abs(val));
+    return this.fmt(dist(this.last3, this.curP));
+  }
+  hover(ev) {
+    this.lastEv = ev;
+    if (!this.o) { const r = this.T.snap(ev); this.cur = r; this.h.overlay({ marker: this.marker(r), tip: r.tip }); return; }
+    const r = this.T.snap(ev, { from: this.last3, plane: planeFrom(this.n, this.o) });
+    const q = this.flat(r.p);
+    this.cur = { ...r, p: q }; this.curP = q; this.lastDir = r.dir || null; this.lastKind = r.kind;
+    const c2 = this.to2(q), lines = [];
+    const last = this.vals.length === this.roles.length - 1;
+    const res = last ? ARCS.drag(this.id, this.vals, c2) : null;
+    if (res) { const ap = this.points(res.arc); lines.push(...ap.slice(1).map((p, i) => ({ a: ap[i], b: p, kind: 'arc' }))); }
+    // the rubber line from the last click to the pointer (the radius leg, or the chord), dashed when an arc is showing
+    lines.push({ a: this.last3, b: q, kind: r.kind, dash: !!res });
+    const val = ARCS.pointerValue(this.id, this.vals, c2);
+    this.h.overlay({ lines, marker: this.marker(r), tip: res && (this.role === 'angle' || this.role === 'direction') ? this.show(val) + '°' : r.tip });
+    this.h.vcb(this.vcbLabel, this.show(val));
+  }
+  pickPoint(ev) {
+    if (!this.o) {
+      const r = this.cur || this.T.snap(ev);
+      this.o = r.p; this.n = r.face ? r.face.n : this.T.axes().z;
+      const pa = planeAxes(this.n, this.T.axes()); this.U = pa.u; this.V = pa.v;
+      this.last3 = r.p; this.busy = true;
+      this.vals.push({ x: 0, y: 0 });
+      this.h.vcb(this.vcbLabel, ''); this.h.tip(this.hint);
+      return;
+    }
+    this.hover(ev);
+    if (!this.curP) return;
+    this.accept(ARCS.pointerValue(this.id, this.vals, this.to2(this.curP)), this.curP);
+  }
+  /** Take the next input; at the last one solve and draw. `p3` is the picked point (a point step), kept as the next rubber-line start. */
+  accept(val, p3) {
+    this.vals.push(val);
+    if (p3) this.last3 = p3;
+    if (this.vals.length < this.roles.length) { this.h.vcb(this.vcbLabel, ''); this.h.tip(this.hint); if (this.lastEv) this.hover(this.lastEv); return true; }
+    const res = ARCS.solve(this.id, this.vals);
+    if (!res.arc) { this.vals.pop(); this.h.print(t('m3d.tool.arcm_err_' + res.error)); return false; }
+    drawArc(this.T, this.points(res.arc), t('m3d.undo.arc'));
+    this.reset(); this.h.overlay(null); this.h.vcb(this.vcbLabel, ''); this.h.tip(this.hint);
+    return true;
+  }
+  value(v, text) {
+    if (v.kind === 'sides') { if (v.n < 2 || v.n > 999) { this.h.print(t('m3d.tool.use_2_to_999_segments')); return false; } this.segs = v.n; this.h.print(t('m3d.tool.arc_segs', { n: v.n })); if (this.lastEv) this.hover(this.lastEv); return true; }
+    if (!this.o) return false;
+    const r = this.role, neg = /^\s*-/.test(text || '');
+    if (r === 'angle' || r === 'direction') {
+      const deg = v.kind === 'num' ? v.v : v.num ?? parseFloat(text);
+      if (!Number.isFinite(deg) || (r === 'angle' && deg === 0)) return false;
+      return this.accept(deg * Math.PI / 180);
+    }
+    if (r === 'length' || r === 'radius') {
+      if (v.kind !== 'len' && v.kind !== 'num') return false;
+      const x = Math.abs(v.v);
+      if (!(x > 0)) return false;
+      return this.accept(neg ? -x : x);
+    }
+    // a point step: a distance along the way the pointer points from the last click
+    if (v.kind !== 'len' || !(v.v > 0)) return false;
+    const d = this.curP ? norm(sub(this.curP, this.last3)) : null;
+    if (!d || !len(d)) return false;
+    const p = add(this.last3, mul(d, v.v));
+    return this.accept(this.to2(p), p);
   }
   cancel() { this.reset(); }
 }

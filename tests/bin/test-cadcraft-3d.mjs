@@ -25,6 +25,7 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
+import { kernelBytes, OWNED_ELSEWHERE } from '../tools/modelcraft-test/m3d-sync.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -69,7 +70,7 @@ const KERNEL = fs.existsSync(KERNEL_LIST) ? JSON.parse(fs.readFileSync(KERNEL_LI
   const waiting = [];
   for (const f of KERNEL) {
     const a = path.join(MC, f), b = path.join(dir, f);
-    const same = fs.existsSync(b) && (!haveMc || fs.readFileSync(a).equals(fs.readFileSync(b)));
+    const same = fs.existsSync(b) && (!haveMc || kernelBytes(f).equals(fs.readFileSync(b)));
     if (!same && fs.existsSync(b) && keysPending) { waiting.push(f); continue; }   // the kernel moves as one: they wait together
     ok(same, 'm3d/' + f + (haveMc ? ' is byte-identical to modelcraft/dev/' + f : ' is there') + (fs.existsSync(b) ? '' : ' (missing)'));
   }
@@ -79,7 +80,7 @@ const KERNEL = fs.existsSync(KERNEL_LIST) ? JSON.parse(fs.readFileSync(KERNEL_LI
   ok(!extra.length, 'm3d/ holds only the kernel copies', extra.join(', '));
   // every relative import inside the copies resolves inside m3d/ (a new ModelCraft dependency must be copied too)
   const missing = [];
-  for (const f of KERNEL) for (const m of fs.readFileSync(path.join(dir, f), 'utf8').matchAll(/from '\.\/([^']+)'/g)) if (!KERNEL.includes(m[1])) missing.push(f + ' → ' + m[1]);
+  for (const f of KERNEL) for (const m of fs.readFileSync(path.join(dir, f), 'utf8').matchAll(/from '\.\/([^']+)'/g)) if (!KERNEL.includes(m[1]) && !OWNED_ELSEWHERE.has(m[1])) missing.push(f + ' → ' + m[1]);
   ok(!missing.length, 'every module the copies import is copied too', missing.join(', '));
   const threeUsers = ['model3d.js', 'ws3d-core.js', 'commands3d.js', 'doc.js', 'commands.js', 'dxf.js', 'dwg-save.js', ...KERNEL.filter((f) => f !== 'view3d.js').map((f) => 'm3d/' + f)]
     .filter((f) => /from 'three'/.test(fs.readFileSync(path.join(APP, f), 'utf8')));

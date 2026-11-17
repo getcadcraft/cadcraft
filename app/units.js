@@ -18,6 +18,7 @@ import { parseAngle, formatAngle } from './angles.js';
 import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets over typed lengths
 import { parseTo } from './unit-table.js';   // 0.7 UNITS: the shared table (lib/units; a copy: tools/units/sync.mjs)
 import { starOf } from './unit-prefs.js';
+import { policyUnits } from './new-drawing-policy.js';   // 0.10 DP.1 (bk-defaults-10): the person's Default Policies, when that add-on is on
 
 export const LUNITS = Object.freeze({ 1: 'Scientific', 2: 'Decimal', 3: 'Engineering', 4: 'Architectural', 5: 'Fractional' });
 export const DEFAULT_PREC = Object.freeze({ 1: 4, 2: 4, 3: 4, 4: 4, 5: 4 });
@@ -134,7 +135,7 @@ const INS_NAME = { in: 'inches', 'ft-in': 'inches', ft: 'feet', mi: 'miles', mm:
  * it ($INSUNITS; feet and inches → inches, one drawing unit is one inch), else none — as before. An opened drawing keeps
  * its own.
  */
-export const newDrawingUnits = () => INS_NAME[starOf('length')] || '';
+export const newDrawingUnits = () => { const p = policyUnits(); return p !== undefined ? p : INS_NAME[starOf('length')] || ''; };   // 0.10 DP.1: a units policy first; not set = as before
 
 /** A typed length → { ok: true, value } | { ok: false, code, pos, text } (lencalc.js codes; calcMessage words them). */
 export function readLength(raw, lunits = 2, units = '') {

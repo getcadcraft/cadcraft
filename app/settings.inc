@@ -5,6 +5,9 @@
  * cadcraft.js reads and stores the fields (localStorage cadcraft.settings) and resets them on "cc-settings-reset".
  *   cursor     crosshair + pick box size: small / medium (default) / large / full screen (D8.14: the crosshair edge to edge;
  *              CURSORSIZE 100) — the pick tolerance follows the box
+ *   pointer    smoother pointer on slower computers (0.9.1, pointer-perf.js): automatic (default: turned on by itself, with a
+ *              note, when the frames stay slow while the pointer moves) / on / off. On = the system's crosshair pointer
+ *              instead of the drawn crosshair and pick box, and the object under the pointer lights up when it rests
  *   pasteBase  where a pasted copy hangs from the cursor (PASTECLIP, Ctrl+V): lower-left corner (default) / center
  *   pick       what a click on an object does with no command running: adds to the selection (default; Shift+click
  *              removes) / replaces the selection (Shift+click adds or removes; a window replaces, Shift+window adds)
@@ -31,6 +34,32 @@
     <label><input type="radio" name="ccCursor" value="full"> <i class="bi bi-border-inner" aria-hidden="true"></i> <?= Lang::e('set.full_screen') ?></label>
   </div>
   <p class="shell-hint-text"><?= Lang::e('set.crosshair_pick_box_drawing') ?></p>
+</fieldset>
+<fieldset class="shell-set" data-cc-pointer-set>
+  <legend><?= Lang::e('set.pointer') ?></legend>
+  <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('set.pointer') ?>">
+    <label><input type="radio" name="ccPointer" value="auto"> <i class="bi bi-magic" aria-hidden="true"></i> <?= Lang::e('set.pointer.auto') ?></label>
+    <label><input type="radio" name="ccPointer" value="on"> <i class="bi bi-speedometer2" aria-hidden="true"></i> <?= Lang::e('set.pointer.on') ?></label>
+    <label><input type="radio" name="ccPointer" value="off"> <i class="bi bi-plus-lg" aria-hidden="true"></i> <?= Lang::e('set.pointer.off') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.pointer.hint') ?></p>
+</fieldset>
+<?php /* ORS.20: the offset crosshair for fingers (touch-crosshair-ui.js reads and writes these; kept in this browser) */ ?>
+<fieldset class="shell-set" data-touch-crosshair-set>
+  <legend><?= Lang::e('touchx.set.legend') ?></legend>
+  <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('touchx.set.legend') ?>">
+    <label><input type="radio" name="ccTouchx" value="auto"> <i class="bi bi-magic" aria-hidden="true"></i> <?= Lang::e('touchx.set.auto') ?></label>
+    <label><input type="radio" name="ccTouchx" value="on"> <i class="bi bi-hand-index" aria-hidden="true"></i> <?= Lang::e('touchx.set.on') ?></label>
+    <label><input type="radio" name="ccTouchx" value="off"> <i class="bi bi-x-lg" aria-hidden="true"></i> <?= Lang::e('touchx.set.off') ?></label>
+  </div>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('touchx.set.side') ?>">
+    <label><input type="radio" name="ccTouchxSide" value="left"> <i class="bi bi-arrow-up-left" aria-hidden="true"></i> <?= Lang::e('touchx.set.side.left') ?></label>
+    <label><input type="radio" name="ccTouchxSide" value="right"> <i class="bi bi-arrow-up-right" aria-hidden="true"></i> <?= Lang::e('touchx.set.side.right') ?></label>
+  </div>
+  <label class="d-flex align-items-center gap-2"><span><?= Lang::e('touchx.set.distance') ?></span>
+    <input type="range" class="form-range" name="ccTouchxDistance" min="24" max="240" step="4" value="72" style="max-width: 14rem">
+    <output data-touch-crosshair-distance></output></label>
+  <p class="shell-hint-text"><?= Lang::e('touchx.set.hint') ?></p>
 </fieldset>
 <fieldset class="shell-set">
   <legend><?= Lang::e('set.paste_point') ?></legend>
@@ -71,6 +100,46 @@
     <label><input type="radio" name="ccTrimDrag" value="window"> <i class="bi bi-bounding-box-circles" aria-hidden="true"></i> <?= Lang::e('set.trimdrag.window') ?></label>
   </div>
   <p class="shell-hint-text"><?= Lang::e('set.trimdrag.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set">
+  <legend><?= Lang::e('set.typedcoords') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('set.typedcoords') ?>">
+    <label><input type="radio" name="ccTypedCoords" value="relative"> <i class="bi bi-arrow-up-right" aria-hidden="true"></i> <?= Lang::e('set.typedcoords.relative') ?></label>
+    <label><input type="radio" name="ccTypedCoords" value="absolute"> <i class="bi bi-geo" aria-hidden="true"></i> <?= Lang::e('set.typedcoords.absolute') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('set.typedcoords.hint') ?></p>
+</fieldset>
+<?php /* ORS.25: commands typed on any keyboard layout; the keypad decimal key (keylayout.js) */ ?>
+<fieldset class="shell-set" data-cc-keylayout-set>
+  <legend><?= Lang::e('keylayout.set.legend') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('keylayout.set.legend') ?>">
+    <label><input type="radio" name="ccKeylayout" value="on"> <i class="bi bi-keyboard" aria-hidden="true"></i> <?= Lang::e('keylayout.set.on') ?></label>
+    <label><input type="radio" name="ccKeylayout" value="off"> <i class="bi bi-slash-circle" aria-hidden="true"></i> <?= Lang::e('keylayout.set.off') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('keylayout.set.hint') ?></p>
+</fieldset>
+<fieldset class="shell-set" data-cc-keylayout-keypad-set>
+  <legend><?= Lang::e('keylayout.keypad.legend') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('keylayout.keypad.legend') ?>">
+    <label><input type="radio" name="ccKeylayoutKeypad" value="on"> <i class="bi bi-dot" aria-hidden="true"></i> <?= Lang::e('keylayout.keypad.on') ?></label>
+    <label><input type="radio" name="ccKeylayoutKeypad" value="off"> <i class="bi bi-slash-circle" aria-hidden="true"></i> <?= Lang::e('keylayout.keypad.off') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('keylayout.keypad.hint') ?></p>
+</fieldset>
+<?php /* ORS.28: locked layers (cleanup-ui.js, lockedlayers.js) */ ?>
+<fieldset class="shell-set" data-ors-locked-set>
+  <legend><?= Lang::e('lockfade.set.legend') ?></legend>
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('lockfade.set.fade') ?>">
+    <label><input type="radio" name="ccOrsLockFadeOn" value="on"> <i class="bi bi-circle-half" aria-hidden="true"></i> <?= Lang::e('lockfade.set.fade.on') ?></label>
+    <label><input type="radio" name="ccOrsLockFadeOn" value="off"> <i class="bi bi-circle-fill" aria-hidden="true"></i> <?= Lang::e('lockfade.set.fade.off') ?></label>
+  </div>
+  <label class="cc-set-range" for="cc-set-ors-lockfade"><?= Lang::e('lockfade.set.amount') ?>: <output data-ors-lockfade-out for="cc-set-ors-lockfade"></output></label>
+  <input type="range" id="cc-set-ors-lockfade" name="ccOrsLockFade" min="0" max="90" step="5" value="50">
+  <div class="shell-seg cc-set-seg2" role="radiogroup" aria-label="<?= Lang::e('lockfade.set.pick') ?>">
+    <label><input type="radio" name="ccOrsLockPick" value="off"> <i class="bi bi-lock" aria-hidden="true"></i> <?= Lang::e('lockfade.set.pick.off') ?></label>
+    <label><input type="radio" name="ccOrsLockPick" value="on"> <i class="bi bi-cursor" aria-hidden="true"></i> <?= Lang::e('lockfade.set.pick.on') ?></label>
+  </div>
+  <p class="shell-hint-text"><?= Lang::e('lockfade.set.hint') ?></p>
 </fieldset>
 <fieldset class="shell-set">
   <legend><?= Lang::e('set.seltotals') ?></legend>

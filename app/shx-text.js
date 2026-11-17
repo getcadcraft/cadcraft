@@ -17,6 +17,7 @@ import { textStrokes, textAdvance } from './shx.js';
 import { setShxHook } from './walk.js';
 import { setTextMeasure, resetTextLayouts, textLayout } from './geom.js';
 import { richOf } from './mtext.js';
+import { plainVisual } from './bidi-text.js';   // ORS.17: right-to-left text in a Unicode SHX font
 
 export const LIB = new ShxLibrary(null);
 let activeDoc = null;
@@ -54,7 +55,9 @@ setShxHook((doc, te) => {
   const prims = [];
   lay.lines.forEach((line, i) => {
     if (!line) return;
-    const r = textStrokes(f.font, line, te.h, { reverse: f.reverse, fallback: f.big });
+    // ORS.17: ordered and joined for a font that holds the letters at their Unicode places; a font marked Reverse (letters already shaped, drawn backwards) keeps its own rule
+    const vis = lay.rtl && !f.reverse ? plainVisual(line, lay.rtl[i], (cp) => f.font.shapes.has(cp) || !!(f.big && f.big.shapes.has(cp))) : line;
+    const r = textStrokes(f.font, vis, te.h, { reverse: f.reverse, fallback: f.big });
     const adv = r.advance * wf, base = lay.baselines[i];
     const x0 = te.ha === 'center' ? -adv / 2 : te.ha === 'right' ? -adv : 0;
     for (const s of r.strokes) {

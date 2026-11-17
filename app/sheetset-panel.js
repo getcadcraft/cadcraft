@@ -406,8 +406,8 @@ export function createSheetSetPanel({ root, el, t, ask, print, host, openSheet }
       const readModel = async (bytes, p) => {
         if (/\.dxf$/i.test(p)) {
           const { readDxfModel } = await import('./dxf-model.js');
-          const { decodeDxfBytes } = await import('./dxf-decode.js');
-          return readDxfModel(decodeDxfBytes(bytes).text);
+          const { dxfTextOf } = await import('./dxf-open.js');   // ORS.18: text or binary DXF
+          return readDxfModel(dxfTextOf(bytes).text);
         }
         return (await import('./dwg/read-async.js')).readDwgAsync(bytes);
       };

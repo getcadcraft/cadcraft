@@ -27,6 +27,7 @@ import { formatLength, formatArea, unitsOf, LUNITS, fmtAngle, editAngle, aunitCo
 import { selectionTotals } from './seltotals.js';   // 0.6 DF.4
 import { linetypeNames, ltLabel, lwLabel, LINEWEIGHTS } from './linetypes.js';
 import { hatchLines } from './hatch.js';
+import { tableSummary } from './tables-cad.js';   // ORS.1
 import { PAPERS, paperByKey, makePaper, scaleList, scaleLabel, sOf, nOf, aimViewport, modelExtents } from './sheets.js';
 import { attrRows, oneLine } from './attrs.js';
 import { LIB_TAGS } from './libplace.js';
@@ -393,6 +394,7 @@ export function createPropsPanel(o) {
     }
     if (e.type === 'insert') { const r = attributeRows(e); if (r.attrs.length) x.attrs = r.attrs; if (r.lib.length) x.library = r.lib; }
     if (e.type === 'dim' && e.block && e.kind) x.misc = [el('p', { className: 'cc-note span' }, t('props.dim.imported'))];
+    if (e.type === 'insert' && e.xd) { const ts = tableSummary(doc, e); if (ts) x.misc = [el('p', { className: 'cc-note span' }, t('tables.props.note', ts))]; }   // ORS.1: a table says what it is
     if (e.type === 'hatch' && !e.solid && !e.patlines?.length && !hatchLines(e, doc)) x.pattern = [el('p', { className: 'cc-note span' }, t('cmd.hatch.dense'))];
     return x;
   }

@@ -12,10 +12,13 @@
  *   WALLTAN          pick a wall's end, then the arc's end         WALLPICK      pick a line (option Chain: the connected lines)
  *   WALLTRACE        click inside a closed area of lines and walls
  *   WALLSPLIT (WS)   like BREAK at a point (Gap, Free ends, Crossing wall)      WALLDELSEG   like BREAK between two points
+ *   WALLSPLITGAP     the same split, asking the gap first
  *   WALLREJOIN       two parts of one wall make one again
  *   WALLDIM          type a dimension's value: the wall at its far end moves square, the other end holds
  *   WALLOFFSET       like OFFSET (Copy)    WALLSTRETCH   like STRETCH with a window
  *   WALLHOLD / WALLHOLDDIM / WALLGRID / WALLUNHOLD / WALLHOLDS   the Hold block (align and lock, lock a distance, lock to a grid line)
+ *   WALLDISJOIN      pick a wall near an end: Disallow join / Allow join at that end (FX.70)
+ *   WALLJOINSTYLE    click a corner: mitre, butt, square off; Through switches which wall runs through (WT.5)
  */
 import { t } from './i18n.js';
 import { commandRegistry } from './commands.js';
@@ -30,6 +33,7 @@ import { flatten } from './walls/straight.js';
 import * as C from './walls/cut.js';
 import * as M from './walls/modify.js';
 import { distanceTo } from './walls/hold.js';
+import { cornerEnds, nextStyle } from './walls/joinstyle.js';
 
 const opt = (key, label) => ({ key, label, en: label });
 const def = commandRegistry.add;
@@ -212,11 +216,17 @@ function writeParts(c, e, w, k, parts, cut, label) {
   });
 }
 
-def('WALLSPLIT', ['WS'], async (c) => {
+/** WALLSPLIT, and WALLSPLITGAP (the same cut, asking the gap first: the toolbar's "Split with gap", walls-plan-10). */
+async function splitWall(c, withGap) {
   const S = sizes(c), k = unitsToMm(c.doc);
+  let gap = 0;
+  if (withGap) {
+    const g = await c.distance(t('plan2d.tool.split.gapq'), { default: c.engine.lastWallGap ?? S.t });
+    if (!(g > 0)) return;
+    gap = g; c.engine.lastWallGap = g;
+  }
   const pick = await pickWall(c, t('plan2d.tool.split.pick'));
   if (!pick) return;
-  let gap = 0;
   for (;;) {
     const p = await c.point(t('plan2d.tool.split.point', { free: t(S.splitFree ? 'plan2d.tool.free.on' : 'plan2d.tool.free.off') }), { options: [opt('C', t('plan2d.tool.split.cross')), opt('G', t('plan2d.tool.split.gap')), opt('F', t('plan2d.tool.split.free'))] });
     if (!p) return;
@@ -240,7 +250,9 @@ def('WALLSPLIT', ['WS'], async (c) => {
     writeParts(c, pick.e, pick.w, k, r.parts, r.cut, 'WALLSPLIT');
     return;
   }
-}, { help: () => t('plan2d.tool.split.help') });
+}
+def('WALLSPLIT', ['WS'], (c) => splitWall(c, false), { help: () => t('plan2d.tool.split.help') });
+def('WALLSPLITGAP', [], (c) => splitWall(c, true), { help: () => t('plan2d.tool.splitgap.help') });
 
 def('WALLDELSEG', [], async (c) => {
   const k = unitsToMm(c.doc);
@@ -362,6 +374,87 @@ function adoptNow(c) {
 }
 def('WALLJOINS', [], async (c) => { adoptNow(c); c.print(t('plan2d.tool.joins.done', { n: wallsOf(c).length })); }, { help: () => t('plan2d.tool.joins.help') });
 
+/**
+ * WALLDISJOIN (0.9 FX.70, walls-plan-10): Disallow join / Allow join at one end of a wall, as a command and a button (Properties has the
+ * two switches). Pick the wall near the end: that end's switch flips. Disallowed, the end makes no join and keeps none (it is capped and
+ * nothing follows it); allowed again, it joins what it touches at once. The switch is stored on the wall (`jo`) and stays with that end.
+ */
+def('WALLDISJOIN', [], async (c) => {
+  adoptNow(c);
+  const pick = await pickWall(c, t('plan2d.tool.disjoin.pick'));
+  if (!pick) return;
+  const e = c.doc.get(pick.e.id), w = model(e), at = pick.point || w.a;
+  const end = Math.hypot(at.x - w.a.x, at.y - w.a.y) <= Math.hypot(at.x - w.b.x, at.y - w.b.y) ? 'a' : 'b';
+  const has = new Set((w.jo || '').split('')), off = !has.has(end);
+  if (off) has.add(end); else has.delete(end);
+  c.doc.change('WALLDISJOIN', () => c.doc.update(e.id, canonical(e, { ...w, jo: ['a', 'b'].filter((x) => has.has(x)).join('') })));
+  c.print(t(off ? 'plan2d.tool.disjoin.off' : 'plan2d.tool.disjoin.on', { end: t(end === 'a' ? 'plan2d.tool.disjoin.start' : 'plan2d.tool.disjoin.end') }));
+}, { help: () => t('plan2d.tool.disjoin.help') });
+
+/**
+ * WALLJOINSTYLE (0.9 WT.5, walls-plan-10): the join style of a corner. Click a corner where two walls meet end to end: mitre → butt → square
+ * off → mitre (lib/walls/joinstyle.js nextStyle; the cut of the ends is its cornerEnds, in plan2d/walls.js geometry()). T (Through) switches
+ * which of the two walls runs through at the corner clicked last. One run of the command is one undo step. A T join has no choice (the wall whose side
+ * is met runs through) and a corner of three or more walls stays mitre: both are said, nothing changes.
+ */
+function cornerNear(c, p) {
+  let best = null, bd = Infinity;
+  const walls = wallsOf(c);
+  for (const w of walls) for (const end of ['a', 'b']) {
+    const d = Math.hypot(w[end].x - p.x, w[end].y - p.y);
+    if (d <= Math.max(w.t * 2, 1e-9) && d < bd) { bd = d; best = { w, end }; }
+  }
+  if (!best) return { err: 'plan2d.tool.joinstyle.none' };
+  const { w, end } = best, pos = end === 'a' ? 'start' : 'end', here = (w.jn || []).filter((r) => r.me === pos);
+  if (here.some((r) => r.ot === 'mid')) return { err: 'plan2d.tool.joinstyle.t' };
+  if (!here.length) return { err: 'plan2d.tool.joinstyle.none' };
+  if (here.length > 1) return { err: 'plan2d.tool.joinstyle.many' };
+  const o = walls.find((x) => x.g === here[0].o);
+  if (!o) return { err: 'plan2d.tool.joinstyle.none' };
+  const oend = here[0].ot === 'start' ? 'a' : 'b';
+  if ((o.jn || []).filter((r) => r.me === here[0].ot).length !== 1) return { err: 'plan2d.tool.joinstyle.many' };
+  return { w, end, o, oend, rec: here[0] };
+}
+/** Would the shared rules make this style at this corner (or fall back to mitre: walls in line, a very sharp corner)? */
+function styleFits(k, n, style, through) {
+  const D = (w, end) => { const far = end === 'a' ? w.b : w.a, L = Math.hypot(far.x - w[end].x, far.y - w[end].y) || 1; return { p: P(w[end], k), d: [(far.x - w[end].x) / L, (far.y - w[end].y) / L], h: w.t * k / 2 }; };
+  return cornerEnds(D(n.w, n.end), D(n.o, n.oend), { style, through: through ? 'a' : 'b' }).style === style;
+}
+function writeCorner(c, n, st, th) {
+  const e = editableWalls(c.doc).find((x) => x.id === n.w.id), w = model(e);
+  // this wall's record says; the hook mirrors it onto the other wall in the same undo step
+  c.doc.change('WALLJOINSTYLE', () => c.doc.update(e.id, canonical(e, { ...w, jn: w.jn.map((r) => (r.o === n.rec.o && r.me === n.rec.me && r.ot === n.rec.ot ? { o: r.o, me: r.me, ot: r.ot, k: r.k, ...(st ? { st, th: th ? 1 : 0 } : {}) } : r)) })));
+}
+def('WALLJOINSTYLE', [], async (c) => {
+  adoptNow(c);
+  const k = unitsToMm(c.doc);
+  let last = null;
+  for (;;) {
+    const p = await c.point(t('plan2d.tool.joinstyle.pick'), { options: [opt('T', t('plan2d.tool.joinstyle.through'))], none: true });
+    if (!p) return;
+    if (p.option === 'T') {
+      const n = last && cornerNear(c, last);
+      if (!n || n.err) { c.print(t('plan2d.tool.joinstyle.first')); continue; }
+      if (!n.rec.st) { c.print(t('plan2d.tool.joinstyle.mitrethrough')); continue; }
+      writeCorner(c, n, n.rec.st, !n.rec.th);
+      c.print(t('plan2d.tool.joinstyle.switched'));
+      continue;
+    }
+    if (p.option) continue;
+    const n = cornerNear(c, p);
+    if (n.err) { c.print(t(n.err)); continue; }
+    last = { x: n.w[n.end].x, y: n.w[n.end].y };
+    const now = n.rec.st || 'mitre', th = n.rec.st ? !!n.rec.th : n.w.g < n.o.g;   // a new style: the record's first wall (by id) runs through, as BimCraft
+    let next = nextStyle(now);
+    if (next !== 'mitre' && !styleFits(k, n, next, th)) {
+      if (now === 'mitre') { c.print(t('plan2d.tool.joinstyle.sharp')); continue; }
+      next = 'mitre';
+    }
+    writeCorner(c, n, next === 'mitre' ? '' : next, th);
+    c.print(t('plan2d.tool.joinstyle.now', { style: t('plan2d.joinstyle.' + next) }));
+  }
+}, { help: () => t('plan2d.tool.joinstyle.help') });
+
 def('WALLHOLD', [], async (c) => {
   const k = unitsToMm(c.doc);
   adoptNow(c);
@@ -417,8 +510,7 @@ def('WALLGRID', [], async (c) => {
     const cr = ((la.b[0] - la.a[0]) * (line.b.y - line.a.y) - (la.b[1] - la.a[1]) * (line.b.x - line.a.x)) / (Math.hypot(la.b[0] - la.a[0], la.b[1] - la.a[1]) * L);
     if (Math.abs(cr) > 0.01) { c.print(t('plan2d.tool.grid.notalong')); return; }
     const off = ((la.a[0] - line.a.x * k) * -(line.b.y - line.a.y) / L + (la.a[1] - line.a.y * k) * (line.b.x - line.a.x) / L);
-    addHold(c, a, { id: holdId(), kind: 'line', ref: 'center', to: { grid: line.tag }, off: 0 });
-    void off;
+    addHold(c, a, { id: holdId(), kind: 'line', ref: 'center', to: { grid: line.tag }, off: Math.abs(off) <= 0.5 ? 0 : off });   // on the line, or at the distance it stands from it (walls-plan-10: it used to be pulled onto the line at the next change)
   } else {
     const near = (q) => Math.hypot(q.x - (g.point?.x ?? q.x), q.y - (g.point?.y ?? q.y));
     const end = near(a.w.a) <= near(a.w.b) ? 'a' : 'b';

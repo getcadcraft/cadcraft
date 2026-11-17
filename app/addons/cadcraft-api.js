@@ -24,8 +24,9 @@ import { installTrust, bundledOnly, NO_PACKAGES } from './trust.js';
 import { meshDef, softenEdges } from '../m3d/model.js';
 import { translation } from '../m3d/vec.js';
 import { t } from '../i18n.js';
+import { defaults as currentDefaults, setDefaults, defaultsChanged } from '../defaults-hook.js';   // 0.10 DP.1
 
-export const CADCRAFT_API_VERSION = '1.4';   // 1.3 (0.8): api.problems (ADDONS-SPEC §5.3); 1.4 (0.8 REG.1 step 4): api.rules, api.model, api.ui.panelTab (addons.js)
+export const CADCRAFT_API_VERSION = '1.5';   // 1.5 (0.10 DP.1, bk-defaults-10): api.defaults.provide / changed (defaults-hook.js: what a new drawing starts with); 1.3 (0.8): api.problems (ADDONS-SPEC §5.3); 1.4 (0.8 REG.1 step 4): api.rules, api.model, api.ui.panelTab (addons.js)
 
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const hasDom = () => typeof document !== 'undefined';
@@ -226,8 +227,21 @@ export function makeCadcraftApi(base, addon, ctx) {
     },
   };
 
+  /** 1.5 (0.10 DP.1): the person's defaults for new drawings (defaults-hook.js); one add-on at a time, removed when it is switched off. */
+  const defaultsApi = {
+    provide(provider) {
+      if (!provider || typeof provider !== 'object' || typeof provider.get !== 'function') throw new Error('defaults.provide: (provider with get(id, ctx))');
+      setDefaults(provider);
+      const off = () => { if (currentDefaults() === provider) setDefaults(null); };
+      track(off);
+      return off;
+    },
+    changed() { defaultsChanged(); },
+  };
+
   return {
     ...shared,
+    defaults: defaultsApi,
     ui,
     commands,
     toolbar,

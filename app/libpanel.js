@@ -74,10 +74,14 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
   $.feedSel.addEventListener('change', () => { if ($.feedSel.value) { source = $.feedSel.value; search(); } });
   $.q = el('input', { type: 'search', className: 'cc-input', placeholder: t('lib.panel.search_name_maker_model'), 'aria-label': t('lib.panel.search_library'), maxLength: 200 });
   $.cat = el('select', { className: 'cc-select', 'aria-label': t('lib.panel.category') }, el('option', { value: '' }, t('lib.panel.every_category')));
+  // 0.10 BK.21: Symbols and Assets (the Library's class filter; libitem.js ITEM_CLASSES). Types are what a BimCraft project is built from: CadCraft has no type import, so they are not offered here.
+  $.cls = el('select', { className: 'cc-select', 'aria-label': t('lib.panel.class'), 'data-lib-class': '' }, el('option', { value: '' }, t('lib.panel.class.any')),
+    ...Li.ITEM_CLASSES.filter((c) => c !== 'type').map((c) => el('option', { value: c }, t('lib.panel.class.' + c))));
   $.go = el('button', { type: 'submit', className: 'btn-line btn-sm-cc' }, t('lib.panel.search'));
-  $.searchForm = el('form', { className: 'cc-lib-search' }, $.q, $.cat, $.go);
+  $.searchForm = el('form', { className: 'cc-lib-search' }, $.q, $.cls, $.cat, $.go);
   $.searchForm.addEventListener('submit', (e) => { e.preventDefault(); search(); });
   $.cat.addEventListener('change', () => (source === 'files' ? render() : search()));
+  $.cls.addEventListener('change', () => (source === 'files' ? render() : search()));
   // ---- Standard: the family, and the options the next Place uses (stdlib.js) ----
   const stdGroup = (g, label) => el('optgroup', { label }, ...STD_FAMILIES.filter((f) => f.group === g).map((f) => el('option', { value: f.key }, f.label + ' (' + f.source + ')')));
   $.stdFam = el('select', { className: 'cc-select', 'aria-label': t('lib.panel.std.family') }, stdGroup('sections', t('lib.panel.std.sections')), stdGroup('parts', t('lib.panel.std.parts')));
@@ -189,7 +193,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     const my = ++loading;
     say(t('lib.panel.loading')); render();
     try {
-      const r = await client(source).items({ q: $.q.value.trim(), category: $.cat.value });
+      const r = await client(source).items({ q: $.q.value.trim(), category: $.cat.value, itemClass: $.cls.value });
       if (my !== loading) return;
       cards = r.items.map((x) => ({ key: x.uuid + '@' + x.version, uuid: x.uuid, slug: typeof x.slug === 'string' ? x.slug : '', name: String(x.name || ''), maker: String(x.maker || ''), model: String(x.model || ''), license: String(x.license || ''), version: +x.version || 1, category: String(x.category || ''), preview_url: x.preview_url, from: source, stretch: stretchOf(x.stretch) }));
       fillCategories(r.items.map((x) => x.category));
@@ -249,16 +253,32 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
   async function runAdapter(f, ext) {
     if (f.size > 200 * 1024 * 1024) throw new Error(t('lib.panel.file_larger_than_200'));
     const bytes = new Uint8Array(await f.arrayBuffer());
-    const units = Li.UNIT_MM[unitKey()] ? unitKey() : null;
+    let units = Li.UNIT_MM[unitKey()] ? unitKey() : null;
     if (ext === 'csv') return Li.itemsFromCsv(new TextDecoder().decode(bytes));
     if (ext === 'glb' || ext === 'gltf' || ext === 'obj') {
-      // glTF is in metres by its own definition; OBJ has none: read it in this drawing's units
-      return Li.itemFromMesh(bytes, ext, { units: ext === 'obj' ? units : null, name: f.name.replace(/\.[^.]+$/, '') });
+      // glTF is in metres by its own definition; OBJ has none. 0.10 BK.8 (units on import): ask before an item is made (the shell's one
+      // dialog, remembered per file); it was read in this drawing's units, or as millimeters, unasked
+      let said = '';
+      if (ext === 'obj' && window.ccImportUnits) {
+        const a = await window.ccImportUnits.resolve({ file: f, format: 'OBJ', stated: null, choices: ['mm', 'cm', 'm', 'in', 'ft'], suggest: units });
+        if (!a) throw new Error(t('lib.panel.units_not_given', { file: f.name }));
+        units = a.unit; said = a.text;
+      }
+      const r = Li.itemFromMesh(bytes, ext, { units: ext === 'obj' ? units : null, name: f.name.replace(/\.[^.]+$/, '') });
+      return said ? { ...r, notes: [said, ...(r.notes || [])] } : r;
     }
     if (ext === 'dwg' || ext === 'dxf') {
       if (!dwgModel) throw new Error(t('lib.panel.reading_drawings_needs_dwg'));
       const model = await dwgModel(bytes, ext === 'dxf');   // cc-dwg's readDwg, or dxf-model.js for a DXF
-      return Li.itemsFromDwg(model, { fileName: f.name });
+      // 0.10 BK.8: a drawing that states no units is asked about (it was guessed from its measurement flag)
+      let du = null, said = '';
+      if (!(model.header?.INSUNITS > 0) && window.ccImportUnits) {
+        const a = await window.ccImportUnits.resolve({ file: f, format: ext.toUpperCase(), stated: null, choices: ['mm', 'cm', 'm', 'in', 'ft'] });
+        if (!a) throw new Error(t('lib.panel.units_not_given', { file: f.name }));
+        du = a.unit; said = a.text;
+      }
+      const r = Li.itemsFromDwg(model, { fileName: f.name, units: du });
+      return said ? { ...r, notes: [said, ...(r.notes || [])] } : r;
     }
     if (ext === 'ifc') throw new Error(t('lib.panel.making_items_ifc_types'));
     if (ext === 'rfa') throw new Error(t('lib.panel.family_files_read_bimcraft'));

@@ -10,6 +10,7 @@ import { commandRegistry } from './commands.js';
 import { addSection } from './propdefs.js';
 import { Doc } from './doc.js';
 import { PATTERNS } from './hatch.js';
+import { gradOf, withGradient, askGradient } from './hatch-gradient.js';   // ORS.7
 import { floorsOf, floorOf, withFloor, addFloor, enableFloors, setActiveFloor, setFloorOf, copyToFloor, floorsToLayers, installFloorHook } from './floors.js';
 import { isLinked, linkHatch, linkOf, unlinkHatch, installHatchHook } from './hatch-assoc.js';
 import { addGroup, deleteGroup, groupByPrefix, addStandardSet, groupOfLayer, groupsOf, setLayerGroup } from './layergroups.js';
@@ -75,9 +76,12 @@ export function installPlanCommands(def) {
     const put = (patch) => { c.doc.change('HATCHEDIT', () => { e = c.doc.update(e.id, patch(c.doc.get(e.id))); }); };
     for (;;) {
       c.print(t(isLinked(e) ? 'plan2d.he.linked' : 'plan2d.he.free', { pattern: e.solid ? 'SOLID' : e.pattern || '' }));
+      c.print(t(gradOf(e) ? 'gradient.he.is' : 'gradient.he.hint'));   // ORS.7
       const k = String(await c.string(t('plan2d.he.ask'), {}) ?? '').trim().toUpperCase()[0];
       if (!k) return;
+      if (k === 'G') { const g = await askGradient(c, gradOf(e)); put((h) => withGradient(h, g)); continue; }   // ORS.7: a gradient fill (hatch-gradient.js)
       if (k === 'P') {
+        if (gradOf(e)) put((h) => withGradient(h, null));   // ORS.7: a pattern takes the gradient off
         const v = String(await c.string(t('cmd.hatch.pattern'), { default: e.solid ? 'SOLID' : e.pattern }) ?? '').trim().toUpperCase();
         if (v === 'SOLID') put((h) => { const n = { ...h, solid: true }; delete n.pattern; return n; });
         else if (PATTERNS[v]) put((h) => ({ ...h, solid: false, pattern: v, pscale: h.pscale > 0 ? h.pscale : 1, pangle: h.pangle || 0 }));

@@ -43,7 +43,7 @@ You can select the objects first and then type `B`. CadCraft still asks for the 
 ## Insert the block
 
 1. Type `I` and press {{key:Enter}}, or click {{ui:Insert}} next to DOOR-900 in the {{ui:Blocks}} panel.
-2. At `Enter block name <DOOR-900>`, press {{key:Enter}}. (The panel's {{ui:Insert}} button fills in the name for you.)
+2. At `Enter block name or [File/Library] <DOOR-900>`, press {{key:Enter}}. (The panel's {{ui:Insert}} button fills in the name for you.)
 3. The door follows the crosshair. Click where the hinge should go.
 
 A second door appears.

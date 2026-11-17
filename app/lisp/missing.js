@@ -16,6 +16,8 @@ const NAMES = new Set([
   'VL-ANNOTATIVE-GET', 'VL-ANNOTATIVE-SET',
 ]);
 const PREFIXES = ['VLR-', 'VLAX-CURVE-', 'ACET-', 'DOS_', 'VLAX-LDATA-'];
+/** ORS.31: the list itself, for the LISP editor's "not built here yet" list (lispedit-ui.js). */
+export const missingList = () => ({ names: [...NAMES].sort(), prefixes: PREFIXES.slice() });
 
 export function knownMissing(name) {
   const n = String(name).toUpperCase();

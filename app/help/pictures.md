@@ -14,7 +14,7 @@ A company logo placed in a title block, clipped to the part you want, and a PDF 
 
 1. Type {{cmd:IMAGEATTACH}} (or `IAT`) and press {{key:Enter}}. Pick a PNG or JPEG file.
 2. `Specify the lower-left corner`: click, or type a point.
-3. `Specify its width`: the width in drawing units. {{key:Enter}} keeps one unit per pixel.
+3. `Specify its width`: the width in drawing units. {{key:Enter}} keeps the offered width: one unit per pixel, or the width you gave this file last time (the prompt says which).
 4. `Specify its rotation angle`: {{key:Enter}} for none.
 
 The picture is one object: select it by its frame, and move, copy, rotate, scale or erase it like any block.
