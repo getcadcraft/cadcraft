@@ -40,7 +40,7 @@ const store = {
   set(k, v, s = sessionStorage) { try { if (v === null) s.removeItem(k); else s.setItem(k, v); } catch { /* private window: fine */ } },
 };
 const LICENSES = { 'CC0-1.0': 'CC0', 'CC-BY-4.0': 'CC BY', 'CC-BY-SA-4.0': 'CC BY-SA' };   // i18n-ignore: license names stay as written
-const LICENSE_KEYS = { 'MAKER-TERMS': 'lib.license.maker', 'TEAM-ONLY': 'lib.license.team' };   // language keys, read when shown
+const LICENSE_KEYS = { 'MAKER-TERMS': 'lib.license.maker', 'TEAM-ONLY': 'lib.license.team', PRIVATE: 'lib.license.private' };   // language keys, read when shown
 const licenseLabel = (id) => LICENSES[id] || (LICENSE_KEYS[id] ? t(LICENSE_KEYS[id]) : String(id || t('lib.license.none')));
 
 let standardInstalled = false;
@@ -69,7 +69,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
   // ---- the dialog ----
   const $ = {};
   const tab = (key, label) => { const b = el('button', { type: 'button', role: 'tab', className: 'cc-tab', 'aria-selected': 'false', dataset: { src: key } }, label); b.addEventListener('click', () => setSource(key)); return b; };
-  $.tabs = el('div', { className: 'cc-tablist', role: 'tablist', 'aria-label': t('lib.panel.library_sources') }, tab('librarycraft', 'Library'), tab('files', t('lib.panel.files')), tab('standard', t('lib.panel.standard')), tab('feeds', t('lib.panel.other_feeds')));
+  $.tabs = el('div', { className: 'cc-tablist', role: 'tablist', 'aria-label': t('lib.panel.library_sources') }, tab('librarycraft', 'Library'), tab('mine', t('lib.panel.mine')), tab('files', t('lib.panel.files')), tab('standard', t('lib.panel.standard')), tab('feeds', t('lib.panel.other_feeds')));
   $.feedSel = el('select', { className: 'cc-select', 'aria-label': t('lib.panel.feed'), hidden: true });
   $.feedSel.addEventListener('change', () => { if ($.feedSel.value) { source = $.feedSel.value; search(); } });
   $.q = el('input', { type: 'search', className: 'cc-input', placeholder: t('lib.panel.search_name_maker_model'), 'aria-label': t('lib.panel.search_library'), maxLength: 200 });
@@ -144,7 +144,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     if (e.data.app && e.data.app !== 'cadcraft') return;
     token = tok; store.set(TOKEN_KEY, tok); popup = null;
     renderSign(); say(t('lib.panel.signed_team_items_show'));
-    if (source === 'librarycraft' && view === 'browse') search();
+    if ((source === 'librarycraft' || source === 'mine') && view === 'browse') search();
   });
 
   // ---- sources ----
@@ -157,7 +157,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     cards = [];
     if (source === 'files') render(); else if (view === 'browse') search(); else render();
   }
-  function srcKey() { return source === 'librarycraft' || source === 'files' || source === 'standard' ? source : 'feeds'; }
+  function srcKey() { return source === 'librarycraft' || source === 'files' || source === 'standard' || source === 'mine' ? source : 'feeds'; }
 
   // ---- Standard (stdlib.js) ----
   let stdOpts = {};
@@ -190,16 +190,34 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     if (source === 'standard') { stdSearch(); return; }
     if (source === 'files' || source === 'feeds') { render(); return; }
     view = 'browse';
+    // PO.3 My objects: the person's own private objects; needs the library sign-in
+    if (source === 'mine' && !token) { ++loading; cards = []; say(t('lib.panel.mine.signin')); render(); return; }
     const my = ++loading;
     say(t('lib.panel.loading')); render();
     try {
-      const r = await client(source).items({ q: $.q.value.trim(), category: $.cat.value, itemClass: $.cls.value });
+      const r = source === 'mine' ? await client().myItems({ q: $.q.value.trim(), category: $.cat.value }) : await client(source).items({ q: $.q.value.trim(), category: $.cat.value, itemClass: $.cls.value });
       if (my !== loading) return;
-      cards = r.items.map((x) => ({ key: x.uuid + '@' + x.version, uuid: x.uuid, slug: typeof x.slug === 'string' ? x.slug : '', name: String(x.name || ''), maker: String(x.maker || ''), model: String(x.model || ''), license: String(x.license || ''), version: +x.version || 1, category: String(x.category || ''), preview_url: x.preview_url, from: source, stretch: stretchOf(x.stretch) }));
+      cards = r.items.map((x) => ({ key: x.uuid + '@' + x.version, uuid: x.uuid, slug: typeof x.slug === 'string' ? x.slug : '', name: String(x.name || ''), maker: String(x.maker || ''), model: String(x.model || ''), license: String(x.license || ''), version: +x.version || 1, category: String(x.category || ''), preview_url: x.preview_url, from: source === 'mine' ? 'librarycraft' : source, mine: x.visibility === 'private', stretch: stretchOf(x.stretch) }));
       fillCategories(r.items.map((x) => x.category));
       sayAfterEnd(r.total ? r.total + ' item' + (r.total === 1 ? '' : 's') + (r.total > cards.length ? ', showing ' + cards.length : '') + '.' : t('lib.panel.nothing_found'));
-    } catch (err) { if (my === loading) { cards = []; say(err.message); } }
+    } catch (err) { if (my === loading) { cards = []; say(source === 'mine' && err.status === 404 ? t('lib.panel.mine.closed') : err.message); } }
     if (my === loading) render();
+  }
+  /** PO.3: keep an item read from a file in My objects (private: only this account sees it). */
+  async function keepMine(card, btn) {
+    if (!token) { say(t('lib.panel.mine.signin')); return; }
+    btn.disabled = true;
+    try {
+      const r = await client().keepMine(card.item, card.fileName || '');
+      card.kept = r.uuid || true;
+      btn.textContent = t('lib.panel.mine.kept');
+      say(t('lib.panel.mine.kept_one', { name: card.name }));
+    } catch (err) { btn.disabled = false; say(err.status === 404 ? t('lib.panel.mine.closed') : err.message); }
+  }
+  async function removeMine(card) {
+    if (!token || !window.confirm(t('lib.panel.mine.remove_confirm', { name: card.name }))) return;
+    try { await client().removeMine(card.uuid); say(t('lib.panel.mine.removed', { name: card.name })); cards = cards.filter((c) => c !== card); render(); }
+    catch (err) { say(err.message); }
   }
   function fillCategories(list) {
     const cur = $.cat.value;
@@ -243,7 +261,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
         const why = await problemOf(it);
         if (why) notes.push((it?.name ? '"' + String(it.name).slice(0, 80) + '": ' : '') + why); else good.push(it);
       }
-      cards = good.map((it, k) => ({ key: 'file-' + k, uuid: isUuid(it.uuid) ? it.uuid : '', name: String(Li.localized(it, locale()).name || 'Item ' + (k + 1)), maker: String(it.maker || ''), model: String(it.model || ''), license: String(it.license?.id || ''), version: Number.isInteger(it.version) ? it.version : 1, category: String(it.category || ''), item: it, from: 'files', fileName: f.name }));
+      cards = good.map((it, k) => ({ fileName: f.name, key: 'file-' + k, uuid: isUuid(it.uuid) ? it.uuid : '', name: String(Li.localized(it, locale()).name || 'Item ' + (k + 1)), maker: String(it.maker || ''), model: String(it.model || ''), license: String(it.license?.id || ''), version: Number.isInteger(it.version) ? it.version : 1, category: String(it.category || ''), item: it, from: 'files', fileName: f.name }));
       fillCategories(cards.map((c) => c.category));
       say([cards.length ? t('lib.panel.items_in', { n: cards.length, file: f.name }) : t('lib.panel.no_items_in', { file: f.name }), ...notes.slice(0, 3), notes.length > 3 ? t('lib.panel.more_notes', { n: notes.length - 3 }) : ''].filter(Boolean).join(' '));
     } catch (err) { cards = []; say(err.message); }
@@ -419,6 +437,16 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     placeBtn.addEventListener('click', () => place(card));
     const firmBtn = isDetail(card) ? el('button', { type: 'button', className: 'btn-line btn-sm-cc' }, t('lib.panel.firm.add')) : null;
     firmBtn?.addEventListener('click', () => addToFirm(card));
+    // PO.3: a file's item can be kept in My objects; one of My objects can be taken out
+    let keepBtn = null, dropBtn = null;
+    if (source === 'files' && card.item && !card.uuid) {
+      keepBtn = el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { libKeep: '' }, disabled: !!card.kept, title: t('lib.panel.mine.keep_title') }, t(card.kept ? 'lib.panel.mine.kept' : 'lib.panel.mine.keep'));
+      keepBtn.addEventListener('click', () => keepMine(card, keepBtn));
+    }
+    if (card.mine) {
+      dropBtn = el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { libUnkeep: '' } }, t('lib.panel.mine.remove'));
+      dropBtn.addEventListener('click', () => removeMine(card));
+    }
     const mm = [card.maker, card.model].filter(Boolean).join(' ');
     return el('li', { className: 'cc-lib-card' + (card.withdrawn ? ' is-withdrawn' : '') },
       preview(card),
@@ -427,7 +455,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
         mm ? el('p', { className: 'cc-muted' }, mm) : null,
         el('p', { className: 'cc-lib-tags' }, badge(card.license), card.std ? el('span', { className: 'cc-muted' }, card.source) : el('span', { className: 'cc-muted' }, t('lib.panel.version', { version: card.version })), card.category ? el('span', { className: 'cc-muted' }, catLabel(card.category)) : null),
         card.withdrawn ? el('p', { className: 'cc-lib-warn' }, el('i', { className: 'bi bi-exclamation-triangle', 'aria-hidden': 'true' }), ' Withdrawn: ' + card.withdrawn) : null),
-      placeBtn, firmBtn);
+      placeBtn, firmBtn, keepBtn, dropBtn);
   }
   function render(extra = null) {
     for (const b of $.tabs.children) b.setAttribute('aria-selected', String(b.dataset.src === srcKey() && (view === 'browse' || view === 'feeds')));
@@ -450,6 +478,7 @@ export function createLibraryPanel({ root, doc, engine, print, status, ask, dwgM
     if (!shown.length) {
       $.body.replaceChildren(el('div', { className: 'cc-lib-empty' }, source === 'files'
         ? [el('p', {}, t('lib.panel.choose_item_file_item')), el('p', { className: 'cc-note' }, t('lib.panel.files_read_here_computer'))]
+        : source === 'mine' ? el('p', {}, $.msg.textContent === t('lib.panel.loading') ? t('lib.panel.loading') : t(token ? 'lib.panel.mine.empty' : 'lib.panel.mine.signin'))
         : el('p', {}, $.msg.textContent === t('lib.panel.loading') ? t('lib.panel.loading') : t('lib.panel.no_items_show'))));
       return;
     }

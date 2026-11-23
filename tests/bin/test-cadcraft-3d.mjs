@@ -87,7 +87,8 @@ const KERNEL = fs.existsSync(KERNEL_LIST) ? JSON.parse(fs.readFileSync(KERNEL_LI
   ok(!threeUsers.length, 'only the views (m3d/view3d.js, ws3d.js) import three.js', threeUsers.join(', '));
   const man = JSON.parse(fs.readFileSync(path.join(APP, 'manifest.json'), 'utf8'));
   ok(man.imports?.three === '/assets/vendor/three/current/three.module.js', 'the manifest maps "three" to the vendored three.js');
-  const main = fs.readFileSync(path.join(APP, 'cadcraft.js'), 'utf8');
+  // cadcraft.js and the modules its init() sections moved to (0.11 PERF.71 round two: cadui-*.js)
+  const main = ['cadcraft.js', ...fs.readdirSync(APP).filter((f) => /^cadui-.*\.js$/.test(f)).sort()].map((f) => fs.readFileSync(path.join(APP, f), 'utf8')).join('\n');
   ok(/import\('\.\/ws3d\.js'\)/.test(main) && !/^import .*ws3d/m.test(main), 'cadcraft.js loads the 3D view lazily (import() on first open)');
 }
 

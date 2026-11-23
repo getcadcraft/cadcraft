@@ -64,6 +64,7 @@ export function installTouchCrosshair({ root, over, view, el, t, status = () => 
   const take = (e) => { e.stopImmediatePropagation(); if (e.cancelable && e.type !== 'pointerdown') e.preventDefault(); };
   const onDown = (e) => {
     if (e.pointerType !== 'touch') return;
+    if (win.ccShellPen?.palm?.(e)) return;   // 0.11 SU.1807: a palm while the pen is down or near is the shell's to drop (app-phone.js), never a crosshair finger
     if (!hasTouch) { hasTouch = true; render(); }
     if (e.target !== over || !isOn()) return;
     take(e);

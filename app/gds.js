@@ -16,6 +16,7 @@
  *   GDS_ERRORS: 'not_gds' · 'cut_off' · 'bad_record' · 'no_cells' · 'big'
  */
 
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 const MAX_BYTES = 256 * 1024 * 1024, MAX_ELEMENTS = 5_000_000;
 
 function real8(dv, p) {
@@ -79,7 +80,6 @@ export function readGds(input) {
 }
 
 // a transform: x' = a x + c y + e, y' = b x + d y + f
-const mul = (m, n) => [m[0] * n[0] + m[2] * n[1], m[1] * n[0] + m[3] * n[1], m[0] * n[2] + m[2] * n[3], m[1] * n[2] + m[3] * n[3], m[0] * n[4] + m[2] * n[5] + m[4], m[1] * n[4] + m[3] * n[5] + m[5]];
 const place = (x, y, reflect, mag, angle) => {
   const r = (angle || 0) * Math.PI / 180, c = Math.cos(r) * mag, s = Math.sin(r) * mag, f = reflect ? -1 : 1;
   return [c, s, -s * f, c * f, x, y];   // reflect about the X axis first (y → −y), then magnify, rotate and move

@@ -21,6 +21,8 @@ import { workerRunner } from './lisp/client.js';
 import { dclDialogs } from './lisp/dcl-ui.js';
 import { decodeSource, balanced } from './lisp/reader.js';
 import { applyAliases, exportPgp, parseAliases, STORE_KEY as ALIAS_KEY, TEMPLATE } from './aliases.js';
+import { createKeep } from './account-keep.js';   // OPT.2: the option letters file follows the account
+import { applyOptionKeys, parseOptionKeys, optionKeyClashes, optionKeysExport, ownCount as optionKeysCount, STORE_KEY as OPTKEY_KEY, TEMPLATE as OPTKEY_TEMPLATE } from './optionkeys.js';   // OPT.1
 import { t } from './i18n.js';
 import { readLength, readNumber } from './units.js';
 import { bridgeFolder, readSupportFiles, SUPPORT_NAMES } from './lisp/support.js';
@@ -237,6 +239,156 @@ export function installLispUi({ root, engine, host, print, ask, focusCommandLine
     area.focus();
   });
 
+  // ---- option letters (OPT.1): the person's own letters for command options, one text file like the aliases ----
+  host.optionKeysText = () => store.text(OPTKEY_KEY);
+  // OPT.2: the file follows the account (one section of the account's settings document, account-keep.js). A copy the account
+  // sends is applied at once and said in the history; signed out or offline the file simply stays here.
+  const keep = createKeep({ account: () => (typeof window !== 'undefined' && window.ccAddonsAccount) || null, storage: (() => { try { return localStorage; } catch { return null; } })(), keys: [OPTKEY_KEY] });
+  const keepSync = async (opts = {}) => {
+    const r = await keep.sync(opts);
+    if (r.written.includes(OPTKEY_KEY)) { const k = applyOptionKeys(store.text(OPTKEY_KEY), { lookup: ctx.lookup }); print(t('optkeys.account.loaded', { n: k.applied })); }
+    return r;
+  };
+  const keepChanged = () => { keep.touch(OPTKEY_KEY); keepSync({ connect: true }).catch(() => {}); };
+  host.optionKeysAccount = () => keep.status();
+  host.optionKeysSync = (opts) => keepSync(opts);
+  host.optionKeysCount = () => optionKeysCount();
+  host.optionKeysExportFile = () => host.saveBlob?.('cadcraft-option-letters.txt', optionKeysExport(), 'text/plain');
+  /** Settings › Option letters › Import: a file replaces the person's own (the one before is kept beside it). A file with no usable line changes nothing. */
+  host.optionKeysImport = async () => {
+    const [f] = await pickFiles({ multiple: false, accept: '.txt' });
+    if (!f) return null;
+    const text = decodeSource(await f.arrayBuffer());
+    const r = parseOptionKeys(text, { lookup: ctx.lookup });
+    if (!r.entries.length) { const note = t('optkeys.import.none', { name: f.name }); print(note); return { applied: 0, errors: r.errors, note }; }
+    {   // a file with a collision or a line that can't be used is not taken: the editor shows the lines (owner 2026-11-19: no save with a collision)
+      let cat = null; try { cat = (await import('./option-catalog.js')).default; } catch { cat = null; }
+      const bad = r.errors.length + optionKeyClashes(r.entries, cat).length;
+      if (bad) { const note = t('optkeys.import.blocked', { name: f.name, n: bad }); print(note); return { applied: 0, errors: r.errors, note }; }
+    }
+    const before = store.text(OPTKEY_KEY);
+    if (before && before !== text) store.setText(OPTKEY_KEY + '.previous', before);
+    applyOptionKeys(text, { lookup: ctx.lookup });
+    store.setText(OPTKEY_KEY, text);
+    keepChanged();
+    print(t('optkeys.reinit', { n: r.entries.length }));
+    for (const e of r.errors) print(t('aliases.errline', { line: e.line, msg: e.msg }));
+    return { applied: r.entries.length, errors: r.errors, note: r.errors.length ? t('optkeys.import.errors', { n: r.errors.length }) : t('optkeys.import.done', { name: f.name }) };
+  };
+  // OPT.3: the editor offers the WHOLE list (option-catalog.js, made from the command code): pick a command, pick one of its options, type
+  // letters of your own, Add. What the person adds is a short list of their own on top of the built-in letters (an override, not a copy
+  // of everything). The file is still the text underneath ("Edit as text", Import, Export), so a note in it and a shared file survive.
+  host.optionKeysEdit = ({ recent = [] } = {}) => new Promise((done) => {
+    let cat = { commands: {}, every: {} };
+    const area = el('textarea', { className: 'cc-al-text', spellcheck: false, rows: 10, 'aria-label': t('optkeys.editor.label'), 'data-optkeys-text': '' });
+    area.value = store.text(OPTKEY_KEY) || OPTKEY_TEMPLATE();
+    const errs = el('ul', { className: 'cc-al-errors', 'aria-live': 'polite', 'data-optkeys-errors': '' });
+    const rows = el('tbody', { 'data-optkeys-rows': '' });
+    const empty = el('p', { className: 'cc-note', 'data-optkeys-empty': '' }, t('optkeys.list.none'));
+    const table = el('table', { className: 'cc-ok-table', 'data-optkeys-table': '' },
+      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, t('optkeys.col.command')), el('th', { scope: 'col' }, t('optkeys.col.option')), el('th', { scope: 'col' }, t('optkeys.col.builtin')), el('th', { scope: 'col' }, t('optkeys.col.yours')), el('th', { scope: 'col', 'aria-label': t('optkeys.col.remove') }))), rows);
+    const wordOf = (command, option) => (command === '*' ? (cat.every[option] || []).join(', ') : ((cat.commands[command] || []).find((o) => o[0] === option) || [])[1]) || '';
+    const saveBtn = el('button', { type: 'button', className: 'btn-plot btn-sm-cc', 'data-optkeys-save': '' }, t('aliases.save'));
+    const blocked = el('p', { className: 'cc-al-errors cc-ok-msg', hidden: true, 'data-optkeys-blocked': '' }, t('optkeys.blocked'));
+    const textBox = el('details', { className: 'cc-ok-text', 'data-optkeys-astext': '' });
+    const check = () => {
+      const r = parseOptionKeys(area.value, { lookup: ctx.lookup });
+      const clashes = optionKeyClashes(r.entries, cat);   // typed or imported lines get the same check Add makes
+      const bad = [...r.errors, ...clashes].sort((a, b) => a.line - b.line);
+      errs.replaceChildren(...bad.map((e) => el('li', {}, t('aliases.errline', { line: e.line, msg: e.msg }))));
+      // a collision or a line that can't be used: nothing is saved until it is fixed or removed (owner 2026-11-19)
+      saveBtn.disabled = bad.length > 0;
+      blocked.hidden = !bad.length;
+      if (bad.length && !textBox.open) textBox.open = true;   // the lines named are in the text
+      rows.replaceChildren(...r.entries.map((e) => el('tr', { 'data-optkeys-row': e.command + '.' + e.option },
+        el('td', {}, e.command === '*' ? t('optkeys.add.every') : e.command),
+        el('td', {}, wordOf(e.command, e.option) || e.option),
+        el('td', {}, el('code', {}, e.option)),
+        el('td', {}, el('code', {}, e.key)),
+        el('td', {}, el('button', { type: 'button', className: 'cc-x', title: t('optkeys.remove', { id: e.command + '.' + e.option }), 'aria-label': t('optkeys.remove', { id: e.command + '.' + e.option }), 'data-optkeys-remove': e.command + '.' + e.option + ',' + e.key,
+          onclick: () => { const lines = area.value.split(/\r?\n/); lines.splice(e.line - 1, 1); area.value = lines.join('\n'); check(); } }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' }))))));
+      table.hidden = !r.entries.length;
+      empty.hidden = !!r.entries.length;
+      return r;
+    };
+    let timer = null;
+    area.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(check, 300); });
+
+    // ---- add: command › option › your letters
+    const cmdSel = el('select', { className: 'cc-select', id: 'cc-ok-cmd', 'data-optkeys-command': '' });
+    const optSel = el('select', { className: 'cc-select', id: 'cc-ok-opt', 'data-optkeys-option': '' });
+    const keyIn = el('input', { type: 'text', className: 'cc-input', id: 'cc-ok-key', maxLength: 16, spellcheck: false, autocapitalize: 'off', autocomplete: 'off', 'data-optkeys-letters': '' });
+    const addMsg = el('p', { className: 'cc-al-errors cc-ok-msg', 'aria-live': 'polite', 'data-optkeys-addmsg': '' });
+    const fillOptions = () => {
+      const c = cmdSel.value;
+      const list = c === '*' ? Object.keys(cat.every).map((k) => [k, cat.every[k].join(', ')]) : (cat.commands[c] || []);
+      optSel.replaceChildren(...list.map(([k, w]) => el('option', { value: k }, w + '  (' + k + ')')));
+    };
+    const fillCommands = () => {
+      const names = Object.keys(cat.commands);
+      cmdSel.replaceChildren(el('option', { value: '*' }, t('optkeys.add.every')), ...names.map((n) => el('option', { value: n }, n + '  (' + cat.commands[n].length + ')')));
+      const last = recent.map((r) => r.command).find((n) => cat.commands[n]);   // start on the command the person just used
+      cmdSel.value = last || (cat.commands.ARRAY ? 'ARRAY' : '*');
+      fillOptions();
+    };
+    cmdSel.addEventListener('change', () => { fillOptions(); addMsg.textContent = ''; });
+    optSel.addEventListener('change', () => { addMsg.textContent = ''; });
+    keyIn.addEventListener('input', () => { addMsg.textContent = ''; });
+    const add = () => {
+      const c = cmdSel.value, o = optSel.value, k = keyIn.value.trim().toUpperCase();
+      addMsg.textContent = '';
+      if (!o) return;
+      if (!k) { addMsg.textContent = t('optkeys.add.need'); keyIn.focus(); return; }
+      const line = c + '.' + o + ', ' + k;
+      const one = parseOptionKeys(line, { lookup: ctx.lookup });
+      if (one.errors.length) { addMsg.textContent = one.errors[0].msg; keyIn.focus(); return; }
+      // letters that are another option's built-in letters in that command would hide that option
+      const clash = optionKeyClashes([{ command: c, option: o, key: k, line: 1 }], cat)[0];
+      if (clash) { addMsg.textContent = clash.msg; keyIn.focus(); return; }
+      const now = parseOptionKeys(area.value, { lookup: ctx.lookup });
+      const same = now.entries.find((e) => e.command === c && e.key === k);
+      if (same && same.option !== o) { addMsg.textContent = t('optkeys.err.twice', { key: k, command: c === '*' ? t('optkeys.add.every') : c, first: same.option, line: same.line }); keyIn.focus(); return; }
+      if (!same) area.value = area.value.replace(/\s*$/, '') + '\n' + line + '\n';
+      keyIn.value = '';
+      check();
+      keyIn.focus();
+    };
+    keyIn.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); add(); } });
+    const addBtn = el('button', { type: 'button', className: 'btn-plot btn-sm-cc', 'data-optkeys-addbtn': '', onclick: add }, t('optkeys.add.btn'));
+    const field = (id, label, control) => el('label', { className: 'cc-ok-field', htmlFor: id }, el('span', {}, label), control);
+
+    const save = () => {
+      if (saveBtn.disabled) return;
+      const r = applyOptionKeys(area.value, { lookup: ctx.lookup });
+      store.setText(OPTKEY_KEY, area.value);
+      keepChanged();
+      print(t('optkeys.reinit', { n: r.applied }));
+      for (const e of r.errors) print(t('aliases.errline', { line: e.line, msg: e.msg }));
+      dlg.close();
+    };
+    const dlg = el('dialog', { className: 'cc-dialog cc-aliases cc-optkeys', 'aria-labelledby': 'cc-optkeys-h' },
+      el('div', { className: 'cc-plot-head' }, el('h2', { className: 'cc-h', id: 'cc-optkeys-h' }, t('optkeys.editor.title'))),
+      el('div', { className: 'cc-al-body' },
+        el('p', { className: 'cc-note' }, t('optkeys.editor.note')),
+        el('div', { className: 'cc-ok-add', 'data-optkeys-add': '' }, field('cc-ok-cmd', t('optkeys.col.command'), cmdSel), field('cc-ok-opt', t('optkeys.col.option'), optSel), field('cc-ok-key', t('optkeys.col.yours'), keyIn), addBtn),
+        addMsg,
+        el('h3', { className: 'cc-ok-h' }, t('optkeys.list.title')),
+        empty, el('div', { className: 'cc-ok-scroll' }, table), blocked, errs,
+        (textBox.append(el('summary', {}, t('optkeys.astext')), el('p', { className: 'cc-note' }, t('optkeys.astext.note')), area), textBox)),
+      el('div', { className: 'cc-plot-foot' },
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: async () => { const [f] = await pickFiles({ multiple: false, accept: '.txt' }); if (f) { area.value = decodeSource(await f.arrayBuffer()); check(); } } }, t('optkeys.import')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => { applyOptionKeys(area.value, { lookup: ctx.lookup }); host.saveBlob?.('cadcraft-option-letters.txt', optionKeysExport(), 'text/plain'); applyOptionKeys(store.text(OPTKEY_KEY), { lookup: ctx.lookup }); } }, t('optkeys.export')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => dlg.close() }, t('aliases.cancel')),
+        saveBtn));
+    saveBtn.addEventListener('click', save);
+    dlg.addEventListener('keydown', (e) => e.stopPropagation());
+    dlg.addEventListener('close', () => { dlg.remove(); focusCommandLine(); done(); });
+    root.append(dlg);
+    dlg.showModal();
+    check();
+    import('./option-catalog.js').then((m) => { cat = m.default || cat; }).catch(() => {}).then(() => { fillCommands(); check(); dlg.dataset.ready = '1'; keyIn.focus(); });
+  });
+
   // ---- DELBLOCKS: choose names ----
   host.chooseBlocks = ({ title, names }) => new Promise((done) => {
     const filter = el('input', { type: 'text', className: 'cc-input', 'aria-label': t('delblocks.dialog.filter'), placeholder: '*', 'data-db-filter': '' });
@@ -305,6 +457,12 @@ export function installLispUi({ root, engine, host, print, ask, focusCommandLine
   // ---- start: the person's aliases, then the Startup Suite ----
   const aliasText = store.text(ALIAS_KEY);
   if (aliasText) { const r = applyAliases(ctx, aliasText); if (r.errors.length) print(t('aliases.start.errors', { n: r.errors.length })); }
+  { const r = applyOptionKeys(store.text(OPTKEY_KEY), { lookup: ctx.lookup }); if (r.errors.length) print(t('optkeys.start.errors', { n: r.errors.length })); }   // OPT.1 (always applied: an emptied file clears the letters)
+  {   // OPT.2: once the shell holds the tab's account key (it asks the site by itself at start), take the account's copy if it is newer
+    let tries = 0;
+    const wait = () => { if (window.ccAddonsAccount?.token) { keepSync().catch(() => {}); return; } if (++tries < 20) setTimeout(wait, 1500); };
+    if (typeof window !== 'undefined') setTimeout(wait, 1500);
+  }
   const su = startup();
   if (su.length || supportPath()) setTimeout(async () => {
     if (engine.busy) return;

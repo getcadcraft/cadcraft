@@ -1,112 +1,112 @@
 ---
 title: Dejinta CadCraft
-summary: Dejinta barnaamijka naqshadaynta: cabbirka mu'ushka, meesha koobiga la dhejiyay ka dhex dhaadhacda mu'ushka, waxa riixidu u sameeyo doorashada, inta safka ee qalabka, meesha sadarka amarka ku taal iyo dhererkiisa, qaybta sare ee yar, iyo calaamadda geeska.
-keywords: sadarka amarka, sadarka amarka oo sabbeeyay, sabbeeyo, hoos u xir, hal safar, f2, taariikhda amarrada, commandline, cmdline, toparea, qaybta sare, yar, cursorsize, mu'ushka shaashad buuxda, geeska ilaa geeska, safka qalabka, toolbar, ctrl f1, dejinta, doorashooyin, calaamadda geeska, muuqaalka xagga, cursor, mu'ushka, sanduuqa doorashada, booska koobiga, booska salka, riixida walxaha, doorashada, pickadd, shift, dib u deji
-from: 0896eb42
+summary: Dejinta barnaamijka naqshadda: cabbirka kursorka, meesha koobiga la dhejiyay ka dhaqaaqa kursorka, waxa riixidu u sameeyo xulashada, tirada safka qalabka, meesha iyo dherer sadarka amarka, goobta sare ee kooban, iyo calaamadda kaadhka.
+keywords: sadarka amarka, sadarka kor-u-dhaqaaqa, kor-u-dhaqaaq, ku xidh, hal xariiq, f2, taariikhda amarrada, commandline, cmdline, toparea, goobta sare, kooban, cursorsize, kursor shaashad buuxda, gees ilaa gees, safka qalabka, muujinta qalabka, ctrl f1, dejinta, doorbidka, doorashooyin, calaamadda kaadhka, view cube, axis icon, ucs icon, kursor, crosshair, sanduuqa doorashada, barta dhejinta, dhibcaha saldhigga, riixida walxaha, xulasho, pickadd, shift, dib u dejin
+from: ae1a81db
 ---
 
-Fur {{ui:Settings}} adigoo riixaya giraanta app bar-ka ama {{key:Mod+,}}. Taabka koowaad, {{ui:CadCraft}}, wuxuu hayaa dejinta barnaamijkan; {{ui:General}} wuxuu hayaa midka barnaamijyada qoyska oo dhan wadaagaan (mawduuca, cabbirka qoraalka panel-ka iyo ballaca, muuqaalka iyo kala horraynta qalabka). Dejinta CadCraft waxay ku jirtaa barnaamijkan oo keliya: halkan ayaad ku beddeshaa, browser-kanna wuu xusuustaa. {{ui:Reset CadCraft settings}} wuxuu mid kasta oo ka mid ah dib ugu celiyaa bilowgii.
+Fur {{ui:Dejinta}} calaamadda giraanta ee app bar-ka ama {{key:Mod+,}}. Tab-ka koowaad, {{ui:CadCraft}}, wuxuu hayaa dejinta app-kan; {{ui:Guud}} wuxuu hayaa kuwa qoyska app kasta wadaago (mawduuca, cabbirka qoraalka panelka iyo ballacyada, muuqaalka iyo habka qalabka). Dejinta CadCraft waxay ku jirtaa app-ka oo keliya: halkan ayaad ka beddeshaa, browser-kanina wuu xasuustaa. {{ui:Dib u deji dejinta CadCraft}} mid kasta wuxuu dib ugu celiyaa bilowgii.
 
-## Mu'ushka
+## Kursor
 
-**Yar**, **Dhexe** (bilowga), **Weyn** ama **Shaashad buuxda**: cabbirka xarriiqa mu'ushka iyo sanduuqa doorashada naqshadda. Sanduuqa doorashada oo weyn wuxuu kaloo doortaa walxaha meel ka fog sidoo kale, taasoo ku caawisa shaashadda taabashada ama naqshad aad u fiican.
+**Yar**, **Dhexe** (bilowga), **Weyn** ama **Shaashad buuxda**: cabbirka xariiqyada kursorka iyo sanduuqa doorashada naqshadda. Sanduuqa doorashada ee weyn wuxuu sidoo kale doortaa walxo ka fogaanaya, taas oo caawisa shaashadda taabashada ama naqshad aad u nalalan.
 
-**Shaashad buuxda** wuxuu khadadka mu'ushka laba ah ka socodsiiyaa geeska ilaa geeska naqshadda, iyadoo aan amar socon, si aad indhahaaga ugu hubiso in laba shay isku khadsan yihiin aragtida oo dhan. Marka aragtidu kala qaybsan tahay, khadadku waxay ku sii jiraan dhanka aad ka shaqeysid. Waa sida AutoCAD-ka {{cmd:CURSORSIZE}} 100 oo kale: ku qor {{cmd:CURSORSIZE}} iyo 100 shaashad buuxda; tiro ka yar wuxuu doortaa cabbirka ugu dhow (ka hooseeya 5 Yar, 5 ilaa 9 Dhexe, 10 ilaa 99 Weyn).
+**Shaashad buuxda** wuxuu socodsiiyaa laba xariiqood ee xariiqyada kursorka gees ilaa gees naqshadda oo dhan, xitaa marka amar aan socon, si aad indhaha ugu hubiso in laba wax isku toosan yihiin muuqaalka oo dhan. Marka muuqaalka la kala qaybiyo, xariiqyadu waxay ku sii jiraan qaybta aad ka shaqaysid. Waa sida {{cmd:CURSORSIZE}} 100 ee AutoCAD: ku qor {{cmd:CURSORSIZE}} iyo 100 shaashad buuxda; tiro yar ayaa dooratay cabbirka ugu dhow (ka hooseeya 5 Yar, 5 ilaa 9 Dhexe, 10 ilaa 99 Weyn).
 
-## Barta koobiga la dhejiyo
+## Barta dhejinta
 
-Meesha koobiga la dhejiyay ka dhex dhaadhacda mu'ushka ka dib {{key:Mod+V}} ({{cmd:PASTECLIP}}), ilaa aad riixdo:
+Nuqulka la dhejiyay meesha ay ka dhex-dhaqaajiso kursorka kadib {{key:Mod+V}} ({{cmd:PASTECLIP}}), ilaa aad riixdo:
 
-- **Geeska hoose-bidix** (bilowga): geeska hoose-bidix ee xadka walxaha la koobiyeeyay, sida AutoCAD-ka.
-- **Dhexe**: dhexda xadkooda. Waa wanaagsan marka calaamad la dhigayo indhaha lagu qiyaasayo.
+- **Geesha hoose-bidix** (bilowga): geesha hoose-bidix ee baaxadda walxaha la nuqulay, sida AutoCAD.
+- **Dhexe**: bartilmaameedka baaxaddooda. Waa fiican tahay calaamad indhaha ku dhigidda.
 
-Koobi la sameeyay `COPYBASE` marwalba wuxuu ka dhex dhaadhacaa barta salka aad dooratay. {{ui:Paste in place}} ({{key:Mod+Shift+V}}) wuxuu dejintan iska dhaafaa: wuxuu ilaaliyaa isku-xidhka asalka. Eeg [Koobi, dhaji iyo laab](topic:copy-paste).
+Nuqul la sameeyay `COPYBASE` mar walba wuxuu ka dhex-dhaqaajiyaa dhibcaha saldhigga aad dootay. {{ui:Ku dhaji meeshii}} ({{key:Mod+Shift+V}}) wuxuu iska dhegayn doonaa dejintan: wuxuu hayaa isku xidhka asalka ah. Eeg [Nuqul, dhejin iyo nuqul-kale](topic:copy-paste).
 
 ## Riixida walxaha
 
-Waxa riixidu u sameeyo doorashada marka aan amar socon lahayn:
+Waxa riix kasta naqshadda ku sameeyo xulashada marka amar aan socon:
 
-- **Ku dar doorashada** (bilowga): riix kasta ama daaqad kasta ayaa walxo ku daraa; {{key:Shift}}+riix, ama {{key:Shift}}+daaqad, ayaa ka saara.
-- **Beddel doorashada**: riix ama daaqad ayaa doorta wixii ay qaadato oo keliya. {{key:Shift}}+riix wuxuu ku daraa walax, ama wuxuu ka saaraa midka hore loo doortay; {{key:Shift}}+daaqad wuu ku daraa.
+- **Wuxuu ku daraa xulashada** (bilowga): riix kasta ama daaqad kasta wuxuu ku daraa walxo; {{key:Shift}}+riix, ama {{key:Shift}}+daaqad, ayaa ka saara.
+- **Wuxuu beddelaa xulashada**: riix ama daaqad wuxuu doortaa kaliya waxa uu xulo. {{key:Shift}}+riix wuxuu ku daraa walax, ama wuxuu ka saaraa mid horay loo doortay; {{key:Shift}}+daaqad wuu ku daraa.
 
-Weydiinta `Dooro walxaha:` ee amar gudaha ah, riixidu had iyo jeer waa ku darta (ka {{key:Shift}} waa ka saaraa), iyadoo dejintani tahay wax kasta. Eeg [Dooro walxaha](topic:select-objects).
+Weydiinta `Select objects:` gudaha amar, riixidu had iyo jeer way ku daraa (na {{key:Shift}} wuu ka saaraa), dejintan waxa ay tahayba. Eeg [Dooro walxaha](topic:select-objects).
 
-## Riixida meel banaan
+## Riixida meel madhan
 
-Waxa riixidu u sameeyo meel uu walax ku jirin marka aan amar socon lahayn. Labadaba waxay bilaabaan daaqad doorasho (riix labaad wuxuu dhammeeyaa).
+Waxa riixida meel aan walax ku jirin ay sameyso marka amar aan socon. Siduhoo ha ahaatee wuxuu bilaabaa daaqad doorasho (riix labaad wuu dhammeeyaa).
 
-- **Tirtira doorashada** (bilowga): wixii la doortay waa la daayaa. Hay {{key:Shift}} markaad riixdo si aad u hayso.
-- **Hay doorashada**: doorashadu way sii jirtaa, sida barnaamijyada naqshadaynta kale; daaqaddu waxay ku dari doontaa. Taabo {{key:Esc}} si aad doorashada u tirtirto.
+- **Xulashada wuu tirtiraa** (bilowga): waxa la doortay waa la sii daayaa. {{key:Shift}} hay markaad riixayso si aad u hayso.
+- **Xulashada wuu hayaa**: xulashadu way sii jirtaa, sida barnaamijyada naqshadeynta kale; daaqadda ayaa ku daraa. Riix {{key:Esc}} si aad xulashada u tirtirto.
 
 ## Jiidista si aad u doorato
 
-Waxa riixida oo jiidista meel banaan u sameeyo:
+Waxa riixida iyo jiidista meel madhan ay sawirto:
 
-- **Laasoo** (bilowga): khad xor ah. Haddii aad marka hore u dhaqdhaqdo midig, waxa gebi ahaanba ku jira ayaa la doortaa; bidix, waxa taabanaya ayaa la doortaa. {{key:Space}} intaad jiidayso wuxuu u beddelaa daaqad, isgoys iyo xayn.
-- **Sanduuq**: sanduuqa, sida riix iyo riix labaad ay u sameeyaan.
+- **Lasso** (bilowga): qaab bilaa gacan. Dhaqdhaqaaq midig marka hore wuxuu doortaa waxa gudaha ku jira oo dhan, bidix marka hore waxa taabanaya; {{key:Space}} intaad jiidayso waxay u beddeshaa daaqad, isgoys iyo derbi.
+- **Afar-geesle**: sanduuqa, sida riix iyo riix labaad uu u sawiro.
 
-{{cmd:LASSOMODE}} `1` ama `0` ayaa dejiya isla mid. Eeg [Doorashada laasoo](topic:lasso-selection).
+{{cmd:LASSOMODE}} `1` ama `0` isla dejinta. Eeg [Doorashada lasso](topic:lasso-selection).
 
-## Jiidista si aad u jarto oo aad u kordhiso
+## Jiidista si aad u jarto oo aad u dheereyso
 
-Waxa riixida meel banaan oo jiidista sameeyo {{cmd:TRIM}} iyo {{cmd:EXTEND}}:
+Waxa riixida meel madhan iyo jiidista ay sameyso {{cmd:TRIM}} iyo {{cmd:EXTEND}}:
 
-- **Jid** (bilowga): jid xor ah; qaybaha kasta oo ay gooyso waa la jaraa (ama la kordhiyaa).
-- **Daaqad**: sanduuq; qaybaha kasta oo ay taabanayso waa la jaraa, sida doorashada `C` ay sameyso.
+- **Jid** (bilowga): jid bilaa gacan; qayb kasta oo ay gooyso waa la jaraa (ama la dheeriyaa).
+- **Daaqad**: sanduuq; qayb kasta oo ay taabanayso waa la jaraa, sida doorashada `C` ay sameyso.
 
-Eeg [Jar iyo kordhin](topic:trim-and-extend).
+Eeg [Jar iyo dheeri](topic:trim-and-extend).
 
-## Meesha qalabka
+## Booska qalabka
 
-{{ui:CadCraft}} › {{ui:Toolbar position}}: **Sare** (bilowga, sida had iyo jeer), **Hoose**, **Bidix** ama **Midig**. Bidix ama midig, kooxaha qalabku waxay ku tuuraan tiir u jeeda oo jiida marka ay ka dheer tahay daaqadda, badhamadana laba ama saddex safar ayay ku duubtaan. Doorashadu waa la kaydiyaa dejintaada, {{cmd:TOOLBARDOCK}} (`TBDOCK`) wuxuu ka dejiyaa sadarka amarka. {{ui:General}} › {{ui:Reset the layout}} wuxuu qalabka dib ugu celiyaa sare.
+{{ui:CadCraft}} › {{ui:Booska qalabka}}: **Sare** (bilowga, sidii mar walba), **Hoose**, **Bidix** ama **Midig**. Bidix ama midig kooxooyinka qalabka waxay isku tuuraan tiir ka ah oo ku dhaqdhaqaaqa marka ay ka dheer tahay daaqadda, badhamadana laba ama saddex xariiq ayay u jeexaan. Doorashadu waa la kaydiyaa dejintaada, {{cmd:TOOLBARDOCK}} (`TBDOCK`) wuxuu dejiyaa sadarka amarka. {{ui:Guud}} › {{ui:Dib u celi qaabeynta}} wuxuu qalabka dib ugu celiyaa sare.
 
-Jibbaarada qaababka liiska ayaa ku jira qalabka, waana la socdaan, laakiin qaabka {{ui:Ribbon}} waxaa loo sameeyay inuu u socdo sare ama hoose: dhinac wuxuu helaa tiir yar oo jiida. Telefoonka qalabku wuxuu joogaa meesha habaynta telefoonku dhigto.
+Xariiqyada qaababka menu-ga waxay ku jiraan qalabka waxayna la dhaqaaqaan, laakiin qaabka {{ui:Ribbon}} wuxuu u shaqeeyaa sare ama hoose: dhinac kasta wuxuu helaa tiir yar oo ku dhaqdhaqaaqda. Telefoon kasta qalabku wuxuu ku sii jiraa meesha uu habaynta telefoonka dhigayo.
 
 ## Safka qalabka
 
-Immisa safar ayaa qalabku isticmaalaa ka sare naqshadda, qalabka CadCraft iyo qaababka {{ui:Drafting classic}} iyo {{ui:Ribbon}}:
+Immisa xariiq ayaa qalabku isticmaalaa kor naqshadda, qalabka CadCraft iyo qaababka {{ui:Qorista qadiimiga ah}} iyo {{ui:Ribbon}}:
 
-- **Ku duub si uu u habboonaado** (bilowga): qalabku wuxuu ku duubaa ballaca daaqadda.
-- **2 safar**: ugu badnaan laba safar. Haddii qalabku ballaarkan ku duubmo laba safar ama ka yar, wuu ku duubaa; haddii kale waxay ku jiraan laba safar oo jiida dhinac.
-- **1 safar**: hal safar oo jiida dhinac, taasoo siinaysa naqshadda meesha ugu badan.
+- **Ku duub si ay ku habboonaato** (bilowga): qalabku wuxuu ku duubmaa ballaca daaqadda.
+- **2 safka**: ugu badnaan laba xariiq. Marka qalabku ballacaan laba xariiq ama ka yar ku duubmo, way duubmaan; haddii kale laba safood ayay ku dhex jiraan oo dhinaca ayay u dhaqdhaqaaqaan.
+- **1 safka**: hal xariiq oo dhinaca u dhaqdhaqaaqda, taas oo naqshadda siinaysa meesha ugu badan.
 
-{{key:Shift+Ctrl+F1}} wuxuu ka mid ah saddexda u wareejiyaa, {{cmd:TOOLBARROWS}} wuxuu dejiyaa mid. Waxa badhamadu muujinayaan (calaamado iyo qoraal, calaamado keliya, ama qoraal keliya) waa dejin ee {{ui:General}} › {{ui:Toolbar}}; {{key:Ctrl+F1}} wuxuu u wareejiyaa, {{cmd:TOOLBAR}} wuu dejiyaa.
+{{key:Shift+Ctrl+F1}} wuxuu dhex-maraa saddexda, {{cmd:TOOLBARROWS}} wuxuu dejiyaa mid. Waxa badhamadu muujiyaan (astaamo iyo qoraal, astaamo kaliya, ama qoraal kaliya) waa dejinta {{ui:Guud}} › {{ui:Qalabka}}; {{key:Ctrl+F1}} wuu dhex-maraa, {{cmd:TOOLBAR}} wuu dejiyaa.
 
 ## Sadarka amarka
 
-Sadarka amarka waxaa laga dhigi karaa mid hoosta naqshadda ku xidhan sida hore, ama mid naqshadda kor ka sabbeeya, waxaana loo dhigi karaa mid hal safar oo keliya ah.
+Sadarka amarka wuxuu sii joogi karaa ku xidhan hoosta naqshadda, sida mar walba, ama wuxuu ka kor-u-dhaqaaqi karaa, wuxuuna noqon karaa mid hal xariiq oo kaliya ah.
 
-- **Sabbeeyo.** Jiid gripka dhinaca bidix ee sadarka naqshadda gudaheeda, ama dooro {{ui:Float over the drawing}} menu-ga {{ui:Command line options}} (saddex dhibcood oo ku yaal dhinaca midig). Mar kale jiid gripka si aad u dhaqdhaqdo; meeshiisa waa la ilaalinayaa markaad daaqadda beddesho cabbirkeeda. Jiid geeska midig si aad uga dhigto mid ballaaran ama mid yar. Ku rid status bar-ka, ama dooro {{ui:Dock at the bottom}}, si aad mar kale hoos ugu xidho.
-- **Ka dhig mid yar ama mid dheer.** Jiid geeska sare: tallaabo kasta waa hal safar taariikhda. Ilaa eber waa **sadarka amarka hal safar**: wuxuu muujinayaa weydiinta iyo waxa aad ku qortay, fariin cusub ayaa kor uga soo muuqata wakhti yar. Riix laba jeer geeska sare si aad uga dhex-gudubto hal safar iyo dhererka aad lahayd.
-- **Taariikhda.** {{key:F2}}, ama badhanka saacadda ee sadarka amarka ({{ui:Command history (F2)}}), wuxuu furaa taariikhda oo dhan kor ka sadarka (hoosta haddii sadarku u dhowyahay sare ee daaqadda). Qorista weli waxay gashaa sadarka amarka; {{key:PageUp}} iyo {{key:PageDown}} waxay socodsiiyaan taariikhda, {{key:Esc}}, {{key:F2}} ama riixid meel kale ayaa xidha. Furaha aad leedahay ee F2 ayaa ka adkaada tan.
-- **Kiiboodhka.** Gripku waa badhan: markuu xiran yahay, furayaasha fallaadhaha waxay dhaqdhaqaan sadarka sabbeeyay (Shift ayaa tallaabooyinka waaweyn sameeya); {{key:Up}} wuxuu sabbeeyo mid hoos-u-xidhan, {{key:Down}} geeska hoose wuxuu hoos-u-xidhaa. Geeska sare waa kala-goynta: {{key:Up}} iyo {{key:Down}} waxay ku darayaan ama ka saaraan safar, {{key:Home}} wuxuu ka dhigaa hal safar, {{key:End}} mid ugu dheer. Akhristayaasha shaashadda wali way maqlaan fariin kasta, xataa sadarka hal safar.
+- **Kor-u-dhaqaaq.** Jiid gripka geeska bidix ee naqshadda gudaha, ama dooro {{ui:Ku dhaaf naqshadda}} menu-ga {{ui:Doorashooyinka sadarka amarka}} (saddex dhibcood oo geeska midig). Mar kale jiid gripka si aad u dhaqdhaqaaqdo; meeshiisa waa la hayaa marka daaqadda cabbirkeeda beddelato. Jiid geeska midig si aad u ballacaysid ama u yareyso. Ku rid sadarka xaaladda, ama dooro {{ui:Ku xidh hoosta}}, si aad mar kale ugu xidho.
+- **Ka dhig mid khafiif ah ama mid dheer.** Jiid geeskiisa sare: tallaabo kasta waa hal xariiq taariikh. Ilaa eber xariiq, waa **sadar amar hal xariiq ah**: weydiinta iyo waxa aad qortay oo keliya, fariin cusub waxay kor ka muuqdaa wakhti gaaban. Riix laba jeer geeska sare waxa u dhex-maraa hal xariiq iyo dhererka aad lahayd.
+- **Taariikhda.** {{key:F2}}, ama badhanka saacadda ee sadarka amarka ({{ui:Taariikhda amarrada (F2)}}), wuxuu furaa taariikhda oo dhan kor xariiqda (hoos ka marka xariiqdu kor ka dhaqaaqdo dhanka sare ee daaqadda). Qorista weli waxay tagtaa sadarka amarka; {{key:PageUp}} iyo {{key:PageDown}} ayaa taariikhda dhaqdhaqaaqaa, {{key:Esc}}, {{key:F2}} ama riix meel kale ayaa xidha. Furaha gaarka ah ee aad ku leedahay F2 wuu ka adkaadaa.
+- **Kiibodhka.** Gripku waa badhan: marka uu xoogga hayo, furayaasha fallaadhaha ayaa dhaqdhaqaaqa sadarka kor-u-dhaqaaqa (adoo {{key:Shift}} la socdo, tallaabo weyn); {{key:Up}} wuxuu kor u qaadaa mid xidhan, {{key:Down}} geeska hoose wuxuu xidhaa. Geeska sare waa kala-soocaad: {{key:Up}} iyo {{key:Down}} waxay kordhiyaan ama yareeyaan xariiq, {{key:Home}} wuxuu dhigaa hal xariiq, {{key:End}} wuxuu dhigaa kan ugu dheer. Akhristayaasha shaashadda wali way maqlaan fariin kasta, xitaa sadarka hal xariiqda ah.
 
-{{ui:CadCraft}} › {{ui:Command line}} wuxuu leeyahay isla doorashooyinkan: {{ui:Docked at the bottom}} ama {{ui:Floating}}, {{ui:History lines shown}} (0 ilaa 12) iyo {{ui:Standard height}}. {{cmd:COMMANDLINE}} (`CMDLINE`) ayaa dejiya kuwaas amarka ka. Meesha iyo dhererka waxaa loo kaydiyaa CadCraft browser-kan, si ay dejinta kale ula socdaan, sidaas darteed qaabaynta la kaydiyay waxay qaadaa; {{ui:General}} › {{ui:Reset the layout}} wuxuu sadarka amarka dib ugu xidhaa dhererkiisa caadiga ah. Telefoonka, sadarku wuxuu hoosta ku xidhan yahay hal safar taariikhda; badhanka taariikhda halkaas ayuu sidoo kale shaqeeyaa.
+{{ui:CadCraft}} › {{ui:Sadarka amarka}} wuxuu leeyahay doorashooyin isku mid ah: {{ui:Hoosta lagu xiray}} ama {{ui:Sabbeeyo}}, {{ui:Sadarrada taariikhda la tusayo}} (0 ilaa 12) iyo {{ui:Dhererka caadiga ah}}. {{cmd:COMMANDLINE}} (`CMDLINE`) wuxuu dejiyaa sadarka amarka. Meesha iyo dhererka waxa loo hayaa CadCraft browser-kan la socda qaabeynta kale, sidaas darteed hawlaha la kaydiyay ayay sitaan; {{ui:Guud}} › {{ui:Dib u celi qaabeynta}} wuxuu sadarka amarka ku xidhaa dhererkiisa caadiga ah mar kale. Telefoon kasta sadarka amarka wuxuu ku sii jiraa xidhan hal sadar taariikh; badhanka taariikhda halkaas sidoo kale way shaqeeyaa.
 
-Marka daaqaddu gaaban tahay oo habaynta hubinta ay soo jeediso qaab adag, {{ui:Yes}} keeda ayaa sidoo kale sadarka amarka hal safar ka dhigaa haddii naqshaddu weli gaaban tahay qalabka ka dib.
+{{ui:CadCraft}} › {{ui:Xarfaha xulashada}} wuxuu hayaa xarfaha aad doorateen doorashooyinka amarka: {{ui:Wax ka beddel…}} wuxuu furaa faylka, {{ui:Soo geli…}} wuxuu beddelaa faylka fayl aad doorato, {{ui:Dhoofi}} wuxuu kaydiyaa. Eeg [Ku dar xarfaha xulashooyinka amarka](topic:option-letters).
 
-## Qaybta sare
+Marka daaqaddu gaaban tahay oo hubinta qaabeynta ay soo bandhigto qaabeyn adag, {{ui:Haa}} wuxuu sadarka amarka sidoo kale u beddelaa hal xariiq haddii naqshaddu weli gaaban tahay qalabka ka dib.
 
-{{ui:CadCraft}} › {{ui:Top area}}: **Caadi** (bilowga) ama **Yar**. Yar wuxuu ilaaliyaa baararka kor ee naqshadda yaryar qaab kasta oo menu ah: magacyada kooxaha iyo ereyada hoos calaamadaha way baxaan (tooltips-ka iyo akhristayaasha shaashadda weli way haystaan) badhamaduna way dhowdahay. Waxay la shaqeysaa [Safka qalabka](topic:settings#toolbar-rows): Yar iyo **1 safar** waxay siiyaan naqshadda meesha ugu badan. {{cmd:TOPAREA}} ayaa dejisa.
+## Goobta sare
+
+{{ui:CadCraft}} › {{ui:Aagga sare}}: **Caadi** (bilowga) ama **Kooban**. Kooban wuxuu xariiqyada kor naqshadda yaryar ka dhigaa qaab kasta oo menu-ga: magacyada kooxaha iyo erayada astaamaha hoosteeda way baabbi'aan (tooltips-ka iyo akhristayaasha shaashadda way haystaan) badhamaduna way dhowaadaan. Waxay ku shaqeysaa [Safka qalabka](topic:settings#toolbar-rows) ay: Kooban iyo **1 safka** naqshadda meesha ugu badan ayay siiyaan. {{cmd:TOPAREA}} wuu dejiyaa.
 
 ## Calaamadda geeska
 
 Waxa ku jira geeska naqshadda:
 
-- **Toos ah** (bilowga): calaamadda tiirarka taabka {{ui:Model}}, iyo kiyuubka muuqaalka taabka {{ui:3D}}.
-- **Calaamadda tiirarka**: calaamadda X iyo Y ee geeska hoose-bidix ee taabka {{ui:Model}}, iyo calaamad yar oo X, Y iyo Z ah taabka {{ui:3D}}.
-- **Kiyuubka muuqaalka**: kiyuub geeska sare-midig ee labada taab. Taabka {{ui:Model}} wuxuu muujiyaa naqshadda kor ka, oo riix wajiga kale, geesha ama xagalka wuxuu furaa taabka {{ui:3D}} oo ka eegaya halkaas. Taabka 3D wuu leexdaa marka aragtidu leexato: riix si aad uga eegto dhinac, jiid si aad u wareegto, guriga wuxuu ku laabtaa aragtida iso.
-- **Midna**: waxba geeska ku jirin.
+- **Toos** (bilowga): calaamadda taxanaha tab-ka {{ui:Moodeel}} iyo kaabka muuqaalka tab-ka {{ui:3D}}.
+- **Calaamadda taxanaha**: calaamadda X iyo Y geeska hoose-bidix ee tab-ka {{ui:Moodeel}}, iyo calaamad yar oo X, Y iyo Z tab-ka {{ui:3D}}.
+- **Kaabka muuqaalka**: kaab geeska sare midig ee labada tab. Tab-ka {{ui:Moodeel}} wuxuu muujiyaa naqshadda xagga sare, riixidda dhinac kale geesha ama xarriiqda ayaa furta tab-ka {{ui:3D}} oo ka eegaya meesha. Tab-ka 3D wuu wareegaa muuqaalka: riix si aad dhinac uga eegto, jiid si aad u wareegto, guriga ayuu dib ugu noqdaa muuqaalka iso. Eeg [Moodeel 3D](topic:3d-solids).
+- **Midna**: wax geeska ku jira ma jiro.
 
 Xaashiyadu midna ma muujiyaan.
 
-Eeg [Moodelka 3D](topic:3d-solids).
+## Dherer iyo aagga xulashada
 
-## Dherer iyo ballaca doorashada
+- **Safka xaaladda** (bilowga): marka walxo la doortay, safka xaaladdu wuxuu muujiyaa wadarta dherergooda iyo wadarta aagga kuwa xidhan. Eeg [Wadarta xulashada](topic:properties-panel#totals-of-a-selection).
+- **Qarsoon**: safka xaaladdu ma muujiyo. Sifooyinka wali way muujiyaan walxo dhowr ah.
 
-- **Status bar-ka** (bilowga): walxo la doortay ayaa muujinaya dhererkooda wadarta iyo aagga wadarta ee kuwa xidhan. Eeg [Wadarta doorashada](topic:properties-panel#totals-of-a-selection).
-- **Qarsoon**: status bar-ku ma muujiyo. Sifooyinka (Properties) ayaa wali muujiya walxo badan.
+## Shabakad, Ortho iyo dhibcaha
 
-## Gridka, Ortho iyo snaps
-
-Kuwan ma ku jiraan wada-hadalka: badhamada {{ui:Grid}}, {{ui:Ortho}} iyo {{ui:Snap}} ee status bar-ka (ama {{key:F7}}, {{key:F8}}, {{key:F3}}) iyo liiska walxaha snap ee u dhow ayaa la xusuustaa markaad ka tagto. Eeg [Ku dhufo dhibcaha walxaha](topic:object-snaps).
+Kuwani ma jiraan sanduuqa wada-hadalka: badhamada {{ui:Shabakad}}, {{ui:Ortho}} iyo {{ui:Snap}} safka xaaladda (ama {{key:F7}}, {{key:F8}}, {{key:F3}}) iyo liiska dhibcaha walxaha ee ku dhow waa la xasuustaa marka aad ka baxdo. Eeg [Ku qabo dhibcaha walxaha](topic:object-snaps).

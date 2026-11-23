@@ -2,7 +2,7 @@
 title: Perkara baharu dalam 0.7 (lebih awal)
 summary: Underlay PDF dan import PDF, lukisan diimbas dengan surih automatik, splin sebenar dengan SPLINE, SPLINEDIT dan PEDIT, pengurus gaya dimensi, teks yang mengekalkan format, WBLOCK dan skala anda sendiri, pepejal 3D daripada program lain, pendaftaran imbasan, panel Laser, eksport USD, Sejarah dan cetakan dalam CadCraft Studio, lukisan pertama berpandu, bar alat pada mana-mana sisi atau dalam lebih sedikit baris, dan lebih banyak untuk pembantu AI.
 keywords: perkara baharu 0.7, keluaran terdahulu, nota keluaran, log perubahan, perubahan, 0.7, versi, ciri baharu, pdf, pdfattach, pdfimport, underlay, imbasan, scan, scanattach, scantrace, surih, trace, raster, rastersnap, splin, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, format, wblock, scalelistedit, senarai skala, acis, pepejal 3d, registerscans, daftar imbasan, icp, e57, las, laser, grbl, g-code, usd, usdout, sejarah, versi, bandingkan, cetak, pencetak, png, svg, gaya plot, jenis garisan, lawatan, helaian rujukan, peta arahan, kedudukan bar alat, baris bar alat, toolbardock, regen, regenall, pad sentuh, leret, halaman kod, cyrillic, korean, chinese, japanese, elektrik, rcd, p&id, pid, acad.lsp, acaddoc.lsp, folder sokongan, pembantu, mcp, unit, portugis
-from: d07ca034
+from: d9a8ea79
 ---
 
 Inilah yang berubah dalam CadCraft 0.7, berbanding 0.6. Banyak daripadanya diminta di Discord. Senarai ini dikumpulkan mengikut bidang, dengan yang paling penting dahulu.

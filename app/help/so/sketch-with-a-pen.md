@@ -1,32 +1,36 @@
 ---
-title: Qalin ku sawir oo hel joomitari saxan ah
-summary: Ku sawir gacanta qalinka, mouse-ka ama farta, khad kasta wuxuu noqdaa xarriiq, goobo, qaanso, leexdhan ama polilayn markaad qalinka ka qaaddo, oo wuxuu ku xidhmaa wixii hore loo sawiray, cabbirkiisana diyaar buu u yahay in lagu qoro dib.
-keywords: sawir, qalin, istaylos, gacmeed xor ah, farta, nadiifi, saxda ah, ku xidh, SKETCHLIVE, SKETCHFIX, cabbir, dib u qor
-from: cd87eb75
+title: Ku sawir qalin oo hel joomitari sax ah
+summary: Ku sawir gacanta qalin, mouse ama farta, mid kasta oo jiid ah wuxuu noqdaa xariiq, goobo, qaansho, afar-geesle ama polilayn nadiif ah marka aad qalinka kor qaaddo, oo ku qabsata waxa horay loo sawiray, iyadoo cabbirkiisu diyaar yahay in lagu qoro.
+keywords: sawir, qalin, stylus, gacan-bilaa, farta, nadiifi, sax, qabo, SKETCHLIVE, SKETCHFIX, cabbir, ku qor dhexdiisa, cadaadis, ballaca xariiqda, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Bilow {{cmd:SKETCHLIVE}} (ama dooro **Sawir › Wax dheeraad ah › Sawir qalin ku jira**) oo khad sawir adigoo riixaya oo jiidaya. Markaad qalinka ka qaaddo, CadCraft wuxuu akhrinayaa waxaad ula jeedday oo wuxuu geliyaa naqshadda:
+Bilow {{cmd:SKETCHLIVE}} (ama dooro **Sawir › Wax dheeraad ah › Sawir qalin**) oo sawir jiid adoo riixaya. Marka aad qalinka kor qaaddo, CadCraft wuxuu akhrinayaa waxa aad ula jeedday oo wuxuu dhigaa naqshadda:
 
-| Khadkaaga | Waxa aad heshay |
+| Jiidadaada | Waxa aad heshaa |
 |---|---|
-| Ku dhow toosan | Xarriiq. Xarriiq ku dhow sinji ama toosan waxaa si sax ah loo dhigayaa siman ama toosan. |
+| Qiyaastii toosan | Xariiq. Xariiq qiyaastii siman ama toosan waxa loo sameeyaa mid si sax ah siman ama toosan. |
 | Xidhan oo wareegsan | Goobo |
-| Qayb ka mid ah shay wareegsan | Qaanso |
-| Xidhan oo leh afar geeso xagal-toos ah | Leexdhan |
-| Wax kale oo dhan | Polilayn leh jibbaarooyin laba jibbaaran |
+| Qayb ka mid ah qaab wareegsan | Qaansho |
+| Xidhan oo afar geesood oo xagal toosan leh | Afar-geesle |
+| Wax kasta oo kale | Polilayn leh dhinacyo afar-geesle ah |
 
-Dhamaadka khad kasta waxaa lagu jiidaa dhamaadka ugu dhow ee wax hore loo sawiray, sidaas darteed darbi la sawiray wuxuu la kulmaa darbiga ku xiga.
+Geesaha jiidka waxa lagu jiidaa geeska u dhow ee waxa horay loo sawiray, sidaas darteed darbi la sawiray wuxuu la kulmaa darbiga ku dhinac ah.
 
-## Cabbirka dib u qor
+## Ku qor cabbirka dhexdiisa
 
-Khad kasta ka dib, khadka amarku wuxuu muujiyaa cabbirkiisa (**dherer** xarriiqda, **radius** goobada ama qaansada, **ballac** leexdhanka) sida caadiga ah. Riix {{key:Enter}} si aad u hayso, ama qor tiro ama dherer sida `12'6"` si aad u beddesho. Xarriiq wuxuu hayaa dhamaadkeeda hore, goobo wuxuu hayaa dhexdeeda, leexdhan wuxuu hayaa geeskiisa hore.
+Jiid kasta ka dib sadarka amarka wuxuu muujiyaa cabbirkiisa (dherer ee xariiqda, **radius** ee goobada ama qaansho, **ballac** ee afar-geeska) sida caadiga ah. Riix {{key:Enter}} si aad u hayso, ama ku qor tiro ama dherer sida `12'6"` si aad u beddesho. Xariiqdu waxay hayaa geeskeeda hore, goobadu dhexdeeda, afar-geeskuna geeskiisa hore.
 
-Riix {{key:Enter}} meel madhan oo amar ah si aad u dhammayso, ama qor `U` si aad khadka ugu dambeeya dib ugu celiso. Kalfadhiga oo dhan hal tallaabo ayuu ka noqoshada.
+Riix {{key:Enter}} weydiin madhan si aad u dhamaysato, ama ku qor `U` si aad jiidka ugu dambeeya dib u qaadato. Kalfadhan oo dhan waa hal tallaabo oo dib loo celin karo.
 
-## Khadad badan oo mar la nadiifiyo
+## Nadiifinta jiidyo badan hal mar
 
-{{cmd:SKETCHFIX}} wuxuu soo ururiyaa khadadka oo dhan, wuxuuna dhammaan saxaa markaad riixdo {{key:Enter}}. Taas waxay ku habboon tahay naqshad degdeg ah oo qallafsan.
+{{cmd:SKETCHFIX}} wuxuu soo ururiyaa jiidyada oo dhammaan wuxuu sameeyaa sax markaad riixdo {{key:Enter}}, taas oo ku habboon qaabeyn qallafsan oo dhakhso lagu sawiray.
 
 :::note
-Wax walba kumbiyuutarkaaga ayaa lagu xisaabiyaa iyadoo la raacayo xeerar. Ma jiro moodel, wax meel kalena looma diro.
+Wax walba kombiyuutarkaaga ayaa lagu xisaabiyaa xeerar, iyada oo aan moodel lahayn oo aan wax meel loo dirin.
 :::
+
+## Cadaadisku wuxuu dejiyaa ballaca xariiqda
+
+Meesha qalinka lagu daray apps-ka (Dejinta › Caalami › Aaladaha gelinta › Qalin), jiidka qalinka lagu sawiray wuxuu qaadaa dhibic kasta oo qalinku siiyay iyo cadaadiskiisa. Jiid khafiif ah wuxuu sameeyaa shay khafiif ah, mid adag wuxuu sameeyaa mid culus: cadaadiska celceliska jiidka wuxuu doortaa 0.18, 0.25, 0.35 ama 0.50 mm, sadarka amarkuna wuu sheegaa kee. Jiidka mouse ama farta lagu sawiray wuxuu qaataa ballaca xariiqda hadda jirta sidii hore. {{cmd:PENPRESSURE}} wuu demiyaa (ama mar kale furaa); doorashadu browser-kan ayay ku kaydsan tahay.

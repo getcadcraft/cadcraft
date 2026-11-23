@@ -2,7 +2,7 @@
 title: អ្វីថ្មីក្នុង 0.7 (មុនៗ)
 summary: ស្រទាប់ក្រោម PDF និងការនាំចូល PDF គំនូរស្កេនជាមួយការតាមដោយស្វ័យប្រវត្តិ ស្ព្លីនពិតជាមួយ SPLINE, SPLINEDIT និង PEDIT កម្មវិធីគ្រប់គ្រងរចនាប័ទ្មវិមាត្រ អត្ថបទដែលរក្សាទម្រង់របស់វា WBLOCK និងមាត្រដ្ឋានផ្ទាល់ខ្លួន ម៉ូដែលរឹង 3D ពីកម្មវិធីផ្សេង ការចុះបញ្ជីស្កេន ផ្ទាំង Laser ការនាំចេញ USD ប្រវត្តិ និងការបោះពុម្ពនៅក្នុង CadCraft Studio ការតំឡើងដំបូងដែលមានការណែនាំ របារឧបករណ៍នៅជ្រុងណាមួយ ឬក្នុងជួរតិចជាង និងច្រើនទៀតសម្រាប់ជំនួយការ AI។
 keywords: អ្វីថ្មី 0.7, ការចេញផ្សាយមុន, កំណត់ហេតុការចេញផ្សាយ, ការផ្លាស់ប្តូរ, 0.7, កំណែ, លក្ខណៈថ្មី, pdf, PDFATTACH, PDFIMPORT, ស្រទាប់ក្រោម, ស្កេន, SCANATTACH, SCANTRACE, ការតាម, raster, RASTERSNAP, spline, SPLINEDIT, PEDIT, DIMSTYLE, DIMEDIT, DIMTEDIT, mtext, ការធ្វើទម្រង់, WBLOCK, SCALELISTEDIT, បញ្ជីមាត្រដ្ឋាន, acis, ម៉ូដែលរឹង 3D, REGISTERSCANS, ចុះបញ្ជីស្កេន, icp, e57, las, laser, grbl, g-code, usd, USDOUT, ប្រវត្តិ, ប្រៀបធៀប, បោះពុម្ព, ម៉ាស៊ីនបោះពុម្ព, png, svg, រចនាប័ទ្មការបោះពុម្ព, linetype, ការណែនាំ, cheat sheet, ផែនទីពាក្យបញ្ជា, ទីតាំងរបារឧបករណ៍, ជួរនៃរបារឧបករណ៍, TOOLBARDOCK, REGEN, REGENALL, បន្ទះប៉ះ, ការអូស, ទំព័រកូដ, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, ថតគាំទ្រ, ជំនួយការ, mcp, ឯកតា, ព័រទុយហ្គាល់
-from: d07ca034
+from: d9a8ea79
 ---
 
 នេះជាអ្វីដែលបានផ្លាស់ប្តូរក្នុង CadCraft 0.7 បើធៀបនឹង 0.6។ ភាគច្រើននៃវាត្រូវបានស្នើសុំនៅ Discord។ បញ្ជីត្រូវបានរៀបតាមតំបន់ ជាមួយអ្វីដែលសំខាន់បំផុតមុនគេ។

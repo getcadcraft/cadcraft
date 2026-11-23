@@ -1,118 +1,120 @@
 ---
-title: Organizovanje crteža slojevima
-summary: Napravi slojeve za zidove, vrata i napomene, postavi boje, učini sloj tekućim i isključi, zamrzni, zaključaj slojeve ili spreči njihovo štampanje.
-keywords: sloj, slojevi, la, tekući sloj, zamrzni, odmrzni, zaključaj, isključi, uključi, štampanje, bez štampanja, boja, svojstva sloja, layiso, layuniso, izoluj, layoff, layfrz, laymcur, layon, laythw, preimenuj, laymrg, spoji, laydel, obriši sloj
-from: cd033591
+title: Organizacija crteža slojevima
+summary: Napravite slojeve za zidove, vrata i napomene, podesite boje, postavite tekući sloj i isključite, zamrznite, zaključajte ili izuzmite slojeve iz štampanja.
+keywords: sloj, slojevi, la, tekući sloj, zamrzni, odmrzni, zaključaj, isključi, uključi, štampaj, ne štampaj, boja, svojstva sloja, layiso, layuniso, izoluj, layoff, layfrz, laymcur, layon, laythw, preimenuj, laymrg, spoji, laydel, obriši sloj
+from: ba9f0617
 ---
 
-## Šta ćeš napraviti
+## Šta ćete napraviti
 
-Tri sloja, Zidovi, Vrata i Napomene, svaki sa sopstvenom bojom, sa objektima nacrtanim na svakom i premeštenim među njima.
+Tri sloja, Walls, Doors i Notes, svaki sa sopstvenom bojom, sa objektima nacrtanim na svakom i premeštenim između njih.
 
 ## Panel Slojevi
 
-Slojevi su u panelu levo, pod {{ui:Slojevi}}. Svaki red prikazuje, sleva nadesno:
+Slojevi su u panelu sa leve strane, pod {{ui:Slojevi}}. Svaki red prikazuje, s leva na desno:
 
-- tačku: punu za **tekući** sloj, u koji idu novi objekti;
+- tačku: popunjenu za **tekući** sloj, na koji idu novi objekti;
 - uzorak boje;
-- ime sloja;
-- četiri dugmeta: uključi/isključi (oko), zamrzni (pahulja), zaključaj (lokot) i štampanje (štampač).
+- naziv sloja;
+- četiri dugmeta: uključi/isključi (oko), zamrzni (pahuljica), zaključaj (lokot) i štampaj (štampač).
 
-Svaki crtež ima sloj zvan `0`. Ukucaj `LA` i pritisni {{key:Enter}} da skočiš na panel.
+Svaki crtež ima sloj nazvan `0`. Ukucavanje `LA` i pritisak na {{key:Enter}} skače na panel.
 
-## Napravi slojeve
+## Pravljenje slojeva
 
-1. Klikni {{ui:Novi sloj}} iznad spiska. Otvara se polje za ime.
-2. Ukucaj `Walls` i pritisni {{key:Enter}} (ili klikni {{ui:Dodaj}}).
+1. Kliknite {{ui:Novi sloj}} iznad spiska. Otvara se polje za ime.
+2. Ukucajte `Walls` i pritisnite {{key:Enter}} (ili kliknite {{ui:Dodaj (A)}}).
 
 Statusna traka kaže „Dodat sloj Walls i postavljen kao tekući.“ Novi sloj dobija boju 7 (crna na svetloj temi, bela na tamnoj).
 
-3. Ponovo klikni {{ui:Novi sloj}}, ukucaj `Doors` i pritisni {{key:Enter}}.
-4. Ponovo klikni {{ui:Novi sloj}}, ukucaj `Notes` i pritisni {{key:Enter}}.
+3. Ponovo kliknite {{ui:Novi sloj}}, ukucajte `Doors` i pritisnite {{key:Enter}}.
+4. Ponovo kliknite {{ui:Novi sloj}}, ukucajte `Notes` i pritisnite {{key:Enter}}.
 
 Notes je sada tekući.
 
-## Daj svakom sloju boju
+## Davanje boje svakom sloju
 
-1. Klikni uzorak boje u redu Walls. Otvara se birač boja tvog sistema.
-2. Izaberi boju i potvrdi.
+1. Kliknite uzorak boje u redu Walls. Otvara se birač boja vašeg sistema.
+2. Izaberite boju i potvrdite.
 
-Uzorak i sve na sloju Walls koje je obojeno {{ui:Po sloju}} menjaju boju.
+Uzorak i sve na Walls što je obojeno kao {{ui:Po sloju}} se menja.
 
 :::note
-Izabrana boja koja se poklapa sa jednom od 255 standardnih CAD boja čuva se kao taj broj. Svaka druga boja se čuva tačno u CadCraft-u, ali se u DWG ili DXF datoteci čuva kao najbliža standardna boja.
+Izabrana boja koja odgovara jednoj od 255 standardnih CAD boja čuva se kao taj broj. Svaka druga boja se u CadCraft-u čuva tačno, ali se u DWG ili DXF datoteci čuva kao najbliža standardna boja.
 :::
 
-## Crtaj na sloju
+## Crtanje na sloju
 
-1. Klikni ime **Walls** na spisku. Njena tačka se popunjava, a statusna traka kaže „Tekući sloj: Walls“.
-2. Nacrtaj pravougaonik (`REC`). Ide na Walls.
-3. Klikni **Doors** i nacrtaj luk (`A`). Ide na Doors.
+1. Kliknite naziv **Walls** na spisku. Njegova tačka se popunjava, a statusna traka kaže „Tekući sloj: Walls“.
+2. Nacrtajte pravougaonik (`REC`). Ide na Walls.
+3. Kliknite **Doors** i nacrtajte luk (`A`). Ide na Doors.
 
-Tekući sloj možeš da izabereš i u {{ui:Trenutna podešavanja}} desno (kada ništa nije izabrano), pod {{ui:Sloj}}.
+Tekući sloj možete izabrati i u {{ui:Trenutna podešavanja}} desno (kada ništa nije izabrano), pod {{ui:Sloj}}.
 
-## Premesti objekte na drugi sloj
+## Premeštanje objekata na drugi sloj
 
-1. Izaberi objekte.
-2. U desnom panelu izaberi novi sloj pod {{ui:Sloj}}.
+1. Izaberite objekte.
+2. U desnom panelu izaberite novi sloj u {{ui:Sloj}}.
 
-Premeštaju se na taj sloj i preuzimaju njegovu boju ako je njihova boja {{ui:Po sloju}}.
+Prelaze na taj sloj i preuzimaju njegovu boju ako je njihova boja {{ui:Po sloju}}.
 
-## Isključi, zamrzni, zaključaj i štampanje
+## Isključivanje, zamrzavanje, zaključavanje i štampanje
 
 | Dugme | Šta radi |
 |---|---|
-| Uključi/isključi (oko) | Sakriva objekte sloja. Ne mogu da se vide, izaberu ili uhvate za njih. |
-| Zamrzni (pahulja) | U CadCraft-u isto kao isključivanje. Čuva se odvojeno jer ga drugi programi drugačije tretiraju, a podešavanje se čuva. |
-| Zaključaj (lokot) | Objekti ostaju vidljivi i može da se uhvati za njih, ali ne mogu da se biraju ni menjaju. Dobro za pozadinu preko koje crtaš. |
-| Štampanje (štampač) | Kada je pritisnuto, sloj se prikazuje na ekranu, ali **ne ulazi u štampanje** ni u PDF. Koristi ga za pomoćne linije i napomene za sebe. |
+| Uključi/isključi (oko) | Sakriva objekte sloja. Ne mogu se videti, birati ili hvatati. |
+| Zamrzni (pahuljica) | U CadCraft-u isti efekat kao isključivanje. Držano odvojeno jer ih drugi programi različito tretiraju, a postavka se čuva. |
+| Zaključaj (lokot) | Objekti ostaju vidljivi i možete se hvatati za njih, ali se ne mogu birati ili menjati. Dobro za pozadinu preko koje crtate. |
+| Štampaj (štampač) | Kada je pritisnuto, sloj se prikazuje na ekranu ali se **izostavlja iz štampe** i PDF-ova. Koristite ga za pomoćne linije i napomene za sebe. |
 
-Zadrži pokazivač na dugmetu da vidiš šta će da uradi („Isključi“, „Zamrzni“, „Zaključaj“, „Ne štampaj ovaj sloj“).
+Zadržite pokazivač na dugmetu da vidite šta će uraditi („Isključi“, „Zamrzni“, „Zaključaj“, „Ne štampaj ovaj sloj“).
 
-Tekući sloj se ne može isključiti: statusna traka kaže „To je tekući sloj. Najpre postavi drugi sloj kao tekući.“ Klik na ime sloja da ga učiniš tekućim takođe ga uključuje i odmrzava.
+Tekući sloj ne možete isključiti: statusna traka kaže „To je tekući sloj. Prvo postavite drugi sloj kao tekući.“ Klik na naziv sloja da bi postao tekući takođe ga uključuje i odmrzava.
 
-Svaka promena sloja, u panelu ili komandom, je jedan korak opozivanja: {{key:Mod+Z}} ga vraća.
+Svaka promena sloja, u panelu ili komandom, je jedan korak opozivanja: {{key:Mod+Z}} je vraća.
 
-## Radi sa slojevima biranjem objekata
+## Rad sa slojevima biranjem objekata
 
-Ne moraš da znaš ime sloja: izaberi objekat na njemu. Ukucaj komandu ili otvori {{ui:Alatke}} na vrhu panela {{ui:Slojevi}}.
+Ne morate znati naziv sloja: izaberite objekat na njemu. Ukucajte komandu, ili otvorite {{ui:Alatke}} na vrhu panela {{ui:Slojevi}}.
 
 | Komanda | Šta radi |
 |---|---|
-| {{cmd:LAYISO}} | Izaberi objekte, pritisni {{key:Enter}}: ostaju uključeni samo njihovi slojevi, a svi ostali se isključuju. Ako je tekući sloj isključen, jedan od izolovanih slojeva postaje tekući. |
-| {{cmd:LAYUNISO}} | Ponovo uključuje slojeve koje je poslednji {{cmd:LAYISO}} isključio i vraća tekući sloj koji je promenio. |
-| {{cmd:LAYOFF}} | Klikni objekte jedan za drugim: sloj svakog se isključuje. Ukucaj `U` da vratiš poslednji, {{key:Enter}} za kraj. |
-| {{cmd:LAYFRZ}} | Isto, ali zamrzava sloj svakog. |
-| {{cmd:LAYMCUR}} | Klikni objekat: njegov sloj postaje tekući (i uključuje se i odmrzava). Ako je već izabran jedan objekat, koristi se on. |
-| {{cmd:LAYON}} | Uključuje sve slojeve. |
-| {{cmd:LAYTHW}} | Odmrzava sve slojeve. |
+| {{cmd:LAYISO}} | Izaberite objekte, pritisnite {{key:Enter}}: ostaju uključeni samo njihovi slojevi, a svi ostali se isključuju. Ako je tekući sloj isključen, jedan od izolovanih slojeva postaje tekući. |
+| {{cmd:LAYUNISO}} | Ponovo uključuje slojeve koje je poslednji {{cmd:LAYISO}} isključio, i vraća tekući sloj koji je promenio. |
+| {{cmd:LAYOFF}} | Kliknite objekte jedan za drugim: sloj svakog se isključuje. Ukucajte `U` da opozovete poslednji, {{key:Enter}} za kraj. |
+| {{cmd:LAYFRZ}} | Isto, ali zamrzava svaki sloj. |
+| {{cmd:LAYMCUR}} | Kliknite objekat: njegov sloj postaje tekući (i uključuje se i odmrzava). Ako je jedan objekat već izabran, koristi se on. |
+| {{cmd:LAYON}} | Uključuje svaki sloj. |
+| {{cmd:LAYTHW}} | Odmrzava svaki sloj. |
 
-Tekući sloj se na ovaj način nikad ne isključuje ni zamrzava: istorija to kaže, a pre toga možeš drugi sloj da postaviš kao tekući pomoću {{cmd:LAYMCUR}}. Biranje referenci blokova koristi sloj same reference.
+Tekući sloj se na ovaj način nikada ne isključuje niti zamrzava: istorija to kaže, a pre toga možete postaviti drugi sloj kao tekući sa {{cmd:LAYMCUR}}. Kada izaberete referencu bloka, koristi se sopstveni sloj reference.
 
-## Preimenuj, spoji i obriši slojeve
+## Preimenovanje, spajanje i brisanje slojeva
 
-- {{cmd:RENAME}}: ukucaj `LA`, staro ime i novo. Svaki objekat na sloju prati promenu. (`B` preimenuje blok na isti način, sa svim referencama na njega.)
-- {{cmd:LAYMRG}}: klikni objekat na svakom sloju koji spajaš (ili ukucaj `N` i ime), pritisni {{key:Enter}}, zatim izaberi ciljni sloj i odgovori `Y`. Objekti idu na cilj — u modelu, na listovima i unutar blokova — a spojeni slojevi nestaju.
-- {{cmd:LAYDEL}}: izaberi objekat na sloju (ili `N` i njegovo ime) i odgovori `Y`. Sloj odlazi **sa svakim objektom na njemu**, svuda. Sloj 0, DEFPOINTS i tekući sloj ne mogu da se obrišu.
+- {{cmd:RENAME}}: ukucajte `LA`, stari naziv i novi. Svaki objekat na sloju prati ga. (`B` preimenuje blok na isti način, sa svim referencama na njega.)
+- {{cmd:LAYMRG}}: kliknite objekat na svakom sloju koji spajate (ili ukucajte `N` i naziv), pritisnite {{key:Enter}}, zatim izaberite ciljni sloj i odgovorite `Y`. Objekti prelaze na cilj, u modelu, na listovima i unutar blokova, a spojeni slojevi nestaju.
+- {{cmd:LAYDEL}}: izaberite objekat na sloju (ili `N` i naziv) i odgovorite `Y`. Sloj nestaje **zajedno sa svim objektima na njemu**, svuda. Sloj 0, DEFPOINTS i tekući sloj se ne mogu obrisati.
 
 Svaka je jedan korak opozivanja. Sve tri su u {{ui:Alatke}} na vrhu panela {{ui:Slojevi}}.
 
-1. Klikni jednu liniju zida, zatim ukucaj `LAYISO` i pritisni {{key:Enter}}. Ostaje uključen samo Walls.
-2. Nacrtaj ili promeni šta ti treba na Walls.
-3. Ukucaj `LAYUNISO` i pritisni {{key:Enter}}. Doors i Notes se vraćaju.
+1. Kliknite jednu liniju zida, zatim ukucajte `LAYISO` i pritisnite {{key:Enter}}. Ostaje uključen samo Walls.
+2. Nacrtajte ili promenite šta vam treba na Walls.
+3. Ukucajte `LAYUNISO` i pritisnite {{key:Enter}}. Doors i Notes se vraćaju.
 
 ## Česte greške
 
-- **Nove linije su otišle na pogrešan sloj.** Pogledaj koja je tačka popunjena pre crtanja. Novi sloj postaje tekući čim ga dodaš.
+- **Nove linije su otišle na pogrešan sloj.** Pre crtanja proverite koja je tačka popunjena. Novi sloj postaje tekući čim ga dodate.
 - **Objekat se ne bira.** Njegov sloj je zaključan, isključen ili zamrznut.
-- **Sloj se i dalje štampa u drugom programu.** DXF R12 ne može da čuva „ne štampaj“. CadCraft to podešavanje zadržava za sebe kada crtež ima list, ali će ga drugi programi štampati.
-- **Imena slojeva su posle čuvanja velikim slovima.** DXF R12 čuva imena velikim slovima, pa se `Walls` vraća kao `WALLS`, a razmaci postaju `_`. Sačuvan DWG čuva imena onako kako si ih ukucao.
-- **Preimenovanje, spajanje ili brisanje sloja.** Koristi {{cmd:RENAME}}, {{cmd:LAYMRG}} ili {{cmd:LAYDEL}} (takođe u {{ui:Alatke}}): vidi dole.
+- **Sloj se i dalje štampa u drugom programu.** DXF R12 ne može da sačuva „ne štampaj“. CadCraft zadržava tu postavku za sebe kada crtež ima list, ali će drugi programi štampati taj sloj.
+- **Nazivi slojeva velikim slovima posle čuvanja.** DXF R12 čuva nazive velikim slovima, pa se `Walls` vraća kao `WALLS`, a razmaci postaju `_`. Sačuvani DWG zadržava nazive kako ste ih ukucali.
+- **Preimenovanje, spajanje ili brisanje sloja.** Koristite {{cmd:RENAME}}, {{cmd:LAYMRG}} ili {{cmd:LAYDEL}} (takođe u {{ui:Alatke}}): vidi ispod.
 
-## Grupiši slojeve
+## Grupisanje slojeva
 
-Održi spisak kratkim tako što slojeve stavljaš u fascikle, na primer Postojeće, Predloženo i Instalacije. Svaka fascikla se sklapa, a njeni prekidači uključuju ili isključuju sve njene slojeve, zamrzavaju ih ili zaključavaju zajedno. Tekući sloj se nikad ne isključuje.
+Držite spisak kratkim tako što slojeve stavljate u fascikle, kao što su Existing, Proposed i Services. Svaka fascikla se sklapa, a njeni prekidači uključuju ili isključuju sve njene slojeve, zamrzavaju ih ili zaključavaju zajedno. Tekući sloj se nikada ne isključuje.
 
-U {{ui:Alatke}} na panelu Slojevi izaberi {{ui:Dodaj gotove grupe}} za skup napravljen za male stambene radove, {{ui:Grupiši po imenu}} da grupišeš slojeve koji dele prefiks (`E-Walls`, `E-Doors`), ili {{ui:Nova grupa}}. Prevuci sloj na fasciklu ili koristi spisak iznad slojeva za tekući sloj. Ukucaj u {{ui:Pronađi sloj}} da suziš spisak. `LAYGROUP` (`LG`) radi isto u komandnoj liniji.
+U {{ui:Alatke}} na panelu Slojevi izaberite {{ui:Dodaj gotove grupe}} za skup napravljen za mali stambeni posao, {{ui:Grupiši po imenu}} da grupišete slojeve koji dele prefiks (`E-Walls`, `E-Doors`), ili {{ui:Nova grupa}}. Prevucite sloj na fasciklu, ili koristite spisak iznad slojeva za tekući sloj. Ukucajte u {{ui:Pronađi sloj}} da suzite spisak. `LAYGROUP` (`LG`) radi isto u komandnoj liniji.
 
-Sami slojevi se ne menjaju, pa drugi CAD programi vide običan ravan spisak. CadCraft čuva grupe u datoteci.
+Da preimenujete grupu, dvaput kliknite njen naziv (ili je izaberite i pritisnite {{key:F2}}), ukucajte novi naziv i pritisnite {{key:Enter}}; {{key:Esc}} zadržava stari, a {{cmd:UNDO}} ga vraća. {{ui:Nova grupa}} je u {{ui:Alatke}} na panelu Slojevi.
+
+Sami slojevi se ne menjaju, pa ih drugi CAD programi vide kao običan ravan spisak. CadCraft čuva grupe u datoteci.

@@ -48,7 +48,7 @@ Select it (click one of its lines). In {{ui:Properties}}: {{ui:Pattern}}, {{ui:P
 - **"No closed boundary round that point."** There is a gap in the outline, or part of it is off screen: CadCraft looks only at what is on screen. Close the gap (zoom in on the corners), or zoom out.
 - **"The pattern is too dense to draw at this scale."** The lines would be closer than the drawing can show. Use a larger scale: try the plot scale (20 for 1:20).
 - **The pattern looks huge or tiny.** The scale is in drawing units per pattern unit; see step 4 above.
-- **Moving the outline does not move the hatch.** A hatch is not tied to its boundary. Move both, or hatch again.
+- **The hatch stopped following its outline.** A hatch made with {{cmd:HATCH}} stays with the objects it was made from: move, turn or scale the outline and the hatch goes with it; reshape it with a grip and the hatch is worked out again. The link ends when the outline no longer closes, when you reshape the hatch itself by hand, or when you trim it, and the command line says so. Nothing is lost: hatch the area again to link it anew.
 
 ## A hatch that stays with its boundary
 

@@ -34,6 +34,7 @@ import * as C from './walls/cut.js';
 import * as M from './walls/modify.js';
 import { distanceTo } from './walls/hold.js';
 import { cornerEnds, nextStyle } from './walls/joinstyle.js';
+import { wallsAtPoint, crossingWall } from './walls-snap.js';   // 0.10.1 (#1973)
 
 const opt = (key, label) => ({ key, label, en: label });
 const def = commandRegistry.add;
@@ -128,11 +129,12 @@ def('WALLPOLY', ['WP'], async (c) => {
   const centre = await c.point(t('cmd.polygon.specify_center_polygon'));
   const kw = await c.keyword(t('cmd.mea.option'), { options: [opt('I', t('cmd.polygon.inscribed_circle')), opt('C', t('cmd.polygon.circumscribed_about_circle'))], default: c.engine.lastPolyMode || 'I' });
   const mode = (kw && kw.option) || (typeof kw === 'string' ? kw : 'I');
+  c.engine.lastPolyMode = mode;   // as POLYGON: the next polygon offers the same option
   const fit = mode === 'C' ? 'circumscribed' : 'inscribed';
-  c.preview((cur) => previewPath(c, D.polygon(P(centre, k), P(cur, k), n, { fit }), S, k));
-  const p = await c.point(t('cmd.circle.specify_radius_circle'), { base: centre });
+  c.preview((cur) => previewPath(c, D.polygon(P(centre, k), P(cur, k), n, { fit, level: true }), S, k));
+  const p = await c.point(t('cmd.circle.specify_radius_circle'), { base: centre, radial: true });   // 0.10.1 (#1971): a typed radius, as POLYGON takes it
   c.preview(null);
-  guard(c, () => drawPath(c, D.polygon(P(centre, k), P(p, k), n, { fit }), 'WALLPOLY'));
+  guard(c, () => drawPath(c, D.polygon(P(centre, k), P(p, k), n, { fit, level: true }), 'WALLPOLY'));
 }, { help: () => t('plan2d.tool.poly.help') });
 
 def('WALLARC', ['WARC'], async (c) => {
@@ -309,14 +311,28 @@ def('WALLDIM', [], async (c) => {
   const dx = d.p2.x - d.p1.x, dy = d.p2.y - d.p1.y;
   const e = d.kind === 'aligned' ? (() => { const L = Math.hypot(dx, dy) || 1; return { x: dx / L, y: dy / L }; })() : { x: Math.cos(d.rot || 0), y: Math.sin(d.rot || 0) };
   const sgn = Math.sign(dx * e.x + dy * e.y) || 1, value = Math.abs(dx * e.x + dy * e.y);
-  const w1 = wallAt(c, d.p1, 1e-9 + 1 / k), w2 = wallAt(c, d.p2, 1e-9 + 1 / k);
+  // 0.10.1 (#1973): a point on a centre line at a corner or a T is inside two walls: take the one this dimension can move (not the one
+  // running along it), and for the first end a different wall from the second
+  const reach = 1e-9 + 1 / k, all = editableWalls(c.doc).map((x) => ({ e: x, w: model(x) }));
+  const at = (p, skip = null) => { const hit = crossingWall(wallsAtPoint(all.map((x) => x.w), p, reach), e, skip); return hit ? all.find((x) => x.w.id === hit.w.id) : null; };
+  const w2 = at(d.p2) || wallAt(c, d.p2, reach), w1 = (w2 && at(d.p1, w2.w.id)) || wallAt(c, d.p1, reach);
   if (!w1 || !w2 || w1.w.id === w2.w.id) { c.print(t('plan2d.tool.dim.walls')); return; }
-  const typed = await c.distance(t('plan2d.tool.dim.value', { v: Math.round(value * 1e4) / 1e4 }), { default: value });
+  const typed = await c.distance(t('plan2d.tool.dim.value', { v: c.engine?.fmtDistance ? c.engine.fmtDistance(value) : Math.round(value * 1e4) / 1e4 }), { default: value });
   if (!(typed > 0)) return;
   const move = guard(c, () => M.dimensionMove({ a: P(d.p1, k), b: [d.p1.x * k + e.x * sgn * value * k, d.p1.y * k + e.y * sgn * value * k], value: value * k }, typed * k, libWall(w2.w, k)));
   if (move === null || move === undefined) { c.print(t('plan2d.tool.dim.along')); return; }
   const plan = guard(c, () => squareMove(rowsOf(c, k), w2.w.g, move));
-  if (plan) applyPlan(c, plan, k, 'WALLDIM');
+  if (!plan) return;
+  applyPlan(c, plan, k, 'WALLDIM');
+  // 0.10.1 (#1973): the dimension's far point goes with its wall, so the dimension reads the value typed (a wall carries no feature a
+  // dimension can be tied to; one tied by DIMREASSOCIATE to something else at that end is left to its tie)
+  const now = c.doc.get(d.id);
+  if (now && !now.assoc?.p2 && Math.hypot(now.p2.x - d.p2.x, now.p2.y - d.p2.y) < 1e-9) {
+    const L = Math.hypot(w2.w.b.x - w2.w.a.x, w2.w.b.y - w2.w.a.y) || 1, n = { x: -(w2.w.b.y - w2.w.a.y) / L, y: (w2.w.b.x - w2.w.a.x) / L };
+    const next = { ...now, p2: { x: d.p2.x + n.x * move / k, y: d.p2.y + n.y * move / k } };
+    delete next.block;   // its imported picture no longer fits: drawn again from its points (as geom.js txEntity does)
+    c.doc.change('WALLDIM', () => c.doc.update(d.id, next));
+  }
 }, { help: () => t('plan2d.tool.dim.help') });
 
 def('WALLOFFSET', ['WO'], async (c) => {

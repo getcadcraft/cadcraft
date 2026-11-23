@@ -2,7 +2,7 @@
 title: Çfarë ka të re në 0.7 (më herët)
 summary: Nënvizime PDF dhe importim PDF, vizatime të skanuara me gjurmim automatik, spline të vërteta me SPLINE, SPLINEDIT dhe PEDIT, menaxher stilesh përmasash, tekst që e ruan formatimin, WBLOCK dhe shkallët tuaja, solidë 3D nga programe të tjera, regjistrim skanimesh, panel Lazer, eksport USD, Historiku dhe printimi në CadCraft Studio, vizatimi i parë i udhëzuar, shiriti i veglave në çdo anë ose në më pak rreshta, dhe më shumë për asistentët AI.
 keywords: çfarë ka të re 0.7, version më i hershëm, shënime lançimi, ndryshime, 0.7, version, veçori të reja, pdf, pdfattach, pdfimport, nënvizim, skanim, scanattach, scantrace, gjurmim, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatim, wblock, scalelistedit, listë shkallësh, acis, solidë 3d, registerscans, regjistro skanimet, icp, e57, las, lazer, grbl, g-code, usd, usdout, historiku, versione, krahaso, printo, printer, png, svg, stil plotimi, linetype, udhëzues, fletë shpejtimi, harta e komandave, pozicioni i veglave, toolbardock, regen, regenall, trackpad, rrëshqitje, faqe kodesh, cirilik, koreanisht, kinezisht, japonisht, elektrik, rcd, p&id, pid, acad.lsp, acaddoc.lsp, dosja e mbështetjes, asistentët, mcp, njësi, portugalisht
-from: d07ca034
+from: d9a8ea79
 ---
 
 Kjo është ajo që ndryshoi në CadCraft 0.7, krahasuar me 0.6. Shumë prej saj u kërkua në Discord. Lista është grupuar sipas fushës, me më të rëndësishmet e para.

@@ -100,6 +100,7 @@ export function installLayerManager({ root, doc, host, el, t, print, focusComman
         name.addEventListener('change', () => { const to = name.value.trim(); if (to === r.name) { name.value = r.name; return; } if (change(r.name, { name: to })) say(t('layermgr.renamed', { from: r.name, to })); });
         name.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); name.blur(); } else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); name.value = r.name; name.blur(); } });
         const status = el('button', { type: 'button', className: 'cc-lm-status', title: r.current ? t('app.current_layer') : t('app.make_current'), 'aria-label': t(r.current ? 'app.layer.current_aria' : 'app.layer.make_current_aria', { name: r.name }), 'aria-pressed': String(r.current), dataset: { lmStatus: r.name } },
+          // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
           el('i', { className: 'bi bi-' + (r.current ? 'check-lg' : 'dash'), 'aria-hidden': 'true' }));
         status.addEventListener('click', () => { sel = r.name; act.current(); });
         const colorIn = el('input', { type: 'color', value: toHex6(swatch(r.color)), 'aria-label': t('app.layer.colour', { name: r.name }), dataset: { lmColor: '' } });

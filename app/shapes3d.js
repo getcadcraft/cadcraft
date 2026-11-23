@@ -16,14 +16,13 @@
 import { meshDef, solidInfo } from './m3d/model.js';
 import { translation } from './m3d/vec.js';
 import { t } from './i18n.js';
+import { cross3 as cross, dot3 as dot } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
+import { ringArea as area2 } from './geom2d.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 const TAU = Math.PI * 2;
 const STEPS = 48;
-const area2 = (r) => { let a = 0; for (let i = 0; i < r.length; i++) { const p = r[i], q = r[(i + 1) % r.length]; a += p[0] * q[1] - q[0] * p[1]; } return a / 2; };
 const ccw = (r) => (area2(r) < 0 ? r.slice().reverse() : r);
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], (a[2] || 0) - (b[2] || 0)];
-const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 
 /** The ring moved inward by d (on a counter-clockwise ring, inward is to the left of each edge). */
 export function insetRing(ring, d) {

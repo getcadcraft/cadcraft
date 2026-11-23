@@ -1,419 +1,423 @@
 ---
-title: Parancstérkép: mit kell beírni
-summary: A CadCraft minden parancsa a rövid neveivel, A-tól Z-ig, a programból készítve, és a más rajzolóprogramoktól eltérő szokások.
-keywords: parancstérkép, parancsok, álnevek, rövid nevek, átállás, parancslista, mit kell beírni, törlés, vágás, megfelelő, eltérések
-from: 3bdfd3e6
+title: Parancstérkép: mit írjon be
+summary: Minden CadCraft-parancs a rövid neveivel, A-tól Z-ig, magából a programból készítve, és azok a szokások más rajzprogramokból, amelyek eltérnek.
+keywords: parancstérkép, parancsok, álnevek, rövid nevek, honnan jön, parancslista, mit írjon be, törlés, levágás, megfelelő, különbségek
+from: 9426856f
 ---
 
-A CadCraft a más rajzolóprogramokból ismert parancsneveket és rövid neveket veszi át: a `L` beírása vonalat rajzol, a `TR` vágást, az `E` törlést ad. Így a legtöbbhöz nincs megtanulandó fordítási táblázat: az ismert név itt is ugyanaz. Az alábbi lista a CadCraft összes parancsa, a programból készítve. Az {{key:Enter}} megismétli az utolsó parancsot; a parancssorban a `HELP` ugyanezt a listát írja ki.
+A CadCraft azokat a parancsneveket és rövid neveket veszi át, amelyeket az emberek más rajzprogramokból ismernek: az `L` egy vonalhoz, a `TR` a levágáshoz, az `E` a törléshez. A legtöbbhöz tehát nincs fordítási táblázat megtanulni: az ismert név itt is ugyanaz. Az alábbi lista minden CadCraft-parancs, magából a programból készítve. Az {{key:Enter}} megismétli az utolsót, a parancssorba írt `HELP` ugyanezt a listát írja ki.
 
-Néhány, ami nem azonos, vagy nincs megvalósítva:
+A kevés, amely nem ugyanaz, vagy nincs kész:
 
-- **Mentés**: a böngészőben másolatot tölt le ({{cmd:SAVE}}, {{cmd:SAVEAS}}); a CadCraft Studióban a fájlt írja ki. Lásd: [Átállás más rajzolóprogramokról](topic:coming-from).
-- A **PLOT** PDF-et készít (PNG-t és SVG-t is), plottolási stílustáblával; nincs oldalbeállító-kezelő.
-- A **DIMSTYLE** és a **PEDIT** megvalósított; a **PEDIT**-nek nincs csúcsszerkesztés lehetősége (ezt a fogópontok végzik).
-- A **TABLE** nincs megvalósítva; a {{cmd:XREF}}, a {{cmd:SPLINE}} és a {{cmd:WBLOCK}} igen.
-- Egy rutin saját parancsai (AutoLISP `C:NAME`) a {{cmd:APPLOAD}} használata után jelennek meg; itt nem szerepelnek.
+- A **Mentés** ({{cmd:SAVE}}, {{cmd:SAVEAS}}) egy másolatot tölt le a böngészőben; a CadCraft Studióban a fájlt írja. Lásd: [Átállás más rajzszoftverekről](topic:coming-from).
+- A **PLOT** PDF-et készít (PNG-ben és SVG-ben is), nyomtatási stílustáblával; nincs oldalbeállító kezelő.
+- A **DIMSTYLE** és a **PEDIT** kész; a **PEDIT**-nek nincs csúcspont-szerkesztés opciója (ezt a fogópontok végzik).
+- A **TABLE** nincs kész; a {{cmd:XREF}}, a {{cmd:SPLINE}} és a {{cmd:WBLOCK}} kész.
+- Egy rutin saját parancsai (AutoLISP `C:NAME`) a {{cmd:APPLOAD}} utáni betöltés után jelennek meg; itt nincsenek felsorolva.
 
-## Minden parancs (398)
+## Összes parancs (402)
 
 | Parancs | Rövid nevek | Mit csinál |
 |---|---|---|
-| `3DORBIT` | `3DO`, `ORBIT` | A 3D-nézet körbeforgatása a bal gombbal |
-| `ACCESS` | `AX` | A rajzolás látás nélkül be- és kikapcsolása: az eredmények a képernyőolvasón keresztül hangzanak el, billentyűzeti kurzor van a rajzon, fogáshangok és kimondott parancsok vannak. |
-| `ALIASEDIT` |  | A parancsálnevek szerkesztése egyetlen szövegfájlban (a megszokott L, *LINE formátum) |
-| `ALIGN` | `AL` | Objektumok mozgatása és elforgatása úgy, hogy a forráspontok a célpontokra kerüljenek (egy, két vagy három pár), és ha kell, léptékezése |
+| `3DORBIT` | `3DO`, `ORBIT` | A 3D nézet körbeforgatása a bal gombbal |
+| `ACCESS` | `AX` | A látás nélküli vázlatolás be- vagy kikapcsolása: az eredmények a képernyőolvasón keresztül hangzanak el, a rajzon billentyűzeti kurzor van, fogáshangok és kimondott parancsok. |
+| `ALIASEDIT` |  | Parancsálnevek szerkesztése egy szövegfájlban (a megszokott L, *LINE formátum) |
+| `ALIGN` | `AL` | Objektumok mozgatása és forgatása úgy, hogy a forrásforrás pontok a célpontokra kerüljenek (egy, két vagy három pár), és ha szeretné, méretezése is |
 | `ALIGNPANEL` | `ALP` | Az Igazítás és elosztás panel megnyitása |
-| `ALIGNTO` |  | A kijelölt objektumok bal, közép, jobb, felső, középső vagy alsó széleinek igazítása: a kijelölésre, az első vagy az utolsó kiválasztott objektumra vagy egy pontra |
-| `ANNOALLVISIBLE` | `ANNOALL` | A feliratozó objektumok megjelenítése minden léptéken, vagy csak ott, ahol a nézetablak (vagy a rajz) léptéke szerepel a listájukban |
-| `ANNOSCALE` | `CANNOSCALE` | A rajz feliratozási léptékének beállítása: a feliratozó szövegek és méretek úgy változnak, hogy azonos méretben nyomtatódjanak |
+| `ALIGNTO` |  | A kijelölt objektumok bal, közép, jobb, felső, középső vagy alsó széleinek igazítása a kijelölésre, az első vagy utolsó kiválasztott objektumra, vagy egy pontra |
+| `ANNOALLVISIBLE` | `ANNOALL` | Az annotatív objektumok mutatása minden léptéken, vagy csak ott, ahol a nézetablak (vagy a rajz) léptéke szerepel a listájukban |
+| `ANNOSCALE` | `CANNOSCALE` | A rajz annotációs léptékének beállítása: az annotatív szöveg és méretezés átméreteződik, hogy azonos méretben nyomtatódjon |
 | `APPLOAD` | `AP` | Alkalmazások betöltése: LISP-rutinok (.lsp) és párbeszédfájljaik (.dcl); az indítókészlet (AP) |
-| `ARC` | `A` | Ív: 3 pontos, kezdő/közép/vég, kezdő/közép/szög, kezdő/közép/hossz, kezdő/vég/szög, kezdő/vég/irány, kezdő/vég/sugár, közép/kezdő/vég, közép/kezdő/szög, közép/kezdő/hossz, folytatás |
-| `AREA` | `AA` | Terület és kerület pontok alapján vagy objektumról; a Hozzáadás és a Kivonás futó összeget tart (AA) |
+| `ARC` | `A` | Ív: 3 pont, Kezdő/Középső/Vég, Kezdő/Középső/Szög, Kezdő/Középső/Hossz, Kezdő/Vég/Szög, Kezdő/Vég/Irány, Kezdő/Vég/Sugár, Középső/Kezdő/Vég, Középső/Kezdő/Szög, Középső/Kezdő/Hossz, Folytatás |
+| `AREA` | `AA` | Terület és kerület pontok vagy egy objektum alapján; a Hozzáadás és a Kivonás futó összeget tart (AA) |
 | `ARRAY` | `AR` | Másolatok sorokban és oszlopokban, vagy egy középpont körül (AR) |
-| `ARRAYASSOCIATIVITY` |  | Beállítja, hogy az ARRAY parancsok szerkeszthető sokszorozást (1) vagy egyszerű másolatokat (0) készítsenek |
-| `ARRAYCLOSE` |  | Befejezi a sokszorozás forrásobjektumainak szerkesztését |
-| `ARRAYEDIT` |  | Az Asszociatív lehetőséggel készült sokszorozás módosítása: darabszámok, távolságok, forrásobjektumok, egy elem |
-| `ARRAYPATH` |  | Objektumok másolatai egy egyenes, ív, polivonal vagy más görbe mentén |
+| `ARRAYASSOCIATIVITY` |  | Beállítja, hogy az ARRAY-parancsok szerkeszthető tömböket (1) vagy sima másolatokat (0) készítsenek |
+| `ARRAYCLOSE` |  | Befejezi a tömb forrásobjektumainak szerkesztését |
+| `ARRAYEDIT` |  | Módosít egy, az Asszociatív opcióval készített tömböt: darabszám, távolság, forrásobjektumok, egy elem |
+| `ARRAYPATH` |  | Objektumok másolatai egy vonal, ív, polivonal vagy más görbe mentén |
 | `ARRAYPOLAR` |  | Másolatok egy középpont körül |
 | `ARRAYRECT` |  | Másolatok sorokban és oszlopokban |
-| `ASBUILT` | `ASB` | Az ASBUILT beolvassa a helyszíni csapat által mért, a valós állapotot rögzítő pontokat (CSV / TXT, ahogy az EXPORTPOINTS írja), és összeveti a rajz pontjaival: tűrésen belül vagy kívül, nem mért, többletpont. Az AS-BUILT rétegre jelöli őket, és CSV-jelentést tölt le. |
-| `ATTDEF` | `ATT`, `DDATTDEF`, `-ATTDEF` | Attribútum meghatározása (címke, amelyre egy blokk értéket kér), hogy a blokkba kerülhessen (ATT) |
-| `ATTEDIT` | `ATE`, `-ATTEDIT` | Blokkhivatkozás attribútumértékeinek szerkesztése a parancssorban, egymás után (az Enter megtartja az értéket) |
-| `ATTSYNC` |  | Egy blokk hivatkozásainak igazítása az attribútum-definícióikhoz: az újak az alapértelmezésükkel kerülnek be, az eltávolítottak kikerülnek, a helyzetek és a szövegek visszaállnak; az értékek megmaradnak |
-| `AUDIT` |  | Ellenőrzi a megnyitott rajzot a sérülésekre: nem véges számok, méret nélküli objektumok, hiányzó rétegek, blokkok, stílusok és vonaltípusok, önmagukat tartalmazó blokkok, megosztott azonosítók, hibás méretek és sraffozások. Típus szerint listázza a találatokat, és javítás előtt rákérdez; a javítás egy visszavonási lépés. |
-| `AUNITS` | `ANGUNITS` | Hogyan jelennek meg és hogyan adhatók meg a szögek: tizedes fok, fok-perc-másodperc vagy irányszögek, például N45°23'30"E (ANGUNITS) |
-| `AUTOCOMPLETE` | `AUTOC` | A rajz automatikus kiegészítése be- vagy kikapcsolva, vagy a rajz mintái alapján most javasolt elemek listázása. |
-| `AUTOCONSTRAIN` |  | Egyezés, vízszintes és függőleges kényszerek hozzáadása, ahol a geometria már közel van |
-| `AUTODIM` | `ADIM` | Méretezés szabályok szerint: teljes méret, láncok az oldalak mentén, nyílások, lyukátmérők és rácstávolság, anélkül, hogy megismételné, ami már ki van méretezve. |
-| `AUTOSHEET` | `ASH` | Rajzlapokat helyez el önmagától: kiválasztja a papírméretet és a szabványos léptékeket, és minden nézetet felirattal és rajzfejjel együtt helyez el. |
-| `BATTMAN` |  | Blokkattribútum-kezelő: a blokk attribútumainak sorrendje, címkéi, kérdései, alapértelmezései és módjai, majd a hivatkozásai frissítve |
-| `BCLOSE` |  | A blokkszerkesztő bezárása: a blokk mentése vagy a módosítások elvetése |
-| `BCONVERT` |  | A BCONVERT megkeresi az ismétlődő geometriát, és blokkhivatkozásokká alakítja. Jelölje ki az ismétlődő objektumokat: a nyitott térben minden más, azonos geometriájú objektumcsoport megtalálható, amely el van mozdítva és bármilyen szögben el van forgatva; ha a Tükrözött és a Léptékezett be van kapcsolva, a tükörképek és más méretű másolatok is. Adjon nevet az új blokknak és egy alappontot; a kijelölés és minden másolat erre a blokkra mutató hivatkozássá válik, mindegyik a saját elforgatásával és léptékével. Vagy válassza a Blokk lehetőséget, és nevezzen meg egy meglévő blokkot, hogy megtalálja az objektumainak laza másolatait. A másolatnak ugyanazon a rétegen, színnel, vonaltípussal és vonalvastagsággal kell lennie, hacsak a Tulajdonságok nincs Figyelmen kívül hagyásra állítva. A zárolt rétegek objektumai érintetlenek maradnak. Egy visszavonási lépés. |
-| `BEDIT` | `BE` | Blokkszerkesztő: a blokk objektumainak és attribútumainak szerkesztése; a BCLOSE menti (BE) |
-| `BLEND` |  | BLEND: spline két nyitott görbe végei között, a végek közelében megadott pontokkal összekötve. CONtinuity: az Érintő mindkét irányt követi, a Sima a hajlást is. |
-| `BLOCK` | `B`, `BMAKE` | Blokk készítése objektumokból (egyetlen hivatkozássá válnak) |
-| `BLOCKREPLACE` |  | BLOCKREPLACE: egy blokkra mutató minden hivatkozás egy másik blokkra mutató hivatkozássá válik, ugyanazon a helyen, ugyanazzal a léptékkel és elforgatással. A mindkét blokkban meglévő attribútumok értékei megmaradnak. |
-| `BLOCKSPALETTE` | `BLOCKSPAL` | A BLOCKSPALETTE megjeleníti a Blokkok panelt, a kurzorral a szűrőjében. A panel minden blokkról képet mutat (a legutóbb elhelyezettek először), listaként vagy rácsban; kattintson a képre, vagy húzza a rajzra, hogy a blokkot az INSERT paranccsal helyezze el. A Könyvtárak alatt adjon hozzá saját DWG vagy DXF fájlt: a blokkjai képpel együtt listázódnak, és egy elhelyezéskor a rajzba másolódnak. A CadCraft Studióban mappa is hozzáadható, és a fájlok és mappák megmaradnak. |
-| `BOMEDIT` | `BOMCOLUMNS` | Egy anyagjegyzéktábla oszlopai, csoportosítása, rendezése, címe, összesítései és megjegyzései |
-| `BOMEXPORT` |  | Anyagjegyzéktábla mentése .csv fájlba |
-| `BOMTABLE` | `BOM` | Egy zóna vagy az egész rajz élő anyagjegyzéktáblája |
-| `BOMUPDATE` |  | Minden anyagjegyzéktábla azonnali frissítése, a befagyasztottakat is beleértve |
-| `BOMZONE` | `BZONE` | A rajz egy elnevezett területe anyagjegyzékhez: két sarok, egy sokszög vagy egy zárt objektum körvonala |
-| `BOUNDARY` | `BO`, `BPOLY` | BOUNDARY (BO): kattintson egy zárt terület belsejébe, és kapjon egy körülötte futó zárt polivonalat. Az ívek ívek maradnak. A Szigetek a benne lévő területeket is körvonalazza. |
+| `ASBUILT` | `ASB` | Az ASBUILT beolvassa a csapat által mért kivitelezési pontokat (CSV / TXT, ahogy az EXPORTPOINTS írja), és összeveti őket a rajz pontjaival: a tűrésen belül vagy kívül, nem mért, többlet. Megjelöli őket az AS-BUILT rétegen, és CSV-jelentést tölt le. |
+| `ATTDEF` | `ATT`, `DDATTDEF`, `-ATTDEF` | Attribútum meghatározása (egy címke, amelyre a blokk értéket kér), hogy blokkba tegye (ATT) |
+| `ATTEDIT` | `ATE`, `-ATTEDIT` | Egy blokkhivatkozás attribútumértékeinek szerkesztése a parancssorban, egymás után (az {{key:Enter}} megtart egy értéket) |
+| `ATTSYNC` |  | Egy blokk hivatkozásait összhangba hozza az attribútum-definícióikkal: az újak az alapértelmezéssel kerülnek be, az eltávolítottak kikerülnek, a helyzetek és szövegek visszaállnak; az értékek megmaradnak |
+| `AUDIT` |  | Megvizsgálja a megnyitott rajzot sérülésekért: nem véges számok, méret nélküli objektumok, hiányzó rétegek, blokkok, stílusok és vonaltípusok, önmagukat tartalmazó blokkok, megosztott azonosítók, hibás méretezések és sraffozások. Fajtánként listázza az eredményeket, és javítás előtt kérdez; a javítás egy visszavonási lépés. |
+| `AUNITS` | `ANGUNITS` | Hogyan jelennek meg és hogyan gépelhetők be a szögek: tizedes fok, fok-perc-másodperc, vagy irányszögek, például N45°23'30"E (ANGUNITS) |
+| `AUTOCOMPLETE` | `AUTOC` | A rajz automatikus kiegészítése be vagy ki, vagy annak listázása, amit a rajz mintái most javasolnak. |
+| `AUTOCONSTRAIN` |  | Egybeeső, vízszintes és függőleges kényszereket ad ott, ahol a geometria már közel van |
+| `AUTODIM` | `ADIM` | Méretezés szabályok szerint: teljes méret, láncok az oldalak mentén, nyílások, lyuk-átmérők és rácstávolság, anélkül, hogy megismételné, ami már méretezve van. |
+| `AUTOSHEET` | `ASH` | Önmagától elrendezi a lapokat: papírt és szabványos léptéket választ, és minden nézetet felirattal és rajzfejjel helyez el. |
+| `BATTMAN` |  | Blokkattribútum-kezelő: egy blokk attribútumainak sorrendje, címkéi, kérdései, alapértelmezései és módjai, majd hivatkozásai frissítve |
+| `BCLOSE` |  | Blokkszerkesztő bezárása: a blokk mentése vagy a módosítások elvetése |
+| `BCONVERT` |  | A BCONVERT megkeresi az ismétlődő geometriát, és blokkhivatkozásokká alakítja. Jelölje ki az ismétlődő objektumokat: a nyitott térben minden más, azonos geometriájú objektumhalmaz, bármely szögben eltolva és elforgatva, megtalálódik, és a Tükrözöttel vagy Méretezettel bekapcsolva tükörképek és másolatok más méretben is. Adjon az új blokknak nevet és bázispontot; a kijelölés és minden másolat erre a blokkra mutató hivatkozássá válik, mindegyik saját elforgatással és léptékkel. Vagy válassza a Blokk lehetőséget, és nevezzen meg egy létező blokkot, hogy megtalálja a szabad másolatait. A másolatnak ugyanazon a rétegen, színnel, vonaltípussal és vonalvastagsággal kell lennie, hacsak a Tulajdonságok nincs Figyelmen kívül hagyás értékre állítva. A zárolt rétegek objektumai érintetlenek maradnak. Egy visszavonási lépés. |
+| `BEDIT` | `BE` | Blokkszerkesztő: egy blokk objektumainak és attribútumainak szerkesztése; a BCLOSE menti (BE) |
+| `BLEND` |  | BLEND: spline két nyitott görbe végei között, a végek közelében kiválasztva az összekötéshez. CONtinuity: az Érintő mindkét irányt követi, a Sima azt is, hogyan hajlanak. |
+| `BLOCK` | `B`, `BMAKE` | Blokk készítése objektumokból (egy hivatkozássá válnak) |
+| `BLOCKREPLACE` |  | BLOCKREPLACE: egy blokk minden hivatkozása egy másik blokk hivatkozásává válik, ugyanazon a helyen, ugyanazzal a léptékkel és forgatással. Mindkét blokk attribútumainak értékei megmaradnak. |
+| `BLOCKSPALETTE` | `BLOCKSPAL` | A BLOCKSPALETTE megmutatja a Blokkok panelt, a kurzor a szűrőjében. A panel minden blokkról képet mutat (a legutóbb elhelyezettek először), listában vagy rácsban; kattintson egy képre, vagy húzza a rajzra, hogy az INSERT paranccsal elhelyezze. A Könyvtárak alatt adjon hozzá saját DWG- vagy DXF-fájlt: blokkjai képpel listázódnak, és egy elhelyezésnél bemásolódnak ebbe a rajzba. A CadCraft Studióban rajzok mappája is hozzáadható, a fájlok és mappák megjegyzésre kerülnek. |
+| `BOMEDIT` | `BOMCOLUMNS` | Anyagjegyzék-táblázat oszlopai, csoportosítása, rendezése, címe, összegei és megjegyzései |
+| `BOMEXPORT` |  | Anyagjegyzék-táblázat mentése .csv fájlként |
+| `BOMTABLE` | `BOM` | Egy zóna vagy az egész rajz élő anyagjegyzék-táblázata |
+| `BOMUPDATE` |  | Most frissíti az összes anyagjegyzék-táblázatot, a befagyasztottakat is |
+| `BOMZONE` | `BZONE` | A rajz megnevezett területe egy anyagjegyzékhez: két sarok, egy sokszög, vagy egy zárt objektum körvonala |
+| `BOUNDARY` | `BO`, `BPOLY` | BOUNDARY (BO): válasszon egy pontot egy zárt terület belsejében, és kapjon egy zárt polivonalat körülötte. Az ívek ívek maradnak. Az Szigetek a benne lévő területeket is körvonalazza. |
 | `BOX` |  | Doboz: két sarok és egy magasság (3D) |
-| `BPARAMETER` | `BPARAM` | Még nincs megvalósítva: paraméter (például Láthatóság) hozzáadása blokkhoz. |
-| `BPARAMS` | `BPM`, `BLOCKPARAMS` | Blokkparaméterek: képletekkel ellátott elnevezett paraméterek, és több láthatósági paraméter egy blokkban. A blokkszerkesztőben működik (a kijelölt objektumokat egy állapothoz rendeli), és egy kijelölt hivatkozáson (saját értékei és állapotai). |
-| `BREAK` | `BR` | Egyenes, ív, kör vagy polivonal törése két pont között (BR) |
-| `BREAKATPOINT` |  | Egyenes, ív vagy polivonal kettévágása egy pontban |
-| `BREAKLINE` |  | Vonal rajzolása törésjellel; a mérete és a végeken túli kinyúlása megmarad. |
-| `BREPLACE` |  | A BREPLACE egy blokkot egy másikra cserél. Kijelölt: jelöljön ki blokkhivatkozásokat, és nevezze meg a helyette használandó blokkot. Összes: nevezzen meg egy blokkot és a cseréjét, és minden hivatkozás minden térben és más blokkokon belül megváltozik. A hivatkozás megtartja helyét, léptékét, elforgatását és rétegét, valamint a mindkét blokkban meglévő attribútumok értékeit; ahová az új blokknak nincs helye, azok az értékek kikerülnek, és meg lesznek nevezve. |
-| `BSEARCH` |  | A BSEARCH blokkokat keres. Név: egy blokknév része, vagy minta * és ? jelekkel. Attribútum: egy érték (vagy TAG=érték), amelyet egy hivatkozás attribútumai tartalmaznak. Geometria: jelöljön ki objektumokat vagy egy blokkhivatkozást, és a legalább 85%-ban hasonló alakú blokkok listázódnak, a legjobbal először; a méret, az elforgatás és a tükrözés nem számít. A nyitott térben talált hivatkozások kijelölődnek a következő parancshoz. |
-| `BURST` |  | Blokkhivatkozások felbontása, és az attribútumaik megtartása: minden érték szöveggé válik az attribútum rétegén. |
-| `BVHIDE` | `BVH` | A blokkszerkesztőben: az aktuális láthatósági állapot objektumainak elrejtése. |
-| `BVSHOW` | `BVSH` | A blokkszerkesztőben: az aktuális láthatósági állapot által elrejtett objektumok megjelenítése (halványan látszanak, hogy ki lehessen választani őket). |
-| `BVSTATE` | `BVS` | A blokkszerkesztőben, láthatósági állapotokkal rendelkező blokknál: váltás egy állapotra, vagy egy állapot hozzáadása, átnevezése vagy törlése. |
+| `BPARAMETER` | `BPARAM` | Még nincs kész: paraméter (például Láthatóság) hozzáadása egy blokkhoz. |
+| `BPARAMS` | `BPM`, `BLOCKPARAMS` | Blokkparaméterek: képletekkel ellátott nevesített paraméterek, és több láthatósági paraméter egy blokkban. A blokkszerkesztőben működik (a kijelölt objektumokat egy állapothoz rendeli), és egy kijelölt hivatkozáson is (saját értékei és állapotai). |
+| `BREAK` | `BR` | Vonal, ív, kör vagy polivonal törése két pont között (BR) |
+| `BREAKATPOINT` |  | Vonal, ív vagy polivonal kettéosztása egy pontnál |
+| `BREAKLINE` |  | Vonal rajzolása törésjellel; mérete és a végeken túli kinyúlása megmarad. |
+| `BREPLACE` |  | BREPLACE egyik blokkot a másikra cserél. Kijelölt: válasszon blokkhivatkozásokat, és nevezze meg a helyette használandó blokkot. Mind: nevezzen meg egy blokkot és a cseréjét, és minden hivatkozás minden térben és más blokkokon belül megváltozik. A hivatkozás megtartja helyét, léptékét, forgatását és rétegét, és mindkét blokk attribútumainak értékeit; az új blokk számára helyet nem találó értékek elvesznek, és meg vannak nevezve. |
+| `BSEARCH` |  | A BSEARCH blokkokat keres. Név: egy blokknév része, vagy minta * és ? jelekkel. Attribútum: egy érték (vagy TAG=érték), amelyet egy hivatkozás attribútumai tartalmaznak. Geometria: jelöljön ki objektumokat vagy egy blokkhivatkozást, és a legalább 85%-ban hasonló alakú blokkok listázódnak, a legjobb először; a méret, forgatás és tükrözés nem számít. A nyitott térben talált hivatkozások ki lesznek jelölve a következő paranccsal. |
+| `BURST` |  | Blokkhivatkozások szétbontása, az attribútumaik által mondottak megtartásával: minden érték szöveggé válik az attribútum rétegén. |
+| `BVHIDE` | `BVH` | A blokkszerkesztőben: az objektumok elrejtése az aktuális láthatósági állapotban. |
+| `BVSHOW` | `BVSH` | A blokkszerkesztőben: az aktuális láthatósági állapot által elrejtett objektumok megjelenítése (halványan mutatva, hogy ki lehessen jelölni őket). |
+| `BVSTATE` | `BVS` | A blokkszerkesztőben, láthatósági állapotokkal rendelkező blokkon: állapot váltása, vagy egy hozzáadása, átnevezése vagy törlése. |
 | `CAL` |  | Hossz vagy szám kiszámítása: + − * / és zárójelek, ahogy bárhol beírja őket |
-| `CENTERLINE` | `CL` | Középvonal két vonal között: a közé, vagy a szögfelezőn, ha találkoznak (CL) |
-| `CENTERMARK` | `CM`, `DIMCENTER`, `DCE` | Középjel: kereszt egy kör vagy ív közepén, a középvonalakkal, amelyek kissé túlnyúlnak rajta (CM) |
+| `CENTERLINE` | `CL` | Középvonal két vonal között: köztük félúton, vagy a szögfelezőjük mentén, ha találkoznak (CL) |
+| `CENTERMARK` | `CM`, `DIMCENTER`, `DCE` | Középjel: kereszt egy kör vagy ív közepén, középvonalakkal, amelyek kicsit túlnyúlnak rajta (CM) |
 | `CHAMFER` | `CHA` | Két vonal közötti sarok letörése (D két távolság, A hossz és szög, P a polivonal minden sarka) |
-| `CHSPACE` |  | CHSPACE: objektumok mozgatása a lap és a modell között egy nézetablakon keresztül. Léptékük és elforgatásuk úgy változik, hogy a másik oldalról ugyanúgy nézzenek ki. Lapon a modellbe kerülnek; amikor nézetablakon keresztül dolgozik (MSPACE), a lapra kerülnek. |
+| `CHSPACE` |  | CHSPACE: objektumok mozgatása lap és modell között egy nézetablakon keresztül. Léptékük és forgatásuk úgy igazodik, hogy a másik oldalról ugyanúgy nézzenek ki. Egy lapon a modellbe kerülnek; amíg nézetablakon keresztül dolgozik (MSPACE), a lapra jönnek. |
 | `CIRCLE` | `C` | Középpont és sugár, átmérő, 2 vagy 3 pont |
-| `CLASS` |  | A kijelölt objektumok osztályba sorolása, vagy kijelölés nélkül az aktív osztály beállítása (? listázza őket) |
-| `CLASSES` | `CLS` | Az Osztályok panel: az osztályok rétegektől függetlenül rendezik az objektumokat; megjelenítésük, elrejtésük és stílusuk, és nézetablakonkénti felülbírálásuk (CLS) |
-| `COMMANDLINE` | `CMDLINE` | A parancssor dokkolása vagy lebegtetése, egysorossá tétele, az előzmény-sorainak beállítása, vagy az előzmény megnyitása (F2) |
-| `COMPARESETTINGS` | `CMPSET` | Méretezési stílusok, szövegstílusok, rétegek, lapok vagy mértékegységek összehasonlítása: kettő ebben a rajzban, vagy ez a rajz egy másik megnyitott rajzzal szemben, és egy érték átmásolása |
+| `CLASS` |  | A kijelölt objektumokat osztályba teszi, vagy kijelölés nélkül beállítja az aktív osztályt (a ? listázza őket) |
+| `CLASSES` | `CLS` | Az Osztályok panel: az osztályok rétegeken átívelően rendezik az objektumokat; megmutatja, elrejti és stílusozza őket, és nézetablakonként felülírja őket (CLS) |
+| `COMMANDLINE` | `CMDLINE` | A parancssor lehorgonyozása vagy lebegtetése, egy sorrá tétele, az előzménysorainak beállítása, vagy az előzmény megnyitása (F2) |
+| `COMPARESETTINGS` | `CMPSET` | Méretezési stílusok, szövegstílusok, rétegek, lapok vagy mértékegységek összehasonlítása: kettő ebben a rajzban, vagy ez a rajz egy másik megnyitott rajzzal, és egy érték átmásolása. |
 | `CONSTRAINTBAR` | `CBAR` | A kényszersávok megjelenítése vagy elrejtése (Mind mutat / Mind rejt, vagy objektumonként) |
-| `COPY` | `CO`, `CP` | Objektumok másolása, ahányszor kattint |
-| `COPYBASE` |  | Objektumok másolása a vágólapra egy megadott alapponttal |
+| `COPY` | `CO`, `CP` | Objektumok másolása, annyiszor, ahányszor kattint |
+| `COPYBASE` |  | Objektumok másolása a vágólapra egy Ön által választott bázisponttal |
 | `COPYCLIP` |  | Objektumok másolása a vágólapra (Ctrl+C); a PASTECLIP helyezi el őket |
-| `COUNT` | `BCOUNT` | Blokkhivatkozások számlálása: egy kijelölése kijelöli és megszámolja a blokkja összes hivatkozását |
-| `COUNTTABLE` |  | Blokkszámlálási tábla elhelyezése |
-| `CREDITS` |  | A Könyvtár hivatkozásait táblázatként teszi a rajzba. Futtassa újra, hogy a táblázat a rajzban lévő elemekből frissüljön. |
-| `CURSORSIZE` |  | A célkereszt mérete: a 100 szélről szélre fut a rajzon (Beállítások › Kurzor › Teljes képernyő) |
+| `COUNT` | `BCOUNT` | Blokkhivatkozások számlálása: egyet kiválasztva kijelöli és megszámolja a blokkjának összes hivatkozását |
+| `COUNTTABLE` |  | Blokkszámlálások táblázatának elhelyezése |
+| `CREDITS` |  | A Könyvtári közreműködőket táblázatként teszi a rajzba. Futtassa újra, hogy a táblázatot frissítse a rajzban lévő elemek alapján. |
+| `CURSORSIZE` |  | A kereszthajszál mérete: a 100 szélről szélre fut végig a rajzon (Beállítások › Kurzor › Teljes képernyő) |
 | `CUTCLIP` |  | Objektumok kivágása a vágólapra (Ctrl+X): másolás, majd törlés |
 | `CYLINDER` | `CYL` | Henger: középpont, sugár és magasság (3D) |
-| `DATAEXTRACTION` | `EATTEXT`, `DX` | Blokkok, attribútumaik és objektumtulajdonságaik listázása táblázatként a rajzban vagy CSV-fájlban |
-| `DATALINK` | `DL` | Táblázat CSV-fájlból, amely megjegyzi a fájlt, így újra beolvasható |
-| `DATALINKUPDATE` | `DLU` | Egy adatkapcsolat fájljának újraolvasása, és a táblái újratöltése |
-| `DCALIGNED` | `DCALI` | Méretkényszer: két pont, egy pont és egy vonal, vagy két vonal valódi távolsága |
+| `DATAEXTRACTION` | `EATTEXT`, `DX` | Blokkok, attribútumaik és objektum-tulajdonságaik listázása táblázatként a rajzban vagy egy CSV-fájlban |
+| `DATALINK` | `DL` | Táblázat egy CSV-fájlból, amely megjegyzi a fájlt, hogy később újra beolvasható legyen |
+| `DATALINKUPDATE` | `DLU` | Egy adatkapcsolat fájljának újraolvasása, és táblázatainak újratöltése |
+| `DCALIGNED` | `DCALI` | Méretkényszer: a pontok valódi távolsága, egy pont és egy vonal, vagy két vonal |
 | `DCANGULAR` | `DCANG` | Méretkényszer: két vonal közötti szög, vagy egy íven lévő szög |
-| `DCCONVERT` |  | A kényszerezhető geometrián rajzolt méretek átalakítása méretkényszerekké |
+| `DCCONVERT` |  | A kényszerezhető geometrián rajzolt méretezések méretkényszerré alakítása |
 | `DCDIAMETER` | `DCDIA` | Méretkényszer: kör vagy ív átmérője |
-| `DCDISPLAY` |  | A méretkényszerek megjelenítése vagy elrejtése a rajzon |
+| `DCDISPLAY` |  | Méretkényszerek megjelenítése vagy elrejtése a rajzon |
 | `DCHORIZONTAL` | `DCHOR` | Méretkényszer: vízszintes távolság |
-| `DCLINEAR` | `DCLIN` | Méretkényszer: vízszintes vagy függőleges távolság, az elhelyezés helyétől |
+| `DCLINEAR` | `DCLIN` | Méretkényszer: vízszintes vagy függőleges távolság, ahol elhelyezi |
 | `DCRADIUS` | `DCRAD` | Méretkényszer: kör vagy ív sugara |
 | `DCVERTICAL` | `DCVER` | Méretkényszer: függőleges távolság |
-| `DELBLOCKS` |  | Blokkok törlése: minden hivatkozás (a beágyazottakat is, minden lapon) és a definíciók |
-| `DELCONSTRAINT` | `DELCON` | Az összes kényszer (geometriai és méret) eltávolítása a kijelölt objektumokról |
-| `DELOPENING` |  | Ajtó vagy ablak kivétele a falból. |
-| `DESCRIBE` | `DESC` | Leírja, mit tartalmaz a rajz: hány objektum van, milyen fajtájúak, mekkorák, mi van kijelölve. |
+| `DELBLOCKS` |  | Blokkok törlése: minden hivatkozás (a beágyazottak is, minden lapon) és a definíciók |
+| `DELCONSTRAINT` | `DELCON` | Minden kényszer (geometriai és méretkényszer) eltávolítása a kijelölt objektumokról |
+| `DELOPENING` |  | Ajtó vagy ablak kivétele egy falból. |
+| `DESCRIBE` | `DESC` | Megmondja, mit tartalmaz a rajz: hány objektum, milyen fajtájú, milyen nagy, mi van kijelölve. |
 | `DESELECT` | `AI_DESELECT`, `SELECTNONE` | A kijelölés törlése (Esc) |
-| `DETAILS` | `DET` | A cég saját részletei, amelyeket az éppen rajzoltakhoz talál: keresés, blokk hozzáadása, listázás, eltávolítás, a javaslatok be- vagy kikapcsolása. |
+| `DETAILS` | `DET` | Az Ön cégének saját részletei, amelyeket ahhoz talál, amit rajzol: keresés, blokk hozzáadása, listázás, eltávolítás, a felajánlások be- vagy kikapcsolása. |
 | `DIAGRAM` | `TEXTDIAGRAM`, `T2D` | Diagram rajzolása szövegből: Mermaid folyamatábra, PlantUML komponensdiagram, D2, egy honnan-hová lista vagy draw.io XML, szerkeszthető blokkokként és összekötőkként |
 | `DIMALIGNED` | `DAL`, `DIMALI` | Két pont közötti valódi távolság |
-| `DIMANGULAR` | `DAN`, `DIMANG` | Két vonal közötti szög, egy ív szöge, vagy három pont szerint |
-| `DIMARC` | `DAR` | Ívhossz-méret: az ív mentén mért távolság az ívjellel (DAR) |
-| `DIMASZ` |  | Méretezési beállítás: nyílméret |
-| `DIMBASELINE` | `DBA`, `DIMBASE` | Egy közös alapvonalról egymás fölé helyezett méretek |
-| `DIMBREAK` | `DBREAK` | A méretvonalak és hosszabbítóvonalak törése, ahol más objektumokat metszenek (Auto), két pont között (Kézi), vagy a törések eltávolítása |
-| `DIMCONSTRAINT` | `DCON` | Méretkényszerek: lineáris, párhuzamos, szög, sugár, átmérő, átalakítás |
+| `DIMANGULAR` | `DAN`, `DIMANG` | Két vonal közötti szög, egy ív szöge, vagy három ponttal |
+| `DIMARC` | `DAR` | Ívhossz-méretezés: a távolság az ív mentén, az ívjellel (DAR) |
+| `DIMASZ` |  | Méretezési beállítás: a nyíl mérete |
+| `DIMBASELINE` | `DBA`, `DIMBASE` | Egy közös alapvonalból egymásra helyezett méretek |
+| `DIMBREAK` | `DBREAK` | A méretvonalak és a segédvonalak megtörése, ahol más objektumokat keresztezik (Auto), két pont között (Kézi), vagy a törések eltávolítása |
+| `DIMCONSTRAINT` | `DCON` | Méretkényszerek: lineáris, párhuzamos, szögű, sugár, átmérő, átalakítás |
 | `DIMCONTINUE` | `DCO`, `DIMCONT` | Méretláncolat, mindegyik az előző vége után |
-| `DIMDEC` |  | Méretezési beállítás: tizedesjegyek száma |
+| `DIMDEC` |  | Méretezési beállítás: tizedesjegyek |
 | `DIMDIAMETER` | `DDI`, `DIMDIA` | Ív vagy kör átmérője |
-| `DIMDISASSOCIATE` | `DDA`, `DIMDISASSOC` | A méretek szabadon engedése azoktól az objektumoktól, amelyekhez kötve voltak (DDA) |
-| `DIMEDIT` | `DED`, `DIMED` | A méretszöveg módosítása (Kezdő, Új szöveg, Forgatás), vagy a hosszabbítóvonalak megdöntése (Ferde) |
+| `DIMDISASSOCIATE` | `DDA`, `DIMDISASSOC` | A méretezések elszabadítása azoktól az objektumoktól, amelyekhez kötve vannak (DDA) |
+| `DIMEDIT` | `DED`, `DIMED` | A méretszöveg módosítása (Kezdő, Új szöveg, Forgatás), vagy a segédvonalak megdöntése (Ferde) |
 | `DIMEXE` |  | Méretezési beállítás: túlnyúlás a méretvonalon túl |
 | `DIMEXO` |  | Méretezési beállítás: eltolás a kezdőponttól |
-| `DIMGAP` |  | Méretezési beállítás: rés a szöveg körül |
-| `DIMINSPECT` |  | Ellenőrzési méret: keret az érték körül, címkével és azzal, hogy milyen gyakran ellenőrzik az alkatrészt |
-| `DIMJOGGED` | `DJO`, `JOG` | Töréses sugárméret: olyan sugár, amely közelebbi pontból indul, ha a közép messze van (DJO) |
-| `DIMJOGLINE` | `DJL` | Töréses jel hozzáadása egy lineáris vagy párhuzamos méretvonalhoz, jelezve, hogy a távolság nincs léptékhelyesen rajzolva (DJL) |
+| `DIMGAP` |  | Méretezési beállítás: a szöveg körüli hézag |
+| `DIMINSPECT` |  | Ellenőrző méretezés: keret az érték körül címkével és azzal, milyen gyakran ellenőrzik a darabot |
+| `DIMJOGGED` | `DJO`, `JOG` | Megtört sugárméretezés: sugár, amelyet közelebbi pontból rajzol, ha a középpont messze van (DJO) |
+| `DIMJOGLINE` | `DJL` | Törésjel hozzáadása egy lineáris vagy párhuzamos méretvonalhoz, jelezve, hogy a távolság nincs léptékhelyesen rajzolva (DJL) |
 | `DIMLINEAR` | `DLI`, `DIMLIN` | Vízszintes vagy függőleges távolság (R bármely szögre) |
 | `DIMLUNIT` |  | Méretezési beállítás: hosszformátum (1 tudományos, 2 tizedes, 3 mérnöki, 4 építészeti, 5 törtes) |
-| `DIMORDINATE` | `DOR`, `DIMORD` | Koordinátaméret: egy pont X vagy Y távolsága az USC origójától, egy vezetővonalon (DOR) |
-| `DIMOVERRIDE` | `DOV`, `DIMOVER` | A kijelölt méretek méretezési változóinak felülírása a stílusuk megváltoztatása nélkül; a Törlés visszaállítja a stílust (DOV) |
+| `DIMORDINATE` | `DOR`, `DIMORD` | Koordinátaméretezés: egy pont X vagy Y távolsága az UCS origójától, egy vezetővonalon (DOR) |
+| `DIMOVERRIDE` | `DOV`, `DIMOVER` | Méretezési változók felülírása a kijelölt méretezéseken a stílusuk módosítása nélkül; a Törlés visszateszi a stílust (DOV) |
 | `DIMRADIUS` | `DRA`, `DIMRAD` | Ív vagy kör sugara |
-| `DIMREASSOCIATE` | `DRE`, `DIMREASSOC` | A méret pontjainak objektumokhoz kötése, így követi őket, és újra mér, amikor azok mozognak (DRE) |
-| `DIMSCALE` |  | Méretezési beállítás: általános léptéktényező (a méretek × ez) |
-| `DIMSPACE` |  | Egyenletes köz párhuzamos méretek között, egy alapméretről mérve |
-| `DIMSTYLE` | `DST`, `DDIM`, `D` | Elnevezett méretezési stílusok készítése, módosítása, aktuálissá tétele, törlése, alkalmazása és összehasonlítása (a párbeszédpanel; a -DIMSTYLE a parancssorban) |
-| `DIMTEDIT` | `DIMTED` | A méretszöveg mozgatása a méretvonal bal, jobb vagy közepe felé, vagy elforgatása |
-| `DIMTEXTUNIT` | `DTU` | A méretszöveg mm, cm, m vagy km egységben, vagy a rajz saját egységeiben: a kijelölt méretek, egyébként az újak (DTU) |
+| `DIMREASSOCIATE` | `DRE`, `DIMREASSOC` | Egy méretezés pontjainak objektumokhoz kötése, így mozgáskor követi őket és újra mér (DRE) |
+| `DIMSCALE` |  | Méretezési beállítás: általános lépték (méretek × ez) |
+| `DIMSPACE` |  | Egyenlő távolság a párhuzamos méretvonalak között, egy alapméretezéstől mérve (0 egy vonalba igazítja őket, az Auto a szöveg magasságának kétszerese) |
+| `DIMSTYLE` | `DST`, `DDIM`, `D` | Nevesített méretezési stílusok készítése, módosítása, aktuálissá tétele, törlése, alkalmazása és összehasonlítása (a párbeszédpanel; a -DIMSTYLE a parancssorban) |
+| `DIMTEDIT` | `DIMTED` | A méretszöveg mozgatása a méretvonal bal, jobb vagy közepére, vagy elforgatása |
+| `DIMTEXTUNIT` | `DTU` | A méretszöveg mm, cm, m vagy km egységben, vagy a rajz saját egységeiben: a kijelölt méretezések, különben újak (DTU) |
 | `DIMTXT` |  | Méretezési beállítás: szövegmagasság |
 | `DIST` | `DI` | Két pont közötti távolság és szög |
-| `DISTRIBUTE` |  | A kijelölt objektumok egyenletes elosztása oldalirányban vagy fel-le: egyenlő lépések a középpontok között, vagy egyenlő rések; a két szélső marad |
-| `DIVIDE` | `DIV` | DIVIDE (DIV): jelek, amelyek egy egyenest, ívet, kört, polivonalat, splinet vagy ellipszist egyenlő részekre osztanak. Pontok, vagy a Blokk lehetőséggel blokk minden jelnél. |
-| `DOCUMENTS` | `DOCS` | A Dokumentumok panel megnyitása: rajzok ki- és visszajelentkeztetése, revíziók, kiadási állapotok és jóváhagyás egy projektmappához |
-| `DOOR` | `DR` | Ajtó elhelyezése falban. Az oldal, amelyre kattint, az az oldal, amerre nyílik. |
-| `DRAWORDER` |  | A rajzolási sorrend módosítása: objektumok előre hozása, hátraküldése, vagy más objektumok fölé vagy alá helyezése. |
-| `DUPLICATE` | `DUP` | A mutatóval együtt mozgó másolat: kattintásra helyezi le (Ctrl+D) |
-| `DWGPROPS` | `DRAWINGPROPS` | A rajz tulajdonságai: cím, szerző és a többi, valamint a saját név–érték párjai |
-| `DXFOUT` |  | A rajz letöltése DXF R12 formátumban (a Mentés a saját formátumát tartja meg) |
-| `EATTEDIT` | `DDATTE` | Blokkhivatkozás attribútumainak szerkesztése: értékek, szöveg és tulajdonságok, egyszerre egy attribútum |
-| `ELLIPSE` | `EL` | Tengelyvégpontok és a másik féltengely |
+| `DISTRIBUTE` |  | A kijelölt objektumok egyenletes elosztása oldalra vagy fel-le: egyenlő lépések a középpontok között, vagy egyenlő hézagok; a két szélső helyben marad |
+| `DIVIDE` | `DIV` | DIVIDE (DIV): jelölések, amelyek egy vonalat, ívet, kört, polivonalat, spline-t vagy ellipszist egyenlő részekre osztanak. Pontok, vagy a Blokk opcióval egy blokk minden jelölésnél. |
+| `DOCUMENTS` | `DOCS` | A Dokumentumok panel megnyitása: rajzok ki- és beléptetése, felülvizsgálatok, kiadási állapotok és jóváhagyás egy projektmappához |
+| `DOOR` | `DR` | Ajtó elhelyezése egy falban. Az oldal, amelyre kattint, az az oldal, amerre nyílik. |
+| `DRAWORDER` |  | A rajzolási sorrend módosítása: objektumok előrehozása, hátraküldése, vagy más objektumok fölé vagy alá helyezése. |
+| `DUPLICATE` | `DUP` | Másolat, amely a mutatóval mozog: kattintson a lehelyezéshez (Ctrl+D) |
+| `DWGPROPS` | `DRAWINGPROPS` | A rajz tulajdonságai: cím, szerző és a többi, valamint saját név–érték párjai |
+| `DXFOUT` |  | A rajz letöltése DXF R12 formátumban (a Mentés megtartja a saját formátumát) |
+| `EATTEDIT` | `DDATTE` | Egy blokkhivatkozás attribútumainak szerkesztése: értékek, szöveg és tulajdonságok, egyszerre egy attribútum |
+| `ELLIPSE` | `EL` | Tengely végpontjai és a másik félsugár |
 | `ERASE` | `E`, `DELETE` | Objektumok eltávolítása |
-| `EXPLODE` | `X` | Polivonalak, blokkok és méretek felbontása az alkotórészeikre |
-| `EXPORT` | `EXP` | A rajz másolatának mentése egy bővítmény által írt fájltípusban |
-| `EXPORT3D` | `3DEXPORT` | A 3D-modell exportálása: GLB, OBJ vagy STL |
-| `EXPORTPOINTS` | `EXPPTS` | Pontok, és az attribútummal rendelkező blokkok beillesztési pontjai, leírásként az attribútumuk, kiírása CSV vagy TXT fájlba (PNEZD, PENZD vagy XYZ) BIM- és földmérési programokhoz |
-| `EXTEND` | `EX` | Objektumok meghosszabbítása, hogy másokhoz érjenek: kattintson a vég közelében, húzzon át többen, vagy a Shift+kattintással vágjon |
-| `EXTRIM` |  | EXTRIM: válasszon egy vágóélt, majd egy oldalt. Minden, ami az élt metszi, azon az oldalon le lesz vágva. A részek, amelyek kiesnének, a mutató mozgatásakor láthatók. |
-| `EXTRUDE` | `EXT` | Zárt 2D objektumok kihúzása testekké (3D) |
-| `FIELD` |  | Mező elhelyezése szövegben, táblázatcellában vagy attribútumban: dátum, a fájl neve, a lapszám, egy rajztulajdonság, egy objektum területe vagy hossza, vagy képlet |
-| `FILLET` | `F` | Két objektum közötti sarok lekerekítése vagy négyszögletessé tétele (R sugár, P a polivonal minden sarka, M több) |
+| `EXPLODE` | `X` | Polivonalak, blokkok és méretezések szétbontása részeikre |
+| `EXPORT` | `EXP` | A rajz másolatának mentése egy olyan fájltípusban, amelyet egy bővítmény ír |
+| `EXPORT3D` | `3DEXPORT` | A 3D modell exportálása: GLB, OBJ vagy STL |
+| `EXPORTPOINTS` | `EXPPTS` | Pontok írása, és blokkok beillesztési pontjai egy attribútummal leírásként, CSV vagy TXT fájlba (PNEZD, PENZD vagy XYZ) BIM- és földmérési programoknak |
+| `EXTEND` | `EX` | Objektumok megnyújtása, hogy másokat érjenek: kattintson egy vég közelében, húzzon át többen, vagy a Shift+kattintás levág |
+| `EXTRIM` |  | EXTRIM: válasszon egy vágóélt, majd egy oldalt. Minden, ami keresztezi az élt, azon az oldalon levágódik. A darabok, amelyek eltűnnének, a mutató mozgatásakor látszanak. |
+| `EXTRUDE` | `EXT` | Zárt 2D-objektumok kihúzása testekké (3D) |
+| `FIELD` |  | Mező elhelyezése szövegben, táblázatcellában vagy attribútumban: dátum, fájlnév, lapszám, rajztulajdonság, egy objektum területe vagy hossza, vagy képlet |
+| `FILLET` | `F` | A két objektum közötti sarok lekerekítése vagy négyzetesítése (R sugár, P minden polivonal-sarok, M több) |
 | `FIND` |  | Szavak keresése és cseréje szövegben, attribútumértékekben és méretszövegben |
 | `FLATTEN` |  | A kijelölt objektumok magasságának (Z) és vastagságának 0-ra állítása, a használt blokkokban is. |
-| `FLOOR` |  | Az a szint kiválasztása, amelyen rajzolni kell, egy új hozzáadása, vagy a kijelölés áthelyezése vagy másolása egy másik szintre. |
-| `FLOORLAYERS` |  | A szintek Szint-Réteg nevű rétegekké alakítása, olyan fájlhoz, amelyet szintek nélküli személynek küldenek. |
-| `FLOORS` | `FLR` | A Szintek panel megnyitása: szintek egymásra helyezése egy modelltérben. |
-| `GCCOINCIDENT` |  | Kényszer: két pont egybeesik, vagy egy pont egy objektumon marad |
+| `FLOOR` |  | A rajzolandó szint kiválasztása, egy hozzáadása, vagy a kijelölés áthelyezése vagy másolása egy szintre. |
+| `FLOORLAYERS` |  | A szintek rétegekké alakítása, Szint-Réteg néven, olyan fájlhoz, amelyet szint nélküli személynek küldenek. |
+| `FLOORS` | `FLR` | A Szintek panel megnyitása: szintek egymásra rakása egy modelltérben. |
+| `GCCOINCIDENT` |  | Kényszer: két pont találkozik, vagy egy pont egy objektumon marad |
 | `GCCOLLINEAR` |  | Kényszer: két vonal egy egyenesen marad |
-| `GCCONCENTRIC` |  | Kényszer: két kör vagy ív közös középponttal rendelkezik |
-| `GCEQUAL` |  | Kényszer: két vonal azonos hosszú marad, vagy két kör/ív azonos sugarú |
-| `GCFIX` |  | Kényszer: egy pont vagy egy teljes objektum a helyén marad |
+| `GCCONCENTRIC` |  | Kényszer: két kör vagy ív közös középpontot oszt |
+| `GCEQUAL` |  | Kényszer: két vonal azonos hosszúságú marad, vagy két kör/ív azonos sugarú |
+| `GCFIX` |  | Kényszer: egy pont vagy egy egész objektum a helyén marad |
 | `GCHORIZONTAL` |  | Kényszer: egy vonal (vagy két pont) vízszintes marad |
 | `GCPARALLEL` |  | Kényszer: két vonal párhuzamos marad |
 | `GCPERPENDICULAR` |  | Kényszer: két vonal derékszöget zár be |
-| `GCSYMMETRIC` |  | Kényszer: két pont, vonal vagy kör egy egyenes körül tükrözi egymást |
-| `GCTANGENT` |  | Kényszer: egy vonal és egy kör vagy ív (vagy kettő közülük) érintő marad |
+| `GCSYMMETRIC` |  | Kényszer: két pont, vonal vagy kör tükrözi egymást egy vonalra |
+| `GCTANGENT` |  | Kényszer: egy vonal és egy kör vagy ív (vagy kettő) érintő marad |
 | `GCVERTICAL` |  | Kényszer: egy vonal (vagy két pont) függőleges marad |
-| `GDSIN` | `GDS` | Chip-elrendezés megtekintése (GDSII adatfolyam-fájl): minden réteg és adattípus rajzrétegként, laposan, felhasználói egységekben; csak megtekintésre és mérésre (laboratóriumi kísérlet) |
+| `GDSIN` | `GDS` | Egy IC-elrendezés megtekintése (GDSII adatfolyam-fájl): minden réteg és adattípus rajzrétegként, laposan, a felhasználói egységekben; csak megtekintésre és mérésre (labor-próba) |
 | `GEOMCONSTRAINT` | `GCON` | Geometriai kényszerek: vízszintes, függőleges, párhuzamos, érintő, egybeeső… |
-| `GLBOUT` |  | A 3D-modell exportálása GLB (glTF) formátumban |
+| `GLBOUT` |  | A 3D modell exportálása GLB (glTF) formátumban |
 | `GRADIENT` | `GD` | Területet tölt ki egy vagy két szín színátmenetével |
-| `GRIDMOVE` | `GM` | Rácsvonal mozgatása, és a rajta lógók követése: a falak megnyúlnak, az oszlopok, buborékok és címkék mozognak, a méretek követik. |
-| `GROUP` | `G` | GROUP (G): a kijelölt objektumoknak közös nevet adni. Ha az egyikre kattint, mind kijelölődik. Enter a névnél névtelen csoportot készít. |
-| `GROUPEDIT` |  | GROUPEDIT: egy csoport módosítása. Válasszon ki egy objektumot, vagy adja meg a nevét, majd Hozzáadás vagy Eltávolítás objektumokat, ÁTNEVEZÉS, a Leírás módosítása, vagy döntse el, hogy a kattintás az egész csoportot kijelöli-e. |
-| `HATCH` | `H`, `BH`, `BHATCH`, `-HATCH` | Terület kitöltése egyszínű kitöltéssel vagy mintával: kattintson a belsejébe, vagy jelöljön ki zárt objektumokat (H) |
-| `HATCHEDIT` | `HE` | Sraffozás módosítása: minta, léptékek, szög, origó, és a határvonalhoz való kapcsolata. |
-| `HATCHGENERATEBOUNDARY` | `HGB` | Újra létrehozza a határpolivonalakat egy sraffozásból, a sraffozáshoz kötve vagy nem kötve |
-| `HATCHTOBACK` |  | Minden sraffozás mögé küldése mindennek más mögé. |
+| `GRID` |  | A rács beállítása: a vonalak távolsága, minden N-edik vonal főként, BE vagy KI, vagy Auto a zoomhoz való újrakövetéshez |
+| `GRIDMOVE` | `GM` | Rácsvonal mozgatása, és ami rajta lóg: a falak nyúlnak, oszlopok, buborékok és címkék mozognak, a méretezések követnek. |
+| `GROUP` | `G` | GROUP (G): a kijelölt objektumok közös nevet kapnak. Egy kattintás valamelyikükre ezután mindet kijelöli. Enter a névnél névtelen csoportot készít. |
+| `GROUPEDIT` |  | GROUPEDIT: egy csoport módosítása. Válasszon egy objektumát, vagy adja meg a nevét, majd Hozzáadás vagy Eltávolítás objektumok, ÁtNEVezés, Leírás módosítása, vagy hogy egy kattintás az egészet kijelöli-e. |
+| `HATCH` | `H`, `BH`, `BHATCH`, `-HATCH` | Terület kitöltése tömör kitöltéssel vagy mintával: kattintson belülre, vagy jelöljön ki zárt objektumokat (H) |
+| `HATCHEDIT` | `HE` | Sraffozás módosítása: minta, lépték, szög, kiindulópont, és kapcsolata egy határral. |
+| `HATCHGENERATEBOUNDARY` | `HGB` | A határpolivonalak újra létrehozása egy sraffozásból, hozzá kötve vagy nem |
+| `HATCHTOBACK` |  | Minden sraffozás minden más mögé küldése. |
 | `HELP` | `?` | Ez a lista |
-| `HIDEOBJECTS` |  | A kijelölt objektumok elrejtése az UNISOLATEOBJECTS parancsig. Nincs elmentve a rajzzal. |
-| `HISTORY` | `HIST` | HISTORY (HIST): a rajz verziói – a Studio mentésekor a számítógépen megőrzött másolatok, és a felhő verziói – megnyitáshoz, visszaállításhoz és összehasonlításhoz, a változtatások színnel kiemelve. |
-| `ID` |  | Pont koordinátái |
-| `IMAGE` | `IM` | A rajz által használt képfájlok megadása a CadCraftnak (a DWG csak azt tárolja, hol voltak). |
+| `HIDEOBJECTS` |  | A kijelölt objektumok elrejtése az UNISOLATEOBJECTS-ig. A rajzzal nincs mentve. |
+| `HISTORY` | `HIST` | HISTORY (HIST): ennek a rajznak a verziói — a számítógépen megőrzött másolatok, amikor a Studio menti, és a felhő verziói — megnyitáshoz, visszaállításhoz és a változásokkal összehasonlításhoz, színesen jelölve. |
+| `ID` |  | Egy pont koordinátái |
+| `IMAGE` | `IM` | Adja meg a CadCraftnak a rajz által használt képfájlokat (a DWG csak azt tárolja, hol voltak). |
 | `IMAGEATTACH` | `IAT`, `IMAGEATT` | Kép (PNG vagy JPEG) elhelyezése egy fájlból. |
 | `IMAGECLIP` | `ICL` | Kép levágása egy téglalapra vagy sokszögre, vagy a levágás eltávolítása. |
-| `IMPORT` | `IMP` | Egy bővítmény által olvasott típusú fájl importálása ebbe a rajzba |
+| `IMPORT` | `IMP` | Egy olyan típusú fájl importálása, amelyet egy bővítmény olvas, ebbe a rajzba |
 | `INSERT` | `I`, `DDINSERT` | Blokk elhelyezése (S lépték, R forgatás); F DWG/DXF fájlból, L a könyvtárból |
-| `INTERSECT` | `IN` | Csak azt tartja meg, amit a testek közösen tartalmaznak (3D), vagy azt a területet, amit a 2D tartományok közösen fednek |
-| `ISODRAFT` |  | ISODRAFT: izometrikus rajzolás be- vagy kikapcsolása, vagy közvetlenül a Bal, Felső vagy Jobb síkra állás. Bekapcsolt állapotban az Ortogonális és a polárkövetés a sík két tengelyét követi, a rács izometrikusan rajzolódik, és az ELLIPSE-nek van Izokör lehetősége. |
-| `ISOLATEOBJECTS` | `ISOLATE` | Csak a kijelölt objektumok megjelenítése; a tér többi eleme rejtve marad az UNISOLATEOBJECTS parancsig. Nincs elmentve a rajzzal. |
-| `ISOPLANE` |  | ISOPLANE: az izometrikus sík kiválasztása, amelyen rajzolni kell: Bal, Felső vagy Jobb. Az Enter a következőre lép, ahogy az F5 is teszi, ha az izometrikus rajzolás be van kapcsolva. |
-| `JOIN` | `J` | Végpontjaiknál találkozó vonalak, ívek és polivonalak egyetlen polivonallá egyesítése; egy egyenesen lévő vonalak egyetlen vonallá (J) |
+| `INTERSECT` | `IN` | Csak azt tartja meg, amit a testek közösen tartalmaznak (3D), vagy a 2D tartományok közös területét |
+| `ISODRAFT` |  | ISODRAFT: izometrikus rajzolás be vagy ki, vagy egyenesen a Bal, Felső vagy Jobb síkra. Amíg be van kapcsolva, az Ortho és a polárkövetés a sík két tengelyét követi, a rács izometrikusan rajzolódik, az ELLIPSE pedig Izokör opciót kap. |
+| `ISOLATEOBJECTS` | `ISOLATE` | Csak a kijelölt objektumok mutatása; minden más ebben a térben el van rejtve az UNISOLATEOBJECTS-ig. A rajzzal nincs mentve. |
+| `ISOPLANE` |  | ISOPLANE: az izometrikus sík kiválasztása, amelyen rajzol: Bal, Felső vagy Jobb. Az Enter a következőre lép, ahogy az F5 is teszi, amíg az izometrikus rajzolás be van kapcsolva. |
+| `JOIN` | `J` | Végükön találkozó vonalak, ívek és polivonalak egy polivonallá egyesítése; egy egyenesen lévő vonalak egy vonallá (J) |
 | `LASER` | `LASERCUT` | A Lézer panel megnyitása: rétegek küldése lézervágóra vagy gravírozóra (GRBL G-kód) |
-| `LASSOMODE` |  | Megnyomva és húzva lasszót (1) vagy téglalapot (0) rajzol |
-| `LAYDEL` |  | Réteg és minden rajta lévő objektum törlése (a modellben, a lapokon és a blokkokban) |
+| `LASSOMODE` |  | Nyomva tartás és húzás lasszót rajzol (1) vagy téglalapot (0) |
+| `LAYDEL` |  | Egy réteg és minden rajta lévő objektum törlése (a modellben, lapokon és blokkokban) |
 | `LAYER` | `LA`, `DDLMODES`, `LAYERPALETTE`, `CLASSICLAYER` | A Rétegkezelő megnyitása: minden réteg egy táblázatban |
-| `LAYERPANEL` |  | A rétegek panel megjelenítése |
-| `LAYFRZ` |  | Minden kiválasztott objektum rétegének befagyasztása |
+| `LAYERPANEL` |  | A rétegek panel megmutatása |
+| `LAYFRZ` |  | A kiválasztott objektumok rétegének befagyasztása |
 | `LAYGROUP` | `LG` | Rétegek csoportosítása mappákba a Rétegek panelen. |
-| `LAYISO` |  | A kijelölt objektumok rétegeinek elszigetelése (minden másik réteg ki) |
-| `LAYLOCKFADE` |  | Beállítja, mennyire halványodnak a zárolt rétegek objektumai, és hogy kattintással ki lehet-e őket jelölni. |
+| `LAYISO` |  | A kijelölt objektumok rétegeinek izolálása (minden más réteg ki) |
+| `LAYLOCKFADE` |  | Beállítja, mennyire halványodnak a zárolt rétegek objektumai, és hogy egy kattintás kijelölheti-e őket. |
 | `LAYMCUR` |  | A kiválasztott objektum rétegének aktuálissá tétele |
-| `LAYMRG` |  | Rétegek egyesítése: objektumaik egy célrétegre kerülnek, az egyesített rétegek megszűnnek |
-| `LAYOFF` |  | Minden kiválasztott objektum rétegének kikapcsolása |
+| `LAYMRG` |  | Rétegek egyesítése: az objektumaik egy célrétegre kerülnek, és az egyesített rétegek megszűnnek |
+| `LAYOFF` |  | A kiválasztott objektumok rétegének kikapcsolása |
 | `LAYON` |  | Minden réteg bekapcsolása |
-| `LAYOUT` | `LO`, `NEWLAYOUT` | Új rajzlap rajzfejjel és egy nézetablakkal |
-| `LAYTHW` |  | Minden réteg feloldása a befagyasztásból |
+| `LAYOUT` | `LO`, `NEWLAYOUT` | Új lap rajzfejjel és nézetablakkal |
+| `LAYTHW` |  | Minden réteg feloldása |
 | `LAYUNISO` |  | A LAYISO által kikapcsolt rétegek visszakapcsolása |
-| `LEGACYTEXT` | `TEXTTOUNICODE`, `VNTEXT` | A régi vietnami betűtípusokkal gépelt szöveget Unicode-ra alakítja (TCVN3 / ABC betűtípusok, például a .VnTime, és VNI betűtípusok, például a VNI-Times). Az ilyen szöveg már most helyesen látszik; ez véglegesen átírja, számlálással és egy visszavonási lépéssel. |
-| `LENGTHEN` | `LEN` | Vonalak, ívek és polivonalak meghosszabbítása vagy rövidítése: adott mennyiséggel, százalékkal, összes hosszra, vagy húzással (LEN) |
-| `LIBRARY` | `LIB` | A könyvtári panel: elemek elhelyezése, frissítések ellenőrzése, hivatkozások |
-| `LIMITS` |  | A rajzhatárok beállítása: BE, KI, vagy a bal alsó és jobb felső sarok. A BE állapotban a határokon kívüli pontokat elutasítja |
-| `LINE` | `L` | Egyenes szakaszok, mindegyik külön objektum |
-| `LINETYPE` | `LT`, `CELTYPE` | Az új objektumok vonaltípusa (rétegtől, blokktól vagy egy nevezettől) |
-| `LINKVIEWS` | `SYNCVIEWS` | Minden panel nézetének együttes eltolása és nagyítása (osztott képernyő), két rajz vagy verzió összehasonlításához |
-| `LISPEDIT` | `VLIDE` | A LISPEDIT (vagy VLIDE) megnyitja a LISP-szerkesztőt: ablak egy rutin írásához, betöltéséhez és kipróbálásához. A Betöltés a rajzba minden űrlapot beolvas, ahogy az APPLOAD a fájlt, és létrehozza a parancsait. A Kijelölés futtatása a kijelölt űrlapokat, vagy azt, amelyben a kurzor áll, értékeli ki. A konzol mutatja, mit írt ki a rutin, és minden hibát a sorával. A zárójel-párját a gépelés közben jelöli, az Enter behúzza az új sort. Az Új, a Megnyitás és a Mentés egy .lsp fájlon működik. A szöveg melletti listák mutatják a rutin által definiált függvényeket, azokat, amelyeket hív, de ez a LISP még nem ismeri, és az összes ismert függvényt. Az ablak nem blokkolja a rajzot, így a rutin kérhet pontokat; a Leállítás vagy az Esc véget vet a futó rutinnak. |
-| `LIST` | `LI`, `LS` | Objektumok leírása az előzményben |
-| `LTSCALE` | `LTS` | A rajz vonaltípus-léptéke (minden vonás és rés ezzel szorzódik) |
-| `LWDISPLAY` | `LWT` | Vonalvastagságok megjelenítése vagy elrejtése a képernyőn (az LWT gomb az állapotsorban) |
-| `LWEIGHT` | `LW`, `LINEWEIGHT` | Az új objektumok vonalvastagsága (rétegtől, blokktól, alapértelmezett vagy mm) |
-| `MAPLAYERS` | `ML`, `GEOMAP` | Térképrétegek a modelltér alatt: a rajz koordináta-rendszere, csempék, WMS, WMTS, ArcGIS, képek |
-| `MASSPROP` |  | MASSPROP: tartományok és zárt objektumok keresztmetszeti tulajdonságai: terület, kerület, középpont, tehetetlenségi nyomatékok és szorzat, tehetetlenségi sugarak és a főtengelyek. Egyenesek és ívek esetén pontos. A jelentést szövegfájlba is írhatja. |
-| `MATCHPROP` | `MA`, `PAINTER` | Tulajdonságok egyeztetése: egy objektum rétegének, színének és más tulajdonságainak átmásolása másokra (MA) |
-| `MEASURE` | `ME` | MEASURE (ME): jelölés minden megadott hossznál egy egyenes, ív, kör, polivonal, spline vagy ellipszis mentén, a kattintáshoz legközelebbi végtől. Pontok, vagy a Blokk lehetőséggel blokk minden jelnél. |
+| `LEGACYTEXT` | `TEXTTOUNICODE`, `VNTEXT` | A régi vietnami betűtípusokkal gépelt szöveget Unicode-dá alakítja (TCVN3 / ABC betűtípusok, például a .VnTime, és VNI betűtípusok, például a VNI-Times). Az ilyen szöveg már úgy látszik, ahogy olvasható; ez véglegesen átírja, számlálással és egy visszavonási lépéssel. |
+| `LENGTHEN` | `LEN` | Vonalak, ívek és polivonalak meghosszabbítása vagy rövidítése: egy összeggel, százalékkal, összes hosszra, vagy húzással (LEN) |
+| `LIBRARY` | `LIB` | A könyvtár panel: elemek elhelyezése, frissítések keresése, közreműködők |
+| `LIMITS` |  | A rajzhatárok beállítása: BE, KI, vagy a bal alsó és jobb felső sarkok. Ha a határok BE vannak, a rajtuk kívüli pontokat elutasítja |
+| `LINE` | `L` | Egyenes szakaszok, mindegyik saját objektum |
+| `LINETYPE` | `LT`, `CELTYPE` | Az új objektumok vonaltípusa (rétegről, blokkról vagy egy nevesítettről) |
+| `LINKVIEWS` | `SYNCVIEWS` | Minden panel együtt pásztázása és nagyítása (osztott képernyő), két rajz vagy revízió összehasonlításához |
+| `LISPEDIT` | `VLIDE` | A LISPEDIT (vagy VLIDE) megnyitja a LISP-szerkesztőt: egy ablak, amelyben rutint írhat, tölthet be és próbálhat ki. A Betöltés a rajzba minden alakot beolvas, ahogy az APPLOAD a fájlt olvassa, és létrehozza a parancsait. A Kijelölés futtatása a kijelölt alakokat értékeli ki, vagy azt, amelyben a kurzor van. A konzol megmutatja, mit írt ki a rutin, és minden hibát a sorával. A párosító zárójel a gépelés közben megjelölődik, az Enter behúzza az új sort. Az Új, Megnyitás és Mentés egy .lsp fájlon dolgozik. A szöveg melletti listák a rutin által definiált függvényeket, azokat, amelyeket hív, de ez a LISP még nem tud, és az összes függvényt mutatják. Az ablak nem blokkolja a rajzot, így a rutin kérhet pontokat; a Stop vagy az Esc megszakítja a futó rutint. |
+| `LIST` | `LI`, `LS` | Objektumok leírása az előzményekben |
+| `LTSCALE` | `LTS` | A rajz vonaltípus-léptéke (minden szaggatást és rést ezzel szoroz) |
+| `LWDISPLAY` | `LWT` | Vonalvastagságok megjelenítése vagy elrejtése a képernyőn (az állapotsor LWT gombja) |
+| `LWEIGHT` | `LW`, `LINEWEIGHT` | Az új objektumok vonalvastagsága (rétegről, blokkról, alapértelmezett vagy mm) |
+| `MAPLAYERS` | `ML`, `GEOMAP` | Térképrétegek a modelltér alatt: a rajz koordinátarendszere, csempék, WMS, WMTS, ArcGIS, képek |
+| `MASSPROP` |  | MASSPROP: tartományok és zárt objektumok keresztmetszeti tulajdonságai: terület, kerület, középpont, nyomatékok és tehetetlenségi szorzat, tehetetlenségi sugarak és a főtengelyek. Egyenesekre és ívekre pontos. Jelentést írhat szövegfájlba. |
+| `MATCHPROP` | `MA`, `PAINTER` | Tulajdonságok egyeztetése: egy objektum rétegének, színének és még többnek átmásolása másokra (MA) |
+| `MEASURE` | `ME` | MEASURE (ME): jelölés minden megadott hosszúságonként egy vonal, ív, kör, polivonal, spline vagy ellipszis mentén, a Önhöz legközelebbi végtől számítva. Pontok, vagy a Blokk opcióval egy blokk minden jelölésnél. |
 | `MEASUREGEOM` | `MEA` | Távolság, sugár, szög vagy terület mérése (MEA) |
-| `MINSERT` |  | MINSERT: blokk elhelyezése egy lépésben sorokban és oszlopokban. Mindegyik külön hivatkozás, így bármelyiket mozgathatja vagy törölheti. |
-| `MIRROR` | `MI` | Objektumok tükrözése egy egyenes körül |
-| `MLEADER` | `MLD`, `MLEAD` | Többszörös vezetővonal: nyíl, vezetővonal és megjegyzés, egyetlen objektumként (MLD) |
-| `MLEADERALIGN` | `MLA` | A többszörös vezetővonalak egyikéhez igazítása egy irány mentén, egyenlő távolsággal vagy két pont között elosztva (MLA) |
-| `MLEADERCOLLECT` | `MLC` | Több többszörös vezetővonal egybegyűjtése: blokkjaik sorban vagy oszlopban, vagy megjegyzéseik egymás alatt (MLC) |
+| `MINSERT` |  | MINSERT: blokk egy lépésben sorokban és oszlopokban. Mindegyik saját hivatkozás, így bármelyiket mozgathatja vagy törölheti. |
+| `MIRROR` | `MI` | Objektumok tükrözése egy vonalra |
+| `MLEADER` | `MLD`, `MLEAD` | Többszörös vezetővonal: nyíl, vezetővonal és megjegyzés egy objektumként (MLD) |
+| `MLEADERALIGN` | `MLA` | Többszörös vezetővonalak igazítása az egyikhez egy irányban, egyenlő távolságra, vagy két pont között elosztva (MLA) |
+| `MLEADERCOLLECT` | `MLC` | Több többszörös vezetővonal egybegyűjtése: blokkjaik egy sorban vagy oszlopban, vagy megjegyzéseik egymás alatt (MLC) |
 | `MLEADEREDIT` | `MLE` | Vezetővonalak hozzáadása egy többszörös vezetővonalhoz vagy eltávolítása; tartalmának váltása szöveg és blokk között (MLE) |
-| `MLINE` |  | Párhuzamos vonalak rajzolása együtt, a sarkoknál összekötve. |
-| `MOVE` | `M` | Objektumok mozgatása egy alappont és egy második pont szerint |
-| `MSPACE` | `MS` | A modell munkája a megnyitott lap egy nézetablakán keresztül (vagy kettőskattintás a nézetablakban). |
-| `MTEXT` | `MT`, `T` | Bekezdésszöveg: húzza a szélességét, majd helyben gépeljen; az Enter új bekezdést kezd (T) |
-| `MVIEW` | `MV` | Nézetablak a modellre, egy elrendezésen |
-| `NAMEDVIEW` | `NV`, `VIEWS` | Elnevezett nézetek: a képernyőn lévő nézet (vagy egy ablak) mentése névvel, és visszatérés hozzá (NV) |
-| `NCOPY` |  | Objektumok másolása blokkhivatkozásból vagy csatolt rajzból a rajzba, szétbontás nélkül. |
-| `NEARBY` |  | Megmondja, mi van a kurzor közelében, a legközelebbi elöl, a távolsággal és az oldallal. |
+| `MLINE` |  | Párhuzamos vonalak rajzolása együtt, a sarkokban összekötve. |
+| `MOVE` | `M` | Objektumok mozgatása egy bázisponttal és egy második ponttal |
+| `MSPACE` | `MS` | Munka a modellen a megnyitott lap egy nézetablakán keresztül (vagy kattintson duplán a nézetablakon belül). |
+| `MTEXT` | `MT`, `T` | Bekezdésszöveg: húzza ki a szélességét, majd írjon helyben; az Enter új bekezdést kezd (T) |
+| `MVIEW` | `MV` | Nézetablak a modellre, egy lapon |
+| `NAMEDVIEW` | `NV`, `VIEWS` | Nevesített nézetek: a képernyőn lévő nézet (vagy egy ablak) mentése egy névvel, és visszatérés hozzá (NV) |
+| `NCOPY` |  | Objektumok másolása egy blokkhivatkozásból vagy egy összekapcsolt rajzból a rajzba, szétbontás nélkül. |
+| `NEARBY` |  | Megmondja, mi van a kurzor közelében, a legközelebbi először, a távolsággal és az oldallal. |
 | `NEW` |  | Új rajz kezdése |
-| `OBJECTSCALE` | `OBJSCALE` | Feliratozó szövegek és méretek feliratozási léptékei: léptékek hozzáadása, törlése, az aktuális lépték hozzáadása, vagy listázásuk (minden nézetablak a saját léptékének megfelelő méretben mutatja őket) |
-| `OBJOUT` |  | A 3D-modell exportálása OBJ formátumban |
-| `OFFSET` | `O` | Párhuzamos másolatok adott távolságban |
-| `OFFSETGAPTYPE` |  | OFFSETGAPTYPE: hogyan zárja az OFFSET a rést egy polivonal külső sarkainál. 0 meghosszabbítja a szakaszokat, 1 ívet ad, 2 egyenes levágást ad. Erre a munkamenetre marad érvényben. |
-| `OLELIST` | `OLES` | A rajz OLE-objektumainak listázása, és egy képük másolata a kiválasztott helyre |
-| `OPEN` |  | DWG vagy DXF megnyitása ebből a számítógépből |
-| `OPENIN3D` |  | A rajz megnyitása a 3D-modellező alkalmazásban, új lapon (semmi nem töltődik fel) |
-| `OSNAP` | `DDOSNAP`, `OSNAPSETTINGS`, `SHORTCUTMENU` | Az objektumfogás menü megnyitása: válassza ki, mely fogások legyenek bekapcsolva. Az állapotsor Fogás gombján jobb gombbal kattintva is. |
-| `OVERKILL` |  | Azonos objektumok törlése, és az átfedő vagy végpontjaiknál csatlakozó vonalak és ívek egyesítése, egy tűrésen belül. |
+| `OBJECTSCALE` | `OBJSCALE` | Az annotatív szöveg és méretezés annotációs léptékei: léptéket adhat hozzá, törölhet egyet, hozzáadhatja az aktuális léptéket, vagy listázhatja őket (minden nézetablak a saját léptéke méretében mutatja őket) |
+| `OBJOUT` |  | A 3D modell exportálása OBJ formátumban |
+| `OFFICESTANDARD` | `OFFSTD` | Az irodai szabvány: a papírszöveg-magasságok, rétegek, rajzfej mezői és sablonok egy rekordban. Megmutatja a hatályban lévőt és honnan jön; Importálás egy .json rekordot a rajzba, az irodai rétegek hozzáadása, a rajzfej mezőinek listázása. |
+| `OFFSET` | `O` | Párhuzamos másolatok egy távolságban |
+| `OFFSETGAPTYPE` |  | OFFSETGAPTYPE: hogyan zárja az OFFSET a rések a polivonal külső sarkainál. 0 meghosszabbítja a szakaszokat, 1 ívet ad, 2 egyenes vágást. Ebben a munkamenetben marad meg. |
+| `OLELIST` | `OLES` | A rajz OLE-objektumainak listázása, és egy kép másolatának elhelyezése, ahol kéri |
+| `OPEN` |  | DWG vagy DXF megnyitása ezen a számítógépen |
+| `OPENIN3D` |  | Ezen rajz megnyitása a 3D modellező alkalmazásban, új lapon (semmi nem töltődik fel) |
+| `OPTIONKEYS` | `OPTKEYS` | Saját betűk adása a parancsopcióknak (ARRAY.PO, P), egy szövegfájlban |
+| `OSNAP` | `DDOSNAP`, `OSNAPSETTINGS`, `SHORTCUTMENU` | Az objektumfogás menü megnyitása: válassza ki, mely fogások legyenek bekapcsolva. Az állapotsor Fogás gombján jobb kattintás is. |
+| `OVERKILL` |  | Duplikált objektumok törlése, és az átfedő vagy végükön találkozó vonalak és ívek egyesítése, egy tűrésen belül. |
 | `PARAMETERS` | `PAR`, `PARAMETERSMANAGER`, `PARAM` | A Paraméterek panel: felhasználói paraméterek és méretkényszerek egy táblázatban |
 | `PARTSLIST` | `PLIST` | Alkatrészlista-táblázat minden szabványos alkatrészről és acélszelvényről, amelyet a könyvtárból helyeztek el |
-| `PASTEAREA` | `PAREA` | A MarkupCraftban másolt terület (Terület másolása) beillesztése valódi méretben, képként. |
-| `PASTEBLOCK` |  | PASTEBLOCK: a másolt tartalom beillesztése egyetlen blokkként. A blokk saját nevet kap; a RENAME adja meg a sajátját. |
-| `PASTECLIP` |  | A vágólap beillesztése: követi a kurzort, kattintson oda, ahová kerülnie kell (Ctrl+V) |
-| `PASTEORIG` |  | A vágólap beillesztése a másolás koordinátáira (Ctrl+Shift+V) |
-| `PDF` |  | A CadCraft számára a rajz alátéteinek PDF-fájljainak megadása |
-| `PDFADJUST` |  | PDF-alátét halványítása, kontrasztja, egyszínűsítése, vagy kikapcsolása |
+| `PASTEAREA` | `PAREA` | A MarkupCraftban másolt terület (Terület másolása) beillesztése valódi méretében, képként. |
+| `PASTEBLOCK` |  | PASTEBLOCK: amit másolt, egy blokkként illeszti be. A blokk saját nevet kap; a RENAME adja meg a sajátját. |
+| `PASTECLIP` |  | A vágólap beillesztése: követi a kurzort, kattintson oda, ahová kerül (Ctrl+V) |
+| `PASTEORIG` |  | A vágólap beillesztése a koordinátákra, ahonnan másolták (Ctrl+Shift+V) |
+| `PDF` |  | Adja meg a CadCraftnak a PDF-fájlokat, amelyeket a rajz alátétei használnak |
+| `PDFADJUST` |  | PDF-alátét halványítása, kontrasztja, monokróm beállítása vagy kikapcsolása |
 | `PDFATTACH` | `PDFATT` | PDF-oldal csatolása alátétként (PDFATTACH) |
 | `PDFCLIP` |  | PDF-alátét levágása egy téglalapra vagy sokszögre |
-| `PDFIMPORT` | `PDFIM` | Egy PDF-oldal vonalainak, kitöltéseinek és szövegének rajzobjektummá alakítása (PDFIMPORT) |
-| `PDFLAYERS` |  | A PDF saját rétegeinek be- vagy kikapcsolása |
-| `PEDIT` | `PE` | Polivonal szerkesztése: zárás, nyitás, egyesítés, szélesség, illesztett görbe, spline görbe, görbe-eltávolítás, vonaltípus-generálás, megfordítás; egyenesek, ívek és splinek polivonallá alakíthatók |
-| `PHOTOSKETCH` | `PSK` | Papíron lévő kézi vázlat fényképét léptékhelyesen vonalakká és ívekké alakítja, kiegyenesítve a perspektívát, és minden tollszínnek külön réteget ad. |
-| `PICKSTYLE` |  | PICKSTYLE: egy csoport egy objektumának kijelölése kijelöli-e az egész csoportot (1, a kezdő beállítás) vagy csak azt az objektumot (0). Erre a munkamenetre marad érvényben. |
-| `PLAN` |  | A nézet elforgatása úgy, hogy az USC X tengelye (aktuális USC, egy mentett USC vagy a világ) vízszintes legyen a képernyőn. A rajz semmit nem mozgat. |
+| `PDFIMPORT` | `PDFIM` | Egy PDF-oldal vonalainak, kitöltéseinek és szövegének rajzobjektumokká alakítása (PDFIMPORT) |
+| `PDFLAYERS` |  | Egy PDF-alátét rétegeinek be- vagy kikapcsolása |
+| `PEDIT` | `PE` | Polivonal szerkesztése: zárás, nyitás, egyesítés, szélesség, görbe illesztése, spline-görbe, görbeelvétel, vonaltípus-generálás, megfordítás; vonalak, ívek és spline-ok polivonallá alakíthatók |
+| `PENPRESSURE` |  | Hogy egy tollvonás nyomása beállítja-e a SKETCHFIX és a SKETCHLIVE által készített objektumok vonalvastagságát (alapértelmezetten be). Ebben a böngészőben marad meg. |
+| `PHOTOSKETCH` | `PSK` | Egy papírra készített kézi vázlat fotóját a megadott léptékű vonalakká és ívekké alakítja, kiegyenesíti a perspektívát, és minden tollszínnek saját rétegét adja. |
+| `PICKSTYLE` |  | PICKSTYLE: egy csoport egy objektumának kijelölése az egész csoportot jelöli-e (1, a kezdeti beállítás) vagy csak azt az objektumot (0). Ebben a munkamenetben marad meg. |
+| `PLAN` |  | A nézet elforgatása úgy, hogy az UCS X tengelye (Aktuális UCS, egy mentett Ucs vagy a Világ) vízszintesen látsszon. A rajzban semmi nem mozdul. |
 | `PLINE` | `PL` | Egyenes és ív szakaszokból álló polivonal |
-| `PLOT` | `PRINT`, `PUBLISH`, `EXPORTPDF` | Plottolás PDF-be: egy elrendezés, vagy a modell adott léptékben |
-| `PLOTSTYLES` | `STYLESMANAGER`, `PSTABLES` | Plottolási stílustáblák: minden szín nyomtatási beállítása (szín, fekete, szürke, tinta, vonalvastagság); a rajzzal együtt megőrzött (STYLESMANAGER) |
+| `PLOT` | `PRINT`, `PUBLISH`, `EXPORTPDF` | Nyomtatás PDF-be: egy lap, vagy a modell egy léptéken |
+| `PLOTSTYLES` | `STYLESMANAGER`, `PSTABLES` | Nyomtatási stílustáblák: beállítja, minek nyomtatódik minden szín (szín, fekete, szürke, tinta, vonalvastagság); a rajzzal együtt tárolódik (STYLESMANAGER) |
 | `POINT` | `PO` | Pontobjektumok |
-| `POINTCLOUD` | `PC` | a csatolt pontfelhő: szelet, magasság, vastagság, szín, méret, láthatóság, nagyítás, leválasztás |
+| `POINTCLOUD` | `PC` | a csatolt pontfelhő: szelet, magasság, vastagság, szín, méret, látható, nagyítás, leválasztás |
 | `POINTCLOUDATTACH` | `PCATTACH`, `POINTCLOUDATT` | pontfelhő csatolása (LAS, LAZ, XYZ, PTS) a rajz alá |
-| `POLARANG` |  | A polárkövetési lépés fokban (90, 45, 30, 22.5, 15 …) |
+| `POLARANG` |  | A polárkövetés lépése fokban (90, 45, 30, 22.5, 15 …) |
 | `POLYGON` | `POL` | Szabályos sokszög |
 | `PRESSPULL` |  | Test egy lapjának tolása vagy húzása (3D) |
-| `PROPERTIES` | `PR`, `PROPS`, `CH`, `MO`, `DDMODIFY` | A Tulajdonságok panel megnyitása (Ctrl+1, vagy kettőskattintás egy objektumon) |
+| `PROPERTIES` | `PR`, `PROPS`, `CH`, `MO`, `DDMODIFY` | A Tulajdonságok panel megnyitása (vagy Ctrl+1, vagy egy objektumra duplán kattintva) |
 | `PROPERTIESCLOSE` | `PRCLOSE` | A Tulajdonságok panel összecsukása az ablak szélére |
-| `PSPACE` | `PS` | Kilépés a munkában lévő nézetablakból, vissza a lapra (vagy kettőskattintás kívül). |
-| `PUBLISH` | `-PUBLISH` | Több vagy az összes lap plottolása egy PDF-be (laponként oldal és könyvjelző) |
-| `PURGE` | `PU` | Azon blokkdefiníciók eltávolítása, amelyeket semmi nem használ |
-| `QDIM` |  | Gyors méretezés: több objektum egyszerre (folytonos, alapvonalas, lépcsőzetes, koordináta, sugár vagy átmérő) |
+| `PSPACE` | `PS` | Kilépés a nézetablakból, amelyben dolgozik, és vissza a lapra (vagy kattintson duplán kívül). |
+| `PUBLISH` | `-PUBLISH` | Több vagy minden lap nyomtatása egy PDF-be (oldal és könyvjelző laponként) |
+| `PURGE` | `PU` | Azon blokkdefiníciók törlése, amelyeket semmi nem használ |
+| `QDIM` |  | Gyors méretezés: több objektum egyszerre (folyamatos, alapvonalas, lépcsős, koordináta, sugár vagy átmérő) |
 | `QPMODE` | `QP` | Gyors tulajdonságok a kurzornál be vagy ki |
-| `QSELECT` | `QS` | Gyorskijelölés: minden olyan típusú objektum, amelynek rétege, színe, mérete vagy neve egyezik (QS) |
-| `RASTERSNAP` |  | A fogás be- vagy kikapcsolása a beolvasott lapok vonalaihoz. |
-| `RAY` |  | Sugár: szerkesztővonal egy pontból, egyik irányba végtelenül. |
-| `RECOVER` |  | Megnyit egy sérült DXF vagy DWG fájlt: azt, amit nem lehet beolvasni, kihagyja, ahelyett hogy elutasítaná a fájlt; közli, mit hagyott ki, majd ellenőrzi és javítja a rajzot, ahogy az AUDIT teszi. |
+| `QSELECT` | `QS` | Gyors kijelölés: minden olyan típusú objektum, amelynek rétege, színe, mérete vagy neve egyezik (QS) |
+| `RASTERSNAP` |  | Be- vagy kikapcsolja a beszkennelt lapok vonalaihoz való illesztést. |
+| `RAY` |  | Sugár: egy ponttól induló segédvonal, egy irányban végtelen. |
+| `RECOVER` |  | Megnyit egy sérült DXF vagy DWG fájlt: kihagyja azt, amit nem lehet olvasni, ahelyett, hogy visszautasítaná a fájlt, megmondja, mit hagyott ki, majd ellenőrzi és javítja a rajzot az AUDIT módjára. |
 | `RECTANG` | `REC`, `RECTANGLE` | Zárt polivonal két sarokból |
-| `REDLINE` | `RDL` | Piros jelölés revízióvá: egy MarkupCraft piros jelölési csomag beolvasása, minden változtatás elfogadása vagy elutasítása, az elfogadottak revíziófelhővel és revíziónaplóval való jelölése, és a válaszfájl mentése (RDL) |
-| `REDO` |  | Az utoljára visszavont művelet ismétlése |
-| `REFCLOSE` |  | Egy blokk helyben történő szerkesztésének befejezése: mentés vagy a módosítások elvetése |
-| `REFEDIT` |  | Blokk helyben történő szerkesztése, ott, ahol egy hivatkozása áll, a rajz többi részének halványításával; a REFCLOSE menti |
-| `REGEN` | `RE` | A rajz ebben a lapon látható részének újraépítése a rajzból |
-| `REGENALL` | `REA` | A rajz minden lapon, panelen és megnyitott rajzon látható részének újraépítése |
-| `REGION` | `REG` | REGION (REG): sík területek (tartományok) készítése zárt objektumokból, vagy olyan vonalakból, ívekből és polivonalakból, amelyek végpontjaiknál zárnak hurkot. A UNION, a SUBTRACT és az INTERSECT ezután egyesíti a tartományokat, a MASSPROP pedig megadja a keresztmetszeti tulajdonságaikat. |
-| `REGISTERSCANS` | `REGSCAN`, `SCANREG` | Több szkennelés regisztrálása: elhelyezésük egy keretben kijelölt pontpárokkal vagy célpontokkal, finomítás ICP-vel, exportálás egyetlen LAS vagy E57 fájlba |
-| `REINIT` |  | Az álnevek fájljának újratöltése |
-| `RENAME` | `-RENAME`, `REN` | Réteg vagy blokk átnevezése (minden objektum vagy hivatkozás követi) |
-| `REVCLOUD` | `RC` | Revíziófelhő: téglalap, sokszög, szabad kézi vonal vagy egy objektum körbekerítése (RC) |
-| `REVOLVE` | `REV` | Zárt 2D objektumok forgatása egy tengely körül testekké (3D) |
-| `ROTATE` | `RO` | Objektumok forgatása egy alappont körül |
-| `SAMPLES` | `SAMPLE` | A CadCraft egyik mintarajzának megnyitása (építészeti készlet, megvalósult állapot), hogy tanulhasson belőle |
+| `REDLINE` | `RDL` | Jelölésből revízió: beolvassa a MarkupCraft jelölési csomagját, minden változást elfogad vagy elutasít, az elfogadottakat felhővel és revíziónaplóval jelöli, és elmenti a válaszfájlt (RDL) |
+| `REDO` |  | Az visszavont művelet megismétlése |
+| `REFCLOSE` |  | Egy blokk helyben szerkesztésének befejezése: mentés vagy a módosítások elvetése |
+| `REFEDIT` |  | Blokk helyben szerkesztése, ahol egy hivatkozása van, a rajz többi része halványítva; a REFCLOSE menti |
+| `REGEN` | `RE` | A rajzon látható dolgok újraépítése ebből a rajzból |
+| `REGENALL` | `REA` | Minden lap, panel és megnyitott rajz újraépítése |
+| `REGION` | `REG` | REGION (REG): zárt objektumokból tartományokat (régiókat) készít, vagy olyan vonalakból, ívekből és polivonalakból, amelyek végükön összezárva hurkot alkotnak. Ezután a UNION, SUBTRACT és INTERSECT egyesíti a régiókat, a MASSPROP pedig megadja a keresztmetszeti tulajdonságaikat. |
+| `REGISTERSCANS` | `REGSCAN`, `SCANREG` | Több szkennelés regisztrálása: egy keretbe helyezés kijelölt pontpárokkal vagy célpontokkal, finomítás ICP-vel, egy LAS vagy E57 exportálása |
+| `REINIT` |  | Az álnévfájl újratöltése |
+| `RENAME` | `-RENAME`, `REN` | Egy réteg vagy blokk átnevezése (minden objektum vagy hivatkozás követi) |
+| `REVCLOUD` | `RC` | Revíziófelhő: téglalap, sokszög, szabadkézi útvonal vagy egy objektum körül (RC) |
+| `REVOLVE` | `REV` | Zárt 2D-objektumok forgatása egy tengely körül testekké (3D) |
+| `ROTATE` | `RO` | Objektumok forgatása egy bázispont körül |
+| `SAMPLES` | `SAMPLE` | A CadCraft mintarajzainak egyikének megnyitása (építészeti készlet, kivitelezési rajz), hogy tanuljon belőle |
 | `SAVE` | `QSAVE` | A rajz letöltése a saját formátumában (DWG vagy DXF) |
-| `SAVEAS` |  | A rajz letöltése DWG vagy DXF formátumban: a választás szerint |
+| `SAVEAS` |  | A rajz letöltése DWG vagy DXF formátumban: válassza ki, melyiket |
 | `SAYSEL` |  | Megmondja, mi van kijelölve, objektumonként egy mondatban. |
-| `SCALE` | `SC` | Objektumok léptékezése egy alappont körül |
-| `SCALELISTEDIT` | `SCALELIST` | A rajz saját léptékeinek hozzáadása, szerkesztése és törlése; megjelennek a nézetablak- és plottolási léptéklistákban, és a fájlban megmaradnak (SCALELIST) |
-| `SCANALIGN` | `SCL` | Beolvasott lap igazítása két pontra: mozgatás, forgatás, és ha úgy dönt, léptékezés. |
-| `SCANATTACH` | `SCA`, `SCANIMAGE` | Beolvasott rajz beszúrása: PNG, JPEG vagy TIFF (egy oldal vagy egy többoldalas fájl összes oldala), vagy képként szolgáló PDF-oldal. |
-| `SCANCLEAN` | `SCC` | Beolvasott lap feketére-fehérre alakítása, és a foltok eltávolítása. |
-| `SCANCROP` | `SCR` | Beolvasott lap levágása egy ablakra. |
-| `SCANDESKEW` | `SCD` | A beolvasott lap hosszú vonalainak dőlésszögének megkeresése, és a lap egyenesre fordítása, ha elfogadja a szöget. |
-| `SCANERASE` | `SCE` | A beolvasott lap egy területének törlése: téglalap, sokszög vagy lasszó. |
-| `SCANINFO` | `SCI` | A beolvasott lap eredeti fájljának és az azóta tett lépéseknek megjelenítése. |
-| `SCANSCALE` | `SCS` | A beolvasott lap léptékezése: jelöljön ki rajta két pontot, és írja be köztük a valódi távolságot. |
-| `SCANTRACE` | `SCT` | A beolvasott lap vonalakká és ívekké követése új rétegre, a beállított tűrésen belül. A szöveg és a sraffozás raszter marad. |
-| `SELECT` |  | Objektumok kijelölése most (a következő parancsban P, Előző, későbbi használatra) |
-| `SELECTALL` | `AI_SELALL` | Ezen a lapon minden szerkeszthető objektum kijelölése (Ctrl+A) |
-| `SELECTSIMILAR` | `SIM` | Minden olyan objektum kijelölése, mint amelyeket Ön kiválasztott: azonos típus, réteg és szín (SIM) |
-| `SHEETSET` | `SSM`, `SHEETSETMANAGER` | Megjeleníti a Rajzlapkészlet panelt: több rajzból származó lapok, számozva, egyetlen PDF-be plottolva. |
-| `SHORTCUTS` | `KEYS` | Bármely parancsnak saját billentyűt adni (Ctrl vagy Alt betűvel, vagy egy szabad funkcióbillentyű), amely ebben a böngészőben vagy asztali alkalmazásban marad meg. |
-| `SHXFONTS` | `SHX` | A CadCraftnak SHX betűtípusok megadása egy mappából vagy fájlokból, hogy a nevükre hivatkozó szövegstílusok azzal rajzoljanak (listázás, eltávolítás, megfordítás) |
-| `SKETCHFIX` | `SKF` | Szabad kézi vonások rajzolása; mindegyikből tiszta vonal, kör, ív, téglalap vagy polivonal lesz, négyszögletesítve és a többihez csatlakoztatva. |
-| `SKETCHLIVE` | `SKL` | Rajzolás tollal: minden vonás pontos vonallá, körré, ívvé vagy téglalappá válik, amikor felemeli a tollat, a rajzhoz igazítva, a méretével, amelyet felül lehet írni. |
-| `SPLINE` | `SPL` | Spline rajzolása pontokon át (vagy vezérlő sokszöggel), vagy polivonal átalakítása splinevé |
-| `SPLINEDIT` | `SPE` | Spline szerkesztése: illesztőpontok, vezérlőpontok és súlyok, nyitás vagy zárás, megfordítás, vagy átalakítás polivonallá |
-| `SPLIT` |  | A rajzterület felosztása panelekre (mint a VPORTS a modellen; lapról is) |
-| `STEELMEMBER` | `SMEMBER` | Acélrúd 3D-ben szabványos szelvényből: két pont (gerenda) vagy egy alappont és egy magasság (Oszlop) |
-| `STLOUT` |  | A 3D-modell exportálása STL formátumban (milliméterben) |
-| `STRETCH` | `S` | Nyújtás: húzzon át egy keresztező ablakot a végeken a mozgatáshoz; a benne lévő rész mozog, a többi marad (S) |
-| `STYLE` | `ST`, `TEXTSTYLE`, `DDSTYLE` | Szövegstílusok: a betűtípus, magasság, szélesség és dőlés, amelyet az új szöveg kap (a párbeszédpanel; a -STYLE a parancssorban) |
-| `SUBTRACT` | `SU` | Testek kivonása másokból (3D), vagy 2D tartományok kivonása tartományokból |
-| `SWBOUT` | `SWMACRO` | Makró letöltése a SolidWorks-hez (.swb), amely a modellt egyetlen kényszerezett vázlatként építi újra |
-| `SWEEP` |  | Zárt 2D objektumok végigvezetése egy útvonal (egyenes, polivonal, ív, kör) mentén testekké (3D) |
-| `TABLE` | `TB` | Táblázat készítése: sorok és oszlopok, vagy táblázatkezelő cellákból a vágólapon vagy egy CSV-fájlból |
-| `TABLEDIT` | `TABLEEDIT`, `TABEDIT` | Táblázat szerkesztése: írás egy cellába, sorok és oszlopok be- és törlése, méretek, egyesített cellák, igazítás |
-| `TABLEEXPORT` |  | A táblázat által megjelenített tartalom mentése CSV-fájlként |
-| `TABLEPASTE` | `PASTETABLE` | Táblázat készítése táblázatkezelő cellákból a vágólapon |
+| `SCALE` | `SC` | Objektumok léptékezése egy bázispont körül |
+| `SCALELISTEDIT` | `SCALELIST` | A rajz saját léptékeinek hozzáadása, szerkesztése és törlése; megjelennek a nézetablak- és nyomtatási léptéklistákban, és a fájlban mentődnek (SCALELIST) |
+| `SCANALIGN` | `SCL` | Beszkennelt lap igazítása két ponthoz: mozgatás, forgatás, és ha úgy dönt, léptékezés. |
+| `SCANATTACH` | `SCA`, `SCANIMAGE` | Beszkennelt rajz beillesztése: PNG, JPEG vagy TIFF (egy oldal vagy egy többoldalas fájl összes oldala), vagy egy képként működő PDF-oldal. |
+| `SCANCLEAN` | `SCC` | Beszkennelt lap feketévé-fehérré tétele és pöttyök eltávolítása. |
+| `SCANCROP` | `SCR` | Beszkennelt lap levágása egy ablakra. |
+| `SCANDESKEW` | `SCD` | A beszkennelt lap hosszú vonalainak szögének megkeresése, és a lap derékszögbe fordítása, amint elfogadja a szöget. |
+| `SCANERASE` | `SCE` | Beszkennelt lap egy területének törlése: téglalap, sokszög vagy lasszó. |
+| `SCANINFO` | `SCI` | A beszkennelt lap eredeti fájljának és az azóta tett lépéseknek megmutatása. |
+| `SCANSCALE` | `SCS` | Beszkennelt lap léptékezése: jelöljön ki rajta két pontot, és írja be köztük a valódi távolságot. |
+| `SCANTRACE` | `SCT` | Beszkennelt lap vonalakká és ívekké követése egy új rétegen, az Ön által megadott tűrésig. A szöveg és a sraffozás rasztermaradt. |
+| `SELECT` |  | Objektumok kijelölése most (a P, Előző opcióhoz, a következő parancsban) |
+| `SELECTALL` | `AI_SELALL` | Minden szerkeszthető objektum kijelölése ezen a lapon (Ctrl+A) |
+| `SELECTSIMILAR` | `SIM` | Minden olyan objektum kijelölése, mint amelyeket kiválasztott: azonos típus, réteg és szín (SIM) |
+| `SHEETSET` | `SSM`, `SHEETSETMANAGER` | Megmutatja a Lapkészlet panelt: több rajz lapjai, számozva, egy PDF-be közzétéve. |
+| `SHORTCUTS` | `KEYS` | Bármely parancsnak saját billentyű adása (Ctrl vagy Alt egy betűvel, vagy egy szabad funkcióbillentyű), ebben a böngészőben vagy az asztali alkalmazásban megőrizve. |
+| `SHXFONTS` | `SHX` | Saját SHX betűtípusok adása a CadCraftnak egy mappából vagy fájlokból, így a betűtípusukat megnevező szövegstílusok azokkal rajzolódnak (listázás, eltávolítás, megfordítás) |
+| `SKETCHFIX` | `SKF` | Szabadkézi vonások rajzolása; mindegyikből tiszta vonal, kör, ív, téglalap vagy polivonal lesz, egyenesbe igazítva és a többihez illesztve. |
+| `SKETCHLIVE` | `SKL` | Vázlatolás tollal: minden vonás pontos vonal, kör, ív vagy téglalap lesz, amint felemeli a tollat, a rajzhoz illesztve, mérete felülírható. |
+| `SPLINE` | `SPL` | Spline rajzolása pontokon át (vagy vezérlő-sokszöggel), vagy egy polivonal spline-ná alakítása |
+| `SPLINEDIT` | `SPE` | Spline szerkesztése: illesztőpontok, vezérlőpontok és súlyok, nyitás vagy zárás, megfordítás, vagy polivonallá alakítás |
+| `SPLIT` |  | A rajzterület felosztása panelekre (VPORTS-ként a modellen; lapról is) |
+| `STEELMEMBER` | `SMEMBER` | Acélelem 3D-ben szabványos szelvényből: két pont (egy gerenda), vagy egy bázispont és egy magasság (Oszlop) |
+| `STLOUT` |  | A 3D modell exportálása STL formátumban (milliméterben) |
+| `STRETCH` | `S` | Nyújtás: húzzon egy keresztező ablakot a végeken a mozgatáshoz; ami benne van, mozog, a többi marad (S) |
+| `STYLE` | `ST`, `TEXTSTYLE`, `DDSTYLE` | Szövegstílusok: a betűtípus, magasság, szélesség és dőlés, amit az új szöveg kap (a párbeszédpanel; a -STYLE a parancssorban) |
+| `SUBTRACT` | `SU` | Testek elvétele másoktól (3D), vagy 2D tartományok elvétele tartományoktól |
+| `SWBOUT` | `SWMACRO` | Makró letöltése SolidWorksbe (.swb), amely a modellt egy kényszerezett vázlatként építi újra |
+| `SWEEP` |  | Zárt 2D-objektumok végighúzása egy útvonalon (vonal, polivonal, ív, kör) testekké (3D) |
+| `TABLE` | `TB` | Táblázat készítése: sorok és oszlopok, vagy a vágólapon vagy egy CSV-fájlban lévő táblázatcellákból |
+| `TABLEDIT` | `TABLEEDIT`, `TABEDIT` | Táblázat szerkesztése: cellába írás, sorok és oszlopok beszúrása és törlése, méretek, egyesített cellák, igazítás |
+| `TABLEEXPORT` |  | Mentse, amit a táblázat mutat, CSV-fájlként |
+| `TABLEPASTE` | `PASTETABLE` | Táblázat készítése a vágólapon lévő táblázatcellákból |
 | `TABLESTYLE` | `TS` | Táblázatstílusok: szövegmagasságok, igazítás, margó és szegélyek a cím-, fejléc- és adatsorokhoz |
-| `TAGS` |  | Címkék blokkhivatkozásokon: címke definiálása (fajta, megengedett értékek, a blokkok, amelyekre vonatkozik), beállítása a kijelölt hivatkozásokra, és listázásuk kimutatásként, amelyet CSV-ként menthet |
+| `TAGS` |  | Címkék blokkhivatkozásokon: címke definiálása (fajta, megengedett értékek, a blokkok, amelyekre vonatkozik), beállítása a kijelölt hivatkozásokra, és listázás táblázatként, amelyet CSV-ként menthet |
 | `TEXT` | `DT`, `DTEXT` | Egysoros szöveg; az Enter a következő sort kezdi |
-| `TEXTEDIT` | `ED`, `DDEDIT` | Szöveg szerkesztése helyben: válasszon ki egy szöveget (vagy kettőskattintás rajta) (ED) |
+| `TEXTEDIT` | `ED`, `DDEDIT` | Szöveg szerkesztése helyben: egy szöveg kiválasztása (vagy duplakattintás rajta) (ED) |
 | `TEXTMASK` | `TMASK` | Háttérmaszk elhelyezése a szövegek mögé (a rajz háttere vagy egy szín), vagy annak eltávolítása. |
-| `TEXTTOFRONT` |  | Minden szöveg, méret és vezetővonal előre hozása mindennek más elé. |
-| `TOOLBAR` |  | Az eszköztárgombok megjelenítésének megadása: ikonok és szöveg, csak ikonok, vagy csak szöveg (Ctrl+F1) |
-| `TOOLBARDOCK` | `TBDOCK` | Az eszköztár elhelyezése az ablak tetején, alján, bal vagy jobb oldalán |
-| `TOOLBARROWS` |  | Az eszköztár sorainak száma: ablakhoz igazítva, 2 vagy 1 (Shift+Ctrl+F1) |
-| `TOPAREA` |  | A rajz fölötti sávok szabványossá vagy tömörré tétele |
-| `TOUCHCROSSHAIR` | `TCX` | Eltolt célkereszt ujjal való rajzoláshoz: egy ujj egy olyan célkeresztet mozgat, amely fölötte és mellette van, így az ujj nem takarja a pontot. Az ujj felemelése nem választ ki semmit; a Kattintás gomb vagy egy érintés egy második ujjal a célkeresztnél választ ki, és a Kattintás tartása a mozgatás közben húz. Hosszú nyomás vagy az Enter gomb az Enter. Két ujjal mozgatás és nagyítás. Lehetőségek: BE, KI, Auto (csak ott be, ahol az ujj az egyetlen mutató), Távolság, Oldal. |
-| `TOUR` | `TUTORIAL` | A hatlépéses első-rajzolási bemutató újraindítása |
-| `TRIM` | `TR` | Objektumok levágása addig, ahol mások metszik őket: kattintson egy részre, húzzon át többen, vagy a Shift+kattintással hosszabbítsa |
-| `TRIMEXTENDMODE` |  | A TRIM és az EXTEND indítása: 1 Gyors (minden objektum vágóél vagy határ), 0 Szabványos (először válassza ki az éleket) |
-| `TTR` |  | Kör két objektumhoz érintőlegesen, az Ön által megadott sugárral (ugyanaz, mint a CIRCLE T) |
-| `TURNLEFT` |  | A nézet 90°-kal balra forgatása (az óramutató járásával ellentétesen): USC Z -90, és a nézet követi. A rajz semmit nem mozgat. |
-| `TURNRIGHT` |  | A nézet 90°-kal jobbra forgatása (az óramutató járásával egyezően): USC Z 90, és a nézet követi. A rajz semmit nem mozgat. |
-| `TURNWORLD` |  | Vissza a világhoz: USC Világ, és a nézet ismét vízszintes. |
-| `TXT2MTXT` | `T2M` | Egysoros szövegek egyetlen bekezdésszöveggé egyesítése, felülről lefelé. |
-| `UCS` |  | Saját koordináta-rendszer: origó és X tengely (origó, Z szög, 3pont, Objektum, Előző, Világ, Elnevezett). A beírt pontok, az ortogonális mód, a polárkövetés, a rács és az új szöveg követik; a nézet úgy fordul, hogy az X tengelye vízszintes legyen. A rajz semmit nem mozgat. |
+| `TEXTTOFRONT` |  | Az összes szöveg, méretezés és vezetővonal előrehozása minden más elé. |
+| `TOOLBAR` |  | Az eszköztárgombok megjelenítésének kiválasztása: ikon és szöveg, csak ikon, vagy csak szöveg (Ctrl+F1) |
+| `TOOLBARDOCK` | `TBDOCK` | Az eszköztár elhelyezése az ablak tetejére, aljára, bal vagy jobb oldalára |
+| `TOOLBARROWS` |  | Az eszköztár sorainak száma: illesszen, 2 vagy 1 (Shift+Ctrl+F1) |
+| `TOPAREA` |  | A rajz feletti sávok szabványossá vagy tömörré tétele |
+| `TOUCHCROSSHAIR` | `TCX` | Eltolt kereszthajszál ujjal való rajzoláshoz: egy ujj egy kereszthajszálat mozgat, amely fölötte és mellette van, így az ujj nem takarja a kiválasztott pontot. Az ujj felemelése nem választ ki semmit; a Kattintás gomb vagy egy koppintás egy második ujjal a kereszthajszálnál választ ki, és a Kattintás tartása a mozgatás közben húz. Hosszú nyomás vagy az Enter gomb az Enter. Két ujjal pásztáz és nagyít. Beállítások: BE, KI, Auto (csak ott, ahol az ujj az egyetlen mutató), Távolság, Oldal. |
+| `TOUR` | `TUTORIAL` | Az első rajzolás hatlépéses bemutatójának újraindítása |
+| `TRIM` | `TR` | Objektumok levágása odáig, ahol mások keresztezik őket: kattintson egy darabra, húzzon át többen, vagy a Shift+kattintás meghosszabbít |
+| `TRIMEXTENDMODE` |  | Hogyan indul a TRIM és az EXTEND: 1 Gyors (minden objektum vágóél vagy határ), 0 Standard (először válassza ki az éleket) |
+| `TTR` |  | Kör, amely két objektumot érint, az Ön megadott sugárral (ugyanaz, mint a CIRCLE T) |
+| `TURNLEFT` |  | A nézet elforgatása 90°-kal balra (az óramutató járásával ellentétes irányban): UCS Z -90, és a nézet követi. A rajzban semmi nem mozdul. |
+| `TURNRIGHT` |  | A nézet elforgatása 90°-kal jobbra (az óramutató járásával egyező irányban): UCS Z 90, és a nézet követi. A rajzban semmi nem mozdul. |
+| `TURNWORLD` |  | Vissza a világhoz: UCS Világ, és a nézet ismét vízszintes. |
+| `TXT2MTXT` | `T2M` | Egysoros szövegek egyetlen bekezdésszöveggé egyesítése, fentről lefelé. |
+| `UCS` |  | Saját koordinátarendszer: egy origó és egy X tengely (origó, Z szög, 3pont, OBject, Előző, Világ, NAmed). A beírt pontok, az ortho, a polárkövetés, a rács és az új szöveg követi; a nézet úgy fordul, hogy X tengelye vízszintes legyen. A rajzban semmi nem mozdul. |
 | `UNDO` | `U` | Az utolsó parancs visszavonása |
-| `UNGROUP` |  | UNGROUP: csoportok szétbontása. Jelöljön ki csoportok objektumait, vagy adjon meg nevet. Az objektumok a rajzban maradnak. |
-| `UNION` | `UNI` | Testek egyesítése egybe (3D), vagy 2D tartományok egy tartománnyá |
-| `UNISOLATEOBJECTS` | `UNISOLATE`, `UNHIDE` | Az ISOLATEOBJECTS vagy HIDEOBJECTS által elrejtett összes objektum újbóli megjelenítése. |
-| `UNITS` | `UN`, `DDUNITS` | Hogyan jelennek meg és hogyan adhatók meg a hosszok: tizedes, láb és hüvelyk, törtek (UN) |
-| `UPDATEFIELD` | `UPDATEFIELDS` | A mezők újraszámítása, és annak megadása, mikor frissüljenek maguktól |
-| `USDOUT` |  | A 3D-modell exportálása USD formátumban (.usda szöveg, .usdc bináris vagy .usdz csomag) |
+| `UNGROUP` |  | UNGROUP: csoportok szétbontása. Jelöljön ki csoportbeli objektumokat, vagy adjon egy Nevet. Az objektumok a rajzban maradnak. |
+| `UNION` | `UNI` | Testek egyesítése eggyé (3D), vagy 2D tartományok egy tartománnyá |
+| `UNISOLATEOBJECTS` | `UNISOLATE`, `UNHIDE` | Az ISOLATEOBJECTS vagy HIDEOBJECTS által elrejtett minden objektum újbóli megjelenítése. |
+| `UNITS` | `UN`, `DDUNITS` | Hogyan íródnak és gépelhetők be a hosszak: tizedes, láb és hüvelyk, törtek (UN) |
+| `UPDATEFIELD` | `UPDATEFIELDS` | A mezők újraszámítása, és annak eldöntése, mikor frissüljenek maguktól |
+| `USDOUT` |  | A 3D modell exportálása USD formátumban (.usda szöveg, .usdc bináris vagy egy .usdz csomag) |
 | `VIEW` | `-VIEW`, `V` | Szabványos 3D-nézetek, perspektivikus vagy párhuzamos (3D) |
-| `VIEWBASE` | `FLATSHOT` | Lapos 2D nézet elhelyezése a 3D-testekről (elöl, felül, oldalt vagy izometrikusan, a takart élek szaggatottan) egy lapon vagy a modellben |
-| `VIEWLABEL` | `VL` | Nézetcím egy lapon, amely a nézetablak nézetének nevét mutatja, és azzal együtt változik. |
-| `VOICE` |  | Kimondott parancsok be- vagy kikapcsolása. Ezeket ez a számítógép ismeri fel. |
+| `VIEWBASE` | `FLATSHOT` | Lapos 2D-nézet elhelyezése a 3D testekről (elölnézet, felülnézet, oldalnézet vagy izometrikus, a takart vonalak szaggatva) egy lapon vagy a modellben |
+| `VIEWLABEL` | `VL` | Nézetcím egy lapon, amely megmutatja nézetablakának nézetnevét, és vele együtt változik. |
+| `VOICE` |  | Hangparancsok be- vagy kikapcsolása. Ezen a számítógépen ismerik fel őket. |
 | `VPCLIP` |  | Lapnézetablak levágása egy zárt objektumra vagy egy rajzolt sokszögre; a Delete újra téglalappá teszi |
-| `VPLAYER` |  | Rétegek befagyasztása vagy feloldása csak egyes nézetablakokban (Befagyasztás, Feloldás, Visszaállítás), és annak megadása, mely rétegek legyenek kezdetben befagyasztva az új nézetablakokban (Vpvisdflt). |
+| `VPLAYER` |  | Rétegek befagyasztása vagy feloldása csak néhány nézetablakban (Befagyasztás, Feloldás, Visszaállítás), és annak kiválasztása, mely rétegek legyenek kezdetben befagyasztva az új nézetablakokban (Vpvisdflt). |
 | `VPORTS` | `VIEWPORTS` | A rajzterület felosztása panelekre, mindegyiknek saját nézetével (lapon: nézetablak, mint az MVIEW) |
-| `VPVIEW` |  | Annak beállítása, mit mutasson egy nézetablak: egy ablak kijelölése a modellen |
-| `VSCURRENT` | `VS`, `SHADEMODE` | A 3D-nézet vizuális stílusa: árnyékolt, élek, takart vonal, drótváz, röntgen |
+| `VPVIEW` |  | Megadja, mit mutat egy nézetablak: egy ablak kijelölése a modellen |
+| `VSCURRENT` | `VS`, `SHADEMODE` | A 3D nézet vizuális stílusa: árnyalt, élek, takart vonal, drótváz, röntgen |
 | `WALL` | `WA` | 2D falak rajzolása polivonalként. Összekapcsolódnak, és ajtókat és ablakokat hordoznak. |
-| `WALLARC` | `WARC` | Íves falrész rajzolása. Az alaprajzi falak egyenesek, ezért az ív rövid egyenes falakból áll (mindegyik 15 fok), amelyek összekapcsolódnak. |
-| `WALLDELSEG` |  | Falrész törlése két pont között. A megmaradó rész egy vagy két falként marad meg. |
-| `WALLDIM` |  | Új érték beírása egy méretnek: a távoli végén lévő fal merőlegesen mozdul el önmagához, az első végén lévő fal helyben marad, és a hozzá csatlakozó falak követik. |
-| `WALLDISJOIN` |  | Egy fal egyik vége közelében kattintva letiltja az összekapcsolást a végén: a vég négyszögletesen rajzolódik, és semmi nem követi. Újra kattintva engedélyezi. |
-| `WALLGRID` |  | Fal rögzítése egy rácsvonalhoz: annak mentén, vagy egyik végével rajta. A vonalat a GRIDMOVE mozgatja, és a fal követi. |
-| `WALLHOLD` |  | Igazítás és rögzítés: egy fal megtartja helyét egy másik falhoz képest (annak vonalán, vagy a meglévő távolságában). Ha az egyik mozog, a másik követi. |
-| `WALLHOLDDIM` |  | Két párhuzamos fal közötti távolság rögzítése. Ha az egyik mozog, a másik követi, hogy megtartsa. |
-| `WALLHOLDS` |  | A falakon lévő rögzítések listázása. |
-| `WALLJOINS` |  | Egy régebbi rajz minden falának azonosító adása, és a köztük lévő kapcsolatok tárolása. Ez az első módosításkor is megtörténik. |
-| `WALLJOINSTYLE` |  | Kattintson egy sarokra, ahol két fal végpontjaiknál találkozik, hogy megváltoztassa a rajzolását: gérvágás, tompa, négyszögletesítés. A T megváltoztatja, melyik fal fut át. |
-| `WALLOFFSET` | `WO` | Fal eltolása önmagához merőlegesen egy távolsággal (a hozzá csatlakozó falak követik), vagy másolat készítése abban a távolságban. |
-| `WALLPICK` |  | Falak készítése egy vonalon vagy polivonalon a rajzban, a hozzá csatlakozó vonalakkal, ha Igen-t mond. |
-| `WALLPOLY` | `WP` | Falak rajzolása egy szabályos, 3–64 oldalú sokszög köré, a POLYGONhoz hasonlóan. |
-| `WALLRECT` | `WR` | Négy összekapcsolt fal rajzolása két átellenes sarokból, a RECTANG-hoz hasonlóan. |
-| `WALLREJOIN` |  | Egy fal két részéből ismét egy fal készítése. Az első megtartja helyét a rajzban. |
-| `WALLROT` |  | Négy összekapcsolt fal rajzolása egy tetszőleges szögben elforgatott téglalapként: az első oldal, majd a távolság. |
-| `WALLSPLIT` | `WS` | Fal kettéosztása egy pontnál, vagy ahol egy másik fal keresztezi. A részek összekapcsolva maradnak, hacsak nem kér rést vagy szabad végeket. Az ajtók és ablakok a részükkel együtt mozognak. |
-| `WALLSPLITGAP` |  | Fal felosztása réssel: írja be a rést, válassza ki a falat, majd a pontot. A részek szabad végeket tartanak, és újra összekapcsolhatók. |
-| `WALLSTRETCH` |  | Nyújtás ablakkal: a benne lévő falvégek mozognak, a teljesen benne lévő falak egészben mozognak, a oldalukhoz csatlakozó falak pedig vele csúsznak. |
-| `WALLTAN` |  | Fal folytatása egy ívvel, amely a falon áthaladva indul (rövid egyenes falakként rajzolva). |
-| `WALLTRACE` |  | Falak készítése a legkisebb zárt terület körül, a vonalakból és falakból, amelyeket a kattintott pont körül talál. |
-| `WALLUNHOLD` |  | Egy fal rögzítéseinek feloldása (és más falak rögzítéseinek erre a falra vonatkozóan). |
-| `WBLOCK` | `W`, `-WBLOCK` | Blokk, néhány objektum vagy az egész rajz kiírása új DWG vagy DXF fájlba (W) |
-| `WEDGE` | `WE` | Ék: két sarok és egy magasság; az első sarokról lefelé lejt (3D) |
+| `WALLARC` | `WARC` | Falív rajzolása. A tervrajzi falak egyenesek, ezért az ív rövid, egyenes falakként rajzolódik (egyenként 15 fok), amelyek összekapcsolódnak. |
+| `WALLDELSEG` |  | Egy falrész törlése két pont között. A megmaradó rész egy vagy két falként marad. |
+| `WALLDIM` |  | Új érték beírása egy méretezéshez: a távoli végén lévő fal a saját magához képest derékszögben mozdul, az első végén lévő fal megáll, és a hozzá csatlakozó falak követik. |
+| `WALLDISJOIN` |  | Válasszon ki egy falat a vége közelében, hogy azon a végén tiltsa a csatlakozást: a vég derékszögben van rajzolva, és semmi nem követi. Újra kiválasztva engedélyezi. |
+| `WALLGRID` |  | Egy falat egy rácsvonalhoz zárni: a vonal mentén, vagy egy végét rajta tartva. A vonalat a GRIDMOVE-val mozgatva a fal követi. |
+| `WALLHOLD` |  | Igazítás és zárás: egy fal megtartja helyét egy másikhoz képest (annak vonalán, vagy a jelenlegi távolságában). Ha az egyik mozog, a másik követi. |
+| `WALLHOLDDIM` |  | Két párhuzamos fal közötti távolság zárása. Ha az egyik mozog, a másik követi, hogy megtartsa. |
+| `WALLHOLDS` |  | A falak zárainak listázása. |
+| `WALLJOINS` |  | Egy régebbi rajz minden falának azonosító adása, és a köztük lévő csatlakozások tárolása. Ez az első módosításkor is megtörténik. |
+| `WALLJOINSTYLE` |  | Kattintson egy sarokra, ahol két fal véghez végben találkozik, hogy megváltoztassa a rajzolását: ferdevágás, tompa, derékszögű lezárás. A T megváltoztatja, melyik fal megy át. |
+| `WALLOFFSET` | `WO` | Fal eltolása derékszögben önmagához egy távolsággal (a hozzá csatlakozó falak követik), vagy másolat készítése ebben a távolságban. |
+| `WALLPICK` |  | Falak készítése egy vonalon vagy polivonalon a rajzban, a hozzá csatlakozó vonalakkal, ha Igent mond. |
+| `WALLPOLY` | `WP` | Falak rajzolása egy szabályos sokszög köré, 3 és 64 oldal között, a POLYGON-hoz hasonlóan. |
+| `WALLRECT` | `WR` | Négy összekapcsolt fal rajzolása két átellenes sarokból, mint a RECTANG. |
+| `WALLREJOIN` |  | Egy fal két részének újra egy falrá tétele. Az első megtartja helyét a rajzban. |
+| `WALLROT` |  | Négy összekapcsolt fal rajzolása egy tetszőleges szögben elforgatott téglalapként: az első oldal, majd hogy milyen messzire megy ki. |
+| `WALLSPLIT` | `WS` | Fal kettéosztása egy pontnál, vagy ahol egy másik fal keresztezi. A részek összekapcsolva maradnak, hacsak nem kér rést vagy szabad végeket. Az ajtók és ablakok a részükkel mennek. |
+| `WALLSPLITGAP` |  | Fal felosztása résen hagyva: írja be a rést, válassza ki a falat, majd a pontot. A részek szabad véget tartanak, és újra összekapcsolhatók. |
+| `WALLSTRETCH` |  | Nyújtás ablakkal: a benne lévő falvégek mozognak, a teljesen benne lévő falak egészben mozognak, és az oldalukba ütköző falak velük csúsznak. |
+| `WALLTAN` |  | Fal folytatása egy ívvel, amely a fal mentén elhagyja azt (rövid egyenes falakként rajzolva). |
+| `WALLTRACE` |  | Falak készítése a kattintott pont körüli, vonalakból és falakból álló legkisebb zárt terület körül. |
+| `WALLUNHOLD` |  | A zárak levétele egy falról (és a hozzá kötött többi fal zárai). |
+| `WBLOCK` | `W`, `-WBLOCK` | Blokk, néhány objektum vagy az egész rajz írása új DWG vagy DXF fájlba (W) |
+| `WEDGE` | `WE` | Ék: két sarok és egy magasság; az első sarokból lefelé lejt (3D) |
 | `WHEREAMI` | `WHERE` | Megmondja, hol van a kurzor. |
-| `WHOHAS` |  | Megmondja, ki nyitotta meg a rajzot. A CadCraft Studio minden megnyitott rajz mellé egy kis zárófájlt tesz (Plan.dwg.cclock: ki, mióta, melyik verzió), és bezáráskor eltávolítja. Lehetőségek: Aktuális (a megnyitott rajz), Fájl (választható), Mappa (minden olyan rajz a mappában, amely valahol meg van nyitva; ez is engedi, hogy a Studio zárófájlokat tegyen abba a mappába), Útvonal (megadható), Név (az a név, amelyet mások látnak). Az ötpercnél régebben nem frissített zár elavultnak számít. Böngészőben nem érhető el. |
-| `WINDOW` | `WN` | Ablak elhelyezése falban. |
-| `XATTACH` | `XA` | Másik DWG vagy DXF csatolása ebbe a rajzba, csak olvasható módban (az XREF listázza és újratölti őket) |
-| `XCLIP` | `XC` | Blokkhivatkozások és csatolt rajzok levágása egy téglalapra vagy sokszögre, vagy a levágás eltávolítása. |
-| `XLINE` | `XL` | Szerkesztővonal, mindkét irányban végtelen: két ponton át, vízszintes, függőleges, szögben, szögfelező, vagy egy vonaltól eltolva. |
-| `XREF` | `XR`, `-XREF` | Csatolt rajzok (külső hivatkozások): listázás, csatolás, újratöltés, beágyazás, leválasztás |
+| `WHOHAS` |  | Megmondja, ki nyitotta meg a rajzot. A CadCraft Studio minden megnyitott rajz mellé egy kis zárófájlt tesz (Terv.dwg.cclock: ki, mióta, melyik verzió), és bezáráskor eltávolítja. Beállítások: Aktuális (a megnyitott rajz), Fájl (válasszon egyet), Mappa (minden olyan rajz a mappában, amely valahol nyitva van; ez azt is lehetővé teszi a Studiónak, hogy zárófájlokat tartson abban a mappában), Útvonal (írjon be egyet), Név (amelyet mások látnak). Öt percig nem frissített zár elavultnak számít. Böngészőben nem érhető el. |
+| `WINDOW` | `WN` | Ablak elhelyezése egy falban. |
+| `XATTACH` | `XA` | Másik DWG vagy DXF csatolása ehhez a rajzhoz, csak olvashatóan (az XREF listázza és újratölti őket) |
+| `XCLIP` | `XC` | Blokkhivatkozások és összekapcsolt rajzok levágása egy téglalapra vagy sokszögre, vagy a levágás eltávolítása. |
+| `XLINE` | `XL` | Szerkesztővonal, mindkét irányban végtelen: két ponton át, vízszintes, függőleges, szögben, szögfelezőként, vagy egy vonaltól eltolva. |
+| `XREF` | `XR`, `-XREF` | Összekapcsolt rajzok (külső hivatkozások): listázás, csatolás, újratöltés, beágyazás, leválasztás |
 | `ZOOM` | `Z` | Kiterjedés, vagy egy ablak |

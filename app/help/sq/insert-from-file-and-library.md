@@ -1,84 +1,103 @@
 ---
-title: Fut nga një skedar ose nga biblioteka
-summary: Sill një bllok, ose një vizatim të tërë, nga një DWG ose DXF tjetër, dhe vendos artikuj nga Biblioteka, një skedar ose një bibliotekë tjetër, me kreditet dhe përditësimet e tyre.
-keywords: fut, skedar, bibliotekë, librarycraft, artikull, pajisje, bllok nga një vizatim tjetër, wblock, design center, kreditet, atribuimi, licenca, përditësim, burim, item.json
-from: 316188d2
+title: Fut nga një skedar ose bibliotekë
+summary: Sill një bllok, ose një vizatim të tërë, nga një DWG ose DXF tjetër, dhe vendos elemente nga Biblioteka, një skedar ose një bibliotekë tjetër, me kreditet dhe përditësimet e tyre.
+keywords: fut, skedar, bibliotekë, librarycraft, element, pajisje, bllok nga një vizatim tjetër, wblock, design center, kredite, atribuim, licencë, përditësim, burim, item.json
+from: f6e4e452
 ---
 
 ## Fut një bllok nga një vizatim tjetër
 
-1. Shkruaj `I` dhe shtyp {{key:Enter}}, ose kliko {{ui:Fut}} në grupin {{ui:Blloqe}}.
-2. Te `Shkruaj emrin e bllokut ose [Skedar (F)/Biblioteka (L)]`, shkruaj `F` dhe shtyp {{key:Enter}}.
+1. Shkruaj `I` dhe shtyp {{key:Enter}}, ose kliko {{ui:Fut}} te grupi Blloqe.
+2. Rreshti i komandës në fund të dritares pyet `Enter block name or [File/Library]`. Shkruaj `F` atje dhe shtyp {{key:Enter}}.
 3. Zgjidh DWG ose DXF në këtë kompjuter. Lexohet këtu; nuk hapet, dhe asgjë nuk ngarkohet.
-4. Te dialogu {{ui:Fut nga}}, zgjidh një bllok nga lista (shkruaj te {{ui:Filtro blloqet}} për ta gjetur), ose lëre {{ui:E gjithë vizatimi}}. Kliko {{ui:Fut}}.
+4. Te dialogu {{ui:Fut nga}}, zgjidh një bllok nga lista (shkruaj në {{ui:Filtro blloqet}} për ta gjetur), ose lëre {{ui:Gjithë vizatimi}}. Kliko {{ui:Fut}}.
 5. Kliko aty ku shkon, dhe plotëso çdo atribut që kërkon.
 
-Gjithë vizatimi hyn si një bllok i vetëm, me emrin e skedarit. Edhe blloqet brenda blokut që zgjodhe hyjnë. Shtresat që ato përdorin shtohen te ky vizatim.
+Mund të nisesh edhe nga paneli {{ui:Blloqe}}: shkruaj `F` në kutinë e tij {{ui:Filtro blloqet}} dhe shtyp {{key:Enter}}, ose shkruaj diçka që asnjë bllok nuk përputhet dhe kliko {{ui:Nga një skedar…}}. `L` dhe {{ui:Biblioteka…}} hapin bibliotekën në të njëjtën mënyrë. Para versionit 0.10.1, një shkronjë e shkruar në {{ui:Filtro blloqet}} kërkonte vetëm blloqet e këtij vizatimi dhe përgjigjej "No block matches the filter."
 
-Nëse vizatimi tjetër është në njësi të tjera (inç dhe milimetra, për shembull), CadCraft e shkallëzon referencën për t'u përshtatur dhe e thotë këtë në historik.
+Për të mbajtur afër një vizatim me blloqet e tua, kliko {{ui:Shto një vizatim}} nën {{ui:Bibliotekat}} te paneli {{ui:Blloqe}} dhe zgjidh DWG ose DXF. Blloqet e tij listohen me figura; kliko një për ta vendosur.
+
+I tërë vizatimi hyn si një bllok i vetëm me emrin e skedarit. Blloqet brenda bllokut që zgjodhe hyjnë gjithashtu. Shtresat që ato përdorin shtohen te ky vizatim.
+
+Nëse vizatimi tjetër është në njësi të ndryshme (inç dhe milimetra, për shembull), CadCraft e shkallëzon referencën që të përputhet dhe e thotë këtë në historik.
 
 ### Kur një emër është përdorur tashmë
 
 Nëse ky vizatim ka tashmë një bllok me të njëjtin emër, CadCraft pyet:
 
 - {{ui:Mbaj ekzistuesit}} përdor bllokun e këtij vizatimi me atë emër.
-- {{ui:Riemëro}} e fut të renë me emrin `Emri (2)`.
+- {{ui:Riemëro}} e sjell të riun si `Name (2)`.
 
-E gjithë fut-ja është një hap i vetëm: {{key:Mod+Z}} heq përsëri referencën dhe përkufizimet e kopjuara.
+E gjithë fut-ja është një hap i vetëm: {{key:Mod+Z}} heq referencën dhe përkufizimet e kopjuara.
 
 ## Hap bibliotekën
 
-Kliko {{ui:Bibliotekë…}} te paneli {{ui:Blloqe}}, ose {{ui:Biblioteka}} në grupin Blloqe, ose shkruaj `LIB`. Te kërkesa `INSERT`, edhe `L` e hap atë.
+Kliko {{ui:Biblioteka…}} te paneli {{ui:Blloqe}}, ose {{ui:Biblioteka}} te grupi Blloqe, ose shkruaj `LIB`. Te kërkesa `INSERT`, `L` e hap gjithashtu.
 
 Biblioteka ka katër burime, si skeda:
 
 - {{ui:Biblioteka}}: biblioteka e CadCraft. Kërko sipas emrit, prodhuesit ose modelit, dhe filtro sipas kategorisë.
-- {{ui:Skedarë…}}: një skedar artikulli (`item.json`) nga çdo bibliotekë, ose një vizatim, fletëllogari ose model 3D për të bërë artikuj prej tij: një DWG ose DXF (çdo bllok bëhet një artikull), një CSV me kolona emri dhe madhësie, ose një model glTF ose OBJ. Asgjë nuk ngarkohet.
-- {{ui:Standard}}: profile çeliku (si prerje, fasada ose elemente 3D) dhe pjesë standarde si bulona, dado dhe rulmentë, të bëra këtu nga tabela të publikuara. Shih [Vendos profilet e çelikut dhe pjesët standarde](topic:steel-and-standard-parts).
-- {{ui:Burime të tjera}}: biblioteka të tjera që përgjigjen në të njëjtën mënyrë si Biblioteka. Shto adresën e tyre një herë; ky shfletues e kujton atë.
+- {{ui:Skedarët…}}: një skedar elementi (`item.json`) nga çdo bibliotekë, ose një vizatim, fletëllogari ose model 3D për të bërë elemente: një DWG ose DXF (çdo bllok bëhet element), një CSV me kolona emri dhe madhësie, ose një model glTF ose OBJ. Asgjë nuk ngarkohet.
+- {{ui:Standard}}: profile çeliku (si prerje, fasada ose elemente 3D) dhe pjesë standarde si bulona, dado dhe mbajtëse, të bëra këtu nga tabela të publikuara. Shih [Vendos profile çeliku dhe pjesë standarde](topic:steel-and-standard-parts).
+- {{ui:Burime të tjera}}: biblioteka të tjera që përgjigjen në të njëjtën mënyrë si Biblioteka. Shto adresën e tyre një herë; ky shfletues e mban mend.
 
-Çdo kartelë shfaq një pamje paraprake, emrin, prodhuesin dhe modelin, licencën dhe versionin. Një artikull i tërhequr shënohet me {{ui:Tërhequr}} dhe arsyen e tij; CadCraft pyet para se ta vendosësh.
+Çdo kartelë shfaq një pamje paraprake, emrin, prodhuesin dhe modelin, licencën dhe versionin. Një element i tërhequr shënohet {{ui:Tërhequr}} me arsyen; CadCraft pyet para se ta vendosësh.
 
-## Vendos një artikull
+## Vendos një element
 
 1. Kliko {{ui:Vendos}} te një kartelë.
-2. Kliko aty ku shkon artikulli. Shkruaj `R` së pari për ta rrotulluar, ose `S` për ta shkallëzuar.
-3. Te `Shkruaj numrin e artikullit (CC-ITEM)`, shtyp {{key:Enter}} për numrin e lirë të radhës, ose shkruaj numrin tënd.
+2. Kliko aty ku shkon elementi. Shkruaj `R` së pari për ta rrotulluar, ose `S` për ta shkallëzuar.
+3. Te `Enter Item number (CC-ITEM)`, shtyp {{key:Enter}} për numrin e radhës së lirë, ose shkruaj numrin tënd.
 
-Artikulli bëhet një bllok me emrin `LIB_<emri>_v<versioni>`, i vizatuar në njësitë e këtij vizatimi. Nëse vizatimi nuk ka njësi, artikulli hyn në milimetra dhe historiku e thotë këtë; cakto {{ui:Njësitë}} te paneli i djathtë më parë.
+Elementi bëhet një bllok me emrin `LIB_<name>_v<version>`, i vizatuar në njësitë e këtij vizatimi. Nëse vizatimi nuk ka njësi, elementi hyn në milimetra dhe historiku e thotë këtë; vendos {{ui:Njësitë}} te paneli i djathtë më parë.
 
-Të dhënat e tij udhëtojnë si atribute të padukshme: id-ja dhe versioni i artikullit, licenca dhe atribuimi, prodhuesi, modeli, kategoria dhe madhësitë. Shih [Atributet e bllokut](topic:attributes).
+Të dhënat e tij udhëtojnë si atribute të padukshme: id-ja dhe versioni i elementit, licenca dhe atribuimi, prodhuesi, modeli, kategoria dhe madhësitë. Shih [Atributet e blloqeve](topic:attributes).
 
-## Artikuj në gjuhën tënde
+## Elementet në gjuhën tënde
 
-Një artikull mund të mbajë emrin dhe përshkrimin e vet në gjuhë të tjera. Kur i ka në gjuhën me të cilën CadCraft është vendosur (Cilësimet › Të përgjithshme › Gjuha), kartela dhe emri i artikullit të bllokut të vendosur i përdorin ato. Vetë blloku mban një emër të bërë nga emri i vetë artikullit, kështu që një vizatim ka një bllok për artikull, pa marrë parasysh në cilën gjuhë u vendos.
+Një element mund të mbajë emrin dhe përshkrimin e vet në gjuhë të tjera. Kur i ka në gjuhën ku është vendosur CadCraft (Cilësimet › Të përgjithshme › Gjuha), kartela dhe emri i elementit të bllokut të vendosur e përdorin ato. Vetë blloku mban një emër të bërë nga emri i elementit, kështu që një vizatim ka një bllok për element, cilado gjuhë që e vendosi.
 
 ## Kontrollo për përditësime
 
 1. Hap bibliotekën.
 2. Kliko {{ui:Kontrollo për përditësime}}.
 
-Çdo artikull bibliotekë në vizatim listohet me numrat e artikullit dhe nëse është i përditësuar, ka një version më të ri (dhe çfarë ndryshoi), ose është tërhequr. Kliko {{ui:Përditëso}} te një rresht, ose {{ui:Përditëso të gjitha}}. Çdo referencë kalon te blloku i versionit të ri dhe mban numrin e artikullit, sasinë, vendin, këndin dhe shtresën. {{key:Mod+Z}} zhbën një përditësim.
+Çdo element bibliotekë në vizatim listohet me numrat e tij dhe nëse është i përditësuar, ka një version më të ri (dhe çfarë ndryshoi), ose është tërhequr. Kliko {{ui:Përditëso}} te një rresht, ose {{ui:Përditëso të gjitha}}. Çdo referencë kalon te bllokun e versionit të ri dhe mban numrin e vet të elementit, sasinë, vendin, këndin dhe shtresën. {{key:Mod+Z}} zhbën një përditësim.
 
-## Jep kredit për atë që përdore
+## Jep kredi për ato që përdore
 
-Kliko {{ui:Kreditet e bibliotekës}}. Çdo artikull listohet me rreshtin e atribuimit dhe licencën.
+Kliko {{ui:Kreditet e bibliotekës}}. Çdo element listohet me rreshtin e atribuimit dhe licencën e vet.
 
-- {{ui:Kopjo atribuimin}} kopjon rreshtin e një artikulli; {{ui:Kopjo të gjitha}} kopjon çdo rresht.
-- {{ui:Shkarko CSV}} ruan listën me numrat e artikujve, prodhuesit, modelet, licencat dhe atribuimet. Hapet në çdo fletëllogaritëse.
+- {{ui:Kopjo atribuimin}} kopjon rreshtin e një elementi; {{ui:Kopjo të gjitha}} kopjon çdo rresht.
+- {{ui:Shkarko CSV}} ruan listën me numrat e elementeve, prodhuesit, modelet, licencat dhe atribuimet. Hapet në çdo fletëllogari.
 
-Licenca si CC BY kërkojnë që të japësh kredit autorit aty ku përdor veprën. Vendos rreshtat në vizatim, në specifikim ose në shënimet e projektit.
+Licencat si CC BY kërkojnë të përmendësh autorin aty ku e përdor punën. Vendos rreshtat në vizatim, në specifikim ose në shënimet e projektit.
 
-## Simbole dhe asete
+## Simbolet dhe aset-et
 
-Biblioteka ka tre lloje artikujsh: Simbole (konventa vizatimi, 2D), Tipe (nga çfarë përbëhet një element) dhe Asete (objekte fizike). Te skeda {{ui:Biblioteka}}, lista {{ui:Lloji i elementit}} shfaq Simbolet dhe asetet së bashku, vetëm Simbolet, ose vetëm Asetet. Tipet janë ato nga të cilat ndërtohet një projekt BimCraft, kështu CadCraft nuk i liston.
+Biblioteka ka tre lloje elementesh: Simbole (konventa vizatimi, 2D), Tipe (nga çfarë përbëhet një element) dhe Aset (objekte fizike). Te skeda {{ui:Biblioteka}}, lista {{ui:Lloji i elementit}} shfaq Simbolet dhe asetet bashkë, vetëm Simbolet, ose vetëm Asetet. Tipet janë ato nga të cilat ndërtohet një projekt BimCraft, prandaj CadCraft nuk i liston.
 
 ## Hyr në bibliotekë
 
-Kliko {{ui:Hyr në bibliotekë}}. Hapet një dritare e vogël në sit; sapo të jesh futur atje, CadCraft mund të shfaqë artikujt e ekipit tënd dhe të regjistrojë atë që vendos, kështu dëgjon kur ndryshon një artikull që ke përdorur. Hyrja zgjat për këtë skedë shfletuesi. Mund ta revokosh kurdo nga faqja e sigurisë së llogarisë tënde.
+Kliko {{ui:Hyr në bibliotekë}}. Hapet një dritare e vogël në sit; kur je futur atje, CadCraft mund të shfaqë elementet e ekipit tënd dhe të regjistrojë atë që vendos, që të dish kur ndryshon një element që ke përdorur. Hyrja vlen për këtë skedë të shfletuesit. Mund ta revokosh kurdo nga faqja e sigurisë e llogarisë tënde.
 
-## Gabimet e zakonshme
+## Mbaj objektet e tua te Objektet e mia
 
-- **"Bërja e artikujve nga tipet IFC është në BimCraft."** Skedarët IFC dhe të familjes lexohen në aplikacionin BimCraft. Bëje artikullin atje ose në Bibliotekë, pastaj përdor `item.json` e tij këtu.
-- **"Biblioteka nuk mund të arrihej."** Je jashtë linje, ose biblioteka është e mbyllur. Artikujt që janë tashmë në vizatim nuk preken.
-- **Një artikull është shumë i madh ose shumë i vogël.** Njësitë e vizatimit janë të gabuara ose nuk janë vendosur. Zhbëj, cakto {{ui:Njësitë}}, dhe vendose përsëri.
+{{ui:Objektet e mia}} është një listë private në Bibliotekë që vetëm ti e sheh. Nuk është në bibliotekën publike, nuk shfaqet në kërkim dhe nuk u shfaqet ekipit tënd, dhe ndjek llogarinë tënde në çdo kompjuter ku hyn në bibliotekë.
+
+1. Në panelin Bibliotekë, kliko {{ui:Skedarët…}} dhe lexo një skedar.
+2. Te elementi që do ta përdorësh sërish, kliko {{ui:Mbaje te objektet e mia}}.
+3. Më vonë, kliko {{ui:Objektet e mia}} dhe kliko {{ui:Vendos}}. Vendoset si çdo element bibliotekë, dhe {{ui:Kontrollo për përditësime}} e mbulon.
+4. {{ui:Hiq nga objektet e mia}} e heq nga lista. Kopjet e vendosura tashmë në vizatime mbeten.
+
+Duhet të jesh i futur në bibliotekë. Leximi i një skedari nuk ngarkon asgjë; mbajtja e një elementi dërgon vetëm atë element në llogarinë tënde.
+
+:::note
+Objektet e mia është ende në provë dhe mund të mos jetë hapur për llogarinë tënde. Nëse thotë "My objects is not open for this account yet", mund ta vendosësh akoma elementet nga skedarët e tu me {{ui:Skedarët…}}.
+:::
+
+## Gabime të zakonshme
+
+- **"Making items from IFC types is in BimCraft."** Skedarët IFC dhe të familjes lexohen në aplikacionin BimCraft. Bëje elementin atje ose në Bibliotekë, pastaj përdor `item.json` të tij këtu.
+- **"The library could not be reached."** Je jashtë linje, ose biblioteka është jashtë funksionit. Elementet që janë tashmë në vizatim nuk preken.
+- **Një element është shumë i madh ose shumë i vogël.** Njësitë e vizatimit janë të gabuara ose nuk janë vendosur. Zhbëj, vendos {{ui:Njësitë}}, dhe vendose sërish.

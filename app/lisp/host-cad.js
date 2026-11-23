@@ -322,7 +322,7 @@ export class CadHost {
       pickIds([a[0].e]);
       return;
     }
-    E.text(String(a));
+    E.text(String(a), { script: true });   // OPT.1: a routine types the built-in English option letters, never the person's own
   }
 
   cmdActive() { return this.nested ? 1 : 0; }

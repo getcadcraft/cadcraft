@@ -2,7 +2,7 @@
 title: Ano ang bago sa 0.7 (mas maaga)
 summary: PDF underlay at pag-import ng PDF, mga na-scan na drawing na may awtomatikong trace, totoong spline gamit ang SPLINE, SPLINEDIT at PEDIT, isang tagapamahala ng dimension style, tekstong nagpapanatili ng format nito, WBLOCK at sarili mong mga scale, mga 3D solid mula sa ibang program, pag-rehistro ng mga scan, isang panel ng Laser, USD export, History at pag-print sa CadCraft Studio, isang gabay na unang drawing, ang toolbar sa alinmang gilid o sa mas kaunting row, at marami pa para sa mga AI assistant.
 keywords: ano ang bago 0.7, naunang release, release notes, changelog, mga pagbabago, 0.7, bersyon, mga bagong feature, pdf, pdfattach, pdfimport, underlay, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatting, wblock, scalelistedit, listahan ng scale, acis, 3d solids, registerscans, register scans, icp, e57, las, laser, grbl, g-code, usd, usdout, history, versions, compare, print, printer, png, svg, plot style, linetype, tour, cheat sheet, command map, posisyon ng toolbar, mga row ng toolbar, toolbardock, regen, regenall, trackpad, swipe, code page, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, support folder, assistants, mcp, mga unit, portuguese
-from: d07ca034
+from: d9a8ea79
 ---
 
 Ito ang mga nagbago sa CadCraft 0.7, kumpara sa 0.6. Marami rito ay hiniling sa Discord. Nakapangkat ang listahan ayon sa bahagi, at nauuna ang pinakamahalaga.

@@ -2,7 +2,7 @@
 title: Novinky ve verzi 0.7 (dřívější)
 summary: Podložky PDF a import PDF, skenované výkresy s automatickým obkreslením, skutečné spliny pomocí SPLINE, SPLINEDIT a PEDIT, správce stylů kót, text, který si zachovává formátování, WBLOCK a vlastní měřítka, 3D tělesa z jiných programů, registrace skenů, panel Laser, export USD, Historie a tisk v CadCraft Studio, průvodce prvním výkresem, panel nástrojů na libovolné straně nebo v menším počtu řádků a další pro AI asistenty.
 keywords: novinky 0.7, dřívější verze, poznámky k vydání, seznam změn, změny, 0.7, verze, nové funkce, pdf, pdfattach, pdfimport, podložka, sken, scanattach, scantrace, obkreslení, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formátování, wblock, scalelistedit, seznam měřítek, acis, 3D tělesa, registerscans, registrace skenů, icp, e57, las, laser, grbl, g-code, usd, usdout, historie, verze, porovnání, tisk, tiskárna, png, svg, styl vykreslení, typ čáry, průvodce, přehled příkazů, mapa příkazů, poloha panelu nástrojů, řádky panelu nástrojů, toolbardock, regen, regenall, trackpad, přejetí, kódová stránka, cyrilice, korejština, čínština, japonština, elektro, rcd, p&id, pid, acad.lsp, acaddoc.lsp, podpůrná složka, asistenti, mcp, jednotky, portugalština
-from: d07ca034
+from: d9a8ea79
 ---
 
 Tohle se změnilo v CadCraft 0.7 oproti verzi 0.6. Hodně z toho si uživatelé vyžádali na Discordu. Seznam je seskupen podle oblastí, nejdůležitější je první.

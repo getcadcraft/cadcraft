@@ -2,7 +2,7 @@
 title: 0.7 새로운 기능 (이전 버전)
 summary: PDF 밑그림과 PDF 가져오기, 자동 추적이 있는 스캔 도면, SPLINE, SPLINEDIT, PEDIT를 사용하는 실제 스플라인, 치수 스타일 관리자, 서식이 유지되는 문자, WBLOCK과 사용자 축척, 다른 프로그램의 3D 솔리드, 스캔 등록, 레이저 패널, USD 내보내기, CadCraft Studio의 내역과 인쇄, 안내된 첫 도면, 어느 쪽에든 두거나 더 적은 줄로 쓰는 도구 모음, AI 어시스턴트를 위한 기능 등.
 keywords: 0.7 새로운 기능, 이전 버전, 릴리스 노트, 변경 로그, 변경 사항, 0.7, 버전, 새 기능, pdf, pdfattach, pdfimport, 밑그림, 스캔, scanattach, scantrace, 추적, 래스터, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, 서식, wblock, scalelistedit, 축척 목록, acis, 3D 솔리드, registerscans, 스캔 등록, icp, e57, las, 레이저, grbl, g-code, usd, usdout, 내역, 비교, 인쇄, 프린터, png, svg, 플롯 스타일, 선종류, 둘러보기, 치트 시트, 명령 맵, 도구 모음 위치, 도구 모음 줄 수, toolbardock, regen, regenall, 트랙패드, 스와이프, 코드 페이지, 키릴 문자, 한국어, 중국어, 일본어, 전기, rcd, p&id, pid, acad.lsp, acaddoc.lsp, 지원 폴더, 어시스턴트, mcp, 단위, 포르투갈어
-from: d07ca034
+from: d9a8ea79
 ---
 
 이 항목은 CadCraft 0.6과 비교하여 0.7에서 바뀐 내용입니다. 많은 부분이 Discord에서 요청된 것입니다. 목록은 영역별로 묶여 있으며, 가장 중요한 것이 먼저 나옵니다.

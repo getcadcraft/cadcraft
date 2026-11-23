@@ -24,7 +24,8 @@
 import { cleanClasses, cleanClass, ensureUsed, NONE } from './classes.js';
 import { cleanVpClass } from './vpclass.js';
 import { cleanFloors } from './floors.js';   // 0.9 PLAN2D.3
-import { cleanTagDefs } from './tags.js';   // 0.8 SU.915
+import { cleanTagDefs } from './tags.js';
+import { cleanOffice, isEmpty } from './office-standard.js';   // 0.11 BK.181   // 0.8 SU.915
 
 export const CLASSES_BLOCK = 'CADCRAFT_CLASSES';
 const PAYLOAD = 'cadcraft-classes', CHUNK = 230, MAX_TEXT = 4_000_000, MAX_VP = 5000;
@@ -82,7 +83,7 @@ export function classesPayload(doc) {
   }
   const tags = cleanTagDefs(doc?.meta?.tagDefs).defs;   // 0.8 SU.915: CadCraft_TagDefs, kept with the classes
   const shell = {};   // 0.8 EG.18 / EG.34: the calc sheets and the design reasons (the shell modules clean them on load)
-  for (const k of ['calcs', 'reasons', 'layerGroups', 'floors']) if (doc?.meta?.[k] && typeof doc.meta[k] === 'object') shell[k] = doc.meta[k];
+  for (const k of ['calcs', 'reasons', 'layerGroups', 'floors', 'officeStandard']) if (doc?.meta?.[k] && typeof doc.meta[k] === 'object') shell[k] = doc.meta[k];   // + 0.11 BK.181 (office-cad.js): the drawing's own office standard
   { const di = (typeof window !== 'undefined' && window.ccDocInfo ? window.ccDocInfo.save() : null) || doc?.meta?.docinfo; if (di && typeof di === 'object') shell.docinfo = di; }   // 0.9 DI.1: the drawing details, stamped with this save   // + 0.9 PLAN2D.2/.3
   const vfl = [];   // 0.9 PLAN2D.3: the floor each viewport shows
   for (const l of doc?.layouts || []) viewportsOf(l).forEach((e, i) => { if (e.flr && vfl.length < MAX_VP) vfl.push({ layout: l.name, i, x: e.x, y: e.y, w: e.w, h: e.h, flr: String(e.flr).slice(0, 16) }); });
@@ -111,7 +112,7 @@ export function classesFromPayload(ents) {
       classes: cleanClasses(o.classes),
       design: cleanDesign(o.design),
       tags: cleanTagDefs(o.tags).defs,
-      ...(o.calcs && typeof o.calcs === 'object' ? { calcs: o.calcs } : {}), ...(o.reasons && typeof o.reasons === 'object' ? { reasons: o.reasons } : {}), ...(o.docinfo && typeof o.docinfo === 'object' ? { docinfo: o.docinfo } : {}), ...(Array.isArray(o.layerGroups) ? { layerGroups: o.layerGroups } : {}), ...(o.floors && typeof o.floors === 'object' ? { floors: o.floors } : {}), ...(Array.isArray(o.vfl) ? { vfl: o.vfl.slice(0, MAX_VP).filter((v) => v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 && typeof v.flr === 'string') } : {}),
+      ...(o.calcs && typeof o.calcs === 'object' ? { calcs: o.calcs } : {}), ...(o.reasons && typeof o.reasons === 'object' ? { reasons: o.reasons } : {}), ...(o.docinfo && typeof o.docinfo === 'object' ? { docinfo: o.docinfo } : {}), ...(o.officeStandard && typeof o.officeStandard === 'object' ? { officeStandard: o.officeStandard } : {}), ...(Array.isArray(o.layerGroups) ? { layerGroups: o.layerGroups } : {}), ...(o.floors && typeof o.floors === 'object' ? { floors: o.floors } : {}), ...(Array.isArray(o.vfl) ? { vfl: o.vfl.slice(0, MAX_VP).filter((v) => v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 && typeof v.flr === 'string') } : {}),
       vn: (Array.isArray(o.vn) ? o.vn : []).slice(0, MAX_VP).filter((v) => v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 && typeof v.name === 'string').map((v) => ({ layout: v.layout, i: v.i, x: +v.x, y: +v.y, w: +v.w, h: +v.h, name: v.name.slice(0, 255) })),
       vf: (Array.isArray(o.vf) ? o.vf : []).slice(0, MAX_VP).filter((v) => v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 && Number.isFinite(+v.x) && Number.isFinite(+v.y)).map((v) => ({ layout: v.layout, x: +v.x, y: +v.y, i: v.i })),
       vp: (Array.isArray(o.vp) ? o.vp : []).slice(0, MAX_VP).map((v) => (v && typeof v.layout === 'string' && Number.isInteger(v.i) && v.i >= 0 ? { layout: v.layout, i: v.i, x: +v.x, y: +v.y, w: +v.w, h: +v.h, ovr: cleanVpClass(v.ovr) } : null)).filter((v) => v && v.ovr),
@@ -130,8 +131,8 @@ export function applyClassData(doc, data, design = null) {
   const d = Array.isArray(data) ? { classes: data, design: design || {}, vp: [] } : data && typeof data === 'object' ? data : { classes: [], design: design || {}, vp: [] };
   delete doc.meta.classes;
   delete doc.meta.designLayers;
-  const priorShell = { calcs: doc.meta.calcs, reasons: doc.meta.reasons, docinfo: doc.meta.docinfo };
-  delete doc.meta.calcs; delete doc.meta.reasons; delete doc.meta.docinfo;
+  const priorShell = { calcs: doc.meta.calcs, reasons: doc.meta.reasons, docinfo: doc.meta.docinfo, officeStandard: doc.meta.officeStandard };
+  delete doc.meta.calcs; delete doc.meta.reasons; delete doc.meta.docinfo; delete doc.meta.officeStandard;
   const priorPlan = { layerGroups: doc.meta.layerGroups, floors: doc.meta.floors };   // 0.9 PLAN2D.2/.3: untrusted, cleaned here
   delete doc.meta.layerGroups; delete doc.meta.floors;
   const groups = cleanGroupsData(d.layerGroups ?? priorPlan.layerGroups);
@@ -139,6 +140,7 @@ export function applyClassData(doc, data, design = null) {
   const floors = cleanFloors(d.floors ?? priorPlan.floors);
   if (floors) doc.meta.floors = floors;
   for (const k of ['calcs', 'reasons', 'docinfo']) { const v = d[k] ?? priorShell[k]; if (v && typeof v === 'object') doc.meta[k] = v; }
+  { const v = d.officeStandard ?? priorShell.officeStandard; const r = v && typeof v === 'object' ? cleanOffice(v) : null; if (r && !isEmpty(r.standard)) doc.meta.officeStandard = r.standard; }   // 0.11 BK.181 (untrusted)
   const prior = doc.meta.tagDefs;   // a drawing passed between CadCraft's own docs carries it in meta
   delete doc.meta.tagDefs;
   const tagDefs = cleanTagDefs(d.tags ?? prior).defs;

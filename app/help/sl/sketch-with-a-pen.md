@@ -1,32 +1,36 @@
 ---
 title: Skicirajte s pisalom in dobite natančno geometrijo
-summary: Rišite prosto z roko s pisalom, miško ali prstom; vsak potez se ob dvigu pisala spremeni v čisto črto, krog, lok, pravokotnik ali polilinijo, pritrjeno na to, kar je že narisano, z velikostjo, ki jo lahko prepišete.
-keywords: skica, pisalo, pero, prosta roka, prst, očisti, natančno, lovljenje, SKETCHLIVE, SKETCHFIX, velikost, prepiši
-from: cd87eb75
+summary: Riši proste poteze s pisalom, miško ali prstom, vsaka poteza pa postane čista črta, krog, lok, pravokotnik ali polilinija, ko dvignete pisalo, pripeta na to, kar je že narisano, njena velikost pa je pripravljena za prepis.
+keywords: skica, pisalo, pisalo na dotik, prosto, prst, očistite, natančno, lovljenje, SKETCHLIVE, SKETCHFIX, velikost, prepis, pritisk, debelina črte, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Zaženite {{cmd:SKETCHLIVE}} (ali izberite **Risanje › Več › Skiciraj s pisalom**) in narišite potez s pritiskom in vlečenjem. Ko dvignete pisalo, CadCraft prebere, kaj ste mislili, in to postavi v risbo:
+Zaženite {{cmd:SKETCHLIVE}} (ali izberite {{ui:Risanje}} › {{ui:Več}} › Skiciraj s pisalom) in narišite potezo s pritiskom in vlečenjem. Ko dvignete pisalo, CadCraft prebere, kaj ste mislili, in to da v risbo:
 
-| Vaš potez | Kaj dobite |
+| Vaša poteza | Kaj dobite |
 |---|---|
-| Skoraj ravno | Črta. Skoraj vodoravna ali navpična črta se naredi natanko vodoravna ali navpična. |
-| Zaprto in okroglo | Krožnica |
+| Skoraj ravna | Črta. Skoraj vodoravna ali navpična črta je narejena natanko vodoravna ali navpična. |
+| Zaprta in okrogla | Krog |
 | Del okrogle oblike | Lok |
-| Zaprto s štirimi pravokotnimi vogali | Pravokotnik |
-| Karkoli drugega | Polilinija s pravokotnimi stranicami |
+| Zaprta s štirimi pravimi koti | Pravokotnik |
+| Vse drugo | Polilinija s kvadratnimi stranicami |
 
-Konca poteza se privlečeta na najbližji konec že narisanega, zato se skicirani zid stakne z zidom ob njem.
+Konci poteze se povlečejo na najbližji konec tistega, kar je že narisano, zato se skicirana stena stakne s steno ob njej.
 
 ## Prepišite velikost
 
-Po vsakem potezu ukazna vrstica privzeto prikaže njegovo velikost (**dolžino** črte, **polmer** kroga ali loka, **širino** pravokotnika). Pritisnite {{key:Enter}}, da jo ohranite, ali vnesite število ali dolžino, na primer `12'6"`, da jo zamenjate. Črta ohrani svoj prvi konec, krog svoje središče, pravokotnik svoj prvi vogal.
+Po vsaki potezi ukazna vrstica prikaže njeno velikost (dolžina črte, polmer kroga ali loka, širina pravokotnika) kot privzeto. Pritisnite {{key:Enter}}, da jo ohranite, ali vnesite število ali dolžino, na primer `12'6"`, da jo zamenjate. Črta ohrani svoj prvi konec, krog svoje središče, pravokotnik svoje prvo oglišče.
 
-Za konec pritisnite {{key:Enter}} na praznem pozivu, ali vnesite `Razveljavi (U)`, da zadnji potez odstranite. Celotna seja je en korak razveljavitve.
+Pritisnite {{key:Enter}} na praznem pozivu, da končate, ali vnesite `U`, da vzamete zadnjo potezo nazaj. Celotna seja je en korak razveljavitve.
 
-## Čiščenje več potezov hkrati
+## Očistite več potez naenkrat
 
-{{cmd:SKETCHFIX}} zbere poteze in jih ob pritisku {{key:Enter}} naredi natančne, kar ustreza hitro narisani grobi postavitvi.
+{{cmd:SKETCHFIX}} zbere poteze in jih naredi natančne, ko pritisnete {{key:Enter}}, kar ustreza hitro narisani grobi postavitvi.
 
 :::note
-Vse se izračuna v vašem računalniku po pravilih, brez modela in brez pošiljanja kamor koli.
+Vse se izračuna na vašem računalniku po pravilih, brez modela in brez pošiljanja kamor koli.
 :::
+
+## Pritisk določa debelino črte
+
+Kjer je pisalo za aplikacije vklopljeno (Nastavitve › Splošno › Vnosne naprave › Pisalo), poteza, narisana s pisalom, nosi vsako točko, ki jo je pisalo dalo, in njen pritisk. Lahka poteza naredi tanek predmet, trda debel: povprečni pritisk poteze izbere 0,18, 0,25, 0,35 ali 0,50 mm, ukazna vrstica pa pove, katero. Poteze, narisane z miško ali prstom, vzamejo trenutno debelino črte kot prej. {{cmd:PENPRESSURE}} to izklopi (ali spet vklopi); izbira se hrani v tem brskalniku.

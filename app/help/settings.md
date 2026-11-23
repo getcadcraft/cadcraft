@@ -84,6 +84,8 @@ The command line can stay docked under the drawing, as it always was, or float o
 
 {{ui:CadCraft}} › {{ui:Command line}} has the same choices: {{ui:Docked at the bottom}} or {{ui:Floating}}, {{ui:History lines shown}} (0 to 12) and {{ui:Standard height}}. {{cmd:COMMANDLINE}} (`CMDLINE`) sets them from the command line. The place and the height are kept for CadCraft in this browser with the rest of the layout, so a saved work environment carries them; {{ui:General}} › {{ui:Reset the layout}} docks the command line at its standard height again. On a phone the command line stays docked with one line of history; the history button works there too.
 
+{{ui:CadCraft}} › {{ui:Option letters}} keeps the letters you chose for command options: {{ui:Edit…}} opens the file, {{ui:Import…}} replaces it with a file you choose and {{ui:Export}} saves it. See [Give command options your own letters](topic:option-letters).
+
 When the window is short and the layout check offers a tighter layout, its {{ui:Yes}} also turns the command line to one line if the drawing is still short after the toolbars.
 
 ## Top area

@@ -32,6 +32,10 @@ At a prompt, an expression answers it: at "Specify radius" type `(* 2 12.5)` for
 
 CadCraft's tests run a set of routines written for these checks (selection filters, prompts, commands, objects, error handlers), and one popular routine people asked for by name: Lee Mac's DelBlocks, by name through its dialog and by picking a block. CadCraft also has its own {{cmd:DELBLOCKS}}, so you don't need a routine for that.
 
+## Example routines
+
+Routines to load, read and change, each with a picture of what it does: [github.com/getcadcraft/examples](https://github.com/getcadcraft/examples). BOXAREA draws a rectangle and prints its area, NTAG places numbered tags, LAYSPLIT moves every object to a layer named after its type, and TIDY puts a drawing in line with an office standard. They are Apache-2.0: copy them into your own routines.
+
 ## Not built yet
 
 - `grread` (tracking the mouse yourself), reactors (`vlr-…`), curve functions (`vlax-curve-…`), dictionaries and extended data (`dictsearch`, xdata in `entget` and `entmake`), and the Express Tools' `acet-…` functions.

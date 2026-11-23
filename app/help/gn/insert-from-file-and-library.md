@@ -1,84 +1,103 @@
 ---
-title: Insertar desde un archivo o la biblioteca
-summary: Traiga un bloque, o un plano entero, desde otro DWG o DXF, y coloque elementos de la Biblioteca, un archivo u otra biblioteca, con sus créditos y actualizaciones.
-keywords: insertar, archivo, biblioteca, librarycraft, elemento, equipo, bloque de otro plano, wblock, centro de diseño, créditos, atribución, licencia, actualización, fuente, item.json
-from: 316188d2
+title: Insertar desde archivo o biblioteca
+summary: Traé un bloque, o un plano entero, desde otro DWG o DXF, y colocá elementos de la Biblioteca, un archivo u otra biblioteca, con sus créditos y actualizaciones.
+keywords: insertar, archivo, biblioteca, librarycraft, elemento, equipo, bloque desde otro plano, wblock, centro de diseño, créditos, atribución, licencia, actualizar, fuente, item.json
+from: f6e4e452
 ---
 
-## Insertar un bloque de otro plano
+## Insertar bloque desde otro plano
 
-1. Emoñe'ẽ `I` ha eapreta {{key:Enter}}, térã eapreta {{ui:Insertar}} grupo Bloques-pe.
-2. `Ingrese el nombre del bloque o [Archivo [F]/Biblioteca [L]]`-pe emoñe'ẽ `F` ha eapreta {{key:Enter}}.
-3. Eiporavo DWG térã DXF kompiuta-pe. Ko'ápe oñelée, ndoñeabrirí, ha ndoñemboguejýi.
-4. {{ui:Insertar desde}} diálogo-pe, eiporavo bloque lista-gui (emoñe'ẽ {{ui:Filtrar bloques}}-pe ojuhu-ramo), térã oñeñongatu {{ui:Todo el plano}}. Eapreta {{ui:Insertar}}.
-5. Eapreta oho-va-pe, ha emoĩ atributo oñeporandu-va.
+1. Ehai `I` ha omoĩ {{key:Enter}}, térã ejecutá {{ui:Insertar}} grupo Bloques-pe.
+2. Línea de comandos pie ventana-pe oinforma `Ingrese nombre de bloque o [Archivo/Biblioteca]`. Ehai `F` ha omoĩ {{key:Enter}}.
+3. Eiporavo DWG térã DXF ko compu-pe. Leído ojeporu; ndaipóri abierto, nada oñemboundo.
+4. {{ui:Insertar desde}} diálogo-pe, eiporavo bloque lista-pe (escribí {{ui:Filtrar bloques}}-pe ojejuhu), térã oguarda {{ui:Todo el plano}}. Ejecutá {{ui:Insertar}}.
+5. Eclic dónde oike, ha completá atributo ohaíva.
 
-Plano entero oúta bloque peteĩ-pe, archivo réra-ndive. Eiporavo bloque ryepýpe oĩva avei oúta. Capa ojeporuva oñeñongatu ko plano-pe.
+Ikatu avei oñepyrũ {{ui:Bloques}} panel-pe: {{ui:Filtrar bloques}} casilla-pe ehai `F` ha omoĩ {{key:Enter}}, térã ehai ndaipóri ningún bloque hecharéva ha ejecutá {{ui:Desde un archivo…}}. `L` ha {{ui:Biblioteca…}} biblioteca panel pe ojepyrũ ha upéicha. Versión 0.10.1 ndaipóri, {{ui:Filtrar bloques}}-pe letra ehaíva ojeheka iplano bloque-kuéra ndaha'éi, ha "Ningún bloque coincide con el filtro." oinforma.
 
-Plano ambue unidad-pe (pulgada ha milímetro, ejemplo), CadCraft oñemoambue referencia ha oñeanota historial-pe.
+Ejemplo plano propio bloque-kuéra mano-pe oguereko, ejecutá {{ui:Agregar un plano}} {{ui:Bibliotecas}}-pe {{ui:Bloques}} panel-pe ha eiporavo DWG térã DXF. Bloque-kuéra picture-ndive oñeinforma; eclic peteĩ-pe omoĩ.
 
-### Nombre ojeporuva ojeguereko
+Plano entero peteĩ bloque ojerure ojeguerohory archivo nombre-pe. Bloque eiporavo-pe ohasa bloques oĩva avei. Capas oeiporava oike plano-pe.
 
-Ko plano-pe bloque mismo nombre oguereko, CadCraft oporandu:
+Otro plano unidad ojeporu (pulgada ha milímetro, ehemplo), CadCraft referencia escala ojejoguáva ha historia-pe oinforma.
 
-- {{ui:Mantener existentes}} ojeporu ko plano-pe bloque upe nombre-pe.
-- {{ui:Renombrar}} oguereko pyahu `Nombre (2)` rérape.
+### Nombre ojeporu ramo
 
-Insert opa peteĩ paso: {{key:Mod+Z}} oipe'a referencia ha oñemboty bloque definición oñemoĩva.
+Plano-pe mismo nombre bloque ojeikuaa ramo, CadCraft ohaína:
 
-## Abrir la biblioteca
+- {{ui:Mantener existentes}} oikuaa plano-pe ko nombre bloque.
+- {{ui:Renombrar}} pyahu oike `Nombre (2)` ndive.
 
-Eapreta {{ui:Biblioteca…}} {{ui:Bloques}} panel-pe, térã {{ui:Biblioteca}} grupo Bloques-pe, térã emoñe'ẽ `LIB`. Prompt `INSERT`-pe, `L` avei oipe'a.
+Insert peteĩ paso: {{key:Mod+Z}} referencia ha bloque definición-kuéra oguejy.
 
-Biblioteca oguereko irundy fuente, tab-kuéra:
+## Biblioteca ojepyrũ
 
-- {{ui:Biblioteca}}: CadCraft biblioteca. Emboguejy nombre, fabricante térã modelo rupive, ha filtra categoría rupive.
-- {{ui:Archivos…}}: elemento archivo (`item.json`) biblioteca oimeva-gui, térã plano, planilla térã modelo 3D elemento-kuéra ojapo-ramo: DWG térã DXF (bloque peteĩteĩ oúta elemento), CSV nombre ha tamaño columna-ndive, térã glTF térã OBJ modelo. Nada ndoñemboguejýi.
-- {{ui:Estándar}}: acero perfil (sección, elevación térã 3D elemento) ha piezas estándar kóva perno, tuerca ha rodamiento, publicado tabla-gui ojapo. Ehecha [Colocar perfiles de acero y piezas estándar](topic:steel-and-standard-parts).
-- {{ui:Otras fuentes}}: ambue biblioteca Biblioteca-ichugui ojehecha-va. Peteĩ jey emoĩ dirección; ko navegador oñemanduʼa.
+Eclic {{ui:Biblioteca…}} {{ui:Bloques}} panel-pe, térã {{ui:Biblioteca}} grupo Bloques-pe, térã ehai `LIB`. `INSERT` pregunta-pe, `L` avei ojepyrũ.
 
-Peteĩteĩ tarjeta oguereko vista previa, nombre, fabricante ha modelo, licencia ha versión. Elemento retirado oñemarca {{ui:Retirado}} razón-ndive; CadCraft oporandu emoĩ mboyve.
+Biblioteca oguereko cuatro fuente, pestaña-kuéra:
 
-## Colocar un elemento
+- {{ui:Biblioteca}}: CadCraft biblioteca. Buscá nombre, fabricante térã modelo rehe, categoría rehe filtrá.
+- {{ui:Archivos…}}: elemento archivo (`item.json`) biblioteca opavave-gui, térã plano, planilla térã 3D modelo elemento-kuéra ojapo: DWG térã DXF (peteĩteĩ bloque elemento), CSV nombre ha tamaño columna-ndive, térã glTF térã OBJ modelo. Nada oñemboundo.
+- {{ui:Estándar}}: acero secciones (secciones, elevaciones térã 3D elemento) ha estándar partes, perno, tuerca, rodamiento, publicado tabla-kuéra rehe ojapo. Eheka [Colocar secciones de acero y partes estándar](topic:steel-and-standard-parts).
+- {{ui:Otras fuentes}}: ambue biblioteca, Biblioteca-icha respuesta. Dirección peteĩ jey omoĩ; navegador oguarda.
 
-1. Eapreta {{ui:Colocar}} tarjeta-pe.
-2. Eapreta oho-va-pe. Emoñe'ẽ `R` peve girar, térã `S` escalar.
-3. `Ingrese el número de elemento (CC-ITEM)`-pe eapreta {{key:Enter}} próximo número libre-pe, térã emoñe'ẽ nde número.
+Peteĩteĩ tarjeta ohechauka vista previa, nombre, fabricante y modelo, licencia ha versión. Elemento ndoguerekóiva {{ui:Retirado}} ojehechauka razón-ndive; CadCraft ehai ántes colocar.
 
-Elemento oúta bloque `LIB_<name>_v<version>` nombre-pe, plano unidad-pe. Plano unidad ndoguerekói-va, elemento milímetro-pe oúta ha historial oñeanota; emoĩ primero {{ui:Unidades}} panel derecho-pe.
+## Elemento colocar
 
-Ipoguýi oúta atributo invisible-pe: elemento id ha versión, licencia ha atribución, fabricante, modelo, categoría ha tamaño. Ehecha [Atributos de bloque](topic:attributes).
+1. Eclic {{ui:Colocar}} tarjeta-pe.
+2. Eclic dónde oike. `R` ehai antes girar, `S` escalar.
+3. `Ingrese número de elemento (CC-ITEM)`-pe, {{key:Enter}} ehai sigue número libre, térã nde propio número.
 
-## Elemento ndahemiguãi tetãme
+Elemento bloque oñemoĩ `LIB_<nombre>_v<versión>`, plano unidad-pe dibujado. Plano unidad ndaipóri, milímetro-pe elemento oike ha historia oinforma; {{ui:Unidades}} derecha panel-pe primero omoĩ.
 
-Elemento oguereko nombre ha descripción ambue tetã ñe'ẽ-pe. CadCraft ojeporu tarjeta ha bloque nombre ojehechauka Configuración › General › Idioma-pe ojeporavaekue ñe'ẽ-pe, oĩ jave. Bloque ipropio nombre oguereko elemento nombre-gui, upévare plano peteĩ elemento peteĩ bloque ha'e, mba'e ñe'ẽ-pe oñemoĩ avei.
+Datos atributos invisible-pe: elemento id ha versión, licencia ha atribución, fabricante, modelo, categoría ha tamaños. Eheka [Atributos de bloque](topic:attributes).
 
-## Buscar actualizaciones
+## Elemento nde idioma-pe
 
-1. Emoĩ biblioteca.
-2. Eapreta {{ui:Buscar actualizaciones}}.
+Elemento nombre ha descripción ambue idioma-pe oguereko ikatu. CadCraft idioma (Configuración › General › Idioma) ojeporúva ha ojeguarda, tarjeta ha bloque elemento nombre ojeporu. Bloque nombre elemento nombre-gui ojapo, upéicha plano peteĩ bloque peteĩ elemento ojeporúva.
 
-Plano-pe biblioteca elemento peteĩteĩ lista oúta elemento número-ndive ha ojekuaa oĩ ha'eháicha térã oĩ versión pyahu (ha mba'épa oñemoambue), térã retirado. Eapreta {{ui:Actualizar}} fila-pe térã {{ui:Actualizar todo}}. Referencia opa omoĩ versión pyahu bloque-pe ha oguarda elemento número, cantidad, lugar, ángulo ha capa. {{key:Mod+Z}} oipe'a actualización.
+## Actualizaciones ehai
 
-## Acreditar lo usado
+1. Biblioteca ejecutá.
+2. Ejecutá {{ui:Buscar actualizaciones}}.
 
-Eapreta {{ui:Créditos de la biblioteca}}. Elemento peteĩteĩ ojehecha atribución línea ha licencia-ndive.
+Plano-pe biblioteca elemento peteĩteĩ número ndive oinforma ha versión pyahu oguereko térã retirado. Fila-pe {{ui:Actualizar}} eclic, térã {{ui:Actualizar todo}}. Referencia peteĩteĩ bloque versión pyahu-pe oike, número, cantidad, lugar, ángulo ha capa oguarda. {{key:Mod+Z}} actualizar oguejy.
 
-- {{ui:Copiar atribución}} oñemoĩ peteĩ elemento línea; {{ui:Copiar todo}} opa línea.
-- {{ui:Descargar CSV}} oguarda lista elemento número, fabricante, modelo, licencia ha atribución-ndive. Oñemoĩ opa planilla-pe.
+## Créditos ojeporúva
 
-Licencia CC BY oporandu autor ojeacredita hemboʼehápe. Emoĩ línea plano-pe, especificación-pe térã nótas de proyecto-pe.
+Eclic {{ui:Créditos de la biblioteca}}. Elemento peteĩteĩ atribución línea ha licencia-ndive oinforma.
 
-## Símbolos ha activos
+- {{ui:Copiar atribución}} peteĩ línea oñemoŋgu; {{ui:Copiar todo}} opavave línea.
+- {{ui:Descargar CSV}} lista oguarda número, fabricante, modelo, licencia ha atribución-ndive. Planilla cualquiera-pe oñeleé.
 
-Biblioteca-pe oĩ mbohapy kuatiá elemento: Símbolos (convención de dibujo, 2D), Tipos (elemento oñemoʼãvaekue mbaʼépa) ha Activos (objeto físico). {{ui:Biblioteca}} tab-pe, {{ui:Tipo de elemento}} lista ojehechauka Símbolos ha activos ojuntáva, solo Símbolos térã solo Activos. Tipos ha'e mba'e BimCraft proyecto ojapova-ha, upévare CadCraft ndoʼã.
+Licencia CC BY autor-pe crédito oĩ mbohovái ndive. Línea plano-pe, especificación térã proyecto notas-pe omoĩ.
 
-## Ingresar a la biblioteca
+## Símbolos y activos
 
-Eapreta {{ui:Ingresar a la biblioteca}}. Ventana pequeña oñepe'a sitio-pe; ikatu ingreso rire CadCraft oñehechauka nde equipo-kuéra elemento ha oguarda emoĩvaekue, upévare oendu elemento oñemoambuepa oñeporu. Sesión ko navegador tab-pe oiko. Ejecuta jepe ingresovaekue cuenta seguridad página-pe.
+Biblioteca oguereko mbohapy elemento kuaatypy: Símbolos (dibujo convención, 2D), Tipos (elemento mba'épa oĩ) ha Activos (objeto físico). {{ui:Biblioteca}} pestaña-pe {{ui:Tipo de elemento}} lista Símbolos ha Activos peteĩ, solo Símbolos, térã solo Activos ohechauka. Tipos BimCraft proyecto-pe oĩ, CadCraft ndoheka.
 
-## Ojepe'ỹva
+## Biblioteca ingresá
 
-- **"Hacer elementos desde tipos IFC está en BimCraft."** IFC ha familia archivo BimCraft aplicación-pe oñemoñe'ẽ. Ojapo upe-pe térã Biblioteca-pe, upe rire ojeporu `item.json` ko'ápe.
-- **"No se pudo acceder a la biblioteca."** Ndaipóri internet térã biblioteca ndoĩporã. Plano-pe mboyve elemento ndojepy'apýi.
-- **Elemento hasýva térã michĩva.** Plano unidad ojehechauka ndoikóiva térã ndaipóri. Oipe'a, emoĩ {{ui:Unidades}}, ha emoĩ jey.
+Eclic {{ui:Ingresar a la biblioteca}}. Ventanita sitio-pe oñepyrũ; ingresado rire, CadCraft nde equipo elemento ohechauka ha colocá oregistra, elemento ojeporu ojambiáramo oikuaa. Ingreso pestaña navegador-pe oguarda. Cuenta seguridad página-pe ojepe'a.
+
+## Mis objetos ojeguarda
+
+{{ui:Mis objetos}} Biblioteca-pe lista privada ndaha'éi opavavekuaa. Pública biblioteca, búsqueda ni equipo-pe ndoike; nde cuenta-ndive opavave compu-pe ojeguejy biblioteca-pe ingresado ramo.
+
+1. Biblioteca panel-pe, ejecutá {{ui:Archivos…}} ha leé archivo.
+2. Elemento ojeikotevẽva, eclic {{ui:Guardar en mis objetos}}.
+3. Ohechakuaa, eclic {{ui:Mis objetos}} ha {{ui:Colocar}}. Biblioteca elemento peteĩ, {{ui:Buscar actualizaciones}} avei omoĩ.
+4. {{ui:Quitar de mis objetos}} lista-gui oguejy. Plano-pe jau oñemoĩ copias oguarda.
+
+Biblioteca-pe ingresado oikoveha ndaikatúi. Archivo leé nada oñemboundo; elemento oguardaramo peteĩ elemento nde cuenta-pe oñemboundo.
+
+:::note
+Mis objetos oñeha'ã ha nde cuenta-pe ndaikatúi ojepyrũ. "Mis objetos aún no está abierto para esta cuenta" ojehechaukáramo, {{ui:Archivos…}}-ndive nde archivo elementos colocar ikatu.
+:::
+
+## Errores comunes
+
+- **"La creación de elementos desde tipos IFC es de BimCraft."** IFC ha familia archivo BimCraft app-pe leé. Elemento BimCraft-pe térã Biblioteca-pe ojapo, ha `item.json` aquí ojeporu.
+- **"No se pudo acceder a la biblioteca."** Sin conexión térã biblioteca ndaipóri. Plano-pe ojeikuaa elemento ndoafectái.
+- **Elemento hu'ã térã michĩ.** Plano unidad hai térã ndoomoĩi. Oguejy, {{ui:Unidades}} omoĩ ha colocá jey.

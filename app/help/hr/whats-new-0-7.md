@@ -2,7 +2,7 @@
 title: Što je novo u 0.7 (ranije)
 summary: PDF podloge i uvoz PDF-a, skenirani crteži s automatskim praćenjem, pravi splajnovi sa SPLINE, SPLINEDIT i PEDIT, upravitelj stilova kota, tekst koji zadržava svoje oblikovanje, WBLOCK i vlastita mjerila, 3D tijela iz drugih programa, registracija skenova, ploča Laser, izvoz USD, Povijest i ispis u CadCraft Studiju, vođeni prvi crtež, alatna traka na bilo kojoj strani ili u manje redaka te više za AI pomoćnike.
 keywords: što je novo 0.7, ranije izdanje, bilješke o izdanju, dnevnik promjena, promjene, 0.7, verzija, nove značajke, pdf, pdfattach, pdfimport, podloga, skeniranje, scanattach, scantrace, praćenje, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, oblikovanje, wblock, scalelistedit, popis mjerila, acis, 3d tijela, registerscans, registracija skenova, icp, e57, las, laser, grbl, g-code, usd, usdout, povijest, verzije, usporedba, ispis, pisač, png, svg, stil plota, vrsta linije, vodič, podsjetnik, mapa naredbi, položaj alatne trake, retci alatne trake, toolbardock, regen, regenall, trackpad, prevlačenje, kodna stranica, ćirilica, korejski, kineski, japanski, elektro, rcd, p&id, pid, acad.lsp, acaddoc.lsp, mapa podrške, pomoćnici, mcp, jedinice, portugalski
-from: d07ca034
+from: d9a8ea79
 ---
 
 Ovo se promijenilo u CadCraftu 0.7 u odnosu na 0.6. Velik dio toga zatražen je na Discordu. Popis je grupiran po područjima, s najvažnijim na početku.

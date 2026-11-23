@@ -1,84 +1,103 @@
 ---
 title: Lisää tiedostosta tai kirjastosta
-summary: Tuo lohko tai kokonainen piirustus toisesta DWG- tai DXF-tiedostosta sekä sijoita kohteita kirjastosta, tiedostosta tai toisesta kirjastosta niiden lähdemerkintöineen ja päivityksineen.
-keywords: lisää, tiedosto, kirjasto, librarycraft, kohde, laitteisto, lohko toisesta piirustuksesta, wblock, Design Center, lähdemerkintä, tekijätiedot, lisenssi, päivitys, syöte, item.json
-from: 316188d2
+summary: Tuo lohko tai koko piirustus toisesta DWG- tai DXF-tiedostosta ja sijoita kohteita kirjastosta, tiedostosta tai toisesta kirjastosta sekä niiden tekijätietojen ja päivitysten kanssa.
+keywords: lisää, tiedosto, kirjasto, librarycraft, kohde, kalusto, lohko toisesta piirustuksesta, wblock, suunnittelukeskus, tekijätiedot, lähdemerkintä, lisenssi, päivitys, syöte, item.json
+from: f6e4e452
 ---
 
 ## Lisää lohko toisesta piirustuksesta
 
-1. Kirjoita `I` ja paina {{key:Enter}}, tai napsauta {{ui:Lisää}}-painiketta ryhmässä {{ui:Lohkot}}.
-2. Kohdassa `Enter block name or [File/Library]` kirjoita `F` ja paina {{key:Enter}}.
-3. Valitse tällä tietokoneella oleva DWG- tai DXF-tiedosto. Se luetaan tässä; sitä ei avata, eikä mitään lähetetä.
-4. {{ui:Lisää tiedostosta}} -valintaikkunassa valitse lohko luettelosta (kirjoita {{ui:Suodata lohkot}}-kenttään etsiäksesi sitä), tai jätä {{ui:Koko piirustus}} valituksi. Napsauta {{ui:Lisää}}.
-5. Napsauta paikkaa, johon se menee, ja täytä mahdolliset kysytyt attribuutit.
+1. Kirjoita `I` ja paina {{key:Enter}}, tai napsauta {{ui:Lisää}}-painiketta Lohkot-ryhmässä.
+2. Ikkunan alareunan komentorivi kysyy `Anna lohkon nimi tai [Tiedosto (F)/Kirjasto (L)]`. Kirjoita siihen `F` ja paina {{key:Enter}}.
+3. Valitse DWG- tai DXF-tiedosto tältä tietokoneelta. Se luetaan täällä; sitä ei avata, eikä mitään lähetetä.
+4. {{ui:Lisää tiedostosta}}-ikkunassa valitse lohko luettelosta (kirjoita {{ui:Suodata lohkot}}-kenttään löytääksesi sen), tai säilytä {{ui:Koko piirustus}}. Napsauta {{ui:Lisää}}.
+5. Napsauta kohtaa, johon se menee, ja täytä attribuutit, joita se pyytää.
 
-Koko piirustus tuodaan yhtenä lohkona, joka on nimetty tiedoston mukaan. Myös valitun lohkon sisäiset lohkot tulevat mukaan. Niiden käyttämät tasot lisätään tähän piirustukseen.
+Voit myös aloittaa {{ui:Lohkot}}-paneelista: kirjoita `F` sen {{ui:Suodata lohkot}}-ruutuun ja paina {{key:Enter}}, tai kirjoita jotain, mikä ei vastaa yhtään lohkoa, ja napsauta {{ui:Tiedostosta…}}. `L` ja {{ui:Kirjasto…}} avaavat kirjaston samalla tavalla. Ennen versiota 0.10.1 {{ui:Suodata lohkot}}-kenttään kirjoitettu kirjain haki vain tämän piirustuksen lohkoja ja vastasi ”Yksikään lohko ei vastaa suodatinta.”
 
-Jos toinen piirustus on eri yksiköissä (esimerkiksi tuumat ja millimetrit), CadCraft skaalaa viittauksen vastaamaan sitä ja kertoo tästä historiassa.
+Pidä piirustus omista lohkoistasi käden ulottuvilla: napsauta {{ui:Lisää piirustus}}-kohtaa {{ui:Kirjastot}}-osiossa {{ui:Lohkopaneeli}}ssa ja valitse DWG- tai DXF-tiedosto. Sen lohkot luetellaan kuvien kanssa; napsauta yhtä sijoittaaksesi sen.
+
+Koko piirustus tulee sisään yhtenä lohkona, joka on nimetty tiedoston mukaan. Myös valitsemasi lohkon sisällä olevat lohkot tulevat mukaan. Niiden käyttämät tasot lisätään tähän piirustukseen.
+
+Jos toisen piirustuksen yksiköt ovat erilaiset (esimerkiksi tuumat ja millimetrit), CadCraft skaalaa viittauksen sopivaksi ja kertoo siitä historiassa.
 
 ### Kun nimi on jo käytössä
 
 Jos tässä piirustuksessa on jo lohko samalla nimellä, CadCraft kysyy:
 
-- {{ui:Säilytä olemassa olevat}} käyttää tämän piirustuksen samannimistä lohkoa.
+- {{ui:Säilytä olemassa olevat}} käyttää tämän piirustuksen lohkoa kyseisellä nimellä.
 - {{ui:Nimeä uudelleen}} tuo uuden lohkon nimellä `Name (2)`.
 
-Koko lisäys on yksi vaihe: {{key:Mod+Z}} poistaa viittauksen ja kopioidut määritelmät jälleen.
+Koko lisäys on yksi askel: {{key:Mod+Z}} poistaa viittauksen ja kopioidut määritykset takaisin.
 
 ## Avaa kirjasto
 
-Napsauta {{ui:Kirjasto…}}-painiketta {{ui:Lohkot}}-paneelissa tai {{ui:Kirjasto}}-painiketta Lohkot-ryhmässä, tai kirjoita `LIB`. `INSERT`-kehotteessa `L` avaa sen myös.
+Napsauta {{ui:Kirjasto…}}-kohtaa {{ui:Lohkot}}-paneelissa tai {{ui:Kirjasto}}-painiketta Lohkot-ryhmässä, tai kirjoita `LIB`. Kysymyksessä `INSERT` myös `L` avaa kirjaston.
 
-Kirjastossa on neljä lähdettä, välilehtinä:
+Kirjastossa on neljä lähdettä välilehtinä:
 
-- {{ui:Kirjasto}}: CadCraft-kirjasto. Hae nimen, valmistajan tai mallin mukaan ja rajaa luokan mukaan.
-- {{ui:Tiedostot…}}: kohdetiedosto (`item.json`) mistä tahansa kirjastosta, tai piirustus, taulukko tai 3D-malli, josta kohteita tehdään: DWG tai DXF (jokaisesta lohkosta tulee kohde), CSV-tiedosto, jossa on nimi- ja kokosarakkeet, tai glTF- tai OBJ-malli. Mitään ei lähetetä.
-- {{ui:Vakio}}: teräsprofiileja (leikkauksina, julkisivuina tai 3D-sauvoina) sekä vakio-osia, kuten pultteja, muttereita ja laakereita, jotka tehdään tässä julkaistujen taulukoiden mukaan. Katso [Sijoita teräsprofiileja ja vakio-osia](topic:steel-and-standard-parts).
-- {{ui:Muut syötteet}}: muut kirjastot, jotka vastaavat samalla tavalla kuin {{ui:Kirjasto}}. Lisää niiden osoite kerran; tämä selain muistaa sen.
+- {{ui:Kirjasto}}: CadCraftin kirjasto. Hae nimellä, valmistajalla tai mallilla ja suodata luokan mukaan.
+- {{ui:Tiedostot…}}: kohdetiedosto (`item.json`) mistä tahansa kirjastosta, tai piirustus, taulukko tai 3D-malli, josta tehdä kohteita: DWG tai DXF (jokainen lohko tulee kohteeksi), CSV, jossa on nimi- ja kokosarakkeet, tai glTF- tai OBJ-malli. Mitään ei lähetetä.
+- {{ui:Vakio}}: teräsprofiilit (profiileina, leikkauksina tai 3D-sauvoina) ja vakio-osat, kuten pultit, mutterit ja laakerit, tehtynä täällä julkaistuista taulukoista. Katso [Sijoita teräsprofiileja ja vakio-osia](topic:steel-and-standard-parts).
+- {{ui:Muut syötteet}}: muut kirjastot, jotka vastaavat samalla tavalla kuin Kirjasto. Lisää niiden osoite kerran; tämä selain muistaa sen.
 
-Jokaisessa kortissa näkyvät esikatselu, nimi, valmistaja ja malli, lisenssi sekä versio. Poistettu kohde on merkitty {{ui:Poistettu}}-merkinnällä ja syyllä; CadCraft kysyy ennen kuin kohde sijoitetaan.
+Jokaisessa kortissa on esikatselu, nimi, valmistaja ja malli, lisenssi sekä versio. Peruutettu kohde on merkitty {{ui:Peruutettu}}-merkinnällä ja syyllä; CadCraft kysyy ennen kuin sijoitat sellaisen.
 
 ## Sijoita kohde
 
-1. Napsauta kortissa {{ui:Sijoita}}-painiketta.
-2. Napsauta paikkaa, johon kohde menee. Kirjoita ensin `R`, jos haluat kääntää sitä, tai `S`, jos haluat skaalata sitä.
-3. Kohdassa `Enter Item number (CC-ITEM)` paina {{key:Enter}} seuraavaa vapaata numeroa varten, tai kirjoita oma numero.
+1. Napsauta kortin {{ui:Sijoita}}-painiketta.
+2. Napsauta kohtaa, johon kohde menee. Kirjoita `R` ensin kääntääksesi sen tai `S` skaalataksesi sen.
+3. Kohdassa `Anna kohteen numero (CC-ITEM)` paina {{key:Enter}} seuraavalle vapaalle numerolle tai kirjoita oma numerosi.
 
-Kohteesta tulee lohko nimeltä `LIB_<name>_v<version>`, joka piirretään tämän piirustuksen yksiköissä. Jos piirustuksella ei ole yksiköitä, kohde sijoitetaan millimetreinä ja historia kertoo siitä; aseta ensin oikeanpuoleisessa paneelissa {{ui:Yksiköt}}.
+Kohde muuttuu lohkoksi nimeltä `LIB_<name>_v<version>`, joka piirretään tämän piirustuksen yksiköissä. Jos piirustuksella ei ole yksiköitä, kohde tulee millimetreinä ja historia kertoo siitä; aseta ensin {{ui:Yksiköt}} oikeanpuoleisessa paneelissa.
 
-Sen tiedot kulkevat mukana näkymättöminä attribuutteina: kohteen tunnus ja versio, lisenssi ja lähdemerkintä, valmistaja, malli, luokka ja mitat. Katso [Lohkon attribuutit](topic:attributes).
+Sen tiedot kulkevat mukana näkymättöminä attribuutteina: kohteen tunnus ja versio, lisenssi ja lähdemerkintä, valmistaja, malli, luokka ja koot. Katso [Lohkon attribuutit](topic:attributes).
 
-## Kohteet eri kielillä
+## Kohteet omalla kielelläsi
 
-Kohteella voi olla nimi ja kuvaus muilla kielillä. Kun niitä on sillä kielellä, jolle CadCraft on asetettu (Asetukset › Yleiset › Kieli), kortti ja sijoitetun lohkon kohdenimi käyttävät niitä. Lohko itse säilyttää nimen, joka on tehty kohteen omasta nimestä, joten piirustuksessa on yksi lohko kohdetta kohden, millä kielellä sen sijoittikin.
+Kohteella voi olla nimi ja kuvaus muilla kielillä. Kun niitä on sillä kielellä, johon CadCraft on asetettu (Asetukset › Yleiset › Kieli), kortti ja sijoitetun lohkon kohdenimi käyttävät niitä. Lohko itse säilyttää nimen, joka tehdään kohteen omasta nimestä, joten piirustuksessa on yksi lohko kohdetta kohden, riippumatta siitä, millä kielellä se sijoitettiin.
 
 ## Tarkista päivitykset
 
 1. Avaa kirjasto.
-2. Napsauta {{ui:Tarkista päivitykset}}.
+2. Napsauta {{ui:Tarkista päivitykset}}-kohtaa.
 
-Jokainen piirustuksen kirjastokohde luetellaan kohdenumeroineen, ja siitä kerrotaan, onko se ajan tasalla, onko siitä uudempi versio (ja mitä on muuttunut) vai onko se poistettu. Napsauta rivin kohdalla {{ui:Päivitä}} tai {{ui:Päivitä kaikki}}. Jokainen viittaus siirtyy uuden version lohkoon ja säilyttää kohdenumeronsa, määränsä, paikkansa, kulmansa ja tasonsa. {{key:Mod+Z}} kumoaa päivityksen.
+Jokainen piirustuksen kirjastokohde luetellaan kohdenumeroineen ja sen mukaan, onko se ajan tasalla, onko sillä uudempi versio (ja mitä muuttui), vai onko se peruutettu. Napsauta {{ui:Päivitä}} riviltä tai {{ui:Päivitä kaikki}}. Jokainen viittaus siirtyy uuden version lohkoon ja säilyttää kohdenumeronsa, määränsä, paikkansa, kulmansa ja tasonsa. {{key:Mod+Z}} kumoaa päivityksen.
 
-## Mainitse käytetyt kohteet
+## Mainitse käyttämäsi
 
-Napsauta {{ui:Kirjaston tekijätiedot}}. Jokainen kohde luetellaan lähdemerkintärivinsä ja lisenssinsä kanssa.
+Napsauta {{ui:Kirjaston tekijätiedot}}-kohtaa. Jokainen kohde luetellaan lähdemerkintärivinsä ja lisenssinsä kanssa.
 
-- {{ui:Kopioi lähdemerkintä}} kopioi yhden kohteen rivin; {{ui:Kopioi kaikki}} kopioi kaikki rivit.
-- {{ui:Lataa CSV}} tallentaa luettelon kohdenumeroineen, valmistajineen, malleineen, lisensseineen ja lähdemerkintöineen. Sen voi avata millä tahansa taulukkolaskentaohjelmalla.
+- {{ui:Kopioi lähdemerkintä}} kopioi yhden kohteen rivin; {{ui:Kopioi kaikki}} kopioi jokaisen rivin.
+- {{ui:Lataa CSV}} tallentaa luettelon kohdenumeroineen, valmistajineen, malleineen, lisensseineen ja lähdemerkintöineen. Sen voi avata millä tahansa taulukkolaskennalla.
 
-Lisenssit, kuten CC BY, edellyttävät tekijän mainitsemista, kun työtä käytetään. Lisää rivit piirustukseen, määrittelyyn tai projektimuistiinpanoihin.
+Lisenssit, kuten CC BY, pyytävät mainitsemaan tekijän siellä, missä teosta käytetään. Laita rivit piirustukseen, määritykseen tai projektin muistiinpanoihin.
 
-## Symbolit ja esineet
+## Symbolit ja resurssit
 
-Kirjastossa on kolme kohdelajia: Symbolit (piirustusmerkinnät, 2D), Tyypit (mistä elementti on tehty) ja Esineet (fyysiset kohteet). {{ui:Kirjasto}}-välilehdessä {{ui:Kohteen laji}} -luettelo näyttää Symbolit ja Esineet yhdessä, vain Symbolit tai vain Esineet. Tyypit ovat sitä, mistä BimCraft-projekti rakennetaan, joten CadCraft ei listaa niitä.
+Kirjastossa on kolmenlaisia kohteita: Symbolit (piirustuskäytännöt, 2D), Tyypit (mistä elementti koostuu) ja Resurssit (fyysiset esineet). {{ui:Kohteen laji}} -luettelo {{ui:Kirjasto}}-välilehdellä näyttää symbolit ja resurssit yhdessä, vain symbolit tai vain resurssit. Tyypit ovat sitä, mistä BimCraft-projekti rakennetaan, joten CadCraft ei luettele niitä.
 
 ## Kirjaudu kirjastoon
 
-Napsauta {{ui:Kirjaudu kirjastoon}}. Sivustolle aukeaa pieni ikkuna. Kun kirjautuminen on tehty, CadCraft voi näyttää tiimisi kohteet ja rekisteröidä sijoittamasi kohteet, jolloin ilmoitus tulee, kun käytetty kohde muuttuu. Kirjautuminen on voimassa tämän selainvälilehden ajan. Peru se milloin tahansa tilisi turvallisuussivulta.
+Napsauta {{ui:Kirjaudu kirjastoon}}-kohtaa. Sivustolle aukeaa pieni ikkuna; kun olet kirjautunut sinne, CadCraft voi näyttää tiimisi kohteet ja kirjata sijoittamasi kohteet, jolloin kuulet, kun käyttämäsi kohde muuttuu. Kirjautuminen on voimassa tässä selainvälilehdessä. Voit peruuttaa sen milloin tahansa tilisi turvasivulta.
+
+## Pidä omat kohteet kohdassa Omat kohteet
+
+{{ui:Omat kohteet}} on yksityinen luettelo kirjastossa, jonka vain sinä näet. Se ei ole julkisessa kirjastossa, ei hakutuloksissa, eikä sitä näytetä tiimillesi, ja se seuraa tiliäsi jokaiseen tietokoneeseen, jossa kirjaudut kirjastoon.
+
+1. Napsauta Kirjasto-paneelissa {{ui:Tiedostot…}} ja lue tiedosto.
+2. Napsauta kohdetta, jonka haluat uudelleen, ja valitse {{ui:Säilytä omissa kohteissa}}.
+3. Myöhemmin napsauta {{ui:Omat kohteet}} ja sitten {{ui:Sijoita}}. Se sijoittuu kuten mikä tahansa kirjastokohde, ja {{ui:Tarkista päivitykset}} kattaa sen.
+4. {{ui:Poista omista kohteista}} poistaa sen luettelosta. Jo piirustuksiin sijoitetut kopiot jäävät paikoilleen.
+
+Sinun täytyy olla kirjautunut kirjastoon. Tiedoston lukeminen ei lähetä mitään; kohteen säilyttäminen lähettää vain sen yhden kohteen tilillesi.
+
+:::note
+Omat kohteet on testauksessa, eikä se ehkä ole vielä auki tilillesi. Jos siinä lukee ”Omat kohteet ei ole vielä käytössä tällä tilillä.”, voit silti sijoittaa omien tiedostojesi kohteita {{ui:Tiedostot…}}-kohdan kautta.
+:::
 
 ## Yleisiä virheitä
 
-- **”Kohteiden tekeminen IFC-tyypeistä tapahtuu BimCraft-sovelluksessa.”** IFC- ja perhetiedostot luetaan BimCraft-sovelluksessa. Tee kohde siellä tai kirjastossa, ja käytä sen `item.json`-tiedostoa tässä.
-- **”Kirjastoon ei saatu yhteyttä.”** Yhteys on offline-tilassa tai kirjasto ei ole käytettävissä. Piirustuksessa jo olevat kohteet eivät vaikutu.
+- **”Kohteiden tekeminen IFC-tyypeistä kuuluu BimCraftiin.”** IFC- ja perhetiedostot luetaan BimCraft-sovelluksessa. Tee kohde siellä tai kirjastossa ja käytä sen `item.json`-tiedostoa täällä.
+- **”Kirjastoon ei saatu yhteyttä.”** Olet offline-tilassa tai kirjasto on alhaalla. Piirustuksessa jo olevat kohteet eivät vaikutu.
 - **Kohde on aivan liian suuri tai pieni.** Piirustuksen yksiköt ovat väärin tai niitä ei ole asetettu. Kumoa, aseta {{ui:Yksiköt}} ja sijoita kohde uudelleen.

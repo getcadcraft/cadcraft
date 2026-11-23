@@ -16,7 +16,7 @@ The few that are not the same, or not built:
 - **TABLE** is not built; {{cmd:XREF}}, {{cmd:SPLINE}} and {{cmd:WBLOCK}} are.
 - A routine's own commands (AutoLISP `C:NAME`) show up after you load it with {{cmd:APPLOAD}}; they are not listed here.
 
-## All commands (398)
+## All commands (402)
 
 | Command | Short names | What it does |
 |---|---|---|
@@ -184,6 +184,7 @@ The few that are not the same, or not built:
 | `GEOMCONSTRAINT` | `GCON` | Geometric constraints: horizontal, vertical, parallel, tangent, coincident… |
 | `GLBOUT` |  | Export the 3D model as GLB (glTF) |
 | `GRADIENT` | `GD` | Fills an area with a gradient of one or two colors |
+| `GRID` |  | Set the grid: the distance between the lines, every Nth line as a major line, ON or OFF, or Auto to follow the zoom again |
 | `GRIDMOVE` | `GM` | Move a grid line and carry what hangs on it: walls stretch, columns, bubbles and tags move, dimensions follow. |
 | `GROUP` | `G` | GROUP (G): give the selected objects a name they share. A click on one of them then selects them all. Enter at the name makes an unnamed group. |
 | `GROUPEDIT` |  | GROUPEDIT: change a group. Pick one of its objects or give its Name, then Add or Remove objects, REName it, change its Description, or say whether a click selects it whole. |
@@ -255,11 +256,13 @@ The few that are not the same, or not built:
 | `NEW` |  | Start a new drawing |
 | `OBJECTSCALE` | `OBJSCALE` | Annotation scales of annotative text and dimensions: add a scale, delete one, add the current scale, or list them (each viewport shows them at the size for its own scale) |
 | `OBJOUT` |  | Export the 3D model as OBJ |
+| `OFFICESTANDARD` | `OFFSTD` | The office standard: text heights on paper, layers, title block fields and templates in one record. Shows the one in force and where it comes from; Import a .json record into this drawing, add the office layers the drawing lacks, list the title block fields. |
 | `OFFSET` | `O` | Parallel copies at a distance |
 | `OFFSETGAPTYPE` |  | OFFSETGAPTYPE: how OFFSET closes the gaps at the outer corners of a polyline. 0 extends the segments, 1 adds an arc, 2 adds a straight cut. Kept for this session. |
 | `OLELIST` | `OLES` | List the OLE objects a drawing carries and put a copy of one's picture where you choose |
 | `OPEN` |  | Open a DWG or DXF from this computer |
 | `OPENIN3D` |  | Open this drawing in the 3D modeling app, in a new tab (nothing is uploaded) |
+| `OPTIONKEYS` | `OPTKEYS` | Give command options letters of your own (ARRAY.PO, P), in one text file |
 | `OSNAP` | `DDOSNAP`, `OSNAPSETTINGS`, `SHORTCUTMENU` | Open the object snap menu: pick which snaps are on. Also a right-click on Snap in the status bar. |
 | `OVERKILL` |  | Delete duplicate objects and merge overlapping or end-to-end lines and arcs, within a tolerance. |
 | `PARAMETERS` | `PAR`, `PARAMETERSMANAGER`, `PARAM` | The Parameters panel: user parameters and dimensional constraints in one table |
@@ -275,6 +278,7 @@ The few that are not the same, or not built:
 | `PDFIMPORT` | `PDFIM` | Turn a PDF page's lines, fills and text into drawing objects (PDFIMPORT) |
 | `PDFLAYERS` |  | Switch the layers of a PDF underlay on or off |
 | `PEDIT` | `PE` | Edit a polyline: close, open, join, width, fit curve, spline curve, decurve, linetype generation, reverse; lines, arcs and splines can be turned into polylines |
+| `PENPRESSURE` |  | Whether a pen stroke's pressure sets the lineweight of what SKETCHFIX and SKETCHLIVE make (on by default). Kept in this browser. |
 | `PHOTOSKETCH` | `PSK` | Turns a photo of a hand sketch on paper into lines and arcs at a scale, straightening the perspective and giving each pen colour its own layer. |
 | `PICKSTYLE` |  | PICKSTYLE: whether selecting one object of a group selects the whole group (1, the start setting) or just that object (0). Kept for this session. |
 | `PLAN` |  | Turn the view so the UCS X axis (Current ucs, a saved Ucs, or the World) is level on screen. Nothing in the drawing moves. |

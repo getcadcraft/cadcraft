@@ -2,7 +2,7 @@
 title: Kas naujo 0.7 (anksčiau)
 summary: PDF pagrindai ir PDF importas, nuskaityti brėžiniai su automatiniu perbraižymu, tikri splainai su SPLINE, SPLINEDIT ir PEDIT, matmenų stilių tvarkytojas, tekstas, kuris išsaugo savo formatavimą, WBLOCK ir jūsų pačių mastelių sąrašai, 3D kietieji kūnai iš kitų programų, skenavimų registravimas, lazerio skydelis, USD eksportas, istorija ir spausdinimas CadCraft Studio, vedama pirmoji braižinio dalis, įrankių juosta bet kurioje pusėje ar mažiau eilučių, ir daugiau DI asistentams.
 keywords: kas naujo 0.7, ankstesnė versija, versijų pastabos, keitimų žurnalas, pakeitimai, 0.7, versija, naujos funkcijos, pdf, pdfattach, pdfimport, pagrindas, skenavimas, scanattach, scantrace, trace, rastras, rastersnap, splainas, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatavimas, wblock, scalelistedit, mastelių sąrašas, acis, 3D kietieji kūnai, registerscans, skenavimų registravimas, icp, e57, las, lazeris, grbl, g-code, usd, usdout, istorija, versijos, palyginti, spausdinti, spausdintuvas, png, svg, spausdinimo stilius, linijos tipas, apžvalga, greitasis žinynas, komandų žemėlapis, įrankių juostos padėtis, įrankių juostos eilutės, toolbardock, regen, regenall, jutiklinė plokštė, perbraukimas, kodų puslapis, kirilica, korėjiečių, kinų, japonų, elektra, rcd, p&id, pid, acad.lsp, acaddoc.lsp, palaikymo aplankas, asistentai, mcp, vienetai, portugalų
-from: d07ca034
+from: d9a8ea79
 ---
 
 Tai, kas pasikeitė CadCraft 0.7 versijoje, palyginti su 0.6. Didelė dalis to buvo prašyta Discord. Sąrašas sugrupuotas pagal sritis, svarbiausi – pirmiausia.

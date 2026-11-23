@@ -1,110 +1,112 @@
 ---
 title: CadCraft iestatījumi
-summary: Iestatījumi, kas pieder zīmēšanas lietotnei: kursora izmērs, kur no kursora karājas ielīmētā kopija, ko klikšķis dara ar atlasi, cik rindas izmanto rīkjosla, kur atrodas komandrinda un cik tā ir augsta, kompakta augšējā josla un stūra indikators.
-keywords: komandrinda, peldoša komandrinda, peldēt, piestiprināt, viena rinda, f2, komandu vēsture, commandline, cmdline, toparea, augšējā josla, kompakts, cursorsize, pilnekrāna krustiņš, pilnekrāna kursors, malu līdz malai, rīkjoslas rindas, rīkjoslas attēlojums, ctrl f1, iestatījumi, izvēles, opcijas, stūra indikators, skata kubs, ass ikona, ucs ikona, kursors, krustiņš, izvēles kvadrāts, ielīmēšanas punkts, bāzes punkts, klikšķināšana uz objektiem, atlase, pickadd, shift, atiestatīt
-from: 0896eb42
+summary: Iestatījumi, kas pieder zīmēšanas lietotnei: kursora izmērs, no kurienes kursorā karājas ielīmēta kopija, ko klikšķis dara ar atlasi, cik rindas izmanto rīkjosla, kur atrodas komandrinda un cik augsta tā ir, kompakta augšējā josla un stūra indikators.
+keywords: komandrinda, peldoša komandrinda, peldēt, piestiprināt, viena rinda, f2, komandu vēsture, commandline, cmdline, toparea, augšējā josla, kompakts, cursorsize, pilnekrāna krusts, pilnekrāna kursors, mala līdz malai, rīkjoslas rindas, rīkjoslas rādījums, ctrl f1, iestatījumi, preferences, opcijas, stūra indikators, skata kubs, ass ikona, ucs ikona, kursors, krusts, izvēles kaste, ielīmēšanas punkts, bāzes punkts, objektu klikšķināšana, atlase, pickadd, shift, atiestatīt
+from: ae1a81db
 ---
 
-Atveriet {{ui:Iestatījumi}} ar zobratu lietotnes joslā vai ar {{key:Mod+,}}. Pirmajā cilnē, {{ui:CadCraft}}, ir šai lietotnei piederošie iestatījumi; {{ui:Vispārīgi}} satur tos, ko dala visas saimes lietotnes (tēma, paneļa teksta izmērs un platumi, rīkjoslas izskats un kārtība). CadCraft iestatījumi pastāv tikai lietotnē: tos mainiet šeit, un šī pārlūkprogramma tos atceras. {{ui:Atiestatīt CadCraft iestatījumus}} atjauno katru no tiem sākotnējā stāvoklī.
+Atveriet {{ui:Iestatījumi}} ar zobrata ikonu lietotņu joslā vai ar {{key:Mod+,}}. Pirmajā cilnē {{ui:CadCraft}} ir iestatījumi, kas pieder šai lietotnei; {{ui:Vispārīgi}} satur tos, ko kopīgi izmanto visas saimes lietotnes (motīvs, paneļa teksta izmērs un platumi, rīkjoslas izskats un secība). CadCraft iestatījumi pastāv tikai lietotnē: mainiet tos šeit, un šī pārlūkprogramma tos atceras. {{ui:Atiestatīt CadCraft iestatījumus}} atgriež katru no tiem sākuma stāvoklī.
 
 ## Kursors
 
-**Mazs**, **Vidējs** (sākuma), **Liels** vai **Pilnekrāns**: krustiņa un izvēles kvadrāta izmērs zīmējumā. Lielāks izvēles kvadrāts paņem objektus arī no nedaudz tālāk, kas palīdz uz skārienekrāna vai ļoti smalka zīmējuma.
+**Mazs**, **Vidējs** (sākuma iestatījums), **Liels** vai **Pilnekrāns**: krusta un izvēles kastes izmērs rasējumā. Lielāka izvēles kaste izvēlas objektus arī no nedaudz lielāka attāluma, kas palīdz skārienekrānā vai ļoti smalkā rasējumā.
 
-**Pilnekrāns** liek krustiņa divām līnijām iet no malas līdz malai pāri zīmējumam arī tad, kad nedarbojas neviena komanda, lai varētu ar aci pārbaudīt, vai divas lietas sakrīt pāri visam skatam. Ja skats ir sadalīts, līnijas paliek tajā rūtī, ar kuru strādājat. Tas ir tas pats, kas AutoCAD {{cmd:CURSORSIZE}} 100: ierakstiet {{cmd:CURSORSIZE}} un 100 pilnekrānam; mazāks skaitlis izvēlas tuvāko izmēru (zem 5 Mazs, 5 līdz 9 Vidējs, 10 līdz 99 Liels).
+**Pilnekrāns** izvelk krusta divas līnijas no malas līdz malai pa visu rasējumu, arī tad, kad neviena komanda nedarbojas, lai jūs varētu ar aci pārbaudīt, vai divas lietas sakrīt pa visu skatu. Ja skats ir sadalīts, līnijas paliek tajā logā, kurā strādājat. Tas pats, kas AutoCAD {{cmd:CURSORSIZE}} 100: ierakstiet {{cmd:CURSORSIZE}} un 100 pilnekrānam; mazāks skaitlis izvēlas tuvāko izmēru (zem 5 — Mazs, no 5 līdz 9 — Vidējs, no 10 līdz 99 — Liels).
 
 ## Ielīmēšanas punkts
 
-Kur ielīmētā kopija karājas no kursora pēc {{key:Mod+V}} ({{cmd:PASTECLIP}}), līdz noklikšķināsiet:
+Vieta, kur ielīmēta kopija karājas no kursora pēc {{key:Mod+V}} ({{cmd:PASTECLIP}}), līdz noklikšķināt:
 
-- **Apakšējais kreisais stūris** (sākuma): kopēto objektu robežas apakšējais kreisais stūris, kā AutoCAD.
-- **Centrs**: robežas viduspunkts. Noderīgi simbola novietošanai ar aci.
+- **Apakšējais kreisais stūris** (sākuma iestatījums): kopēto objektu apakšējais kreisais stūris, kā AutoCAD.
+- **Centrs**: viduspunkts to robežām. Noderīgi simbolam, ko novietojat ar aci.
 
-Kopija, kas izveidota ar `COPYBASE`, vienmēr karājas no bāzes punkta, ko izvēlējāties. {{ui:Ielīmēt vietā}} ({{key:Mod+Shift+V}}) ignorē šo iestatījumu: tā saglabā oriģinālās koordinātes. Skatiet [Kopēšana, ielīmēšana un dublēšana](topic:copy-paste).
+Kopija, kas izveidota ar `COPYBASE`, vienmēr karājas no bāzes punkta, ko izvēlējāties. {{ui:Ielīmēt vietā}} ({{key:Mod+Shift+V}}) ignorē šo iestatījumu: tā saglabā sākotnējās koordinātas. Skatiet [Kopēt, ielīmēt un dublēt](topic:copy-paste).
 
-## Klikšķināšana uz objektiem
+## Objektu klikšķināšana
 
-Ko klikšķis zīmējumā dara ar atlasi, kad nedarbojas neviena komanda:
+Ko klikšķis rasējumā dara ar atlasi, kad nedarbojas neviena komanda:
 
-- **Pievieno atlasei** (sākuma): katrs klikšķis vai logs pievieno objektus; {{key:Shift}}+klikšķis vai {{key:Shift}}+logs tos izņem.
-- **Aizstāj atlasi**: klikšķis vai logs atlasa tikai to, ko tas paņem. {{key:Shift}}+klikšķis pievieno objektu vai izņem to, kas jau ir atlasīts; {{key:Shift}}+logs pievieno.
+- **Pievieno atlasei** (sākuma iestatījums): katrs klikšķis vai logs pievieno objektus; {{key:Shift}}+klikšķis vai {{key:Shift}}+logs tos izņem.
+- **Aizstāj atlasi**: klikšķis vai logs atlasa tikai to, ko tas izvēlas. {{key:Shift}}+klikšķis pievieno objektu vai izņem vienu, kas jau ir atlasīts; {{key:Shift}}+logs pievieno.
 
-Pie `Select objects:` uzvednes komandas iekšienē klikšķi vienmēr pievieno (un {{key:Shift}} izņem), neatkarīgi no šī iestatījuma. Skatiet [Objektu atlase](topic:select-objects).
+Uzvednē `Atlasiet objektus:` komandas iekšienē klikšķi vienmēr pievieno (un {{key:Shift}} noņem), neatkarīgi no šī iestatījuma. Skatiet [Atlasīt objektus](topic:select-objects).
 
 ## Klikšķis tukšā vietā
 
-Ko klikšķis vietā, kur nav objekta, kad nedarbojas neviena komanda. Abos gadījumos tas sāk atlases logu (otrais klikšķis to pabeidz).
+Ko klikšķis vietā, kur nav objekta, dara, kad neviena komanda nedarbojas. Jebkurā gadījumā tas sāk atlases logu (otrs klikšķis to pabeidz).
 
-- **Notīra atlasi** (sākuma): atlasītais tiek atlaists. Turiet {{key:Shift}}, klikšķinot, lai to paturētu.
-- **Atstāj atlasi**: atlase paliek, kā citās zīmēšanas programmās; logs tai pievienojas. Nospiediet {{key:Esc}}, lai notīrītu atlasi.
+- **Notīra atlasi** (sākuma iestatījums): tas, kas bija atlasīts, tiek atlaists. Turiet {{key:Shift}}, klikšķinot, lai to paturētu.
+- **Paglabā atlasi**: atlase paliek, kā citās zīmēšanas programmās; logs tai pievieno. Nospiediet {{key:Esc}}, lai notīrītu atlasi.
 
-## Velkot, lai atlasītu
+## Vilkšana atlasei
 
-Ko dara nospiešana un velkšana tukšā vietā:
+Ko dara nospiešana un vilkšana tukšā vietā:
 
-- **Lasso** (sākuma): brīvroku kontūra. Ja pirmā kustība ir pa labi, atlasa to, kas ir pilnībā iekšā; ja pa kreisi, to, kam tas pieskaras; {{key:Space}} velkot pārslēdz starp logu, krustojumu un žogu.
-- **Taisnstūris**: rāmis, kā to zīmē klikšķis un otrais klikšķis.
+- **Lasso** (sākuma iestatījums): brīvroku kontūra. Ja vispirms velkat pa labi, tiek atlasīts viss, kas ir tās iekšpusē; ja pa kreisi — viss, ko tā skar. {{key:Space}} vilkšanas laikā pārslēdz starp logu, krustojumu un žogu.
+- **Taisnstūris**: kaste, ko zīmē klikšķis un otrs klikšķis.
 
-{{cmd:LASSOMODE}} `1` vai `0` iestata to pašu. Skatiet [Laso atlase](topic:lasso-selection).
+{{cmd:LASSOMODE}} `1` vai `0` iestata to pašu. Skatiet [Lasso atlase](topic:lasso-selection).
 
-## Velkot, lai apgrieztu un pagarinātu
+## Vilkšana apgriešanai un pagarināšanai
 
-Ko nospiešana tukšā vietā un velkšana dara {{cmd:TRIM}} un {{cmd:EXTEND}}:
+Ko dara nospiešana uz tukšas vietas un vilkšana {{cmd:TRIM}} un {{cmd:EXTEND}} komandās:
 
-- **Ceļš** (sākuma): brīvroku ceļš; katrs gabals, ko tas šķērso, tiek apgriezts (vai pagarināts).
-- **Logs**: rāmis; katrs gabals, kam tas pieskaras, tiek apgriezts, kā to dara `C` opcija.
+- **Ceļš** (sākuma iestatījums): brīvroku ceļš; katrs gabals, ko tas krusto, tiek apgriezts (vai pagarināts).
+- **Logs**: kaste; katrs gabals, ko tā skar, tiek apgriezts, tāpat kā dara opcija `C`.
 
-Skatiet [Apgriešana un pagarināšana](topic:trim-and-extend).
+Skatiet [Apgriezt un pagarināt](topic:trim-and-extend).
 
 ## Rīkjoslas novietojums
 
-{{ui:CadCraft}} › {{ui:Rīkjoslas novietojums}}: **Augšā** (sākuma, kā tas vienmēr ir bijis), **Apakšā**, **Pa kreisi** vai **Pa labi**. Kreisajā vai labajā pusē rīku grupas sakrājas kolonnā, kas ritina, ja tā ir augstāka par logu, un pogas ietinas divās vai trīs rindās. Izvēle tiek saglabāta kopā ar jūsu iestatījumiem, un {{cmd:TOOLBARDOCK}} (`TBDOCK`) to iestata no komandrindas. {{ui:Vispārīgi}} › {{ui:Atiestatīt izkārtojumu}} novieto rīkjoslu augšā.
+{{ui:CadCraft}} › {{ui:Rīkjoslas novietojums}}: **Augšā** (sākuma iestatījums, kā vienmēr bijis), **Apakšā**, **Pa kreisi** vai **Pa labi**. Kreisajā vai labajā pusē rīku grupas tiek sakrautas kolonnā, kas ritina, ja tā ir augstāka par logu, un pogas ietinas pa divām vai trim rindā. Izvēle tiek saglabāta kopā ar jūsu iestatījumiem, un {{cmd:TOOLBARDOCK}} (`TBDOCK`) to iestata no komandrindas. {{ui:Vispārīgi}} › {{ui:Atiestatīt izkārtojumu}} novieto rīkjoslu atpakaļ augšā.
 
-Izvēlņu stilu joslas atrodas rīkjoslas iekšienē un pārvietojas kopā ar to, bet stils {{ui:Lente}} ir veidots, lai stiepjas pāri augšai vai apakšai: sānos tas iegūst šauru kolonnu, kas ritina. Telefonā rīkjosla paliek tur, kur to novieto tālruņa izkārtojums.
+Izvēlņu stilu joslas atrodas rīkjoslā un pārvietojas kopā ar to, bet stils {{ui:Lente}} ir paredzēts stiepties augšā vai apakšā: sānos tam ir šaura kolonna, kas ritina. Tālrunī rīkjosla paliek tur, kur to novieto tālruņa izkārtojums.
 
 ## Rīkjoslas rindas
 
-Cik rindu rīki aizņem virs zīmējuma, CadCraft rīkjoslā un stilos {{ui:Klasiskais zīmēšanas stils}} un {{ui:Lente}}:
+Cik rindu rīki izmanto virs rasējuma, CadCraft rīkjoslā un stilos {{ui:Klasiskais zīmēšanas stils}} un {{ui:Lente}}:
 
-- **Ietīt, lai ietilptu** (sākuma): rīki ietinas loga platumā.
-- **2 rindas**: ne vairāk kā divas rindas. Ja rīki šajā platumā ietinas divās rindās vai mazāk, tie vienkārši ietinas; citādi tie stāv divās rindās, kas ritina sānis.
-- **1 rinda**: viena rinda, kas ritina sānis, kas atstāj zīmējumam visvairāk vietas.
+- **Ietīt, lai ietilptu** (sākuma iestatījums): rīki ietinas loga platumā.
+- **2 rindas**: ne vairāk kā divas rindas. Ja rīki šajā platumā ietinas divās rindās vai mazāk, tie vienkārši ietinas; citādi tie stāv divās rindās, kas ritina sāniski.
+- **1 rinda**: viena rinda, kas ritina sāniski, kas atstāj rasējumam vislielāko vietu.
 
-{{key:Shift+Ctrl+F1}} pārslēdz starp trim, un {{cmd:TOOLBARROWS}} iestata vienu. Ko pogas rāda (ikonas un tekstu, tikai ikonas vai tikai tekstu), to nosaka {{ui:Vispārīgi}} › {{ui:Rīkjosla}} iestatījums; {{key:Ctrl+F1}} pārslēdz to, un {{cmd:TOOLBAR}} iestata.
+{{key:Shift+Ctrl+F1}} pārslēdz starp trim, un {{cmd:TOOLBARROWS}} iestata vienu. Ko rāda pogas (ikonas un tekstu, tikai ikonas vai tikai tekstu), iestata {{ui:Vispārīgi}} › {{ui:Rīkjosla}}; {{key:Ctrl+F1}} pārslēdz to, un {{cmd:TOOLBAR}} to iestata.
 
 ## Komandrinda
 
-Komandrinda var palikt piestiprināta zem zīmējuma, kā vienmēr, vai peldēt pāri tam, un tā var būt tik plāna kā viena rinda.
+Komandrinda var palikt piestiprināta zem rasējuma, kā vienmēr, vai peldēt pāri tam, un tā var būt tik plāna kā viena rinda.
 
-- **Padariet to peldošu.** Velciet tās kreisā gala rokturi zīmējumā, vai izvēlieties {{ui:Peldēt pāri rasējumam}} tās {{ui:Komandrindas opcijas}} izvēlnē (trīs punkti labajā galā). Velciet rokturi vēlreiz, lai to pārvietotu; tās vieta tiek saglabāta, kad logs maina izmēru. Velciet tās labo malu, lai padarītu platāku vai šaurāku. Nometiet to uz statusa joslas vai izvēlieties {{ui:Piestiprināt apakšā}}, lai atkal piestiprinātu.
-- **Padariet to plānāku vai augstāku.** Velciet tās augšējo malu: katrs solis ir viena vēstures rinda. Līdz nullei tā ir **vienrindas komandrinda**: tikai uzvedne un tas, ko ierakstāt, un jauns ziņojums uz brīdi parādās virs tās. Dubultklikšķis uz augšējās malas pārslēdz starp vienu rindu un augstumu, kāds jums bija.
-- **Vēsture.** {{key:F2}} vai pulksteņa poga komandrindā ({{ui:Komandu vēsture (F2)}}) atver visu vēsturi virs līnijas (zem tās, ja līnija peld tuvu loga augšai). Rakstīšana joprojām iet uz komandrindu; {{key:PageUp}} un {{key:PageDown}} ritina vēsturi, un {{key:Esc}}, {{key:F2}} vai klikšķis citur to aizver. Taustiņš, ko esat piešķīris F2, to uzvar.
-- **No tastatūras.** Rokturis ir poga: kad tas ir fokusēts, bultiņu taustiņi pārvieto peldošu komandrindu (ar {{key:Shift}} lielākos soļos); {{key:Up}} padara piestiprinātu peldošu, un {{key:Down}} pie apakšējās malas to piestiprina. Augšējā mala ir atdalītājs: {{key:Up}} un {{key:Down}} pievieno vai atņem rindu, {{key:Home}} padara to vienrindas, {{key:End}} — visaugstāko. Ekrāna lasītāji joprojām dzird katru ziņojumu, arī vienrindas komandrindā.
+- **Padariet to peldošu.** Velciet rokturi tās kreisajā galā rasējuma virzienā vai izvēlieties {{ui:Peldēt pāri rasējumam}} tās izvēlnē {{ui:Komandrindas opcijas}} (trīs punkti labajā galā). Velciet rokturi vēlreiz, lai to pārvietotu; tā vieta tiek saglabāta, kad mainās loga izmērs. Velciet tās labo malu, lai to padarītu platāku vai šaurāku. Nometiet to statusa joslā vai izvēlieties {{ui:Piestiprināt apakšā}}, lai to atkal piestiprinātu.
+- **Padariet to plānāku vai augstāku.** Velciet tās augšējo malu: katrs solis ir viena vēstures rinda. Līdz nullei rindu tā ir **vienrindas komandrinda**: tikai uzvedne un tas, ko ierakstāt, un jauns ziņojums uz brīdi parādās virs tās. Dubultklikšķis uz augšējās malas pārslēdz starp vienu rindu un augstumu, kāds jums bija.
+- **Vēsture.** {{key:F2}} vai pulksteņa poga komandrindā ({{ui:Komandu vēsture (F2)}}) atver visu vēsturi virs rindas (zem tās, kad peldošā rinda atrodas loga augšdaļā). Rakstīšana joprojām iet uz komandrindu; {{key:PageUp}} un {{key:PageDown}} ritina vēsturi, un {{key:Esc}}, {{key:F2}} vai klikšķis citur to aizver. Jūsu pašu taustiņš uz F2 uzvar šo.
+- **No tastatūras.** Rokturis ir poga: kad tas ir fokusēts, bultiņas pārvieto peldošu komandrindu (ar {{key:Shift}} lielākos soļos); {{key:Up}} padara piestiprinātu peldošu, un {{key:Down}} pie apakšējās malas to piestiprina. Augšējā mala ir atdalītājs: {{key:Up}} un {{key:Down}} pievieno vai atņem rindu, {{key:Home}} padara to vienrindas, {{key:End}} — visaugstāko. Ekrāna lasītāji joprojām dzird katru ziņojumu, arī vienrindas komandrindā.
 
-{{ui:CadCraft}} › {{ui:Komandrinda}} ir tās pašas izvēles: {{ui:Piestiprināta apakšā}} vai {{ui:Peldoša}}, {{ui:Rādāmās vēstures rindas}} (0 līdz 12) un {{ui:Standarta augstums}}. {{cmd:COMMANDLINE}} (`CMDLINE`) tās iestata no komandrindas. Vieta un augstums tiek saglabāti CadCraft šajā pārlūkprogrammā kopā ar pārējo izkārtojumu, tāpēc saglabāta darba vide tos ietver; {{ui:Vispārīgi}} › {{ui:Atiestatīt izkārtojumu}} piestiprina komandrindu atkal pie standarta augstuma. Telefonā komandrinda paliek piestiprināta ar vienu vēstures rindu; vēstures poga strādā arī tur.
+{{ui:CadCraft}} › {{ui:Komandrinda}} ir tādas pašas izvēles: {{ui:Piestiprināta apakšā}} vai {{ui:Peldoša}}, {{ui:Rādāmās vēstures rindas}} (no 0 līdz 12) un {{ui:Standarta augstums}}. {{cmd:COMMANDLINE}} (`CMDLINE`) tos iestata no komandrindas. Vieta un augstums tiek saglabāti CadCraft šajā pārlūkprogrammā kopā ar pārējo izkārtojumu, tāpēc saglabāta darba vide tos nes līdzi; {{ui:Vispārīgi}} › {{ui:Atiestatīt izkārtojumu}} piestiprina komandrindu atkal pie tās standarta augstuma. Tālrunī komandrinda paliek piestiprināta ar vienu vēstures rindu; arī vēstures poga tur darbojas.
 
-Ja logs ir īss un izkārtojuma pārbaude piedāvā blīvāku izkārtojumu, tās {{ui:Jā}} arī pārslēdz komandrindu uz vienu rindu, ja zīmējums pēc rīkjoslām joprojām ir īss.
+{{ui:CadCraft}} › {{ui:Opciju burti}} glabā burtus, ko izvēlējāties komandu opcijām: {{ui:Rediģēt…}} atver failu, {{ui:Importēt…}} to aizstāj ar izvēlētu failu, un {{ui:Eksportēt}} to saglabā. Skatiet [Piešķiriet komandu opcijām savus burtus](topic:option-letters).
+
+Kad logs ir īss un izkārtojuma pārbaude piedāvā kompaktāku izkārtojumu, tās {{ui:Jā}} arī pārslēdz komandrindu uz vienu rindu, ja rasējums pēc rīkjoslām joprojām ir īss.
 
 ## Augšējā josla
 
-{{ui:CadCraft}} › {{ui:Augšējā josla}}: **Standarta** (sākuma) vai **Kompakta**. Kompakta padara joslas virs zīmējuma mazas visos izvēlņu stilos: grupu nosaukumi un vārdi zem ikonām pazūd (rīku padomi un ekrāna lasītāji tos joprojām saņem), un pogas ir blīvākas. Tā darbojas kopā ar [Rīkjoslas rindas](topic:settings#toolbar-rows): Kompakta un **1 rinda** atstāj zīmējumam visvairāk vietas. {{cmd:TOPAREA}} to iestata.
+{{ui:CadCraft}} › {{ui:Augšējā josla}}: **Standarta** (sākuma iestatījums) vai **Kompakta**. Kompakta padara joslas virs rasējuma mazas katrā izvēlņu stilā: grupu nosaukumi un vārdi zem ikonām pazūd (rīka padomi un ekrāna lasītāji tos joprojām saņem), un pogas ir blīvākas. Tā darbojas kopā ar [Rīkjoslas rindas](topic:settings#toolbar-rows): Kompakta un **1 rinda** atstāj rasējumam vislielāko vietu. {{cmd:TOPAREA}} to iestata.
 
 ## Stūra indikators
 
-Kas atrodas zīmējuma stūrī:
+Kas atrodas rasējuma stūrī:
 
-- **Automātiski** (sākuma): ass ikona {{ui:Modelis}} cilnē un skata kubs {{ui:3D}} cilnē.
-- **Ass ikona**: X un Y marķieris apakšējā kreisajā stūrī {{ui:Modelis}} cilnē un mazs X, Y un Z marķieris {{ui:3D}} cilnē.
-- **Skata kubs**: kubs augšējā labajā stūrī abās cilnēs. {{ui:Modelis}} cilnē tas rāda zīmējumu no augšas, un, noklikšķinot uz citas sejas, malas vai stūra, atveras {{ui:3D}} cilne, kas skatās no turienes. {{ui:3D}} cilnē tas griežas kopā ar skatu: noklikšķiniet, lai skatītos no malas, velciet, lai orbitētu, un mājas poga atgriež izometrisko skatu. Skatiet [Modelis 3D](topic:3d-solids).
+- **Automātiski** (sākuma iestatījums): ass ikona cilnē {{ui:Modelis}} un skata kubs cilnē {{ui:3D}}.
+- **Ass ikona**: X un Y marķieris apakšējā kreisajā stūrī cilnē {{ui:Modelis}}, un neliels X, Y un Z marķieris cilnē {{ui:3D}}.
+- **Skata kubs**: kubs augšējā labajā stūrī abās cilnēs. Cilnē {{ui:Modelis}} tas rāda rasējumu no augšas, un noklikšķinot uz citas sejas, malas vai stūra, atveras cilne {{ui:3D}}, kas skatās no turienes. Cilnē 3D tas pagriežas kopā ar skatu: noklikšķiniet, lai skatītos no sāniem, velciet, lai riņķotu, un māja atgriežas izometriskajā skatā. Skatiet [Modelis 3D](topic:3d-solids).
 - **Nav**: nekas stūrī.
 
 Lapas nerāda nevienu no tiem.
 
 ## Atlases garums un laukums
 
-- **Statusa joslā** (sākuma): kad objekti ir atlasīti, statusa josla rāda to kopējo garumu un slēgto objektu kopējo laukumu. Skatiet [Atlases kopsummas](topic:properties-panel#totals-of-a-selection).
-- **Paslēpts**: statusa josla tos izlaiž. Rekvizīti joprojām tos rāda vairākiem objektiem.
+- **Statusa joslā** (sākuma iestatījums): kad objekti ir atlasīti, statusa joslā tiek rādīts to kopējais garums un slēgto objektu kopējais laukums. Skatiet [Atlases kopsummas](topic:properties-panel#totals-of-a-selection).
+- **Paslēpts**: statusa josla tos neietver. Rekvizīti joprojām tos rāda vairākiem objektiem.
 
-## Režģis, ortogonāli un piesaistes
+## Režģis, ortogonālais režīms un piesaistes
 
-Tās nav dialogā: pogas {{ui:Režģis}}, {{ui:Ortogonāli}} un {{ui:Piesaiste}} statusa joslā (vai {{key:F7}}, {{key:F8}}, {{key:F3}}) un objektu piesaistes saraksts blakus tām tiek atcerēti, kad tos atstājat. Skatiet [Piesaiste objektu punktiem](topic:object-snaps).
+Tie nav dialogā: pogas {{ui:Režģis}}, {{ui:Ortogonāli}} un {{ui:Piesaiste}} statusa joslā (vai {{key:F7}}, {{key:F8}}, {{key:F3}}) un objektu piesaistes saraksts blakus tām tiek atcerēti, kad tos atstājat. Skatiet [Piesaiste punktiem uz objektiem](topic:object-snaps).

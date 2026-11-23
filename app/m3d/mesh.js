@@ -752,6 +752,21 @@ export class Mesh {
    */
   toJSON({ raw = false } = {}) {
     const b64 = raw ? rawB64 : b64Text;
+    const fast = this._compactArrays();   // 0.11 PERF.7: a mesh in file order is copied column by column (the same JSON)
+    if (fast) {
+      const { nv, nf, p, fc, fi, fm, ff, vf, hf } = fast, np = this.paints.length;
+      let anyFm = false, anyFf = false, anyVf = false, anyHf = false;
+      for (let i = 0; i < nf; i++) { if (fm[i] >= np) fm[i] = -1; if (fm[i] >= 0) anyFm = true; if (ff[i]) anyFf = true; }
+      for (let i = 0; i < nv && !anyVf; i++) if (vf[i]) anyVf = true;
+      for (let i = 0; i < hf.length && !anyHf; i++) if (hf[i]) anyHf = true;
+      const attrs = fast.attrs.map((L) => ({ name: L.name, domain: L.domain, size: L.size, type: L.type, data: b64(L.data) }));
+      return {
+        format: MESH_FORMAT, nv, nf, p: b64(p), fc: b64(fc), fi: b64(fi),
+        ...(anyFm ? { fm: b64(fm), paints: this.paints.slice() } : {}),
+        ...(anyFf ? { ff: b64(ff) } : {}), ...(anyVf ? { vf: b64(vf) } : {}), ...(anyHf ? { hf: b64(hf) } : {}),
+        ...(attrs.length ? { attrs } : {}),
+      };
+    }
     const vmap = new Int32Array(this.nv).fill(-1);
     let nv = 0;
     for (let v = 0; v < this.nv; v++) if (!this.vertDead(v)) vmap[v] = nv++;
@@ -800,6 +815,8 @@ export class Mesh {
    * size, type, data}]} (fm/ff/vf/hf always there).
    */
   toArrays() {
+    const fast = this._compactArrays();
+    if (fast) return fast;
     const vmap = new Int32Array(this.nv).fill(-1);
     let nv = 0;
     for (let v = 0; v < this.nv; v++) if (!this.vertDead(v)) vmap[v] = nv++;
@@ -826,6 +843,38 @@ export class Mesh {
       attrs.push({ name: L.name, domain: L.domain, size: s, type: L.type, data: out });
     }
     return { nv, nf: faces.length, p, fc, fi, fm, ff, vf, hf, paints: this.paints.slice(), attrs };
+  }
+  /**
+   * 0.11 PERF.7: toArrays for a mesh whose slots are already in file order — nothing dead, each face's corners one run of
+   * half-edges starting at fHe[f], the faces one after another (a mesh just built by _bulk: every import, every opened file).
+   * Its arrays are then the columns themselves, copied in one go instead of walked a corner at a time. The same result as the
+   * walk; null when the mesh is not like that.
+   */
+  _compactArrays() {
+    const nv = this.nv, nf = this.nf, nh = this.nh, fHe = this.fHe, nx = this.hNx, fFl = this.fFl, hFl = this.hFl, vFl = this.vFl;
+    for (let v = 0; v < nv; v++) if (vFl[v] & FL_DEAD) return null;
+    const fc = new Int32Array(nf);
+    let off = 0;
+    for (let f = 0; f < nf; f++) {
+      if (fFl[f] & FL_DEAD || fHe[f] !== off) return null;
+      let h = off;
+      while (nx[h] === h + 1 && h + 1 < nh) h++;
+      if (nx[h] !== off) return null;
+      fc[f] = h - off + 1;
+      off = h + 1;
+    }
+    if (off !== nh) return null;
+    for (let h = 0; h < nh; h++) if (hFl[h] & FL_DEAD) return null;
+    const vf = new Uint8Array(nv), ff = new Uint8Array(nf), hf = new Uint8Array(nh);
+    for (let v = 0; v < nv; v++) vf[v] = vFl[v] & FL_HIDE;
+    for (let f = 0; f < nf; f++) ff[f] = fFl[f] & FL_HIDE;
+    for (let h = 0; h < nh; h++) hf[h] = hFl[h] & (FL_SHARP | FL_SEAM);
+    const attrs = [];
+    for (const L of this.attrs.values()) {
+      const n = (L.domain === 'vertex' ? nv : L.domain === 'face' ? nf : nh) * L.size;
+      attrs.push({ name: L.name, domain: L.domain, size: L.size, type: L.type, data: L.col.a.slice(0, n) });
+    }
+    return { nv, nf, p: this.P.slice(0, nv * 3), fc, fi: this.hV.slice(0, nh), fm: this.fMat.slice(0, nf), ff, vf, hf, paints: this.paints.slice(), attrs };
   }
   /** A mesh from toArrays()'s shape (trusted: our own, e.g. back from a worker). */
   static fromArrays(a) {
@@ -881,6 +930,126 @@ export class Mesh {
   }
   /** A copy with its own uid and no history. */
   clone() { return Mesh.fromArrays(this.toArrays()); }
+
+  /**
+   * 0.11 PERF.7: the mesh's own columns as they are (slots, dead ones and spare capacity included), for a worker to hand a
+   * mesh it built to the page without copying: every array's buffer can be transferred (the mesh is unusable after). No
+   * history. → {nv, nh, nf, cap, cols: [typed array per base column], attrs: [{name, domain, size, type, a}], paints}
+   */
+  toState() {
+    if (this._rec) throw new MeshError('busy');
+    return {
+      nv: this.nv, nh: this.nh, nf: this.nf, cap: { ...this.cap }, cols: this.cols.slice(0, BASE.length).map((c) => c.a),
+      attrs: [...this.attrs.values()].map((L) => ({ name: L.name, domain: L.domain, size: L.size, type: L.type, a: L.col.a })),
+      paints: this.paints.slice(),
+    };
+  }
+  /** 0.11 PERF.24: toState() as copies cut to the slots in use (the mesh keeps its own): what an autosave writes once for a mesh. */
+  slotCopy() {
+    const per = (c) => (c.dom === 'v' ? this.nv : c.dom === 'h' ? this.nh : this.nf) * c.per;
+    return {
+      nv: this.nv, nh: this.nh, nf: this.nf, cap: { v: this.nv, h: this.nh, f: this.nf }, cols: this.cols.slice(0, BASE.length).map((c) => c.a.slice(0, per(c))),
+      attrs: [...this.attrs.values()].map((L) => ({ name: L.name, domain: L.domain, size: L.size, type: L.type, a: L.col.a.slice(0, per(L.col)) })),
+      paints: this.paints.slice(),
+    };
+  }
+  /**
+   * 0.11 PERF.24: a number for the slots a file copy of this mesh reads back into: the counts, each corner's vertex and next corner,
+   * each face's first corner and the flags a file keeps. Two meshes with the same number take the same edits slot for slot (the
+   * autosave compares the live mesh with what its first copy reads back as, and then writes only edits).
+   */
+  slotHash() {
+    let h = 0x811c9dc5 ^ this.nv;
+    const mix = (x) => { h = Math.imul(h ^ x, 0x01000193); };
+    mix(this.nh); mix(this.nf);
+    const hV = this.hV, nx = this.hNx, fl = this.hFl, fHe = this.fHe, ff = this.fFl, vf = this.vFl;
+    for (let i = 0; i < this.nh; i++) { mix(hV[i]); mix(nx[i]); mix(fl[i] & (FL_DEAD | FL_SHARP | FL_SEAM)); }
+    for (let i = 0; i < this.nf; i++) { mix(fHe[i]); mix(ff[i] & (FL_DEAD | FL_HIDE)); }
+    for (let i = 0; i < this.nv; i++) mix(vf[i] & (FL_DEAD | FL_HIDE));
+    return (h >>> 0).toString(36) + '.' + this.nv + '.' + this.nh + '.' + this.nf;
+  }
+  /**
+   * 0.11 PERF.24: the edits that take this mesh from its state `from` back to its current state, as plain data a copy can replay
+   * (applySteps) on a mesh with the same slots: undo steps up to where the two states' histories meet, then redo steps down.
+   * Layers are named, not numbered (a copy numbers its own). null when that cannot be written that way: the state was let go,
+   * an edit is open, or a step on the way adds or removes a layer (the caller then writes the mesh whole).
+   */
+  pathSteps(from) {
+    if (this._rec || !this._states.has(from)) return null;
+    if (from === this.v) return [];
+    const up = new Set();
+    for (let x = this.v; x >= 0; x = this._states.get(x)?.p ?? -1) up.add(x);
+    const back = [];
+    let x = from;
+    while (!up.has(x)) { back.push(x); x = this._states.get(x)?.p ?? -1; if (x < 0) return null; }
+    const down = [];
+    for (let y = this.v; y !== x; y = this._states.get(y).p) down.push(y);
+    down.reverse();
+    const names = new Map();
+    for (const L of this.attrs.values()) names.set(L.col.id, L.name);
+    const step = (s, dir) => {
+      const d = this._states.get(s).d;
+      if (d.ops.some((o) => o.kind !== 'paint')) return null;
+      const c = new Int32Array(d.len), cn = [];
+      for (let k = 0; k < d.len; k++) {
+        const id = d.c[k];
+        if (id < BASE.length) { c[k] = id; continue; }
+        const nm = names.get(id);
+        if (nm === undefined) return null;
+        let j = cn.indexOf(nm); if (j < 0) { j = cn.length; cn.push(nm); }
+        c[k] = -1 - j;
+      }
+      return { dir, c, cn, i: d.i.slice(0, d.len), val: (dir < 0 ? d.o : d.w).slice(0, d.len), ops: d.ops.map((o) => ({ at: o.at, value: o.value })), c0: d.c0.slice(), c1: d.c1.slice() };
+    };
+    const out = [];
+    for (const s of back) { const st = step(s, -1); if (!st) return null; out.push(st); }
+    for (const s of down) { const st = step(s, 1); if (!st) return null; out.push(st); }
+    return out;
+  }
+  /** pathSteps()'s edits replayed on this mesh (a copy: nothing journalled, no states made). Throws MeshError 'bad' when one does not fit. */
+  applySteps(steps) {
+    for (const st of steps) {
+      const cols = st.cn.map((nm) => this.attrs.get(nm)?.col || null);
+      const col = (code) => (code >= 0 ? this.cols[code] : cols[-1 - code]);
+      if (st.dir > 0) {
+        this._reserve('v', st.c1[0]); this._reserve('h', st.c1[1]); this._reserve('f', st.c1[2]);
+        let oi = 0;
+        for (let k = 0; k < st.c.length; k++) {
+          while (oi < st.ops.length && st.ops[oi].at <= k) this.paints.push(st.ops[oi++].value);
+          const cc = col(st.c[k]); if (!cc) throw new MeshError('bad');
+          cc.a[st.i[k]] = st.val[k];
+        }
+        while (oi < st.ops.length) this.paints.push(st.ops[oi++].value);
+        [this.nv, this.nh, this.nf] = st.c1;
+      } else {
+        let oi = st.ops.length - 1;
+        for (let k = st.c.length - 1; k >= 0; k--) {
+          while (oi >= 0 && st.ops[oi].at > k) { this.paints.pop(); oi--; }
+          const cc = col(st.c[k]); if (!cc) throw new MeshError('bad');
+          cc.a[st.i[k]] = st.val[k];
+        }
+        while (oi >= 0) { this.paints.pop(); oi--; }
+        [this.nv, this.nh, this.nf] = st.c0;
+      }
+    }
+    this.topo++;
+  }
+  /** A mesh that takes over toState()'s arrays (trusted: our own worker's, never a file's). The same slots, a new uid, no history. */
+  static fromState(s) {
+    const m = new Mesh();
+    m.cap = { ...s.cap };
+    s.cols.forEach((a, i) => { m.cols[i].a = a; });
+    for (const L of s.attrs) {
+      const col = new Col(m.cols.length, DOM_OF[L.domain], L.size, L.type === 'f32' ? Float32Array : Int32Array, 0);
+      col.a = L.a;
+      m.cols.push(col);
+      m.attrs.set(L.name, { name: L.name, domain: L.domain, size: L.size, type: L.type, col });
+    }
+    m.nv = s.nv; m.nh = s.nh; m.nf = s.nf;
+    m.paints = s.paints.slice();
+    m.topo = 1;
+    return m;
+  }
 
   /**
    * A mesh from its file form (untrusted): every count, index and number checked. `isPaint(s)` vets paint strings

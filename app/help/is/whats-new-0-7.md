@@ -2,7 +2,7 @@
 title: Nýtt í 0.7 (eldra)
 summary: PDF-undirlög og PDF-innflutningur, skannaðar teikningar með sjálfvirkri rekningu, alvöru ferlar með SPLINE, SPLINEDIT og PEDIT, stjórnun víddarstíla, texti sem heldur sniði sínu, WBLOCK og eigin kvarðar, þrívíddarfleygar frá öðrum forritum, skráning skanna, Laser-spjald, USD-útflutningur, Saga og prentun í CadCraft Studio, fyrsta teikning með leiðsögn, tækjastikan á hvorri hlið eða í færri línum, og meira fyrir gervigreindaraðstoðarmenn.
 keywords: nýtt 0.7, eldri útgáfa, útgáfuskýringar, breytingaskrá, breytingar, 0.7, útgáfa, nýir eiginleikar, pdf, pdfattach, pdfimport, undirlag, skönnun, scanattach, scantrace, rekja, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, snið, wblock, kvarðalisti, scalelistedit, acis, þrívíddarfleygar, registerscans, skráning skanna, icp, e57, las, laser, grbl, g-code, usd, usdout, saga, útgáfur, bera saman, prenta, prentari, png, svg, plotstíll, línugerð, leiðsögn, svindlblað, skipanakort, staða tækjastikunnar, línur tækjastikunnar, toolbardock, regen, regenall, snertiflötur, strjúka, kóðasíða, kýrillískt, kóreskt, kínverskt, japanskt, rafmagn, rcd, p&id, pid, acad.lsp, acaddoc.lsp, stuðningsmappa, aðstoðarmenn, mcp, einingar, portúgalska
-from: d07ca034
+from: d9a8ea79
 ---
 
 Þetta breyttist í CadCraft 0.7 miðað við 0.6. Mikið af þessu var óskað eftir á Discord. Listinn er flokkaður eftir svæðum, með því mikilvægasta fyrst.

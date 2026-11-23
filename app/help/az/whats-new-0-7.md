@@ -2,7 +2,7 @@
 title: Versiya 0.7-də yenilik (əvvəlki)
 summary: PDF altlıqları və PDF idxalı, avtomatik izləmə ilə skanlanmış çertyojlar, SPLINE, SPLINEDIT və PEDIT ilə həqiqi splaynlar, ölçü üslubu meneceri, öz formatını saxlayan mətn, WBLOCK və öz miqyaslarınız, digər proqramlardan 3D solidlər, skanların qeydiyyatı, Laser paneli, USD ixracı, CadCraft Studio-da Tarix və çap, rəhbərli ilk çertyoj, alət panelinin istənilən tərəfdə və ya az sətirdə olması və AI köməkçiləri üçün daha çox.
 keywords: versiya 0.7 yenilikləri, əvvəlki buraxılış, buraxılış qeydləri, dəyişikliklər, changelog, 0.7, versiya, yeni xüsusiyyətlər, pdf, pdfattach, pdfimport, altlıq, skan, scanattach, scantrace, izləmə, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatlaşdırma, wblock, scalelistedit, miqyas siyahısı, acis, 3D solidlər, registerscans, skanların qeydiyyatı, icp, e57, las, laser, grbl, g-code, usd, usdout, tarix, versiyalar, müqayisə, çap, printer, png, svg, çap üslubu, xətt tipi, xülasə vərəqi, əmr xəritəsi, alət panelinin yeri, alət sıraları, toolbardock, regen, regenall, trekpad, sürüşdürmə, kod səhifəsi, kiril, koreys, çin, yapon, elektrik, rcd, p&id, pid, acad.lsp, acaddoc.lsp, dəstək qovluğu, köməkçilər, mcp, vahidlər, portuqal dili
-from: d07ca034
+from: d9a8ea79
 ---
 
 Bu, CadCraft 0.6-ya nisbətən 0.7-də nə dəyişdiyidir. Bunun çoxu Discord-da istənilmişdi. Siyahı sahələrə görə qruplaşdırılıb, ən vacibi birinci.

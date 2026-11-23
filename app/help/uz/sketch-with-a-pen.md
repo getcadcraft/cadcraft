@@ -1,32 +1,36 @@
 ---
 title: Qalam bilan eskiz chizing va aniq geometriya oling
-summary: Qalam, sichqoncha yoki barmoq bilan erkin chizing. Har bir chizgi qalamni koʻtarganingizda toza chiziq, aylana, yoy, toʻgʻri toʻrtburchak yoki polichiziqqa aylanadi, mavjud chizilganlarga tutashadi va oʻlchami tayyor holda terib tuzatish uchun koʻrsatiladi.
-keywords: eskiz, qalam, stilus, erkin chizish, barmoq, tozalash, aniq, tutashtirish, SKETCHLIVE, SKETCHFIX, oʻlcham, ustiga yozish
-from: cd87eb75
+summary: Qalam, sichqoncha yoki barmoq bilan erkin chizing: har bir chiziq qalamni koʻtarganda toza chiziq, aylana, yoy, toʻrtburchak yoki polichiziqqa aylanadi, chizilganlarga ilashtiriladi va oʻlchami ustiga yozish uchun tayyor turadi.
+keywords: eskiz, qalam, stilus, erkin, barmoq, tozalash, aniq, ilashish, SKETCHLIVE, SKETCHFIX, oʻlcham, ustiga yozish, bosim, chiziq qalinligi, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-{{cmd:SKETCHLIVE}} buyrugʻini ishga tushiring (yoki **Chizish › Koʻproq › Qalam bilan eskiz chizish** ni tanlang) va bosib sudrab chizgi chizing. Qalamni koʻtarganingizda CadCraft nima nazarda tutganingizni anglab, chizmaga qoʻyadi:
+{{cmd:SKETCHLIVE}} ni boshlang (yoki **Chizish › Koʻproq › Qalam bilan eskiz** ni tanlang) va bosib sudrash orqali bitta chiziq chizing. Qalamni koʻtarganingizda CadCraft nima nazarda tutganingizni oʻqiydi va uni chizmaga qoʻyadi:
 
-| Chizgingiz | Nima olasiz |
+| Sizning chizigʻingiz | Nima olasiz |
 |---|---|
 | Deyarli toʻgʻri | Chiziq. Deyarli gorizontal yoki vertikal chiziq aniq gorizontal yoki vertikal qilinadi. |
-| Yopiq va dumaloq | Aylana |
-| Dumaloq shaklning bir qismi | Yoy |
-| Toʻrtta toʻgʻri burchakli burchakka ega yopiq shakl | Toʻgʻri toʻrtburchak |
-| Boshqa hammasi | Yon tomonlari toʻgʻri burchakli polichiziq |
+| Yopiq va yumaloq | Aylana |
+| Yumaloq shaklning bir qismi | Yoy |
+| Toʻrtta toʻgʻri burchakli burchagi bilan yopiq | Toʻrtburchak |
+| Boshqa hamma narsa | Toʻgʻri qirrali polichiziq |
 
-Chizgining uchlari chizilgan narsaning eng yaqin uchiga tortiladi, shuning uchun eskiz qilingan devor yonidagi devorga tutashadi.
+Chiziqning uchlari allaqachon chizilgan narsaning eng yaqin uchiga tortiladi, shuning uchun eskizlangan devor yonidagi devorga ulanadi.
 
-## Oʻlchamni ustiga yozing
+## Oʻlcham ustiga yozish
 
-Har bir chizgidan keyin buyruq satrida uning oʻlchami standart sifatida koʻrsatiladi: chiziqning **uzunligi**, aylana yoki yoyning **radiusi**, toʻgʻri toʻrtburchakning **kengligi**. Uni saqlash uchun {{key:Enter}} ni bosing, yoki raqam yoki `12'6"` kabi uzunlikni yozib, almashtiring. Chiziq birinchi uchini, aylana markazini, toʻgʻri toʻrtburchak esa birinchi burchagini saqlab qoladi.
+Har bir chiziqdan keyin buyruq satri uning oʻlchamini (chiziq uchun **uzunlik**, aylana yoki yoy uchun **radius**, toʻrtburchak uchun **kenglik**) standart sifatida koʻrsatadi. Saqlash uchun {{key:Enter}} ni bosing, yoki raqam yoki `12'6"` kabi uzunlik yozing, uni almashtirish uchun. Chiziq birinchi uchini, aylana markazini, toʻrtburchak birinchi burchagini saqlaydi.
 
-Boʻsh soʻrovda tugatish uchun {{key:Enter}} ni bosing, yoki oxirgi chizgini qaytarish uchun `U` ni yozing. Butun seans bitta ortga qaytarish qadamidir.
+Boʻsh soʻrovda {{key:Enter}} ni bosib tugating, yoki oxirgi chiziqni qaytarish uchun `U` yozing. Butun seans bitta ortga qaytarish qadami.
 
-## Bir nechta chizgini birdaniga tozalash
+## Bir vaqtda bir nechta chiziqni tozalash
 
-{{cmd:SKETCHFIX}} chizgilarni yigʻadi va {{key:Enter}} bosilganda ularning hammasini aniq qiladi. Bu tez chizilgan dastlabki joylashuv uchun qulay.
+{{cmd:SKETCHFIX}} chiziqlarni yigʻadi va {{key:Enter}} bosganingizda ularning hammasini aniq qiladi; bu tez chizilgan qoʻpol joylashuv uchun qulay.
 
 :::note
-Hamma narsa kompyuteringizda qoidalar boʻyicha hisoblanadi. Model yoʻq va hech narsa hech qayerga yuborilmaydi.
+Hammasi kompyuteringizda qoidalar boʻyicha hisoblanadi, model yoʻq va hech narsa yuborilmaydi.
 :::
+
+## Bosim chiziq qalinligini belgilaydi
+
+Qalam ilovalar uchun yoqilgan joyda (Sozlamalar › Global › Kiritish qurilmalari › Qalam), qalam bilan chizilgan chiziq qalam bergan har bir nuqtani va uning bosimini olib yuradi. Yengil chiziq yupqa obyekt, qattiq chiziq qalin obyekt beradi: chiziqning oʻrtacha bosimi 0.18, 0.25, 0.35 yoki 0.50 mm ni tanlaydi va buyruq satri qaysi birini tanlaganini aytadi. Sichqoncha yoki barmoq bilan chizilgan chiziqlar avvalgidek joriy chiziq qalinligini oladi. {{cmd:PENPRESSURE}} buni oʻchiradi (yoki yana yoqadi); tanlov shu brauzerda saqlanadi.

@@ -398,6 +398,7 @@ export function activate(api) {
   // DEXPI (IND.2) and "bring a job over" (IND.8): the shared reader / writer is ./lib/interop/, the symbol mapping ./lib/dexpi-pid.js
   const hasProblems = (() => { try { return !!api.problems?.available?.(); } catch { return false; } })();
   const importSource = hasProblems ? api.problems.source({ id: 'import', kind: 'import', label: t('interop.source') }) : null;
+  // i18n-ignore: log text for the developer console, never shown (words-11)
   const publishImport = (list) => { if (importSource) { try { importSource.set(list); } catch (e) { api.log('import problems failed', e); } } };
   const readFileText = async (file) => { const u8 = new Uint8Array(await file.arrayBuffer()); try { return new TextDecoder('utf-8', { fatal: true }).decode(u8); } catch { return new TextDecoder('latin1').decode(u8); } };
   api.files.exporter({ id: 'pid-dexpi', label: t('export.dexpi'), extension: '.xml', mime: 'application/xml', write: (doc) => writeDexpi(toDexpi(needModel(doc), { mmPerUnit: perUnit(doc, 'mm'), name: doc.meta?.name || 'P&ID' })) });
@@ -434,6 +435,7 @@ export function activate(api) {
 
   // ---------------------------------------------------------------------------------------------- process calculators (0.8 CH.1–CH.16)
   const calcSource = hasProblems ? api.problems.source({ id: 'calc', kind: 'engine', label: t('ui.calc') }) : null;
+  // i18n-ignore: log text for the developer console, never shown (words-11)
   const publishCalc = (list) => { if (calcSource) { try { calcSource.set(list); } catch (e) { api.log('calculator problems failed', e); } } };
   let lastCalc = null; const lastInputs = {};   // the last inputs the calculators panel ran with, by calculator id (PIDRELIEF reads relief)
   cmd('PIDCALC', ['PCALC'], async (c) => {

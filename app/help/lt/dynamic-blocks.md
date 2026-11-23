@@ -1,33 +1,46 @@
 ---
 title: Dinaminiai blokai
-summary: Ką CadCraft daro su dinaminiais blokais DWG: jie išlaiko tikrus pavadinimus, rodo būseną, kurioje buvo išsaugoti, perjungia matomumo būsenas, rodo kitas reikšmes ir lieka dinamiški įrašant.
-keywords: dinaminis blokas, dinaminiai blokai, matomumas, matomumo būsena, apvertimas, tempimas, paieška, parametrai, pasirinktinis, bloko ypatybės, *U blokai, dinaminis
-from: 26b6aa80
+summary: Ką CadCraft daro su dinaminiais blokais DWG faile: jie išlaiko tikrus pavadinimus, rodo būseną, kurioje buvo įrašyti, perjungia matomumo būsenas, rodo kitas reikšmes ir lieka dinamiški įrašant.
+keywords: dinaminis blokas, dinaminiai blokai, matomumas, matomumo būsena, apvertimas, ištempimas, paieška, parametrai, pasirinktiniai, bloko ypatybės, *U blokai, dinaminis
+from: dea2ee7c
 ---
 
 ## Kas veikia
 
-DWG su dinaminiais blokais atsidaro, ir jie veikia iki šiol:
+DWG su dinaminiais blokais atsidaro, ir šie dalykai veikia:
 
-- **Tikri pavadinimai.** Dinaminis blokas skydelyje {{ui:Blocks}} rodomas savo pavadinimu („Receptacle“, „Sink“), o ne kaip be pavadinimo `*U` blokas.
-- **Būsena, kurioje buvo išsaugoti.** Kiekviena nuoroda rodo tiksliai tai, ką rodė kita programa: matomumo būseną, į kurią ji buvo nustatyta, ištemptą arba apverstą taip, kaip buvo išsaugota.
-- **Matomumo būsenos perjungimas.** Pažymėkite vieną nuorodą (arba kelias to paties bloko), atverkite {{ui:Properties}} ir skiltyje {{ui:Custom}} pasirinkite kitą būseną iš sąrašo {{ui:Visibility}}. Nuoroda iškart rodo tą būseną ir jos atributus: tuos, kuriuos būsena slepia, dingsta, o tie, kuriuos ji rodo, atsiranda su savo reikšmėmis. Nuoroda išlaiko visas reikšmes, todėl nieko nelieka tuščio; {{ui:Properties}} išvardija paslėptas, pažymėtas „hidden“. {{key:Mod+Z}} atkuria senąją būseną vienu žingsniu.
-- **Rankenėlės.** Pažymėtas dinaminis blokas rodo savo rankenėles ten, kur yra jo parametrai: mažą trikampį matomumo būsenai (spustelėkite jį, kad pamatytumėte būsenų sąrašą), rodykles atstumo galuose, dvigubą rodyklę apvertimui. Veikia tik matomumo rankenėlė; kitos tai nurodo būsenos juostoje.
-- **Kitos reikšmės, tik skaitymui.** Po matomumo sąrašu {{ui:Custom}} rodo ir bloko atstumus, lygiavimo kampus, apvertimo būsenas bei taškus, kaip juos laiko brėžinys.
-- **Matomumo būsenų redagavimas.** Atverkite bloką su {{cmd:BEDIT}}: redaktorius rodo vieną būseną, pavadintą juostoje virš brėžinio (pasirinkite kitą ten). Įveskite {{cmd:BVSTATE}}, kad perjungtumėte, pridėtumėte (slepiant viską, rodant viską arba paliekant tai, kas rodoma), pervadintumėte ar ištrintumėte būseną; {{cmd:BVHIDE}} paslepia pažymėtus objektus rodomoje būsenoje; {{cmd:BVSHOW}} parodo paslėptus, išblukusius, kad galėtumėte spustelėti tuos, kuriuos norite grąžinti. Išsaugokite bloką: nuorodos, nustatytos į pervadintą būseną, ją išlaiko nauju pavadinimu, o nustatytos į ištrintą būseną rodo pirmąją būseną.
-- **Išlieka dinamiški.** Įrašius DWG tos versijos, kurioje brėžinys atėjo, blokai lieka dinamiški su pasirinkta būsena: kita programa atidaro juos kaip tuos pačius dinaminius blokus. Jūsų redaguotos matomumo būsenos taip pat įrašomos: jų nauji pavadinimai, pridėtos būsenos ir tai, ką kiekviena rodo.
+- **Jų tikri pavadinimai.** Dinaminis blokas rodomas {{ui:Blokai}} skydelyje savo pavadinimu („Receptacle“, „Sink“), o ne kaip be pavadinimo `*U` blokas.
+- **Būsena, kurioje jie buvo įrašyti.** Kiekviena nuoroda rodo tiksliai tai, ką rodė kita programa: matomumo būseną, į kurią ji buvo nustatyta, ištemptą ar apverstą, kaip buvo įrašyta.
+- **Matomumo būsenos perjungimas.** Pasirinkite vieną nuorodą (arba kelias to paties bloko), atidarykite {{ui:Ypatybės}}, skiltyje {{ui:Pasirinktiniai}} pasirinkite kitą būseną iš {{ui:Matomumas}} sąrašo. Nuoroda iš karto rodo tą būseną, ir jos atributai taip pat: tie, kuriuos būsena slepia, dingsta, o tie, kuriuos rodo, atsiranda su savo reikšmėmis. Nuoroda išlaiko visas reikšmes, todėl niekas netampa tuščias; {{ui:Ypatybės}} išvardija paslėptas, pažymėtas „paslėpta“. {{key:Mod+Z}} grąžina senąją būseną vienu žingsniu.
+- **Rankenėlės.** Pasirinktas dinaminis blokas rodo savo rankenėles ten, kur yra jo parametrai: mažą trikampį matomumo būsenai (spustelėkite jį, kad gautumėte būsenų sąrašą), rodykles atstumo galuose, dvigubą rodyklę apvertimui. Veikia tik matomumo rankenėlė; kitos tai nurodo būsenos juostoje.
+- **Kitos reikšmės, tik skaitymui.** Po matomumo sąrašu {{ui:Pasirinktiniai}} taip pat rodo bloko atstumus, lygiavimo kampus, apvertimo būsenas ir taškus, kaip juos laiko brėžinys.
+- **Matomumo būsenų redagavimas.** Atidarykite bloką su {{cmd:BEDIT}}: redaktorius rodo vieną būseną, pavadintą juostoje virš brėžinio (ten galima pasirinkti kitą). Įveskite {{cmd:BVSTATE}}, kad perjungtumėte, pridėtumėte (paslėpti viską, rodyti viską arba išlaikyti tai, kas rodoma), pervadintumėte ar ištrintumėte būseną; {{cmd:BVHIDE}} paslepia pasirinktus objektus einamojoje rodomoje būsenoje; {{cmd:BVSHOW}} rodo paslėptus objektus išblukusius, kad galėtumėte spustelėti tuos, kuriuos norite grąžinti. Įrašykite bloką: nuorodos, nustatytos į pervadintą būseną, ją išlaiko nauju pavadinimu, o nuorodos, nustatytos į ištrintą būseną, rodo pirmąją būseną.
+- **Lieka dinamiški.** Įrašytas DWG versijoje, kokia buvo brėžinio, blokai lieka dinamiški su jūsų pasirinkta būsena: kita programa juos atidaro kaip tuos pačius dinaminius blokus. Redaguotos matomumo būsenos taip pat išsaugomos: jų nauji pavadinimai, pridėtos būsenos ir tai, ką kiekviena rodo.
 
-## Kas tik skaitoma arba dar nėra
+## Kas tik skaitoma arba dar neįgyvendinta
 
-| Dar nėra | Vietoj to, šiandien |
+| Dar nėra | Vietoje to, šiandien |
 |---|---|
-| Atstumų, kampų ar apvertimų keitimas (tempimo, perkėlimo, apvertimo veiksmai) | Rodomi tik skaitymui skiltyje {{ui:Custom}}; redaguokite programoje, kuri sukūrė bloką. |
-| Paieškos, XY, sukimosi ir poliariniai parametrai | Dar neskaitomi: nuoroda rodoma kaip išsaugota. |
-| Atstumo, apvertimo ir taško rankenėlių tempimas | Jos rodomos ten, kur yra parametrai; matomumo rankenėlė ir sąrašas {{ui:Visibility}} Ypatybėse perjungia būsenas. |
-| Dinaminių blokų kūrimas (parametrų ar matomumo būsenų pridėjimas blokui, kurio jų nėra) | Blokai, kuriuos kuriate CadCraft, yra paprasti blokai; {{cmd:BPARAMETER}} tai nurodo. |
-| Objektų pridėjimas ar trynimas bloke su matomumo būsenomis blokų redaktoriuje | Blokas tada įrašomas kaip paprastas blokas (redaktorius tai praneša uždarydamas). |
+| Atstumų, kampų ar apvertimų keitimas (ištempimo, perkėlimo, apvertimo veiksmai) | Rodomi tik skaitymui skiltyje {{ui:Pasirinktiniai}}; redaguokite programoje, kuri sukūrė bloką. |
+| Paieškos, XY, sukimo ir poliariniai parametrai | Dar neskaitomi: nuoroda rodoma kaip išsaugota. |
+| Atstumo, apvertimo ir taško rankenėlių vilkimas | Jos rodo, kur yra parametrai; matomumo rankenėlė ir {{ui:Matomumas}} sąrašas ypatybėse perjungia būsenas. |
+| Kitos programos tipo dinaminių blokų kūrimas (ištempimas, apvertimas, paieška) | CadCraft sukurti blokai yra paprasti blokai; {{cmd:BPARAMETER}} tai nurodo. Jūsų parametrai ir keli matomumo parametrai yra Parametrų tvarkyklėje (žr. „Jūsų parametrai ir matomumo būsenos“ žemiau). |
+| Objektų pridėjimas ar ištrynimas bloke su matomumo būsenomis bloko redaktoriuje | Tada blokas įrašomas kaip paprastas blokas (redaktorius tai praneša, kai uždaromas). |
 | Dinamiškumo išlaikymas kitoje DWG versijoje ar DXF | Jie įrašomi kaip paprasti blokai, rodantys pasirinktą būseną, ir įrašymas tai praneša. |
 
 :::note
-Keičiant ar perkeliant objektus {{cmd:BEDIT}}, blokas su matomumo būsenomis išlieka dinamiškas. Blokas be būsenų arba tas, kurio objektai buvo pridėti ar ištrinti redaktoriuje, tampa paprastu bloku.
+Objektų perkėlimas ar keitimas {{cmd:BEDIT}} išlaiko bloką su matomumo būsenomis dinamišku. Blokas be būsenų arba blokas, kurio objektai redaktoriuje buvo pridėti ar ištrinti, tampa paprastu bloku.
 :::
+
+## Jūsų parametrai ir matomumo būsenos
+
+Bloke, kurį kuriate CadCraft, gali būti jūsų parametrų ir **kelių** matomumo parametrų, kiekvienas su savo būsenomis. Įveskite {{cmd:BPARAMS}} (arba `BPM`), kad atvertumėte **Parametrų tvarkyklę** bloko, kurį redaguojate {{cmd:BEDIT}}, pasirinktos nuorodos bloko arba jūsų nurodyto bloko.
+
+- **Parametrai**: pavadinimas, tipas (skaičius, ilgis, kampas, kiekis, taip/ne) ir reikšmė arba formulė per kitus parametrus (`w * 2`, `if(n > 3, 1, 0)`). {{ui:Lygi}} rodo rezultatą. Formulė, kuri neveikia, arba reikšmė, netinkanti savo tipui (kiekis 1.5), atmetama, o tvarkyklė nurodo priežastį; nieko kito nepasikeičia.
+- **Matomumo parametrai**: {{ui:Pridėti matomumo parametrą}} sukuria jį su pirmąja būsena. Kiekvieną būseną galima pervadinti, pašalinti (paskutinė lieka) arba duoti skaičių „rodoma, kai“. Formulė parenka būseną pagal parametrus (būsena, kurios numeris atitinka, kitaip būsena tame sąrašo vietoje); be formulės kiekviena nuoroda pasirenka savo.
+- **Objektų įdėjimas į būseną**: bloko redaktoriuje pasirinkite objektus, įveskite {{cmd:BPARAMS}} ir spustelėkite {{ui:Įdėti pasirinktus objektus čia}} ties būsena. Objektai, kurių nesąraso joks matomumo parametras, visada rodomi.
+- **Ši nuoroda**: pradėjus nuo pasirinktos nuorodos, tvarkyklėje rodomos ir tos nuorodos savos reikšmės bei būsenos.
+
+Bloko redaktoriaus išorėje kiekvienas pakeitimas yra vienas atšaukimo žingsnis. Bloko redaktoriuje pakeitimai priklauso redaktoriui: {{ui:Įrašyti bloką}} juos išsaugo. `-BPARAMS` tą patį klausia komandų eilutėje.
+
+**Faile.** DWG ir DXF išsaugo parametrus, kurie objektai kurioje būsenoje ir kiekvienos nuorodos savas reikšmes CadCraft savuose įrašuose; atidarius failą CadCraft viskas grįžta. Kita programa mato kiekvieną nuorodą kaip bloką su visais objektais, nes DWG bloke saugomas daugiausia vienas matomumo parametras. Nuoroda, kurią kita programa perkėlė, arba blokas, kurio objektus ji pakeitė, grįžta be dalių, kurios nebesutampa (nieko neįspėjama).

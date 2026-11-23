@@ -1,118 +1,120 @@
 ---
 title: Järjestä piirustus tasoilla
-summary: Luo tasot seinille, ovilla ja merkinnöille, aseta värit, tee taso nykyiseksi ja kytke tasoja pois päältä, jäädytä, lukitse tai estä niiden tulostuminen.
-keywords: taso, tasot, la, nykyinen taso, jäädytys, jäädytyksen poisto, lukitus, pois, päällä, tulostus, ei tulostusta, väri, color, colour, tasoasetukset, layiso, layuniso, eristä, layoff, layfrz, laymcur, layon, laythw, nimeä uudelleen, laymrg, yhdistä, laydel, poista taso
-from: cd033591
+summary: Luo tasoja seinille, ovillle ja merkinnöille, aseta värejä, tee taso nykyiseksi ja kytke tasoja pois päältä, jäädytä, lukitse tai estä tulostus.
+keywords: taso, tasot, la, nykyinen taso, jäädytys, sulatus, lukitus, pois, päällä, tulostus, ei tulostusta, väri, tason ominaisuudet, layiso, layuniso, eristä, layoff, layfrz, laymcur, layon, laythw, nimeä uudelleen, laymrg, yhdistä, laydel, poista taso
+from: ba9f0617
 ---
 
 ## Mitä teet
 
-Kolme tasoa, Walls, Doors ja Notes, kullakin oma väri. Piirrät kohteita kullekin ja siirrät niitä tasojen välillä.
+Kolme tasoa, Walls, Doors ja Notes, kullakin oma väri, ja kohteita piirrettynä kullekin ja siirrettynä tasojen välillä.
 
-## Tasot-paneeli
+## Tasopaneeli
 
-Tasot ovat vasemmalla paneelissa kohdassa {{ui:Layers}}. Kukin rivi näyttää vasemmalta oikealle:
+Tasot ovat vasemmalla puolella paneelissa {{ui:Tasot}}-kohdan alla. Jokainen rivi näyttää vasemmalta oikealle:
 
-- piste: täytetty **nykyiselle** tasolle, jonne uudet kohteet menevät;
-- värinäyte;
-- tason nimi;
+- pisteen: täytetty nykyiselle tasolle, johon uudet kohteet menevät;
+- värinäytteen;
+- tason nimen;
 - neljä painiketta: päällä/pois (silmä), jäädytys (lumihiutale), lukitus (riippulukko) ja tulostus (tulostin).
 
-Jokaisessa piirustuksessa on taso nimeltä `0`. Kun kirjoitat `LA` ja painat {{key:Enter}}, siirryt paneeliin.
+Jokaisessa piirustuksessa on taso nimeltä `0`. Kirjoita `LA` ja paina {{key:Enter}} siirtyäksesi paneeliin.
 
 ## Luo tasoja
 
-1. Napsauta luettelon yläpuolella {{ui:New layer}}. Nimikenttä avautuu.
-2. Kirjoita `Walls` ja paina {{key:Enter}} (tai napsauta {{ui:Add}}).
+1. Napsauta luettelon yläpuolella {{ui:Uusi taso}}-kohtaa. Nimiruutu aukeaa.
+2. Kirjoita `Walls` ja paina {{key:Enter}} (tai napsauta {{ui:Lisää}}).
 
-Tilarivillä lukee ”Lisättiin taso Walls ja tehtiin se nykyiseksi.” Uusi taso saa värin 7 (musta vaaleassa teemassa, valkoinen tummassa).
+Tilarivillä lukee ”Lisättiin taso Walls ja tehtiin se nykyiseksi.” Uusi taso saa värin 7 (musta vaalealla teemalla, valkoinen tummalla).
 
-3. Napsauta uudelleen {{ui:New layer}}, kirjoita `Doors` ja paina {{key:Enter}}.
-4. Napsauta uudelleen {{ui:New layer}}, kirjoita `Notes` ja paina {{key:Enter}}.
+3. Napsauta {{ui:Uusi taso}} uudelleen, kirjoita `Doors` ja paina {{key:Enter}}.
+4. Napsauta {{ui:Uusi taso}} uudelleen, kirjoita `Notes` ja paina {{key:Enter}}.
 
-Notes on nyt nykyinen taso.
+Notes on nyt nykyinen.
 
-## Anna kullekin tasolle väri
+## Anna jokaiselle tasolle väri
 
-1. Napsauta tasolle Walls kuuluvaa värinäytettä. Järjestelmäsi värinvalitsin avautuu.
+1. Napsauta Walls-rivin värinäytettä. Järjestelmäsi värivalitsin aukeaa.
 2. Valitse väri ja vahvista.
 
-Värinäyte ja kaikki tasolla Walls olevat kohteet, joiden väri on {{ui:By layer}}, muuttuvat.
+Näyte ja kaikki Walls-tasolla olevat kohteet, joiden väri on {{ui:Tason mukaan}}, muuttuvat.
 
 :::note
-Valittu väri, joka vastaa yhtä 255 CAD-vakioväristä, tallennetaan sen numerona. Muu väri säilyy CadCraftissa tarkasti, mutta tallennetaan DWG- tai DXF-tiedostoon lähimpänä vakiovärinä.
+Valittu väri, joka vastaa yhtä 255 vakio-CAD-väristä, tallennetaan sen numerona. Muut värit säilytetään CadCraftissa tarkasti, mutta DWG- tai DXF-tiedostoon ne tallennetaan lähimpänä olevana vakiovärinä.
 :::
 
 ## Piirrä tasolle
 
-1. Napsauta luettelossa nimeä **Walls**. Sen piste täyttyy, ja tilarivillä lukee ”Nykyinen taso: Walls”.
+1. Napsauta listassa nimeä **Walls**. Sen piste täyttyy, ja tilarivillä lukee ”Nykyinen taso: Walls”.
 2. Piirrä suorakulmio (`REC`). Se menee tasolle Walls.
-3. Napsauta **Doors** ja piirrä kaari (`A`). Se menee tasolle Doors.
+3. Napsauta **Doors**-riviä ja piirrä kaari (`A`). Se menee tasolle Doors.
 
-Voit myös valita nykyisen tason oikealla kohdassa {{ui:Current settings}} (kun mitään ei ole valittu), kohdasta {{ui:Layer}}.
+Voit valita nykyisen tason myös oikealla olevasta {{ui:Nykyiset asetukset}}-kohdasta (kun mitään ei ole valittuna), kohdassa {{ui:Taso}}.
 
 ## Siirrä kohteita toiselle tasolle
 
 1. Valitse kohteet.
-2. Valitse oikeanpuoleisessa paneelissa uusi taso kohdasta {{ui:Layer}}.
+2. Valitse oikeanpuoleisessa paneelissa uusi taso kohdasta {{ui:Taso}}.
 
-Ne siirtyvät tasolle ja saavat sen värin, jos niiden väri on {{ui:By layer}}.
+Ne siirtyvät tälle tasolle ja ottavat sen värin, jos niiden väri on {{ui:Tason mukaan}}.
 
 ## Pois, jäädytys, lukitus ja tulostus
 
 | Painike | Mitä se tekee |
 |---|---|
-| Päällä/pois (silmä) | Piilottaa tason kohteet. Niitä ei voi nähdä, valita eikä tarttua niihin. |
-| Jäädytä (lumihiutale) | Vaikutus CadCraftissa sama kuin pois. Pidetään erillään, koska muut ohjelmat käsittelevät niitä eri tavoin, ja asetus tallennetaan. |
-| Lukitse (riippulukko) | Kohteet pysyvät näkyvinä ja niihin voi tarttua, mutta niitä ei voi valita eikä muuttaa. Sopii taustalle, jonka päälle piirrät. |
-| Plottaus (tulostin) | Kun painike on painettuna, taso näkyy ruudulla mutta **jätetään pois tulosteista** ja PDF-tiedostoista. Käytä sitä apuviivoille ja omille muistiinpanoille. |
+| Päällä/pois (silmä) | Piilottaa tason kohteet. Niitä ei voi nähdä, valita tai tarttua niihin. |
+| Jäädytys (lumihiutale) | Sama vaikutus kuin pois päältä CadCraftissa. Pidetään erillään, koska muut ohjelmat käsittelevät niitä eri tavoin, ja asetus tallennetaan. |
+| Lukitus (riippulukko) | Kohteet pysyvät näkyvissä ja niihin voi tarttua, mutta niitä ei voi valita tai muuttaa. Hyvä tausta, jonka päälle piirrät. |
+| Tulostus (tulostin) | Kun painike on painettu, taso näkyy näytöllä mutta **jätetään pois** tulosteista ja PDF-tiedostoista. Käytä sitä apuviivoihin ja omiin muistiinpanoihin. |
 
-Vie hiiri painikkeen päälle nähdäksesi, mitä se tekee (”Kytke pois”, ”Jäädytä”, ”Lukitse”, ”Älä tulosta tätä tasoa”).
+Vie hiiri painikkeen päälle nähdäksesi sen tekstin: ”Sammuta taso”, ”Jäädytä”, ”Lukitse” tai ”Älä tulosta tätä tasoa”.
 
-Nykyistä tasoa ei voi kytkeä pois: tilarivillä lukee ”Tämä on nykyinen taso. Tee ensin toinen taso nykyiseksi.” Tason nimeä napsauttaminen nykyiseksi kytkee sen myös päälle ja poistaa sen jäädytyksen.
+Et voi sammuttaa nykyistä tasoa: tilarivillä lukee ”Tämä on nykyinen taso. Tee ensin toinen taso nykyiseksi.” Tason nimen napsauttaminen nykyiseksi kytkee sen myös päälle ja sulattaa sen.
 
-Jokainen tasomuutos paneelista tai komennolla on yksi kumoamisvaihe: {{key:Mod+Z}} palauttaa sen.
+Jokainen tasomuutos, paneelissa tai komennolla, on yksi kumoamisaskel: {{key:Mod+Z}} palauttaa sen.
 
 ## Työskentele tasoilla valitsemalla kohteita
 
-Tason nimeä ei tarvitse tietää: valitse tasolla oleva kohde. Kirjoita komento tai avaa {{ui:Tools}} paneelin {{ui:Layers}} yläreunassa.
+Sinun ei tarvitse tietää tason nimeä: valitse kohde sillä. Kirjoita komento tai avaa {{ui:Työkalut}} {{ui:Tasot}}-paneelin yläosassa.
 
 | Komento | Mitä se tekee |
 |---|---|
-| {{cmd:LAYISO}} | Valitse kohteet ja paina {{key:Enter}}: vain niiden tasot jäävät päälle, kaikki muut tasot kytketään pois. Jos nykyinen taso kytketään pois, yksi eristetyistä tasoista tulee nykyiseksi. |
-| {{cmd:LAYUNISO}} | Kytkee päälle ne tasot, jotka viimeisin {{cmd:LAYISO}} kytki pois, ja palauttaa nykyisen tason, jonka se vaihtoi. |
-| {{cmd:LAYOFF}} | Napsauta kohteita yksi kerrallaan: kunkin kohteen taso kytketään pois. Kirjoita `U` palauttaaksesi viimeisimmän, {{key:Enter}} lopettaaksesi. |
-| {{cmd:LAYFRZ}} | Sama, mutta tasot jäädytetään. |
-| {{cmd:LAYMCUR}} | Napsauta kohdetta: sen taso tulee nykyiseksi (ja se kytketään päälle ja sen jäädytys poistetaan). Jos yksi kohde on jo valittuna, sitä käytetään. |
+| {{cmd:LAYISO}} | Valitse kohteet ja paina {{key:Enter}}: vain niiden tasot jäävät päälle, kaikki muut tasot sammutetaan. Jos nykyinen taso sammutetaan, yksi eristetyistä tasoista tulee nykyiseksi. |
+| {{cmd:LAYUNISO}} | Kytkee takaisin päälle tasot, jotka viimeisin {{cmd:LAYISO}} sammutti, ja antaa takaisin nykyisen tason, jonka se vaihtoi. |
+| {{cmd:LAYOFF}} | Napsauta kohteita peräkkäin: jokaisen kohteen taso sammutetaan. Kirjoita `U` ottaaksesi viimeisimmän takaisin, {{key:Enter}} lopettaaksesi. |
+| {{cmd:LAYFRZ}} | Sama, mutta jäädyttää kunkin tason. |
+| {{cmd:LAYMCUR}} | Napsauta kohdetta: sen taso tulee nykyiseksi (ja se kytketään päälle ja sulatetaan). Jos yksi kohde on jo valittu, sitä käytetään. |
 | {{cmd:LAYON}} | Kytkee kaikki tasot päälle. |
-| {{cmd:LAYTHW}} | Poistaa kaikkien tasojen jäädytyksen. |
+| {{cmd:LAYTHW}} | Sulattaa kaikki tasot. |
 
-Nykyistä tasoa ei koskaan kytketä pois tai jäädytetä näin: historia kertoo sen, ja voit tehdä toisen tason nykyiseksi komennolla {{cmd:LAYMCUR}} ensin. Lohkoviittausta valittaessa käytetään viittauksen omaa tasoa.
+Nykyistä tasoa ei koskaan sammuteta tai jäädytetä näin: historia kertoo siitä, ja voit tehdä toisen tason nykyiseksi komennolla {{cmd:LAYMCUR}} ensin. Lohkoviittauksen valitseminen käyttää viittauksen omaa tasoa.
 
 ## Nimeä uudelleen, yhdistä ja poista tasoja
 
-- {{cmd:RENAME}}: kirjoita `LA`, vanha nimi ja uusi nimi. Kaikki tasolla olevat kohteet seuraavat mukana. (`B` nimeää lohkon uudelleen samalla tavalla, ja kaikki sen viittaukset seuraavat mukana.)
-- {{cmd:LAYMRG}}: napsauta kohdetta jokaisella yhdistettävällä tasolla (tai kirjoita `N` ja nimi), paina {{key:Enter}}, valitse sitten kohdetaso ja vastaa `Y`. Kohteet siirtyvät kohdetasolle (mallissa, arkeilla ja lohkojen sisällä), ja yhdistetyt tasot poistuvat.
-- {{cmd:LAYDEL}}: valitse tasolla oleva kohde (tai kirjoita `N` ja sen nimi) ja vastaa `Y`. Taso poistuu **kaikkine sen kohteineen** kaikkialta. Tasoa 0, DEFPOINTS-tasoa ja nykyistä tasoa ei voi poistaa.
+- {{cmd:RENAME}}: kirjoita `LA`, vanha nimi ja uusi nimi. Jokainen tasolla oleva kohde seuraa. (`B` nimeää lohkon uudelleen samalla tavalla, jokaisen viittauksen kanssa.)
+- {{cmd:LAYMRG}}: napsauta kohdetta kullakin tasolla, jonka haluat yhdistää (tai kirjoita `N` ja nimi), paina {{key:Enter}}, valitse kohdetaso ja vastaa `Y`. Kohteet siirtyvät kohdetasolle, mallissa, arkeilla ja lohkojen sisällä, ja yhdistetyt tasot poistuvat.
+- {{cmd:LAYDEL}}: valitse kohde tasolla (tai `N` ja nimi) ja vastaa `Y`. Taso poistuu **kaikkine siinä olevine kohteineen** kaikkialta. Taso 0, DEFPOINTS ja nykyinen taso eivät ole poistettavissa.
 
-Jokainen on yksi kumoamisvaihe. Kaikki kolme ovat kohdassa {{ui:Tools}} paneelin {{ui:Layers}} yläreunassa.
+Jokainen on yksi kumoamisaskel. Kaikki kolme ovat {{ui:Työkalut}}-valikossa {{ui:Tasot}}-paneelin yläosassa.
 
 1. Napsauta yhtä seinäviivaa, kirjoita `LAYISO` ja paina {{key:Enter}}. Vain Walls jää päälle.
-2. Piirrä tai muuta tarvitsemaasi tasolla Walls.
+2. Piirrä tai muuta tarvitsemaasi Walls-tasolla.
 3. Kirjoita `LAYUNISO` ja paina {{key:Enter}}. Doors ja Notes palaavat.
 
-## Yleiset virheet
+## Yleisiä virheitä
 
-- **Uudet viivat menivät väärälle tasolle.** Tarkista, mikä piste on täytetty, ennen piirtämistä. Uusi taso tulee nykyiseksi heti, kun lisäät sen.
-- **Kohdetta ei voi valita.** Sen taso on lukittu, pois tai jäädytetty.
-- **Taso tulostuu yhä toisessa ohjelmassa.** DXF R12 ei voi tallentaa asetusta ”älä tulosta”. CadCraft säilyttää asetuksen itsellään, kun piirustuksessa on arkki, mutta muut ohjelmat tulostavat tason.
-- **Tasonimet isoilla kirjaimilla tallennuksen jälkeen.** DXF R12 tallentaa nimet isoilla kirjaimilla, joten `Walls` palaa muodossa `WALLS` ja välilyönnit muuttuvat merkiksi `_`. Tallennettu DWG säilyttää nimet kirjoittamallasi tavalla.
-- **Tason nimeäminen uudelleen, yhdistäminen tai poistaminen.** Käytä komentoja {{cmd:RENAME}}, {{cmd:LAYMRG}} tai {{cmd:LAYDEL}} (myös kohdassa {{ui:Tools}}): katso alla.
+- **Uudet viivat menivät väärälle tasolle.** Tarkista, mikä piste on täytetty ennen piirtämistä. Uusi taso tulee nykyiseksi heti, kun lisäät sen.
+- **Kohde ei valitse.** Sen taso on lukittu, pois päältä tai jäädytetty.
+- **Taso tulostuu yhä toisessa ohjelmassa.** DXF R12 ei voi tallentaa ”älä tulosta” -asetusta. CadCraft säilyttää asetuksen itsellään, kun piirustuksessa on arkki, mutta muut ohjelmat tulostavat tason.
+- **Tasonimet isoilla kirjaimilla tallennuksen jälkeen.** DXF R12 tallentaa nimet isoilla kirjaimilla, joten `Walls` palaa muodossa `WALLS`, ja välilyönnit muuttuvat `_`:ksi. Tallennettu DWG säilyttää nimet kirjoittamallasi tavalla.
+- **Tason nimeäminen uudelleen, yhdistäminen tai poistaminen.** Käytä {{cmd:RENAME}}-, {{cmd:LAYMRG}}- tai {{cmd:LAYDEL}}-komentoa (myös {{ui:Työkalut}}-valikossa): katso alla.
 
-## Ryhmittele tasot
+## Ryhmitä tasot
 
-Pidä luettelo lyhyenä sijoittamalla tasot kansioihin, kuten Existing, Proposed ja Services. Kukin kansio taittuu kokoon, ja sen kytkimet kytkevät kaikki sen tasot päälle tai pois, jäädyttävät ne tai lukitsevat ne yhdessä. Nykyistä tasoa ei koskaan kytketä pois.
+Pidä luettelo lyhyenä laittamalla tasoja kansioihin, kuten Olemassa oleva, Suunniteltu ja Palvelut. Jokainen kansio taittuu, ja sen kytkimet kytkevät kaikki sen tasot päälle tai pois, jäädyttävät ne tai lukitsevat ne yhdessä. Nykyistä tasoa ei koskaan sammuteta.
 
-Valitse {{ui:Tools}}-kohdasta paneelissa {{ui:Layers}} {{ui:Add ready-made groups}}, jolloin saat pienen asuinrakentamisen valmiin ryhmän, {{ui:Group by name}} ryhmittääksesi tasot, joilla on sama etuliite (`E-Walls`, `E-Doors`), tai {{ui:New group}}. Vedä taso kansioon, tai käytä tasojen yläpuolella olevaa luetteloa nykyiselle tasolle. Kirjoita kohtaan {{ui:Find a layer}}, jotta luettelo kapenee. `LAYGROUP` (`LG`) tekee saman komentorivillä.
+{{ui:Työkalut}}-valikossa Tasot-paneelissa valitse {{ui:Lisää valmiit ryhmät}} pienen asuinrakennustyön valmiille joukolle, {{ui:Ryhmitä nimen mukaan}} ryhmitelläksesi tasot, joilla on sama etuliite (`E-Walls`, `E-Doors`), tai {{ui:Uusi ryhmä}}. Vedä taso kansioon tai käytä nykyisen tason luettelon yläpuolella olevaa listaa. Kirjoita {{ui:Etsi taso}}-kenttään rajataksesi luetteloa. `LAYGROUP` (`LG`) tekee saman komentoriviltä.
 
-Itse tasot eivät muutu, joten muut CAD-ohjelmat näkevät ne tavallisena tasaisena luettelona. CadCraft tallentaa ryhmät tiedostoon.
+Nimetäksesi ryhmän uudelleen kaksoisnapsauta sen nimeä (tai valitse se ja paina {{key:F2}}), kirjoita uusi nimi ja paina {{key:Enter}}; {{key:Esc}} säilyttää vanhan, ja {{cmd:UNDO}} palauttaa sen. {{ui:Uusi ryhmä}} on {{ui:Työkalut}}-valikossa Tasot-paneelissa.
+
+Tasot itse eivät muutu, joten muut CAD-ohjelmat näkevät ne tavallisena tasaisena luettelona. CadCraft säilyttää ryhmät tiedostossa.

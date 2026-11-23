@@ -2,7 +2,7 @@
 title: 0.7'deki yenilikler (önceki)
 summary: PDF altlıkları ve PDF içe aktarma, otomatik izlemeli taranmış çizimler, SPLINE, SPLINEDIT ve PEDIT ile gerçek spline'lar, bir boyut stili yöneticisi, biçimini koruyan metin, WBLOCK ve kendi ölçekleriniz, diğer programlardan 3B katılar, taramaları hizalama, bir Lazer paneli, USD dışa aktarma, CadCraft Studio'da Geçmiş ve yazdırma, yönlendirmeli ilk çizim, araç çubuğu istediğiniz kenarda ya da daha az satırda ve yapay zekâ asistanları için daha fazlası.
 keywords: 0.7'deki yenilikler, önceki sürüm, sürüm notları, değişiklik günlüğü, değişiklikler, 0.7, sürüm, yeni özellikler, pdf, pdfattach, pdfimport, altlık, tarama, scanattach, scantrace, izleme, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, biçimlendirme, wblock, scalelistedit, ölçek listesi, acis, 3B katılar, registerscans, taramaları hizala, icp, e57, las, lazer, grbl, g-code, usd, usdout, geçmiş, sürümler, karşılaştır, yazdır, yazıcı, png, svg, çıktı stili, çizgi tipi, tur, hızlı başvuru, komut haritası, araç çubuğu konumu, araç çubuğu satırları, toolbardock, regen, regenall, izleme yüzeyi, kaydırma, kod sayfası, kiril, korece, çince, japonca, elektrik, rcd, p&id, pid, acad.lsp, acaddoc.lsp, destek klasörü, asistanlar, mcp, birimler, portekizce
-from: d07ca034
+from: d9a8ea79
 ---
 
 CadCraft 0.7'deki değişiklikler, 0.6 ile karşılaştırıldığında. Bunların çoğu Discord'da istendi. Liste alana göre gruplanmıştır; en önemliler başta.

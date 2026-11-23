@@ -751,6 +751,18 @@ Aliases: `ATT`, `DDATTDEF`, `-ATTDEF`; or {{ui:Blocks}} › {{ui:More}} › {{ui
 
 {{ui:Blocks}} › {{ui:More}} › {{ui:Edit in place}}. `REFEDIT`: `Select the block reference to edit in place` (or the selection). `REFCLOSE`: `Save the changes to "…" [Save/Discard] <Save>`; the bar's {{ui:Save the block}} and {{ui:Discard}} do the same. The whole edit is one undo step. See [Attributes](topic:attributes#edit-a-title-block-where-it-is-refedit).
 
+### PENPRESSURE
+
+`[ON/OFF]`: whether a pen stroke's pressure sets the lineweight of what {{cmd:SKETCHFIX}} and {{cmd:SKETCHLIVE}} make (on at first). See [Sketch with a pen](topic:sketch-with-a-pen#pressure-sets-the-lineweight).
+
+### OFFICESTANDARD
+
+Alias: `OFFSTD`. Says which office standard is in force for this drawing and where it comes from: the drawing's own record, your team's shared one, or your Default Policies (text heights `all.anno.*`); with none, the program's own sizes. `[Import/Layers/Title block/Clear/eXit]`: `Import` reads a `cc-office-standard` .json (the record SuperCad and BimCraft write) into this drawing, saved with it in DWG and DXF; `Layers` adds the office layers the drawing lacks, in one undo step, and never removes one; `Title block` lists the office's fields with this drawing's own values; `Clear` removes the drawing's own record. Annotative text and dimension heights follow the standard in force. See [Units, papers and scales](topic:units-papers-scales).
+
+### BPARAMS
+
+Aliases: `BPM`, `BLOCKPARAMS`. Opens the Parameters manager for the block in the block editor, the selected reference's block, or the block you name (`Block name`): parameters with formulas, several visibility parameters with their states, and the selected reference's own values and states. See [Your own parameters and visibility states](topic:dynamic-blocks#your-own-parameters-and-visibility-states). `-BPARAMS` does the same on the command line: `[Parameter/Visibility/State/Assign/Reference/Done]`.
+
 ### BEDIT and BCLOSE
 
 `BE`; or {{ui:Blocks}} › {{ui:More}} › {{ui:Edit block}}. `Enter block name to edit <the selected reference's block>` opens the block editor. `BCLOSE` asks `Close the block editor on "…" [Save/Discard] <Save>`; the banner's {{ui:Save block}} and {{ui:Discard changes}} do the same. Everything done in the editor is one undo step.
@@ -1159,6 +1171,10 @@ Aliases: `AP`; or {{ui:View}} › {{ui:More}} › {{ui:Load application…}}. Th
 
 {{cmd:ALIASEDIT}} (or {{ui:View}} › {{ui:More}} › {{ui:Edit aliases…}}) opens your aliases file (`ALIAS, *COMMAND` lines); {{ui:Save}} applies it. {{cmd:REINIT}} applies it again. See [Edit command aliases](topic:command-aliases).
 
+### OPTIONKEYS
+
+Aliases: `OPTKEYS`; or {{ui:Settings}} › {{ui:CadCraft}} › {{ui:Option letters}} › {{ui:Edit…}}. Opens your option letters file (`COMMAND.OPTION, LETTERS` lines, such as `ARRAY.PO, P`); {{ui:Save}} applies it and {{cmd:REINIT}} applies it again. See [Give command options your own letters](topic:option-letters).
+
 ### LISPEDIT
 
 Aliases: `VLIDE`; or {{ui:View}} › {{ui:More}} › {{ui:LISP editor}}. Opens the LISP editor, a window that stays open beside the drawing.
@@ -1235,7 +1251,7 @@ It leaves alone: objects on locked layers and hidden objects. It does not merge 
 
 Changes which objects are drawn in front. `Select objects to re-order`, {{key:Enter}}, then `Above objects`, `Under objects`, `Front` or `Back` ({{key:Enter}} = `Back`). `Above objects` and `Under objects` ask for the reference objects: the selection goes right in front of the front-most of them, or right behind the back-most. The selected objects keep their own order among themselves. One undo step. The order is saved with the drawing in DWG and DXF, where it is the order the objects are written in.
 
-On screen CadCraft draws filled areas (solid hatches, wide polylines, masks) first, then linework, then text, so text always reads over a fill; the draw order shows among filled objects and among pictures. Other programs that open the file draw every object in the saved order.
+On screen every object is drawn in the drawing's order, as other programs that open the file draw it: a solid hatch, a wide polyline or a text mask covers the lines and text behind it, and what is in front of it covers it. Where a line crosses a text, both show. Pictures and attached PDF pages stay under the linework. In a very large drawing whose fills and linework overlap and alternate more than 256 times, the first 256 keep their order and the rest draw their fills under the lines, so redrawing stays quick.
 
 ### TEXTTOFRONT
 

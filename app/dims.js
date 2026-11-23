@@ -151,18 +151,31 @@ export function dimRawParts(e) {
       const { s: a0, e: a1, sweep } = angularSweep(e);
       const R = dist(e.c, e.loc);
       if (R < 1e-12) break;
-      out.push({ type: 'arc', layer: '0', color: 0, cx: e.c.x, cy: e.c.y, r: R, a0: normAngle(a0), a1: normAngle(a1), role: 'dim' });
+      const arc = (b0, b1, role) => out.push({ type: 'arc', layer: '0', color: 0, cx: e.c.x, cy: e.c.y, r: R, a0: normAngle(b0), a1: normAngle(b1), role });
+      // Extension lines only where the arc passes the end of a leg (the leg runs from the vertex to p1 / p2). When the arc
+      // meets the leg itself there is none, as in AutoCAD (Imtaar 2026-11-21: a line was drawn back along each measured edge).
       for (const [ang, P, role] of [[a0, nearestOnRay(e, a0), 'ext1'], [a1, nearestOnRay(e, a1), 'ext2']]) {
         const dP = dist(e.c, P);
-        if (R > dP + 1e-9) line(polar(e.c, ang, dP + exo), polar(e.c, ang, R + exe), role);
-        else if (R < dP - 1e-9 && dP - exo > R - exe) line(polar(e.c, ang, dP - exo), polar(e.c, ang, Math.max(0, R - exe)), role);
+        if (R > dP + exo + 1e-9) line(polar(e.c, ang, dP + exo), polar(e.c, ang, R + exe), role);
       }
-      const start = polar(e.c, a0, R), end = polar(e.c, a1, R);
-      if (R * sweep >= 2 * asz) { arrow(start, a0 - Math.PI / 2, 'arrow1'); arrow(end, a1 + Math.PI / 2, 'arrow2'); }
-      else { arrow(start, a0 + Math.PI / 2, 'arrow1'); arrow(end, a1 - Math.PI / 2, 'arrow2'); }
+      const len = R * sweep, inside = len >= 2 * asz;
       const m = a0 + sweep / 2, ta = readable(m - Math.PI / 2);
+      // Where the text sits is the style's Angular text (atxt, owner 2026-11-21): 0 centred on the middle of the arc, which is
+      // broken round it (Imtaar 2026-11-21: it was always outside the arc), and outside when it does not fit there; 1 outside
+      // the arc (as before); 2 inside the arc. A style without atxt (older drawings) is 0.
+      const atxt = st.atxt | 0;
+      const tdir = st.tih ? 0 : ta, tang = m + Math.PI / 2;
+      const half = Math.abs(Math.cos(tdir - tang)) * tw / 2 + Math.abs(Math.sin(tdir - tang)) * txt / 2 + gap;
+      const onArc = atxt === 0 && inside && len >= 2 * half + 2 * asz && half < R;
+      if (onArc) { const h = half / R; arc(a0, m - h, 'dim1'); arc(m + h, a1, 'dim2'); }
+      else arc(a0, a1, 'dim');
+      const start = polar(e.c, a0, R), end = polar(e.c, a1, R);
+      if (inside) { arrow(start, a0 - Math.PI / 2, 'arrow1'); arrow(end, a1 + Math.PI / 2, 'arrow2'); }
+      else { arrow(start, a0 + Math.PI / 2, 'arrow1'); arrow(end, a1 - Math.PI / 2, 'arrow2'); }
       const outward = Math.cos(ta + Math.PI / 2 - m) > 0;
-      text(polar(e.c, m, R + gap), ta, 'center', outward ? 'bottom' : 'top', s);
+      if (onArc) text(polar(e.c, m, R), ta, 'center', 'middle', s);
+      else if (atxt === 2 && R > gap) text(polar(e.c, m, R - gap), ta, 'center', outward ? 'top' : 'bottom', s);
+      else text(polar(e.c, m, R + gap), ta, 'center', outward ? 'bottom' : 'top', s);
       break;
     }
     case 'radius': case 'diameter': {

@@ -1,58 +1,62 @@
 ---
 title: Uredi skraćenice naredbi
-summary: Čuvaj svoje skraćenice naredbi u jednoj tekstualnoj datoteci u poznatom formatu, uvezi i izvezi .pgp datoteku i ponovo je učitaj s REINIT.
+summary: Čuvajte vlastite skraćenice naredbi u jednoj tekstualnoj datoteci u poznatom formatu, uvozite i izvozite .pgp datoteku i ponovo je učitajte pomoću REINIT.
 keywords: skraćenica, skraćenice, aliasedit, pgp, prečica, kratki naziv, reinit, tastatura, prilagodi, uredi skraćenice
-from: 6ab6fa0e
+from: 2282d36f
 ---
 
-## Šta ćeš naučiti
+## Šta ćete naučiti
 
 Kako dodati vlastite kratke nazive za naredbe, na primjer `LL` za {{cmd:LINE}}, sve u jednoj tekstualnoj datoteci.
 
-## Dodaj skraćenicu
+## Dodavanje skraćenice
 
-1. Otvori {{ui:Pogled}} › {{ui:Više}} › {{ui:Uredi skraćenice…}}, ili ukucaj {{cmd:ALIASEDIT}} i pritisni {{key:Enter}}.
-2. Dodaj red sa skraćenicom, zarez i naredbu nakon zvjezdice:
+1. Otvorite {{ui:Pogled}} › {{ui:Više}} › {{ui:Uredi skraćenice…}}, ili ukucajte {{cmd:ALIASEDIT}} i pritisnite {{key:Enter}}.
+2. Dodajte red sa skraćenicom, zarez i naredbu iza zvjezdice:
 
 ```
 LL,     *LINE
 ```
 
-3. Klikni {{ui:Spasi}}. Komandna linija kaže koliko tvojih skraćenica je u upotrebi.
-4. Ukucaj `LL` i pritisni {{key:Enter}}: LINE počinje.
+3. Kliknite {{ui:Spasi}}. Komandna linija kaže koliko vaših skraćenica je u upotrebi.
+4. Ukucajte `LL` i pritisnite {{key:Enter}}: LINE počinje.
 
-Tvoje skraćenice stoje iznad CadCraft-ovih. Tvoj red pobjeđuje ugrađenu skraćenicu istog naziva; ukloni svoj red i ugrađena se vraća.
+Vaše skraćenice stoje iznad onih koje ima sam CadCraft. Vaš red ima prednost nad ugrađenom skraćenicom istog naziva; uklonite svoj red i ugrađena se vraća.
 
 ## Redovi koje CadCraft odbija
 
-Uređivač navodi svaki problem s brojem reda dok kucaš:
+Uređivač navodi svaki problem sa brojem reda dok kucate:
 
 - naredba ne postoji;
 - skraćenica je sama naziv naredbe (`LINE, *CIRCLE` bi sakrio LINE);
 - red nije u obliku `ALIAS, *COMMAND`;
 - ista skraćenica je u dva reda (kasniji pobjeđuje).
 
-Redovi koji pokreću program na tvom računaru, poput `NOTEPAD, START, 1, *File to edit: ,`, preskaču se uz napomenu: aplikacija u pregledaču ne može pokretati programe.
+Redovi koji pokreću program na vašem računaru, poput `NOTEPAD, START, 1, *File to edit: ,`, preskaču se uz napomenu: aplikacija u pregledaču ne može pokretati programe.
 
-## Uvezi skraćenice iz drugog programa
+## Preuzimanje skraćenica iz drugog programa
 
-1. U uređivaču skraćenica klikni {{ui:Uvezi .pgp…}} i izaberi datoteku. Možeš i prevući `.pgp` datoteku na crtež.
-2. Provjeri navedene probleme (naredbe koje CadCraft nema se odbijaju, ostale rade).
-3. Klikni {{ui:Spasi}}.
+1. U uređivaču skraćenica kliknite {{ui:Uvezi .pgp…}} i izaberite datoteku. Možete i prevući `.pgp` datoteku na crtež.
+2. Provjerite navedene probleme (naredbe koje CadCraft nema se odbijaju, ostale rade).
+3. Kliknite {{ui:Spasi}}.
 
-{{ui:Izvezi .pgp}} čuva CadCraft-ove skraćenice i tvoje kao jednu datoteku u istom formatu.
+{{ui:Izvezi .pgp}} spašava skraćenice aplikacije CadCraft i vaše u jednu datoteku u istom formatu.
 
-## Ponovo učitaj datoteku
+## Ponovno učitavanje datoteke
 
-Ukucaj {{cmd:REINIT}} i pritisni {{key:Enter}} da ponovo primijeniš datoteku sa skraćenicama. Čuva se u ovom pregledaču; desktop aplikacija će je čuvati u svojoj fascikli, a cloud servis će je sinhronizovati.
+Ukucajte {{cmd:REINIT}} i pritisnite {{key:Enter}} da ponovo primijenite datoteku sa skraćenicama. Ona se čuva u ovom pregledaču; desktop aplikacija će je čuvati u svojoj fascikli, a cloud servis će je sinhronizirati.
 
-## Tipkovni prečaci za bilo koju naredbu
+## Slova za opcije naredbe
 
-Skraćenica se kuca; prečac je tipka. Da naredbi dodijeliš vlastitu tipku:
+Skraćenica imenuje naredbu. Da biste promijenili slova kojima odgovarate na opcije naredbe (`P` za Polar u {{cmd:ARRAY}}), pogledajte [Dodijelite opcijama naredbi vlastita slova](topic:option-letters).
 
-1. Klikni {{ui:Pogled}} › {{ui:Više}} › {{ui:Tipkovni prečaci…}}, ili ukucaj `KEYS` i pritisni {{key:Enter}}.
-2. Klikni okvir {{ui:Tipka}} i pritisni tipke, na primjer {{key:Alt+Shift+C}}.
-3. U {{ui:Pokreće}} upiši naredbu i, ako želiš, šta da se ukuca poslije nje: `CIRCLE`, ili `ZOOM E`.
-4. Klikni {{ui:Dodaj}}.
+## Prečice za bilo koju naredbu
 
-Tipka treba {{key:Mod}} ili {{key:Alt}} sa slovom ili cifrom, ili slobodnu funkcijsku tipku ({{key:F2}}, {{key:F4}}, {{key:F5}}, {{key:F6}}, {{key:F9}}). Tipke koje već koriste CadCraft, aplikacija ili pregledač, kao i tipke koje ima neko od tvojih dugmadi (vidi [Dugmad po mjeri](topic:my-tools)), se odbijaju, a okvir kaže zašto. Prečaci se čuvaju u ovom pregledaču (ili desktop aplikaciji); {{ui:Ukloni}} uklanja jedan.
+Skraćenica se kuca; prečica je taster. Da biste naredbi dodijelili vlastiti taster:
+
+1. Kliknite {{ui:Pogled}} › {{ui:Više}} › {{ui:Tipkovni prečaci…}}, ili ukucajte `KEYS` i pritisnite {{key:Enter}}.
+2. Kliknite polje {{ui:Tipka}} i pritisnite tastere, na primjer {{key:Alt+Shift+C}}.
+3. U {{ui:Pokreće}} napišite naredbu i, ako želite, ono što treba ukucati poslije nje: `CIRCLE`, ili `ZOOM E`.
+4. Kliknite {{ui:Dodaj}}.
+
+Taster mora imati {{key:Mod}} ili {{key:Alt}} uz slovo ili cifru, ili slobodan funkcijski taster ({{key:F2}}, {{key:F4}}, {{key:F5}}, {{key:F6}}, {{key:F9}}). Tastere koje već koriste CadCraft, aplikacija ili pregledač, kao i tastere koje ima dugme Moji alati (vidi [Dugmad po vašem izboru](topic:my-tools)), odbija se, a polje kaže zašto. Prečice se čuvaju u ovom pregledaču (ili desktop aplikaciji); {{ui:Ukloni}} uklanja jednu.

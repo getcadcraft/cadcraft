@@ -1,118 +1,120 @@
 ---
 title: Organizarea unui desen cu straturi
-summary: Creați straturi pentru pereți, uși și note, setați culori, faceți un strat curent și dezactivați, înghețați, blocați sau împiedicați trasarea straturilor.
-keywords: strat, straturi, la, strat curent, înghețare, dezghețare, blocare, inactiv, activ, trasare, fără trasare, culoare, proprietăți strat, layiso, layuniso, izolare, layoff, layfrz, laymcur, layon, laythw, redenumire, laymrg, combinare, laydel, ștergere strat
-from: cd033591
+summary: Creați straturi pentru pereți, uși și note, setați culorile, faceți un strat curent și opriți, înghețați, blocați sau scoateți straturi din trasare.
+keywords: strat, straturi, la, strat curent, îngheț, dezgheț, blocare, oprit, pornit, trasare, fără trasare, culoare, proprietăți strat, layiso, layuniso, izolare, layoff, layfrz, laymcur, layon, laythw, redenumire, laymrg, îmbinare, laydel, ștergere strat
+from: ba9f0617
 ---
 
-## Ce veți crea
+## Ce veți realiza
 
-Trei straturi, Walls, Doors și Notes, fiecare cu propria culoare, cu obiecte desenate pe fiecare și mutate între ele.
+Trei straturi, Pereți, Uși și Note, fiecare cu propria culoare, cu obiecte desenate pe fiecare și mutate între ele.
 
 ## Panoul Straturi
 
-Straturile se află în panoul din stânga, sub {{ui:Layers}}. Fiecare rând arată, de la stânga la dreapta:
+Straturile se află în panoul din stânga, sub {{ui:Straturi}}. Fiecare rând arată, de la stânga la dreapta:
 
-- un punct: plin pentru stratul **curent**, unde merg obiectele noi;
+- un punct: plin pentru stratul **curent**, unde ajung obiectele noi;
 - o mostră de culoare;
 - numele stratului;
-- patru butoane: activ/inactiv (ochi), înghețare (fulg de zăpadă), blocare (lacăt) și trasare (imprimantă).
+- patru butoane: pornit/oprit (ochi), îngheț (fulg de zăpadă), blocare (lacăt) și trasare (imprimantă).
 
-Fiecare desen are un strat numit `0`. Tastarea `LA` și apăsarea {{key:Enter}} duc la panou.
+Fiecare desen are un strat numit `0`. Tastarea `LA` și apăsarea lui {{key:Enter}} duc la panou.
 
-## Creați straturi
+## Crearea straturilor
 
-1. Faceți clic pe {{ui:New layer}} deasupra listei. Se deschide o casetă pentru nume.
-2. Tastați `Walls` și apăsați {{key:Enter}} (sau faceți clic pe {{ui:Add}}).
+1. Faceți clic pe {{ui:Strat nou}} deasupra listei. Se deschide o casetă pentru nume.
+2. Tastați `Pereți` și apăsați {{key:Enter}} (sau faceți clic pe {{ui:Adăugare (A)}}).
 
-Bara de stare afișează „Stratul Walls a fost adăugat și făcut curent.” Noul strat primește culoarea 7 (negru pe tema luminoasă, alb pe cea întunecată).
+Bara de stare spune „Strat Pereți adăugat și făcut curent.” Stratul nou primește culoarea 7 (negru pe tema deschisă, alb pe cea închisă).
 
-3. Faceți clic din nou pe {{ui:New layer}}, tastați `Doors` și apăsați {{key:Enter}}.
-4. Faceți clic din nou pe {{ui:New layer}}, tastați `Notes` și apăsați {{key:Enter}}.
+3. Faceți clic din nou pe {{ui:Strat nou}}, tastați `Uși` și apăsați {{key:Enter}}.
+4. Faceți clic din nou pe {{ui:Strat nou}}, tastați `Note` și apăsați {{key:Enter}}.
 
-Notes este acum curent.
+Note este acum curent.
 
-## Dați fiecărui strat o culoare
+## Culoarea fiecărui strat
 
-1. Faceți clic pe mostra de culoare din rândul Walls. Se deschide selectorul de culori al sistemului.
+1. Faceți clic pe mostra de culoare de pe rândul Pereți. Se deschide selectorul de culori al sistemului.
 2. Alegeți o culoare și confirmați.
 
-Mostra și tot ce este pe Walls și are culoarea {{ui:By layer}} se schimbă.
+Mostra și tot ce este colorat {{ui:DupăStrat}} pe Pereți se schimbă.
 
 :::note
-O culoare aleasă care corespunde uneia dintre cele 255 de culori standard CAD este salvată ca acel număr. Orice altă culoare este păstrată exact în CadCraft, dar este salvată ca cea mai apropiată culoare standard într-un fișier DWG sau DXF.
+O culoare aleasă care corespunde uneia dintre cele 255 de culori CAD standard este păstrată ca acel număr. Orice altă culoare se păstrează exact în CadCraft, dar se salvează ca cea mai apropiată culoare standard într-un fișier DWG sau DXF.
 :::
 
-## Desenați pe un strat
+## Desenarea pe un strat
 
-1. Faceți clic pe numele **Walls** din listă. Punctul său se umple, iar bara de stare afișează „Strat curent: Walls”.
-2. Desenați un dreptunghi (`REC`). Acesta ajunge pe Walls.
-3. Faceți clic pe **Doors** și desenați un arc (`A`). Acesta ajunge pe Doors.
+1. Faceți clic pe numele **Pereți** din listă. Punctul său se umple, iar bara de stare spune „Strat curent: Pereți”.
+2. Desenați un dreptunghi (`REC`). Acesta ajunge pe Pereți.
+3. Faceți clic pe **Uși** și desenați un arc (`A`). Acesta ajunge pe Uși.
 
-Puteți alege și stratul curent în {{ui:Current settings}}, din dreapta (fără nimic selectat), la {{ui:Layer}}.
+Puteți alege și stratul curent din {{ui:Setări curente}} din dreapta (când nu este nimic selectat), sub {{ui:Strat}}.
 
-## Mutați obiecte pe alt strat
+## Mutarea obiectelor pe alt strat
 
 1. Selectați obiectele.
-2. În panoul din dreapta, alegeți noul strat la {{ui:Layer}}.
+2. În panoul din dreapta, alegeți noul strat în {{ui:Strat}}.
 
-Ele trec pe acel strat și preiau culoarea lui dacă au culoarea {{ui:By layer}}.
+Ele se mută pe acel strat și iau culoarea lui dacă propria culoare este {{ui:DupăStrat}}.
 
-## Inactiv, înghețat, blocat și trasare
+## Oprit, îngheț, blocare și trasare
 
 | Buton | Ce face |
 |---|---|
-| Activ/inactiv (ochi) | Ascunde obiectele stratului. Nu pot fi văzute, selectate sau agățate. |
-| Înghețare (fulg de zăpadă) | Același efect ca inactiv în CadCraft. Este păstrat separat, deoarece alte programe le tratează diferit, iar setarea este salvată. |
-| Blocare (lacăt) | Obiectele rămân vizibile și puteți să le agățați, dar nu pot fi selectate sau modificate. Util pentru un fundal peste care trasați. |
-| Trasare (imprimantă) | Când este apăsat, stratul rămâne afișat pe ecran, dar **nu este inclus** în trasări și PDF-uri. Folosiți-l pentru linii de construcție și note personale. |
+| Pornit/oprit (ochi) | Ascunde obiectele stratului. Nu pot fi văzute, selectate sau agățate. |
+| Îngheț (fulg de zăpadă) | Același efect ca oprit în CadCraft. Păstrat separat pentru că alte programe le tratează diferit, iar setarea se salvează. |
+| Blocare (lacăt) | Obiectele rămân vizibile și se poate agăța de ele, dar nu pot fi selectate sau modificate. Bun pentru un fundal peste care trasați. |
+| Trasare (imprimantă) | Când este apăsat, stratul se vede pe ecran, dar este **lăsat afară din trasări** și din PDF-uri. Folosiți-l pentru linii de construcție și note pentru sine. |
 
-Treceți cu cursorul peste un buton pentru a vedea ce va face („Dezactivare”, „Înghețare”, „Blocare”, „Nu include acest strat la trasare”).
+Treceți cu mouse-ul peste un buton ca să vedeți ce va face („Oprire”, „Îngheț”, „Blocare”, „Nu trasa acest strat”).
 
-Nu puteți dezactiva stratul curent: bara de stare afișează „Acesta este stratul curent. Faceți mai întâi alt strat curent.” Dacă faceți clic pe numele unui strat pentru a-l face curent, acesta se și activează și se dezghețează.
+Nu puteți opri stratul curent: bara de stare spune „Acesta este stratul curent. Mai întâi faceți curent alt strat.” Un clic pe numele unui strat ca să-l faceți curent îl și pornește și îl dezgheață.
 
-Fiecare modificare a straturilor, din panou sau printr-o comandă, este un singur pas de anulare: {{key:Mod+Z}} o readuce.
+Orice modificare a straturilor, din panou sau printr-o comandă, este un pas de anulare: {{key:Mod+Z}} o readuce.
 
-## Lucrați cu straturile prin selectarea obiectelor
+## Lucrul cu straturile prin alegerea obiectelor
 
-Nu trebuie să cunoașteți numele unui strat: selectați un obiect de pe el. Tastați comanda sau deschideți {{ui:Tools}} din partea de sus a panoului {{ui:Layers}}.
+Nu trebuie să cunoașteți numele unui strat: alegeți un obiect de pe el. Tastați comanda sau deschideți {{ui:Instrumente}} din vârful panoului {{ui:Straturi}}.
 
 | Comandă | Ce face |
 |---|---|
-| {{cmd:LAYISO}} | Selectați obiecte, apoi apăsați {{key:Enter}}: rămân active numai straturile lor, toate celelalte straturi sunt dezactivate. Dacă stratul curent este dezactivat, unul dintre straturile izolate devine curent. |
-| {{cmd:LAYUNISO}} | Reactivează straturile pe care le-a dezactivat ultima comandă {{cmd:LAYISO}} și redă stratul curent pe care îl modificase. |
-| {{cmd:LAYOFF}} | Faceți clic pe obiecte unul după altul: stratul fiecăruia este dezactivat. Tastați `U` pentru a anula ultimul, {{key:Enter}} pentru a încheia. |
-| {{cmd:LAYFRZ}} | Același lucru, înghețând fiecare strat. |
-| {{cmd:LAYMCUR}} | Faceți clic pe un obiect: stratul lui devine curent (și este activat și dezghețat). Dacă un obiect este deja selectat, acesta este folosit. |
-| {{cmd:LAYON}} | Activează toate straturile. |
-| {{cmd:LAYTHW}} | Dezghețează toate straturile. |
+| {{cmd:LAYISO}} | Selectați obiecte, apoi apăsați {{key:Enter}}: rămân pornite doar stratele lor, toate celelalte straturi sunt oprite. Dacă stratul curent este oprit, unul dintre stratele izolate devine curent. |
+| {{cmd:LAYUNISO}} | Repornește stratele pe care le-a oprit ultimul {{cmd:LAYISO}} și dă înapoi stratul curent pe care l-a schimbat. |
+| {{cmd:LAYOFF}} | Faceți clic pe obiecte unul după altul: stratul fiecăruia se oprește. Tastați `U` pentru a anula ultimul, {{key:Enter}} pentru a încheia. |
+| {{cmd:LAYFRZ}} | La fel, înghețând fiecare strat. |
+| {{cmd:LAYMCUR}} | Faceți clic pe un obiect: stratul lui devine curent (și este pornit și dezghețat). Cu un obiect deja selectat, se folosește acela. |
+| {{cmd:LAYON}} | Pornește toate straturile. |
+| {{cmd:LAYTHW}} | Dezgheață toate straturile. |
 
-Stratul curent nu este niciodată dezactivat sau înghețat în acest mod: istoricul o spune, iar stratul curent îl puteți schimba întâi cu {{cmd:LAYMCUR}}. Selectarea unei referințe la bloc folosește stratul propriu al referinței.
+Stratul curent nu este niciodată oprit sau înghețat în acest fel: istoricul o spune, iar mai întâi puteți face alt strat curent cu {{cmd:LAYMCUR}}. Alegerea unei referințe de bloc folosește stratul propriu al referinței.
 
-## Redenumire, combinare și ștergere straturi
+## Redenumirea, îmbinarea și ștergerea straturilor
 
-- {{cmd:RENAME}}: tastați `LA`, vechiul nume și noul nume. Fiecare obiect de pe strat urmează. (`B` redenumește un bloc în același mod, cu toate referințele la el.)
-- {{cmd:LAYMRG}}: faceți clic pe un obiect de pe fiecare strat pentru a combina (sau tastați `N` și un nume), apăsați {{key:Enter}}, apoi alegeți stratul-țintă și răspundeți `Y`. Obiectele trec pe stratul-țintă — în model, pe planșe și în blocuri — iar straturile combinate dispar.
-- {{cmd:LAYDEL}}: alegeți un obiect de pe strat (sau `N` și numele lui) și răspundeți `Y`. Stratul dispare **împreună cu fiecare obiect de pe el**, peste tot. Stratul 0, DEFPOINTS și stratul curent nu pot fi șterse.
+- {{cmd:RENAME}}: tastați `LA`, numele vechi și cel nou. Fiecare obiect de pe strat urmează. (`B` redenumește un bloc în același fel, cu fiecare referință a lui.)
+- {{cmd:LAYMRG}}: faceți clic pe un obiect de pe fiecare strat ca să le îmbinați (sau tastați `N` și un nume), apăsați {{key:Enter}}, apoi alegeți stratul țintă și răspundeți `Y`. Obiectele se mută pe țintă, în model, în foi și în blocuri, iar straturile îmbinate dispar.
+- {{cmd:LAYDEL}}: alegeți un obiect de pe strat (sau `N` și numele lui) și răspundeți `Y`. Stratul dispare **împreună cu toate obiectele de pe el**, peste tot. Stratul 0, DEFPOINTS și stratul curent nu pot fi șterse.
 
-Fiecare este un singur pas de anulare. Toate trei sunt în {{ui:Tools}}, din partea de sus a panoului {{ui:Layers}}.
+Fiecare este un pas de anulare. Toate trei se află în {{ui:Instrumente}} din vârful panoului {{ui:Straturi}}.
 
-1. Faceți clic pe o linie de perete, apoi tastați `LAYISO` și apăsați {{key:Enter}}. Rămâne activ doar Walls.
-2. Desenați sau modificați ce aveți nevoie pe Walls.
-3. Tastați `LAYUNISO` și apăsați {{key:Enter}}. Doors și Notes revin.
+1. Faceți clic pe o linie de perete, apoi tastați `LAYISO` și apăsați {{key:Enter}}. Rămâne doar Pereți.
+2. Desenați sau modificați ce aveți nevoie pe Pereți.
+3. Tastați `LAYUNISO` și apăsați {{key:Enter}}. Uși și Note revin.
 
 ## Greșeli frecvente
 
-- **Liniile noi au ajuns pe stratul greșit.** Verificați ce punct este plin înainte de a desena. Un strat nou devine curent imediat ce îl adăugați.
-- **Un obiect nu se selectează.** Stratul său este blocat, inactiv sau înghețat.
-- **Stratul tot se trasează în alt program.** DXF R12 nu poate stoca „fără trasare”. CadCraft păstrează setarea pentru sine când desenul are o planșă, dar alte programe vor trasa stratul respectiv.
-- **Numele straturilor apar cu majuscule după salvare.** DXF R12 stochează numele cu majuscule, astfel că `Walls` revine ca `WALLS`, iar spațiile devin `_`. Un DWG salvat păstrează numele așa cum le-ați tastat.
-- **Redenumirea, combinarea sau ștergerea unui strat.** Folosiți {{cmd:RENAME}}, {{cmd:LAYMRG}} sau {{cmd:LAYDEL}} (și în {{ui:Tools}}): vezi mai jos.
+- **Liniile noi au mers pe stratul greșit.** Verificați ce punct este umplut înainte de a desena. Un strat nou devine curent imediat ce îl adăugați.
+- **Un obiect nu se selectează.** Stratul său este blocat, oprit sau înghețat.
+- **Stratul tot se tipărește în alt program.** DXF R12 nu poate păstra „nu trasa”. CadCraft păstrează setarea pentru sine când desenul are o foaie, dar alte programe vor trasa stratul respectiv.
+- **Numele straturilor cu majuscule după salvare.** DXF R12 stochează numele cu majuscule, astfel încât `Pereți` revine ca `PEREȚI`, iar spațiile devin `_`. Un DWG salvat păstrează numele așa cum le-ați tastat.
+- **Redenumirea, îmbinarea sau ștergerea unui strat.** Folosiți {{cmd:RENAME}}, {{cmd:LAYMRG}} sau {{cmd:LAYDEL}} (și în {{ui:Instrumente}}): vedeți mai jos.
 
-## Grupați straturile
+## Gruparea straturilor
 
-Mențineți lista scurtă punând straturile în dosare, precum Existent, Propus și Servicii. Fiecare dosar se restrânge, iar comutatoarele lui activează sau dezactivează toate straturile, le înghețează sau le blochează împreună. Stratul curent nu este niciodată dezactivat.
+Păstrați lista scurtă punând straturile în dosare, cum ar fi Existent, Propus și Servicii. Fiecare dosar se strânge, iar comutatoarele lui pornesc sau opresc toate straturile sale, le îngheață sau le blochează împreună. Stratul curent nu este niciodată oprit.
 
-În {{ui:Tools}} din panoul Straturi, alegeți {{ui:Add ready-made groups}} pentru un set făcut pentru lucrări rezidențiale mici, {{ui:Group by name}} pentru a grupa straturile care au același prefix (`E-Walls`, `E-Doors`) sau {{ui:New group}}. Trageți un strat pe un dosar sau folosiți lista de deasupra straturilor pentru stratul curent. Tastați în {{ui:Find a layer}} pentru a restrânge lista. `LAYGROUP` (`LG`) face același lucru din linia de comandă.
+În {{ui:Instrumente}} din panoul Straturi, alegeți {{ui:Adăugare grupuri gata făcute}} pentru un set făcut pentru lucrări rezidențiale mici, {{ui:Grupare după nume}} ca să grupați straturile care au același prefix (`E-Pereți`, `E-Uși`), sau {{ui:Grup nou}}. Trageți un strat pe un dosar sau folosiți lista de deasupra straturilor pentru stratul curent. Tastați în {{ui:Găsiți un strat}} ca să restrângeți lista. `LAYGROUP` (`LG`) face același lucru în linia de comandă.
 
-Straturile în sine nu se schimbă, așa că alte programe CAD le văd ca o listă plată obișnuită. CadCraft păstrează grupurile în fișier.
+Pentru a redenumi un grup, faceți dublu clic pe numele lui (sau selectați-l și apăsați {{key:F2}}), tastați noul nume și apăsați {{key:Enter}}; {{key:Esc}} păstrează numele vechi, iar {{cmd:UNDO}} îl readuce. {{ui:Grup nou}} se află în {{ui:Instrumente}} din panoul Straturi.
+
+Straturile în sine nu se schimbă, astfel încât alte programe CAD le văd ca o listă plată obișnuită. CadCraft păstrează grupurile în fișier.

@@ -24,13 +24,14 @@ import { tagFromXdata, parametricText, isParamBlock } from './gcons.js';
 import { isStyleBlock, payloadFrom } from './plotstyle.js';
 import { addonsFromPayload, isAddonsBlock } from './addons-file.js';   // 0.8 AL.6
 import { laserFromPayload, isLaserBlock } from './laser-file.js';   // 0.7 SU.772: the Laser panel's settings, block CADCRAFT_LASER
+import { bparamsFromPayload, isBparamsBlock } from './blockparams-file.js';   // 0.11 SU.1804: block CADCRAFT_BPARAMS
 import { classesFromPayload, isClassesBlock } from './classes-file.js';   // 0.8 SU.912: block CADCRAFT_CLASSES
 import { tablesFromPayload, isTablesBlock } from './tables-file.js';   // ORS.1 / ORS.22: block CADCRAFT_TABLES
 import { dwgTableFields } from './tables-cad.js';   // ORS.1: a DWG's table → an editable table
 import { dwgFieldSource, attribFieldSources } from './fields-cad.js';   // ORS.22: fields of TEXT / MTEXT / attributes
 import { underlayParts } from './pdfmodel.js';   // PDF underlays (0.7 D7.24)
 import { isGeoBlock, geoFromPayload, readGeo } from './geodwg.js';   // 0.6 GEO-DWG
-import { face3dFromDwg, read3dFromDwg } from './model3d.js';
+import { face3dFromDwg, read3dFromDwgSteps } from './model3d.js';
 import { t } from './i18n.js';
 import { fromRecord, gradFields } from './hatch-gradient.js';   // ORS.7: gradient fills
 import { clipFromXdata } from './vpclip.js';   // ORS.16: clipped viewports
@@ -45,6 +46,7 @@ import { dimFromModel, dimxApply } from './dims-file.js';   // ORS.6: ordinate, 
 import { mleaderFromModel } from './mleader-file.js';   // ORS.15: multileaders with several leader lines or a block stay editable
 import { keptFromDwg, SOLID_TYPES } from './acis-cad.js';   // 0.7 D7.25: other programs' 3D solids, kept
 import { groupTagger } from './groups.js';   // ORS.8: a file's GROUP objects become CadCraft groups
+import { runNow, runSliced, ticker } from './slices.js';   // 0.11 PERF.9: the same build, in slices on the page
 
 export const VERSIONS = {
   AC1009: 'R12', AC1012: 'R13', AC1014: 'R14', AC1015: '2000', AC1018: '2004',
@@ -88,7 +90,15 @@ export function extrasFrom(db) {
   return out;
 }
 
-export function importDwg(db, { versionTag = '' } = {}) {
+export function importDwg(db, opts = {}) { return runNow(importSteps(db, opts)); }
+/**
+ * 0.11 PERF.9 (perf-finish-11): importDwg in slices of about `budget` ms, so a big drawing's build never holds the page in one long task
+ * (Plans.dwg: one task of 0.95 to 1.6 s). Same result as importDwg: the same steps in the same order (slices.js).
+ */
+export function importDwgAsync(db, opts = {}, { budget = 40 } = {}) { return runSliced(importSteps(db, opts), { budget }); }
+
+function* importSteps(db, { versionTag = '' } = {}) {
+  const tick = ticker(16);
   const report = { read: 0, skipped: {}, paperSpace: 0, notes: [], splines: 0 };
   const skip = (t) => { report.skipped[t] = (report.skipped[t] || 0) + 1; };
 
@@ -148,21 +158,30 @@ export function importDwg(db, { versionTag = '' } = {}) {
   let plotStyles = null;   // CadCraft's plot style tables: block CADCRAFT_PLOTSTYLES
   let laser = null;   // the Laser panel's settings: block CADCRAFT_LASER (laser-file.js, 0.7 SU.772)
   let addons = null;   // which add-ons the data came from: block CADCRAFT_ADDONS (addons-file.js, 0.8 AL.6)
+  let bparams = null;   // block parameters: block CADCRAFT_BPARAMS (blockparams-file.js, 0.11 SU.1804)
   let classes = null;   // classes, design layers, viewport class overrides: block CADCRAFT_CLASSES (classes-file.js, 0.8 SU.912)
   let tablesData = null;   // ORS.1 / ORS.22: table styles, data links, custom properties: block CADCRAFT_TABLES (tables-file.js)
   let geoOwn = null;   // CadCraft's coordinate system and map layers: block CADCRAFT_GEO (geodwg.js)
+  // 0.11 PERF.30: block records by handle, the first of each (what find() gave); one find per block was quadratic: every dimension has a
+  // block of its own, so a drawing with 100,000 dimensions looked through 100,000 records 100,000 times
+  const recordByHandle = new Map();
+  for (const r of db.tables?.blockRecords || []) if (!recordByHandle.has(r.handle)) recordByHandle.set(r.handle, r);
+  const recordOf = (h) => recordByHandle.get(h);
+  const blockByRecord = new Map(), blockByName = new Map();   // the first block of each record / name (what blockList.find gave), for multileaders
+  for (const b of blockList) { if (!blockByRecord.has(b.record)) blockByRecord.set(b.record, b); if (!blockByName.has(b.name)) blockByName.set(b.name, b); }
   for (const b of blockList) {
     if (/^\*(model|paper)_space/i.test(b.name)) continue;
     if (isParamBlock(b.name)) { parametric = parametricText((b.entities || []).map(convert).filter(Boolean)); continue; }
     if (isStyleBlock(b.name)) { plotStyles = payloadFrom((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // plot style tables (0.6 DC.14, plotstyle.js)
     if (isLaserBlock(b.name)) { laser = laserFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.7 SU.772
     if (isAddonsBlock(b.name)) { addons = addonsFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.8 AL.6
+    if (isBparamsBlock(b.name)) { bparams = bparamsFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.11 SU.1804
     if (isClassesBlock(b.name)) { classes = classesFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.8 SU.912
     if (isTablesBlock(b.name)) { tablesData = tablesFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // ORS.1 / ORS.22
     if (isGeoBlock(b.name)) { geoOwn = geoFromPayload((b.entities || []).map((e) => ({ cc: xdataOf(e.xdata, 'CADCRAFT').map(([, v]) => v) }))); continue; }   // 0.6 GEO-DWG
     // a dynamic block (definition or a reference's copy) keeps its hidden entities too (dyn-blocks.js, 0.5 DB.2)
     const dynB = dynBlockFromDwg(b, { convert, attdefOf, defName: b.dynamicOf ? blockList.find((x) => x.record === b.dynamicOf)?.name : null,
-      record: (db.tables?.blockRecords || []).find((r) => r.handle === b.record) });
+      record: recordOf(b.record) });
     if (dynB) {
       blocks.push({ name: b.name, base: { x: b.base?.x || 0, y: b.base?.y || 0 }, entities: dynB.entities, ...(dynB.attdefs.length ? { attdefs: dynB.attdefs } : {}), dyn: dynB.dyn });
       report.dynamicBlocks = (report.dynamicBlocks || 0) + (dynB.dyn.def ? 1 : 0);
@@ -172,6 +191,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
     for (const e of b.entities || []) {
       if (e.type === 'ATTDEF') { const d = attdefOf(e); if (d) attdefs.push(d); continue; }
       const c = convert(e); if (c) ents.push(...[].concat(c));
+      if (tick()) yield;
     }
     // a linked drawing (external reference: block flag 4 — the path field alone is not one, dynamic blocks' copies fill it
     // too) is kept as a link CadCraft has not loaded (xref.js)
@@ -187,6 +207,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
     if (SOLID_TYPES.has(e.type) && e.acis) continue;
     const c = convert(e);
     if (c) { entities.push(...[].concat(c)); report.read++; }
+    if (tick()) yield;
   }
   const solidsInBlocks = blockList.filter((b) => b !== model && !/^\*paper_space/i.test(b.name)).reduce((n, b) => n + (b.entities || []).filter((e) => SOLID_TYPES.has(e.type)).length, 0);
   // a layout whose block link is missing (D7.18) is kept: its paper space is the unclaimed *Paper_Space block, else it is empty and said so
@@ -203,9 +224,10 @@ export function importDwg(db, { versionTag = '' } = {}) {
   for (const b of blockList) {
     const list = paperOf.get(b.record);
     if (!list || b === model) continue;
-    for (const e of b.entities || []) { const c = convert(e); if (c) list.push(...[].concat(c)); report.paperSpace++; }
+    for (const e of b.entities || []) { const c = convert(e); if (c) list.push(...[].concat(c)); report.paperSpace++; if (tick()) yield; }
   }
   // references drawn in a tilted plane (0.6 DF.1): mapped once every block is known (a shear needs a new unnamed block)
+  yield;
   placeOcsInserts([entities, ...blocks.map((b) => b.entities), ...[...paperOf.values()]]);
   // attribute values: positions relative to their block (attrs.js)
   resolveAttribs([entities, ...blocks.map((b) => b.entities), ...[...paperOf.values()]], new Map(blocks.map((b) => [b.name, b])));
@@ -246,8 +268,9 @@ export function importDwg(db, { versionTag = '' } = {}) {
   if (solidsInBlocks) report.notes.push(t('ccacis.app.blocks', { n: solidsInBlocks }));
   if (unlinked) report.notes.push(t('dwg.read.layouts_nolink', { n: unlinked }));
 
-  return read3dFromDwg(db, {   // + CadCraft's 3D model from block CADCRAFT_3D (model3d.js)
-    entities, layers, blocks, layouts, dimStyle, ...(parametric ? { parametric } : {}), ...(laser ? { laser } : {}), ...(addons ? { addons } : {}), ...(classes ? { classes } : {}), ...(tablesData ? { tablesData } : {}) /* ORS.1 */,
+  yield;
+  return yield* read3dFromDwgSteps(db, {   // + CadCraft's 3D model from block CADCRAFT_3D (model3d.js)
+    entities, layers, blocks, layouts, dimStyle, ...(parametric ? { parametric } : {}), ...(laser ? { laser } : {}), ...(addons ? { addons } : {}), ...(classes ? { classes } : {}), ...(bparams ? { bparams } : {}), ...(tablesData ? { tablesData } : {}) /* ORS.1 */,
     // plot styles: CadCraft's own block, else the table the Model page setup names (another program's "x.ctb")
     ...(plotStyles ? { plotStyles } : modelStyleSheet(db) ? { plotStyles: { tables: [], model: modelStyleSheet(db) } } : {}),
     linetypes, ...(geoRead.geo ? { geo: geoRead.geo } : {}), ...(oleKept.length ? { ole: oleKept } : {}), ...(solidsKept.length ? { solids: solidsKept } : {}),
@@ -328,7 +351,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
     const r0 = roots[0], l0 = r0?.lines?.[0];
     {   // ORS.15 (mleader-file.js): several leader lines to one landing, or a block as content → CadCraft's own editable multileader too
       const bc0 = cx.hasBlock && cx.block, bh0 = bc0 && (bc0.blockHandle ?? bc0.handle);
-      const one = mleaderFromModel(e, { label, asz, h, plain: mtextPlain, blockDef: bc0 ? (blockList.find((b) => b.record === bh0) || blockList.find((b) => b.name === bc0.name)) : null });
+      const one = mleaderFromModel(e, { label, asz, h, plain: mtextPlain, blockDef: bc0 ? (blockByRecord.get(bh0) || blockByName.get(bc0.name)) : null });
       if (one) { report.mleaders = (report.mleaders || 0) + 1; return { type: 'mleader', ...base, ...one }; }
     }
     if (roots.length === 1 && r0.lines?.length === 1 && !cx.hasBlock && label && e.leaderType !== 2 && r0.connection && l0.points?.length) {
@@ -361,7 +384,7 @@ export function importDwg(db, { versionTag = '' } = {}) {
     }
     const bc = cx.hasBlock && cx.block;
     const bh = bc && (bc.blockHandle ?? bc.handle);
-    const src = bc && (blockList.find((b) => b.record === bh) || blockList.find((b) => b.name === bc.name));
+    const src = bc && (blockByRecord.get(bh) || blockByName.get(bc.name));
     if (bc && src) {
       const tags = new Map((src.entities || []).filter((x) => x.type === 'ATTDEF').map((x) => [x.handle, x.tag]));
       const attrs = {};

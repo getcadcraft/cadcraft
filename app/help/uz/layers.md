@@ -1,118 +1,120 @@
 ---
-title: Chizmani qatlamlar bilan tashkil qilish
-summary: Devorlar, eshiklar va izohlar uchun qatlamlar yarating, ranglarni belgilang, qatlamni joriy qiling va qatlamlarni oʻchiring, muzlatib qoʻying, qulflang yoki chop etishdan chiqarib qoʻying.
-keywords: qatlam, qatlamlar, la, joriy qatlam, muzlatish, muzdan chiqarish, qulflash, oʻchirish, yoqish, chop etish, chop etilmasin, rang, qatlam xossalari, layiso, layuniso, ajratish, layoff, layfrz, laymcur, layon, laythw, nomini oʻzgartirish, laymrg, birlashtirish, laydel, qatlamni oʻchirish
-from: cd033591
+title: Chizmani qatlamlar bilan tartiblash
+summary: Devorlar, eshiklar va izohlar uchun qatlamlar yarating, ranglarini belgilang, qatlamni joriy qiling va qatlamlarni oʻchiring, muzlatish, qulflash yoki chop etishdan chiqarib qoʻying.
+keywords: qatlam, qatlamlar, la, joriy qatlam, muzlatish, muzsizlantirish, qulflash, oʻchirish, yoqish, chop etish, chop etilmasin, rang, qatlam xossalari, layiso, layuniso, ajratish, layoff, layfrz, laymcur, layon, laythw, qayta nomlash, laymrg, birlashtirish, laydel, qatlamni oʻchirish
+from: ba9f0617
 ---
 
-## Nimani yaratasiz
+## Nima yasaysiz
 
-Uchta qatlam: Devorlar, Eshiklar va Izohlar, har birida oʻz rangi bilan, har birida obyektlar chizilgan va ular orasida koʻchirilgan.
+Uchta qatlam: Devorlar, Eshiklar va Izohlar, har birining oʻz rangi bilan, har birida obyektlar chizilgan va ular orasida koʻchirilgan.
 
 ## Qatlamlar paneli
 
-Qatlamlar chap tomondagi panelda, {{ui:Qatlamlar}} ostida joylashgan. Har bir qator chapdan oʻngga qarab quyidagilarni koʻrsatadi:
+Qatlamlar chapdagi panelda, {{ui:Qatlamlar}} ostida yashaydi. Har bir qator chapdan oʻngga qarab koʻrsatadi:
 
 - nuqta: **joriy** qatlam uchun toʻldirilgan, yangi obyektlar shu yerga tushadi;
 - rang namunasi;
 - qatlam nomi;
 - toʻrtta tugma: yoqish/oʻchirish (koʻz), muzlatish (qor parchasi), qulflash (qulf) va chop etish (printer).
 
-Har bir chizmada `0` nomli qatlam bor. `LA` yozib {{key:Enter}} bosilsa, panelga oʻtiladi.
+Har bir chizmada `0` nomli qatlam bor. `LA` ni yozib {{key:Enter}} ni bosish panelga oʻtkazadi.
 
 ## Qatlam yaratish
 
-1. Roʻyxat ustidagi {{ui:Yangi qatlam}} tugmasini bosing. Nom maydoni ochiladi.
-2. `Devorlar` yozing va {{key:Enter}} bosing (yoki {{ui:Qoʻshish}} ni bosing).
+1. Roʻyxat ustidagi {{ui:Yangi qatlam}} ni bosing. Nom katagi ochiladi.
+2. `Walls` yozing va {{key:Enter}} ni bosing (yoki {{ui:Qoʻshish}} ni bosing).
 
-Holat satrida "Devorlar qatlami qoʻshildi va joriy qilindi." deyiladi. Yangi qatlam 7-rangni oladi (yorugʻ mavzuda qora, qorongʻida oq).
+Holat satri “Walls qatlami qoʻshildi va joriy qilindi.” deydi. Yangi qatlam 7-rangni oladi (yengil mavzuda qora, qorongʻi mavzuda oq).
 
-3. {{ui:Yangi qatlam}} ni yana bosing, `Eshiklar` yozing va {{key:Enter}} bosing.
-4. {{ui:Yangi qatlam}} ni yana bosing, `Izohlar` yozing va {{key:Enter}} bosing.
+3. {{ui:Yangi qatlam}} ni yana bosing, `Doors` yozing va {{key:Enter}} ni bosing.
+4. {{ui:Yangi qatlam}} ni yana bosing, `Notes` yozing va {{key:Enter}} ni bosing.
 
-Izohlar endi joriy.
+Endi Notes joriy.
 
-## Har bir qatlamga rang bering
+## Har bir qatlamga rang berish
 
 1. Devorlar qatoridagi rang namunasini bosing. Tizimingizning rang tanlagichi ochiladi.
 2. Rangni tanlang va tasdiqlang.
 
-Namuna va Devorlar qatlamidagi rangi {{ui:Qatlam boʻyicha}} boʻlgan hamma narsa oʻzgaradi.
+Namuna va Devorlardagi {{ui:Qatlam boʻyicha}} rangdagi hamma narsa oʻzgaradi.
 
 :::note
-Tanlangan rang 255 ta standart CAD rangidan biriga mos kelsa, u oʻsha raqam sifatida saqlanadi. Boshqa har qanday rang CadCraft ichida aniq saqlanadi, ammo DWG yoki DXF faylda eng yaqin standart rang sifatida yoziladi.
+Tanlangan rang 255 ta standart CAD rangidan biriga mos kelsa, u oʻsha raqam sifatida saqlanadi. Boshqa har qanday rang CadCraft da aniq saqlanadi, lekin DWG yoki DXF faylda eng yaqin standart rang sifatida yoziladi.
 :::
 
 ## Qatlamda chizish
 
-1. Roʻyxatda **Devorlar** nomini bosing. Uning nuqtasi toʻladi va holat satrida "Joriy qatlam: Devorlar" deyiladi.
-2. Toʻrtburchak chizing (`REC`). U Devorlarga tushadi.
-3. **Eshiklar** ni bosing va yoy chizing (`A`). U Eshiklarga tushadi.
+1. Roʻyxatda **Walls** nomini bosing. Uning nuqtasi toʻladi va holat satri “Joriy qatlam: Walls” deydi.
+2. Toʻrtburchak chizing (`REC`). U Walls da boʻladi.
+3. **Doors** ni bosing va yoy chizing (`A`). U Doors da boʻladi.
 
-Oʻngdagi {{ui:Joriy sozlamalar}} da (hech narsa tanlanmagan boʻlsa), {{ui:Qatlam}} ostida joriy qatlamni ham tanlashingiz mumkin.
+Joriy qatlamni oʻngdagi {{ui:Joriy sozlamalar}} da ham tanlashingiz mumkin (hech narsa tanlanmagan boʻlsa), {{ui:Qatlam}} ostida.
 
 ## Obyektlarni boshqa qatlamga koʻchirish
 
 1. Obyektlarni tanlang.
-2. Oʻng panelda {{ui:Qatlam}} ichidan yangi qatlamni tanlang.
+2. Oʻng panelda {{ui:Qatlam}} da yangi qatlamni tanlang.
 
-Ular oʻsha qatlamga koʻchadi va agar rangi {{ui:Qatlam boʻyicha}} boʻlsa, uning rangini oladi.
+Ular oʻsha qatlamga koʻchadi va agar ularning rangi {{ui:Qatlam boʻyicha}} boʻlsa, qatlam rangini oladi.
 
 ## Oʻchirish, muzlatish, qulflash va chop etish
 
 | Tugma | Nima qiladi |
 |---|---|
-| Yoqish/oʻchirish (koʻz) | Qatlam obyektlarini yashiradi. Ularni koʻrib, tanlab yoki ularga ilashib boʻlmaydi. |
-| Muzlatish (qor parchasi) | CadCraft ichida oʻchirish bilan bir xil ta'sir qiladi. Boshqa dasturlar ularni boshqacha koʻradi, shuning uchun alohida saqlanadi va sozlama saqlanadi. |
-| Qulflash (qulf) | Obyektlar koʻrinib turadi va ularga ilashish mumkin, ammo tanlab yoki oʻzgartirib boʻlmaydi. Kuzatiladigan fon uchun yaxshi. |
-| Chop etish (printer) | Bosilganda qatlam ekranda koʻrsatiladi, lekin chop etishlar va PDF lardan **chiqariladi**. Qurilish chiziqlari va oʻzingiz uchun izohlar uchun ishlating. |
+| Yoqish/oʻchirish (koʻz) | Qatlam obyektlarini yashiradi. Ularni koʻrib, tanlab yoki ilashtirib boʻlmaydi. |
+| Muzlatish (qor parchasi) | CadCraft da oʻchirish bilan bir xil taʼsir. Boshqa dasturlar ularni boshqacha koʻrgani uchun alohida saqlanadi va sozlama saqlanadi. |
+| Qulflash (qulf) | Obyektlar koʻrinadi va ularga ilashish mumkin, lekin tanlab yoki oʻzgartirib boʻlmaydi. Kuzatiladigan fon uchun yaxshi. |
+| Chop etish (printer) | Bosilganda qatlam ekranda koʻrinadi, lekin chop etishlar va PDF lardan **chiqarib tashlanadi**. Qurilish chiziqlari va oʻzingiz uchun eslatmalar uchun ishlating. |
 
-Tugma ustiga sichqoncha olib boring, u nima qilishini koʻrish uchun ("Oʻchirish", "Muzlatish", "Qulflash", "Bu qatlamni chop etilmasin").
+Tugma ustiga olib borsangiz, u nima qilishini koʻrasiz (“Oʻchirish”, “Muzlatish”, “Qulflash”, “Bu qatlamni chop etmaslik”).
 
-Joriy qatlamni oʻchirib boʻlmaydi: holat satrida "Bu joriy qatlam. Avval boshqa qatlamni joriy qiling." deyiladi. Qatlam nomini bosib uni joriy qilish uni ham yoqadi, ham muzdan chiqaradi.
+Joriy qatlamni oʻchirib boʻlmaydi: holat satri “Bu joriy qatlam. Avval boshqa qatlamni joriy qiling.” deydi. Qatlam nomini bosib joriy qilish uni ham yoqadi va muzsizlantiradi.
 
-Panelda yoki buyruq bilan qilingan har bir qatlam oʻzgarishi bitta qaytarish qadami: {{key:Mod+Z}} uni qaytaradi.
+Panelda yoki buyruq bilan qilingan har bir qatlam oʻzgarishi bitta ortga qaytarish qadami: {{key:Mod+Z}} uni qaytaradi.
 
-## Obyektlarni tanlab qatlamlar bilan ishlash
+## Qatlamlar bilan obyektlarni tanlab ishlash
 
-Qatlam nomini bilish shart emas: unda joylashgan obyektni tanlang. Buyruqni yozing yoki {{ui:Qatlamlar}} paneli yuqorisidagi {{ui:Vositalar}} ni oching.
+Qatlam nomini bilish shart emas: unda turgan obyektni tanlang. Buyruqni yozing yoki {{ui:Qatlamlar}} panelining yuqorisidagi {{ui:Vositalar}} ni oching.
 
 | Buyruq | Nima qiladi |
 |---|---|
-| {{cmd:LAYISO}} | Obyektlarni tanlang va {{key:Enter}} bosing: faqat ularning qatlamlari yoqilgan qoladi, boshqa barcha qatlamlar oʻchiriladi. Agar joriy qatlam oʻchirilgan boʻlsa, ajratilgan qatlamlardan biri joriy boʻladi. |
+| {{cmd:LAYISO}} | Obyektlarni tanlang, {{key:Enter}} ni bosing: faqat ularning qatlamlari qoladi, boshqa barcha qatlamlar oʻchiriladi. Joriy qatlam oʻchirilgan boʻlsa, ajratilgan qatlamlardan biri joriy boʻladi. |
 | {{cmd:LAYUNISO}} | Oxirgi {{cmd:LAYISO}} oʻchirgan qatlamlarni qayta yoqadi va u oʻzgartirgan joriy qatlamni qaytaradi. |
-| {{cmd:LAYOFF}} | Obyektlarni birin-ketin bosing: har birining qatlami oʻchiriladi. Oxirgisini qaytarish uchun `U` yozing, tugatish uchun {{key:Enter}}. |
-| {{cmd:LAYFRZ}} | Xuddi shunday, lekin har bir qatlam muzlatiladi. |
-| {{cmd:LAYMCUR}} | Obyektni bosing: uning qatlami joriy boʻladi (va yoqiladi hamda muzdan chiqariladi). Bitta obyekt allaqachon tanlangan boʻlsa, oʻsha ishlatiladi. |
-| {{cmd:LAYON}} | Hamma qatlamlarni yoqadi. |
-| {{cmd:LAYTHW}} | Hamma qatlamlarni muzdan chiqaradi. |
+| {{cmd:LAYOFF}} | Obyektlarni ketma-ket bosing: har birining qatlami oʻchiriladi. Oxirgisini qaytarish uchun `U` yozing, tugatish uchun {{key:Enter}}. |
+| {{cmd:LAYFRZ}} | Xuddi shunday, lekin har bir qatlamni muzlatadi. |
+| {{cmd:LAYMCUR}} | Obyektni bosing: uning qatlami joriy boʻladi (va yoqiladi hamda muzsizlantiriladi). Bitta obyekt tanlangan boʻlsa, oʻsha ishlatiladi. |
+| {{cmd:LAYON}} | Barcha qatlamlarni yoqadi. |
+| {{cmd:LAYTHW}} | Barcha qatlamlarni muzsizlantiradi. |
 
-Joriy qatlam bu usulda hech qachon oʻchirilmaydi yoki muzlatilmaydi: tarix buni aytadi, va avval {{cmd:LAYMCUR}} bilan boshqa qatlamni joriy qilishingiz mumkin. Blok havolasini tanlash havolaning oʻz qatlamini ishlatadi.
+Joriy qatlam bu usullar bilan hech qachon oʻchirilmaydi yoki muzlatilmaydi: tarix buni aytadi va avval {{cmd:LAYMCUR}} bilan boshqa qatlamni joriy qilishingiz mumkin. Blok havolasini tanlasangiz, havolaning oʻz qatlami ishlatiladi.
 
-## Qatlamlarni nomini oʻzgartirish, birlashtirish va oʻchirish
+## Qatlamlarni qayta nomlash, birlashtirish va oʻchirish
 
-- {{cmd:RENAME}}: `LA`, eski nom va yangi nomni yozing. Qatlamdagi har bir obyekt ularga ergashadi. (`B` blokni xuddi shunday, unga barcha havolalari bilan birga nomlaydi.)
-- {{cmd:LAYMRG}}: birlashtiriladigan har bir qatlamda bitta obyektni bosing (yoki `N` va nomini yozing), {{key:Enter}} bosing, soʻng maqsadli qatlamni tanlang va `Y` deb javob bering. Obyektlar maqsadli qatlamga koʻchadi — modelda, varaqlarda va bloklar ichida — birlashtirilgan qatlamlar esa yoʻqoladi.
-- {{cmd:LAYDEL}}: qatlamdagi obyektni tanlang (yoki `N` va uning nomi) va `Y` deb javob bering. Qatlam **unda joylashgan hamma obyekt bilan birga** hamma joydan yoʻqoladi. `0` qatlami, DEFPOINTS va joriy qatlamni oʻchirib boʻlmaydi.
+- {{cmd:RENAME}}: `LA`, eski nom va yangi nomni yozing. Qatlamdagi har bir obyekt ergashadi. (`B` blokni xuddi shunday, uning barcha havolalari bilan qayta nomlaydi.)
+- {{cmd:LAYMRG}}: birlashtiriladigan har bir qatlamda obyektni bosing (yoki `N` va nomni yozing), {{key:Enter}} ni bosing, soʻng maqsadli qatlamni tanlang va `Y` ga javob bering. Obyektlar maqsadga koʻchadi — modelda, varaqlarda va bloklar ichida — va birlashtirilgan qatlamlar yoʻqoladi.
+- {{cmd:LAYDEL}}: qatlamdagi obyektni tanlang (yoki `N` va nomini) va `Y` ga javob bering. Qatlam **unda turgan barcha obyektlar bilan birga** hamma joydan oʻchadi. 0-qatlam, DEFPOINTS va joriy qatlamni oʻchirib boʻlmaydi.
 
-Har biri bitta qaytarish qadami. Uchalasi ham {{ui:Qatlamlar}} panelining yuqorisidagi {{ui:Vositalar}} ichida.
+Har biri bitta ortga qaytarish qadami. Uchalasi ham {{ui:Qatlamlar}} panelining yuqorisidagi {{ui:Vositalar}} da.
 
-1. Devor chizigʻini bosing, soʻng `LAYISO` yozing va {{key:Enter}} bosing. Faqat Devorlar yoqilgan qoladi.
-2. Devorlarda kerakli narsani chizing yoki oʻzgartiring.
-3. `LAYUNISO` yozing va {{key:Enter}} bosing. Eshiklar va Izohlar qaytadi.
+1. Bitta devor chizigʻini bosing, soʻng `LAYISO` yozing va {{key:Enter}} ni bosing. Faqat Walls qoladi.
+2. Walls da kerakli narsani chizing yoki oʻzgartiring.
+3. `LAYUNISO` yozing va {{key:Enter}} ni bosing. Doors va Notes qaytadi.
 
 ## Keng tarqalgan xatolar
 
 - **Yangi chiziqlar notoʻgʻri qatlamga tushdi.** Chizishdan oldin qaysi nuqta toʻldirilganini tekshiring. Yangi qatlam qoʻshilishi bilanoq joriy boʻladi.
-- **Obyekt tanlanmaydi.** Uning qatlami qulflangan, oʻchirilgan yoki muzlatilgan.
-- **Qatlam boshqa dasturda hali ham chop etiladi.** DXF R12 "chop etilmasin" ni saqlay olmaydi. CadCraft chizmada varaq boʻlganda sozlamani oʻzida saqlaydi, ammo boshqa dasturlar oʻsha qatlamni chop etadi.
-- **Saqlangandan keyin qatlam nomlari katta harflarda.** DXF R12 nomlarni katta harflarda saqlaydi, shuning uchun `Devorlar` `DEVORLAR` boʻlib qaytadi va boʻshliqlar `_` belgisiga aylanadi. Saqlangan DWG nomlarni yozganingizdek saqlaydi.
-- **Qatlamni nomini oʻzgartirish, birlashtirish yoki oʻchirish.** {{cmd:RENAME}}, {{cmd:LAYMRG}} yoki {{cmd:LAYDEL}} dan foydalaning (ular {{ui:Vositalar}} ichida ham bor): quyida qarang.
+- **Obyekt tanlanmaydi.** Uning qatlami qulflangan, oʻchiq yoki muzlatilgan.
+- **Qatlam saqlagandan keyin boshqa dasturda hali ham chop etiladi.** DXF R12 “chop etmaslik” ni saqlay olmaydi. CadCraft chizmada varaq boʻlsa, bu sozlamani oʻzida saqlaydi, lekin boshqa dasturlar oʻsha qatlamni chop etadi.
+- **Saqlagandan keyin qatlam nomlari katta harf bilan.** DXF R12 nomlarni katta harf bilan saqlaydi, shuning uchun `Walls` `WALLS` boʻlib qaytadi va boʻshliqlar `_` boʻladi. Saqlangan DWG nomlarni yozganingizdek saqlaydi.
+- **Qatlamni qayta nomlash, birlashtirish yoki oʻchirish.** {{cmd:RENAME}}, {{cmd:LAYMRG}} yoki {{cmd:LAYDEL}} dan foydalaning ({{ui:Vositalar}} da ham): quyida qarang.
 
 ## Qatlamlarni guruhlash
 
-Roʻyxatni qisqa tutish uchun qatlamlarni papkalarga joylashtiring, masalan Mavjud, Loyiha va Xizmatlar. Har bir papka yigʻiladi va uning tugmalari barcha qatlamlarini bir vaqtda yoqadi yoki oʻchiradi, muzlatadi yoki qulflaydi. Joriy qatlam hech qachon oʻchirilmaydi.
+Roʻyxatni qisqa tutish uchun qatlamlarni jildlarga joylashtiring, masalan Mavjud, Loyihalangan va Xizmatlar. Har bir jild yigʻiladi va uning tugmalari barcha qatlamlarini birga yoqadi yoki oʻchiradi, muzlatadi yoki qulflaydi. Joriy qatlam hech qachon oʻchirilmaydi.
 
-Qatlamlar paneli {{ui:Vositalar}} ichida {{ui:Tayyor guruhlarni qoʻshish}} ni tanlang — bu kichik turar joy ishlari uchun tayyorlangan toʻplam; {{ui:Nom boʻyicha guruhlash}} — umumiy prefiksga ega qatlamlarni (`E-Walls`, `E-Doors`) guruhlash uchun; yoki {{ui:Yangi guruh}}. Qatlamni papkaga sudrang yoki joriy qatlam uchun qatlamlar ustidagi roʻyxatdan foydalaning. Roʻyxatni toraytirish uchun {{ui:Qatlamni topish}} maydoniga yozing. `LAYGROUP` (`LG`) buyrugʻi buni buyruq satrida xuddi shunday bajaradi.
+{{ui:Qatlamlar}} panelidagi {{ui:Vositalar}} da kichik turar joy ishlari uchun tayyorlangan toʻplam uchun {{ui:Tayyor guruhlarni qoʻshish}} ni, umumiy prefiksli qatlamlarni (`E-Walls`, `E-Doors`) guruhlash uchun {{ui:Nom boʻyicha guruhlash}} ni yoki {{ui:Yangi guruh}} ni tanlang. Qatlamni jildga sudrang, yoki qatlamlar roʻyxati ustidagi joriy qatlam uchun foydalaning. {{ui:Qatlamni topish}} katagiga yozib roʻyxatni toraytiring. `LAYGROUP` (`LG`) buyruq satrida xuddi shuni qiladi.
 
-Qatlamlarning oʻzi oʻzgarmaydi, shuning uchun boshqa CAD dasturlar ularni oddiy tekis roʻyxat sifatida koʻradi. CadCraft guruhlarni faylda saqlaydi.
+Guruhni qayta nomlash uchun uning nomini ikki marta bosing (yoki tanlab {{key:F2}} ni bosing), yangi nomni yozing va {{key:Enter}} ni bosing; {{key:Esc}} eskisini saqlaydi, va {{cmd:UNDO}} uni qaytaradi. {{ui:Yangi guruh}} {{ui:Qatlamlar}} panelidagi {{ui:Vositalar}} da.
+
+Qatlamlarning oʻzi oʻzgarmaydi, shuning uchun boshqa CAD dasturlari ularni oddiy tekis roʻyxat sifatida koʻradi. CadCraft guruhlarni faylda saqlaydi.

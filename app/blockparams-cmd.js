@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /**
- * blockparams-cmd.js — BPARAMS (0.10 SU.1804): the block Parameters manager on the command line. Parameters (name, kind, formula), several visibility
+ * blockparams-cmd.js — BPARAMS (0.10 SU.1804): the block Parameters manager (the dialog since 0.11, blockparams-ui.js; -BPARAMS on the command line). Parameters (name, kind, formula), several visibility
  * parameters with states, objects put under a state (in the block editor, from the selection), and a reference's own values and states.
  * In the block editor the edits are the editor's (Save keeps them, Discard drops them); outside it each edit is one undo step on the block.
  * The sums are blockparams.js's. Blocks that came from a DWG with its own dynamic data keep their one visibility parameter (BVSTATE).
@@ -12,7 +12,11 @@ import * as B from './blockparams.js';
 const def = commandRegistry.add, opt = commandRegistry.option;
 const say = (c, r) => { if (r.ok) return true; const k = String(r.error || ''); const [key, arg] = k.split(':'); c.print(t('blockparams.say.error', { why: key.startsWith('blockparams.') ? t(key, { list: (r.by || []).join(', '), v: arg || '' }) : k })); return false; };
 
-def('BPARAMS', ['BPM', 'BLOCKPARAMS'], async (c) => {
+// BPARAMS opens the Parameters manager (blockparams-ui.js, 0.11 cad-11) where the page has it; -BPARAMS (and scripts) keep the command line.
+def('BPARAMS', ['BPM', 'BLOCKPARAMS'], (c) => bparams(c, !!c.host.blockParamsManager), { noRepeat: true, keepSelection: true, help: () => t('blockparams.help') });
+def('-BPARAMS', [], (c) => bparams(c, false), { noRepeat: true, keepSelection: true, help: () => t('blockparams.help') });
+
+async function bparams(c, dialog) {
   const doc = c.doc, be = doc.blockEdit;
   let name = be?.name, ref = null;
   if (!name) {
@@ -23,6 +27,7 @@ def('BPARAMS', ['BPM', 'BLOCKPARAMS'], async (c) => {
   const blk = doc.blocks.get(name);
   if (!blk) { c.print(t('blockparams.say.noblock', { name })); return; }
   if (!B.takesBp(blk)) { c.print(t('blockparams.say.dyn', { name })); return; }
+  if (dialog) { await c.host.blockParamsManager({ name, ref, be }); return; }
   const bp = be ? (be.bp ||= B.cloneBp(blk.bp)) : B.cloneBp(blk.bp);
   const save = () => { if (!be) doc.change('BPARAMS', () => doc.defineBlock({ ...blk, bp: B.hasBp(bp) ? bp : null })); };
   const ask = async (key, d) => String((await c.string(t(key), d !== undefined ? { default: d } : {})) || '').trim();
@@ -85,4 +90,4 @@ def('BPARAMS', ['BPM', 'BLOCKPARAMS'], async (c) => {
       if (say(c, r4)) { doc.change('BPARAMS', () => doc.update(ref.id, { ...ref, bp: r4.bp || undefined }, doc.model)); ref = doc.get(ref.id) || ref; }
     }
   }
-}, { noRepeat: true, keepSelection: true, help: () => t('blockparams.help') });
+}

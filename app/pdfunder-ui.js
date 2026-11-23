@@ -11,13 +11,13 @@
  */
 import { configurePdf, renderRegion, snapIndexOf, pdfInfo } from './pdfhost.js';
 import { findPdf } from './pdfmodel.js';
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 const LOW_MAX = 2048;      // longest side of the whole-page picture
 const MAX_PIXELS = 16e6;   // one sharp picture
 const MARGIN = 0.25;       // the sharp picture reaches this far beyond the visible part (fraction of its size)
 
 const layerKey = (l) => Object.keys(l).sort().map((k) => k + (l[k] ? '+' : '-')).join(',');
-const mul = (a, b) => [a[0] * b[0] + a[2] * b[1], a[1] * b[0] + a[3] * b[1], a[0] * b[2] + a[2] * b[3], a[1] * b[2] + a[3] * b[3], a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5]];
 const inv = (m) => { const d = m[0] * m[3] - m[1] * m[2]; return Math.abs(d) < 1e-300 ? null : [m[3] / d, -m[1] / d, -m[2] / d, m[0] / d, (m[2] * m[5] - m[3] * m[4]) / d, (m[1] * m[4] - m[0] * m[5]) / d]; };
 const ap = (m, x, y) => [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
 

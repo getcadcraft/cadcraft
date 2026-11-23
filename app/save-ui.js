@@ -5,9 +5,10 @@
  * accessors for the variables init() assigns (read and written as ctx.<name>, exactly as the closure's own variable was).
  */
 import { t } from './i18n.js';
-import { dwgVersionKey, saveDwg, DWG_VERSIONS } from './dwg-save.js';
+import { dwgVersionKey, saveDwg, saveDwgAsync, DWG_VERSIONS } from './dwg-save.js';
 import { writeDxf2000 } from './dxf2000.js';
 import { textToBinaryDxf } from './dxf-binary.js';
+import { textToCborDxf } from './dxf-cbor.js';   // FX.391
 import { writeDxf } from './dxf.js';
 import { fieldTag, fillTitleBlocks } from './sheetset.js';
 import { plainTitleBlock, paperByKey } from './sheets.js';
@@ -16,6 +17,7 @@ import { plotPdf } from './agents.js';
 import { fieldsAuto } from './fields-ui.js';
 import { picturesToSave } from './pastepic.js';
 import { el } from './ui-util.js';
+const BIG_TEXT = 64 * 1024 * 1024;   // 0.11 PERF.30: characters past which a DXF is saved as a Blob of parts (dxfData)
 
 export function mountSave(ctx) {
   const { doc, view, print, renderInfo, focusCommandLine, stampAddons, root } = ctx;
@@ -26,6 +28,7 @@ export function mountSave(ctx) {
     dxf: { label: () => 'DXF R12', mime: 'application/dxf', about: () => t('app.save.dxf.about') },
     dxf2000: { label: () => t('save.format.dxf2000'), ext: 'dxf', mime: 'application/dxf', about: () => t('save.format.dxf2000.about') },   // 0.4 C17
     dxf2000b: { label: () => t('dxfbin.format'), ext: 'dxf', mime: 'application/dxf', about: () => t('dxfbin.format.about') },   // ORS.18: the same groups as DXF 2000, stored binary
+    dxfcbor: { label: () => t('dxfcbor.format'), ext: 'cbor', mime: 'application/cbor', about: () => t('dxfcbor.format.about') },   // FX.391: the same groups as DXF 2000, as one CBOR file (dxf-cbor.js)
   };
   const extOf = (format) => FORMATS[format]?.ext || format;
   const FORMAT_KEY = 'cadcraft.saveFormat', VERSION_KEY = 'cadcraft.dwgVersion';
@@ -39,6 +42,7 @@ export function mountSave(ctx) {
   /** The format SAVE uses: the one chosen for this drawing, else what it was opened as, else the last one chosen, else DWG. */
   function saveFormat() {
     if (FORMATS[doc.meta.saveFormat]) return doc.meta.saveFormat;
+    if (doc.meta.dxfCbor && /\.cbor$/i.test(doc.meta.source || '')) return 'dxfcbor';   // FX.391: a drawing opened from CBOR saves as CBOR
     const m = /\.(dwg|dxf)$/i.exec(doc.meta.source || '');
     if (m && m[1].toLowerCase() === 'dxf' && doc.meta.dxfBinary) return 'dxf2000b';   // ORS.18: a binary DXF saves as a binary DXF
     if (m && m[1].toLowerCase() === 'dxf' && /^AC10(1[5-9]|[2-9]\d)$/.test(doc.meta.version || '')) return 'dxf2000';   // a newer DXF saves as DXF 2000
@@ -47,14 +51,31 @@ export function mountSave(ctx) {
 
   /** The drawing as it is now in `format` (dwg | dxf2000 | dxf), with what is on screen put in the file first: SAVE's own writers, also called by the
    *  export set's entry (exportSet, below). → { data: Uint8Array | string, report }; throws what the writer throws. */
-  function fileData(format, version = dwgVersion()) {
+  /** 0.11 PERF.30 (perf-finish-11): a DXF writer's result → the text (as before), or past BIG_TEXT characters a Blob of its parts: the
+   *  text of a 1,000,000-object drawing is more than one string can hold ("Invalid string length"), and the host takes a Blob anyway. */
+  function dxfData(r, mime) { return r.chunks && r.chunks.length > BIG_TEXT ? r.chunks.blob(mime || 'application/dxf') : r.text; }
+  function beforeWrite() {
     doc.vports = view.paneState();   // the split screen on screen goes into the file (its VPORT table, cad-files)
     doc.viewTwist = view.panes ? 0 : doc.inModel && !view.entered ? view.tw || 0 : view.views.get(doc.model)?.tw || 0;   // one pane: the model view's turn (DR.8; the active VPORT's twist)
     stampAddons();
+  }
+  /** fileData, with a DWG built in slices and written in a worker (0.11 PERF.30: dwg-save.js saveDwgAsync, the same bytes). If the drawing
+   *  changed while that ran, it is written again at once, so the file is always one moment of the drawing. */
+  async function fileDataAsync(format, version = dwgVersion()) {
+    if (format !== 'dwg') return fileData(format, version);
+    beforeWrite();
+    const v = doc.version;
+    const r = await saveDwgAsync(doc, { version });
+    if (doc.version !== v) return fileData(format, version);
+    return { data: r.bytes, report: r.report };
+  }
+  function fileData(format, version = dwgVersion()) {
+    beforeWrite();
     if (format === 'dwg') { const r = saveDwg(doc, { version }); return { data: r.bytes, report: r.report }; }
     if (format === 'dxf2000b') { const r = writeDxf2000(doc); return { data: textToBinaryDxf(r.text), report: r.report }; }   // ORS.18
+    if (format === 'dxfcbor') { const r = writeDxf2000(doc); return { data: textToCborDxf(r.text), report: r.report }; }   // FX.391
     const r = format === 'dxf2000' ? writeDxf2000(doc) : writeDxf(doc);
-    return { data: r.text, report: r.report };
+    return { data: dxfData(r, FORMATS[format]?.mime), report: r.report };
   }
   /**
    * The export set's entry (SuperCad Studio's Finalize and export, SC.7): the same writers as SAVE and PLOT, called with options instead of a dialog, and
@@ -89,9 +110,9 @@ export function mountSave(ctx) {
     sheets: () => ((doc.layouts || []).length ? doc.layouts.map((l) => ({ id: l.name, number: '', title: l.name, scale: '', revision: '', paper: l.paper?.key || '' })) : extentsOf(doc) ? [{ id: 'model', number: '', title: doc.meta.name || 'Drawing1', scale: '', revision: '', paper: '' }] : []),   // no layout yet: the model is the one sheet
     can: (kind) => (!exportSet.kinds.includes(kind) ? 'unknown' : doc.model.size || (doc.layouts || []).some((l) => l.entities.size) ? null : 'empty'),   // a code, worded by the host
     async run(kind, o = {}) {
-      const stem = doc.meta.name || 'Drawing1', enc = (x) => (typeof x === 'string' ? new TextEncoder().encode(x) : x);
-      if (kind === 'dwg') return [{ name: stem + '.dwg', bytes: enc(fileData('dwg', dwgVersionKey(o.dwgVersion) || dwgVersion()).data) }];
-      if (kind === 'dxf') return [{ name: stem + '.dxf', bytes: enc(fileData('dxf2000').data) }];
+      const stem = doc.meta.name || 'Drawing1', enc = async (x) => (typeof x === 'string' ? new TextEncoder().encode(x) : x instanceof Blob ? new Uint8Array(await x.arrayBuffer()) : x);
+      if (kind === 'dwg') return [{ name: stem + '.dwg', bytes: await enc((await fileDataAsync('dwg', dwgVersionKey(o.dwgVersion) || dwgVersion())).data) }];
+      if (kind === 'dxf') return [{ name: stem + '.dxf', bytes: await enc(fileData('dxf2000').data) }];
       if (kind !== 'pdf') return [];
       await readPdfUnderlays(doc);
       const want = Array.isArray(o.sheets) ? new Set(o.sheets.map(String)) : null, out = [];
@@ -123,7 +144,7 @@ export function mountSave(ctx) {
     if (!FORMATS[format]) format = 'dwg';
     let data, report;
     try {
-      ({ data, report } = fileData(format));
+      ({ data, report } = await fileDataAsync(format));   // 0.11 PERF.30: a DWG off the page's thread
     } catch (err) {
       console.error(err);
       print(t(format === 'dwg' ? 'app.save.failed.dwg' : 'app.save.failed', { format: FORMATS[format].label(), why: err.message }));
@@ -150,7 +171,7 @@ export function mountSave(ctx) {
     if (keep && r.target?.writable) ctx.keepTarget(r.target);
     if (keep && r.how === 'written') ctx.host.drawingLock?.saved(r.target);   // ORS.27: the lock follows the file (Save as)
     if (keep && ctx.localHist && r.how === 'written' && r.path) {   // a copy for the History panel (0.7 D7.31), Studio only
-      ctx.localHist.snapshot({ key: r.path, name: doc.meta.name, bytes: typeof data === 'string' ? new TextEncoder().encode(data) : data, format }).catch((err) => console.warn('history:', err));
+      ctx.localHist.snapshot({ key: r.path, name: doc.meta.name, bytes: typeof data === 'string' ? new TextEncoder().encode(data) : data instanceof Blob ? new Uint8Array(await data.arrayBuffer()) : data, format }).catch((err) => console.warn('history:', err));
     }
     if (doc.version === version) doc.markSaved();   // an edit made while the dialog was open stays unsaved
     const src = doc.meta.source || '', file = r.name || name;
@@ -169,8 +190,9 @@ export function mountSave(ctx) {
     try {
       if (format === 'dwg') ({ bytes: data } = saveDwg(d, { version: dwgVersion() }));
       else if (format === 'dxf2000b') data = textToBinaryDxf(writeDxf2000(d).text);   // ORS.18
-      else if (format === 'dxf2000') ({ text: data } = writeDxf2000(d));
-      else ({ text: data } = writeDxf(d));
+      else if (format === 'dxfcbor') data = textToCborDxf(writeDxf2000(d).text);   // FX.391
+      else if (format === 'dxf2000') data = dxfData(writeDxf2000(d), FORMATS[format]?.mime);
+      else data = dxfData(writeDxf(d), FORMATS[format]?.mime);
     } catch (err) { console.error(err); return { ok: false, why: err.message }; }
     const file = (name || 'Drawing') + '.' + extOf(format);
     const r = await ctx.fileHost.saveAs({ data, name: file, types: [{ description: FORMATS[format].label(), extensions: ['.' + extOf(format)], mime: FORMATS[format].mime }], type: FORMATS[format].mime, title: t('cmd.wblock.title') });
@@ -196,7 +218,7 @@ export function mountSave(ctx) {
         el('span', { className: 'cc-format-text' }, el('span', { className: 'cc-format-name' }, key === 'dwg' ? 'DWG' : f.label(), el('span', { className: 'cc-format-file' }, name + '.' + extOf(key))),
           key === 'dwg' ? el('span', { className: 'cc-format-ver-row' }, el('span', {}, t('save.version')), verSel) : null,
           el('span', { className: 'cc-note' }, f.about()))));
-      const dlg = el('dialog', { className: 'cc-dialog cc-ask', 'aria-labelledby': 'cc-saveas-h' },
+      const dlg = el('dialog', { className: 'cc-dialog cc-ask cc-saveas', 'aria-labelledby': 'cc-saveas-h' },   // cc-saveas: the list scrolls, the title and Save stay in view (FX.391: five formats are taller than a laptop screen)
         el('div', { className: 'cc-plot-head' }, el('h2', { className: 'cc-h', id: 'cc-saveas-h' }, t('app.save_copy'))),
         el('div', { className: 'cc-ask-text cc-formats', role: 'radiogroup', 'aria-labelledby': 'cc-saveas-h' }, ...opts,
           el('p', { className: 'cc-note' }, t('app.save.local_note'))),

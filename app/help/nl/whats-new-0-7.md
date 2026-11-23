@@ -2,7 +2,7 @@
 title: Wat is er nieuw in 0.7 (eerder)
 summary: PDF-onderleggers en PDF-import, gescande tekeningen met een automatische trace, echte splines met SPLINE, SPLINEDIT en PEDIT, een beheer van maatvoeringsstijlen, tekst die zijn opmaak behoudt, WBLOCK en uw eigen schalen, 3D-volumes uit andere programma's, scans registreren, een Laser-paneel, USD-export, Geschiedenis en afdrukken in CadCraft Studio, een begeleide eerste tekening, de werkbalk aan elke zijde of in minder rijen, en meer voor AI-assistenten.
 keywords: wat is er nieuw 0.7, eerdere uitgave, releasenotities, wijzigingslog, wijzigingen, 0.7, versie, nieuwe functies, pdf, pdfattach, pdfimport, onderlegger, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, opmaak, wblock, schalenlijst, scalelistedit, acis, 3D-volumes, registerscans, scans registreren, icp, e57, las, laser, grbl, g-code, usd, usdout, geschiedenis, versies, vergelijken, afdrukken, printer, png, svg, plotstijl, lijntype, rondleiding, spiekbriefje, opdrachtenkaart, positie werkbalk, werkbalkrijen, toolbardock, regen, regenall, trackpad, vegen, codepagina, cyrillisch, koreaans, chinees, japans, elektrisch, rcd, p&id, pid, acad.lsp, acaddoc.lsp, ondersteuningsmap, assistenten, mcp, eenheden, portugees
-from: d07ca034
+from: d9a8ea79
 ---
 
 Dit is wat er in CadCraft 0.7 is veranderd, vergeleken met 0.6. Veel daarvan is gevraagd op Discord. De lijst is per onderdeel gegroepeerd, met het belangrijkste eerst.

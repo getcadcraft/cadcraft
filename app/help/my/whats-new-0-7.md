@@ -2,7 +2,7 @@
 title: 0.7 တွင် အသစ် (ယခင်)
 summary: PDF underlay နှင့် PDF import၊ အလိုအလျောက် trace ပါသော scan ပုံဆွဲများ၊ SPLINE၊ SPLINEDIT နှင့် PEDIT ဖြင့် အစစ်အမှန် spline များ၊ dimension style manager၊ ဖော်မတ်ကို ထိန်းသော စာသား၊ WBLOCK နှင့် သင့်ကိုယ်ပိုင် scale များ၊ အခြား program မှ 3D solid များ၊ scan များ ကြေညာခြင်း၊ Laser panel၊ USD export၊ CadCraft Studio တွင် History နှင့် ပရင့်ထုတ်ခြင်း၊ လမ်းညွှန်ထားသော ပထမဆုံး ပုံဆွဲ၊ toolbar ကို အနားမည်သည့်ဘက်မဆို သို့မဟုတ် အတန်းနည်းနည်းဖြင့် ထားနိုင်ခြင်း၊ နှင့် AI အကူအညီပေးသူများအတွက် နောက်ထပ်အရာများ။
 keywords: 0.7 အသစ်, ယခင် ထုတ်ပြန်မှု, ထုတ်ပြန်ချက်မှတ်စုများ, changelog, ပြောင်းလဲမှုများ, 0.7, ဗားရှင်း, အင်္ဂါရပ်အသစ်များ, pdf, pdfattach, pdfimport, underlay, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, ဖော်မတ်, wblock, scalelistedit, scale list, acis, 3d solids, registerscans, scan များ ကြေညာ, icp, e57, las, လေဆာ, grbl, g-code, usd, usdout, history, ဗားရှင်းများ, compare, print, printer, png, svg, plot style, linetype, လမ်းညွှန်, cheat sheet, command map, toolbar position, toolbar rows, toolbardock, regen, regenall, trackpad, swipe, code page, cyrillic, ကိုရီးယား, တရုတ်, ဂျပန်, လျှပ်စစ်, rcd, p&id, pid, acad.lsp, acaddoc.lsp, support ဖိုဒါ, အကူအညီပေးသူများ, mcp, ယူနစ်များ, ပေါ်တူဂီ
-from: d07ca034
+from: d9a8ea79
 ---
 
 ဤသည်မှာ CadCraft 0.7 တွင် 0.6 နှင့်နှိုင်းယှဉ်လျှင် ပြောင်းလဲခဲ့သည်များ ဖြစ်သည်။ အများစုကို Discord တွင် တောင်းဆိုခဲ့သည်။ စာရင်းကို နယ်ပယ်အလိုက် အရေးကြီးဆုံး ရှေ့ဆုံးတွင် ထားသည်။

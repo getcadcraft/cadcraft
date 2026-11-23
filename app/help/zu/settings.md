@@ -1,110 +1,112 @@
 ---
 title: Izilungiselelo ze-CadCraft
-summary: Izilungiselelo ezingeniswa uhlelo lokudweba: usayizi wekhesa, lapho ikhophi enamathiselwe khona, ukuthi ukuchofoza kwenza ni ngokukhethwa, amaqoqo ebha yamathuluzi, lapho umugqa womyalo ukhona nobude bawo, indawo engaphezulu ehlangene, nesikhombisi sekhona.
-keywords: umugqa womyalo, umugqa womyalo oyindilinga, float, dock, umugqa owodwa, f2, umlando womyalo, commandline, cmdline, toparea, indawo engaphezulu, ehlangene, cursorsize, ikhesa esikrinini esigcwele, edge to edge, imigqa yebha yamathuluzi, ukubonisa kwebha yamathuluzi, ctrl f1, izilungiselelo, izinketho, isikhombisi sekhona, ikhesa, isikhombi, ukuchofoza izinto, ukukhetha, pickfirst, setha kabusha
-from: 0896eb42
+summary: Izilungiselelo ezihlobene nohlelo lokudweba: usayizi wekhesa, lapho ikhophi elinamathiselwe khona kusuka ku-cursor, okwenzeka uma uchofoza, inani lemigqa yethuluzi, lapho umugqa womyalo ukhona nobude bawo, indawo ephezulu eyincane, nesikhombisi sekhona.
+keywords: umugqa womyalo, umugqa womyalo oyindilinga, ukufloata, f2, umlando womyalo, commandline, cmdline, toparea, indawo ephezulu, ekhompakthi, cursorsize, ikhesa egcwele isikrini, ikhesa, imigqa yethuluzi, ukubonakala kwethuluzi, ctrl f1, izilungiselelo, okukhethwayo, isikhombisi sekhona, cursor, ikhesa, indawo yokunamathisela, indawo yesisekelo, ukuchofoza izinto, ukukhetha, pickadd, shift, setha kabusha
+from: ae1a81db
 ---
 
-Vula {{ui:Settings}} ngegiya esibhalweni se-app noma nge-{{key:Mod+,}}. Ithebhu yokuqala, {{ui:CadCraft}}, ibamba izilungiselelo ezingeniswa yile app; {{ui:General}} ibamba ezabelwa zonke ama-app omndeni (itimu, usayizi wombhalo wephaneli nobubanzi bayo, nokubukeka nokuhleleka kwebha yamathuluzi). Izilungiselelo ze-CadCraft zikhona kuhlelo kuphela: uzishintsha lapha, futhi leli sishaqeli liyazikhumbula. I-{{ui:Reset CadCraft settings}} ibuyisela zonke emuva ekuqaleni.
+Vula {{ui:Izilungiselelo}} ngesigiya esisebhalikheni lohlelo noma nge-{{key:Mod+,}}. Ithebhu yokuqala, {{ui:CadCraft}}, ibamba izilungiselelo ezihlobene nalolu hlelo; i-{{ui:Okuvamile}} ibamba ezabelwana ngazo zonke izinhlelo zomndeni (itimu, usayizi nobubanzi bombhalo wephaneli, nokubukeka nokuhleleka kwethuluzi). Izilungiselelo ze-CadCraft zikhona kuhlelo kuphela: uzishintsha lapha, futhi le browser iyazikhumbula. I-{{ui:Setha kabusha izilungiselelo ze-CadCraft}} ibuyisela zonke ekuqaleni.
 
-## Isikhombi
+## Ikhesa
 
-**Okuncane**, **Okuphakathi** (okokuqala), **Okukhulu** noma **Isikrini esigcwele**: usayizi wekhesa nebhokisi lokukhetha emdwebweni. Ibhokisi lokukhetha elikhulu likhetha izinto nakude kancane, okusiza esikrinini sokuthinta noma emdwebweni omncane kakhulu.
+**Incane**, **Maphakathi** (okokuqala), **Enkulu** noma **Isikrini esigcwele**: usayizi wekhesa nebhokisi lokukhetha emdwebweni. Ibhokisi lokukhetha elikhulu likhetha nezinto ezisemgwaqweni omncane, okusiza esikrinini sokuthinta noma emdwebeni oyinkimbinkimbi kakhulu.
 
-I-**Isikrini esigcwele** igijimisa imigqa emibili yekhesa kusuka ohlangothini kuya kolunye kudonga lomdwebo, nalapho kungekho myalo ogijimayo, ukuze ubone ngeso lakho ukuthi izinto ziyahlanganiswa kuwo wonke umbono. Uma umbono uhlukaniswe, imigqa ihlala ephaneni osebenza kulo. Kufana ne-{{cmd:CURSORSIZE}} 100 ye-AutoCAD: thayipha {{cmd:CURSORSIZE}} bese ufaka 100 ukuze uthole isikrini esigcwele; inani elincane likhetha usayizi oseduze kakhulu (ngaphansi kwe-5 Okuncane, i-5 kuya kwe-9 Okuphakathi, i-10 kuya kwe-99 Okukhulu).
+**Isikrini esigcwele** senza imigqa emibili yekhesa ihambe emaphethelweni ayo kudwebo lonke, nalapho ingekho umyalo osebenza, ukuze ubone ngeso lakho ukuthi izinto ezimbili zihlelelana kulo lonke ukubuka. Uma ukubuka kuhlukaniswe, imigqa ihlala kuphaneli oyisebenzisayo. Okufanayo ne-AutoCAD {{cmd:CURSORSIZE}} 100: bhala {{cmd:CURSORSIZE}} no-100 ukuze uthole isikrini esigcwele; inombolo encane ikhetha usayizi osondele kakhulu (ngaphansi kwe-5 Incane, 5 kuya ku-9 Maphakathi, 10 kuya ku-99 Enkulu).
 
 ## Indawo yokunamathisela
 
-Lapho ikhophi enamathiselwe khona ihlinzeka ekhesini ngemva kwe-{{key:Mod+V}} ({{cmd:PASTECLIP}}), kuze kube yilapho uchofoza:
+Lapho ikhophi elinamathisiwe licwecwa khona ku-cursor ngemva kwe-{{key:Mod+V}} ({{cmd:PASTECLIP}}), kuze uchofoze:
 
-- **Ikhona elingezansi kwesobunxele** (okokuqala): ikhona elingezansi kwesobunxele lezinto ezikopishiwe, njengakuAutoCAD.
-- **Isikhungo**: iphakathi lalezo zinto. Kuhle ukubeka uphawu ngeso lakho.
+- **Ikhona eliphansi kwesobunxele** (okokuqala): ikhona eliphansi kwesobunxele lezinto ezikopishiwe, njengakwi-AutoCAD.
+- **Maphakathi**: indawo ephakathi kwazo. Iwusizo ekubekeni impawu ngeso.
 
-Ikhophi eyenziwe nge-`COPYBASE` ihlala ihlinzeka kuphoyinti lesisekelo oliketshezile. I-{{ui:Paste in place}} ({{key:Mod+Shift+V}}) iyayinaka lesi silungiselelo: igcina izixhumanisi zomsuka. Bheka [Kopisha, namathisela futhi uphinde](topic:copy-paste).
+Ikhophi elenziwe nge-`COPYBASE` lihlala lincwecwa kuphuzu lesisekelo oliklome. I-{{ui:Namathisela endaweni}} ({{key:Mod+Shift+V}}) iyayiyeka lesi sethingi: igcina izixhumanisi zokuqala. Bheka [Kopisha, namathisela nephinda](topic:copy-paste).
 
 ## Ukuchofoza izinto
 
-Lokho ukuchofoza emdwebweni okwenzayo ekukhetheni lapho kungekho myalo ogijimayo:
+Ukuchofoza emdwebeni kwenza ini ekukhethweni uma kungekho myalo osebenza:
 
-- **Yengeza ekukhetheni** (okokuqala): ukuchofoza ngakunye noma iwindi kwengeza izinto; {{key:Shift}}+ukuchofoza, noma {{key:Shift}}+iwindi, kuzisusa.
-- **Ithatha indawo yokukhetha**: ukuchofoza noma iwindi kukhetha kuphela lokho okukuthathayo. {{key:Shift}}+ukuchofoza kwengeza into, noma kususe into esele ikhethiwe; {{key:Shift}}+iwindi liyengeza.
+- **Yengeza ekukhethweni** (okokuqala): ukuchofoza ngakunye noma iwindi kwengeza izinto; {{key:Shift}}+ukuchofoza, noma iwindi lika-{{key:Shift}}, kuzisusa.
+- **Ishintsha ukukhetha**: ukuchofoza noma iwindi kukhetha okukhethayo kuphela. {{key:Shift}}+ukuchofoza kwengeza into, noma kususe eyesele ikhethiwe; iwindi lika-{{key:Shift}} liyengeza.
 
-Ku-prompt ethi `Khetha izinto:` ngaphakathi komyalo, ukuchofoza kuyahlala kwengeza (futhi {{key:Shift}} kususa), noma yini lesi silungiselelo esiyisho. Bheka [Khetha izinto](topic:select-objects).
+Ku-prompt ye-`Select objects:` ngaphakathi komyalo, ukuchofoza kuhlala kungeza ({{key:Shift}} iyasusa), noma yini lesi sethingi esiyisho. Bheka [Khetha izinto](topic:select-objects).
 
 ## Ukuchofoza indawo engenalutho
 
-Lokho ukuchofoza endaweni engenalutho kukwenzayo lapho kungekho myalo ogijimayo. Kunoma kunjani kuqala iwindi lokukhetha (ukuchofoza kwesibili kuliqeda).
+Ukuchofoza lapho kungekho into kwenza ini uma kungekho myalo osebenza. Noma kunjalo iqala iwindi lokukhetha (ukuchofoza kwesibili kuyaliphelisa).
 
-- **Isula ukukhetha** (okokuqala): okwakukhethiwe kuyakhishwa. Bamba {{key:Shift}} ukuchofoza ukuze ukugcine.
-- **Igcina ukukhetha**: ukukhetha kuyahlala, njengakwezinye izinhlelo zokudweba; iwindi lengeza kukho. Cindezela {{key:Esc}} ukuze usule ukukhetha.
+- **Isula ukukhetha** (okokuqala): okukhethiwe kuyakhishwa. Bamba {{key:Shift}} ngesikhathi uchofoza ukuze ukugcine.
+- **Igcina ukukhetha**: ukukhetha kuyahlala, njengakwezinye izinhlelo zokudweba; iwindi liyengeza kuko. Cindezela {{key:Esc}} ukuze usule ukukhetha.
 
 ## Ukudonsa ukukhetha
 
-Lokho ukucindezela nokudonsa endaweni engenalutho kudweba:
+Okudwetshwa ukucindezela nokudonsa endaweni engenalutho:
 
-- **I-Lasso** (okokuqala): umphetho wesandla esikhululekile. Ukunyakaza kwesokudla kuqala kukhetha lokho okuphelele ngaphakathi kwawo, ukunyakaza kwesobunxele kuqala kukhetha lokho okuthintayo; {{key:Space}} ngesikhathi sokudonsa iguqula phakathi kwewindi, ukuhlanganisa nefensi.
-- **Unxande**: ibhokisi, njengoba ukuchofoza kanye nokuchofoza kwesibili kudweba lona.
+- **I-lasso** (okokuqala): umphetho odwetshwe ngesandla. Ukunyakazela kwesokudla kuqala kukhetha okuphelele ngaphakathi kuwo, kwesobunxele kuqala okuwuthintayo; {{key:Space}} ngesikhathi sokudonsa iguqula phakathi kwewindi, ukuwela nomgede.
+- **Unxantathu**: ibhokisi, njengoba ukuchofoza kanye nokuchofoza kwesibili kuyidweba.
 
 I-{{cmd:LASSOMODE}} `1` noma `0` isetha okufanayo. Bheka [Ukukhetha nge-lasso](topic:lasso-selection).
 
-## Ukudonsa ukusika nokwelula
+## Ukudonsa ukunquma nokwelula
 
-Lokho ukucindezela endaweni engenalutho nokudonsa okwenzayo ku-{{cmd:TRIM}} ne-{{cmd:EXTEND}}:
+Okwenza ukucindezela endaweni engenalutho nokudonsa ku-{{cmd:TRIM}} ne-{{cmd:EXTEND}}:
 
-- **Indlela** (okokuqala): indlela yesandla esikhululekile; yonke ingxenye edlula kuyo iyasikwa (noma yelulwa).
-- **Iwindi**: ibhokisi; yonke ingxenye ethinta lona iyasikwa, njengoba kwenza inketho ethi `C`.
+- **Indlela** (okokuqala): indlela edwetshwe ngesandla; yonke ingxenye ewela kuyo iyanqunywa (noma iyelulwa).
+- **Iwindi**: ibhokisi; yonke ingxenye ithinta kuyo iyanqunywa, njengenketho ye-`C`.
 
-Bheka [Sika futhi welule](topic:trim-and-extend).
+Bheka [Nquma nwelula](topic:trim-and-extend).
 
-## Indawo yebha yamathuluzi
+## Indawo yethuluzi
 
-{{ui:CadCraft}} › {{ui:Toolbar position}}: **Phezulu** (okokuqala, njengoba kube njalo), **Phansi**, **Kwesobunxele** noma **Kwesokudla**. Ngakohlangothini lwesobunxele noma lwesokudla amaqembu amathuluzi ahlanganiswa ekholomu escrolayo uma ide kunewindi, nezinkinobho zigoqeka zibe ezimbili noma ezintathu emgqeni ngamunye. Ukukhetha kugcinwa ndawonye nezilungiselelo zakho, futhi i-{{cmd:TOOLBARDOCK}} (`TBDOCK`) isetha kusuka emugqeni womyalo. I-{{ui:General}} › {{ui:Reset the layout}} ibuyisela ibha yamathuluzi phezulu.
+{{ui:CadCraft}} › {{ui:Indawo yethuluzi}}: **Phezulu** (okokuqala, njengoba bekunjalo njalo), **Phansi**, **Kwesobunxele** noma **Kwesokudla**. Ngakwesobunxele noma ngakwesokudla amaqembu emithelo ayakhiwa ngekholomu escrolla uma ide kunewindi, nezinkinobho ziphindeka ezimbili noma ezintathu umugqa ngamunye. Ukukhetha kugcinwa nezilungiselelo zakho, futhi i-{{cmd:TOOLBARDOCK}} (`TBDOCK`) iyasetha kumugqa womyalo. I-{{ui:Okuvamile}} › {{ui:Setha kabusha isakhiwo}} ibuyisela ithuluzi phezulu.
 
-Amabha wezitayela zemenyu ahlala ngaphakathi kwebha yamathuluzi futhi ayahamba nayo, kodwa isitayela se-{{ui:Ribbon}} senzelwe ukuhamba phezulu noma phansi: ngakohlangothini sithola ikholomu elincane elisgrola. Efonini, ibha yamathuluzi ihlala lapho isakhiwo sefoni silibeka khona.
+Amabha ezitayela zemenyu ahlala ngaphakathi kwethuluzi futhi ahamba nalo, kodwa isitayela se-{{ui:Iribhoni}} senziwe ukuba sihambe phezulu noma phansi: ngasohlangothini siba yikholomu elincane escrollayo. Kufoni ithuluzi lihlala lapho uhlelo lwefoni luliphonsa khona.
 
-## Imigqa yebha yamathuluzi
+## Imigqa yethuluzi
 
-Imigqa emangaki amathuluzi asebenzisa phezu komdwebo, kwibha yamathuluzi ye-CadCraft nasezitayelweni ze-{{ui:Drafting classic}} ne-{{ui:Ribbon}}:
+Imigqa emingaki amathuluzi asebenzisa ngaphezulu komdwebo, kuthuluzi le-CadCraft nasezitayelweni ze-{{ui:Ukudweba kwakudala}} ne-{{ui:Iribhoni}}:
 
-- **Goqa ukuze ulingane** (okokuqala): amathuluzi agoqa ngobubanzi bewindi.
-- **Imigqa emi-2**: kuze kube yimigqa emibili. Uma amathuluzi egoqa abe yimigqa emibili noma ngaphansi kwalobu bubanzi, ayagoqa nje; kungenjalo ahlala emigqeni emibili escrolayo ngokuhlangothi.
-- **Umugqa o-1**: umugqa owodwa oscrolayo ngokuhlangothi, okunika umdwebo indawo enganingi kakhulu.
+- **Phindisa ukulingana** (okokuqala): amathuluzi aphindeka ngobubanzi bewindi.
+- **Imigqa emi-2**: okungenani imigqa emibili. Uma amathuluzi ephindeka abe yimigqa emibili noma ngaphansi kulobu bubanzi aphindeka nje; uma kungenjalo ahlala ezingqeni ezimbili ezi-scrollayo ngasohlangothini.
+- **Umugqa o-1**: umugqa oyodwa oscrollayo ngasohlangothini, okusiza umdwebo ngokwengeziwe ngendawo.
 
-{{key:Shift+Ctrl+F1}} ihamba phakathi kwalezi ntathu, ne-{{cmd:TOOLBARROWS}} isetha enye. Okubonisa izinkinobho (izithonjana nombhalo, izithonjana kuphela, noma umbhalo kuphela) kuyisilungiselelo se-{{ui:General}} › {{ui:Toolbar}}; i-{{key:Ctrl+F1}} ihamba phakathi kwakho, ne-{{cmd:TOOLBAR}} iyasetha.
+I-{{key:Shift+Ctrl+F1}} idlulela phakathi kwalezi ezintathu, futhi i-{{cmd:TOOLBARROWS}} isetha enye. Okubonisa izinkinobho (izithombe nombhalo, izithombe kuphela, noma umbhalo kuphela) kuyisilungiselelo se-{{ui:Okuvamile}} › {{ui:Ithuluzi}}; i-{{key:Ctrl+F1}} idlulela kuso futhi i-{{cmd:TOOLBAR}} iyasetha.
 
 ## Umugqa womyalo
 
-Umugqa womyalo ungahlala ufakwe ngaphansi komdwebo, njengakuqala, noma uncike phezu kwawo, futhi ungaba mncane njengomugqa owodwa.
+Umugqa womyalo ungahlala ufakwe ngaphansi komdwebo, njengoba kwakunjalo njalo, noma untante phezu kwawo, futhi ungaba mncane njengomugqa oyodwa.
 
-- **Uyincike.** Donsa isibambo ngakwesokudla sawo sibe ngaphakathi komdwebo, noma khetha {{ui:Float over the drawing}} kumenyu yawo {{ui:Command line options}} (amachashaza amathathu ngakwesokudla). Donsa isibambo futhi ukuze uhambise; indawo yawo igcinwa uma iwindi lishintsha usayizi. Donsa umphetho wawo wesokudla ukuze ube mkhulu noma mncane. Yiwise esimweni sebha, noma khetha {{ui:Dock at the bottom}}, ukuze ubuyele ufakwe.
-- **Yenza ibe mncane noma ibe mide.** Donsa umphetho wawo ophezulu: ukunyakaza ngakunye kuyumugqa womlando. Uze kube ngu-zero umugqa womyalo uba **ngumugqa womyalo owodwa**: umyalo kanye nalokho okuthayiphayo kuphela, nomyalezo omusha ubonakala ngenhlanhla ngesikhashana ngaphezulu kwawo. Ukuchofoza kabili emphethweni ophezulu kuhamba phakathi komugqa owodwa nobude owawunabo.
-- **Umlando.** {{key:F2}}, noma inkinobho yesikhathi emugqeni womyalo ({{ui:Command history (F2)}}), ivula umlando wonke ngaphezulu komugqa (ngaphansi kwawo uma umugqa ufloata eduze kwaphezulu kwewindi). Ukuthayipha kusaya emugqeni womyalo; i-{{key:PageUp}} ne-{{key:PageDown}} zisoma umlando, futhi i-{{key:Esc}}, i-{{key:F2}} noma ukuchofoza kwenye indawo kuwuvala. Ukhiye wakho ku-F2 uyanqoba lokhu.
-- **Ngekhibhodi.** Isibambo yinkinobho: uma igxilwe, izinkinobho zomcibisholo zihambisa umugqa womyalo ofloatayo (ne-{{key:Shift}}, ngezinyathelo ezikhulu); i-{{key:Up}} ifloata owadockwe, ne-{{key:Down}} emphethweni ongezansi uyawudocka. Umphetho ophezulu ungumhlukanisi: i-{{key:Up}} ne-{{key:Down}} zengeza noma zisuse umugqa, i-{{key:Home}} iwenza umugqa owodwa, i-{{key:End}} owona mude. Abafundi besikrini bezwa yonke imiyalezo, nasemugqeni womyalo owodwa.
+- **Yiphakamise.** Donsa isibambi esingakwesobunxele sayo singene emdwebeni, noma khetha {{ui:Phakamisa phezu komdwebo}} kumenyu yayo {{ui:Izinketho zomugqa womyalo}} (amachashaza amathathu ngakwesokudla kwayo). Donsa isibambi futhi ukuze uyinyakazise; indawo yayo iyagcinwa uma iwindi lishintsha usayizi. Donsa umphetho wayo wesokudla ukuze wenze ibanzi noma ibe mncane. Yiphonsele kwibha yesimo, noma khetha {{ui:Beka phansi}}, ukuze uyifake futhi.
+- **Yenze ibe mncane noma ibeide.** Donsa umphetho wayo wangaphezulu: isinyathelo ngasinye singumugqa womlando. Uma yehla ibe imigqa engu-zero iba **umugqa womyalo oyodwa**: kuphela i-prompt nokukubhalayo, futhi umlayezo omusha ubonakala ngenhla kwawo okwesikhashana. Ukuchofoza kabili emphethweni wangaphezulu kuguqula phakathi komugqa oyodwa nobude obabukhona.
+- **Umlando.** {{key:F2}}, noma inkinobho yesikhathi kumugqa womyalo ({{ui:Umlando womyalo (F2)}}), ivula umlando wonke ngaphezulu komugqa (ngaphansi kwawo uma ufloata eduze kwaphezulu kwewindi). Ukubhala kusahamba emugqeni womyalo; i-{{key:PageUp}} ne-{{key:PageDown}} zisheshisa umlando, futhi i-{{key:Esc}}, {{key:F2}} noma ukuchofoza kwenye indawo ukuwuvala. Inkinobho yakho ku-F2 inqoba lokhu.
+- **Ngekhibhodi.** Isibambi yinkinobho: uma sigxilile, izinkinobho zomcibisholo ziyanyakazisa umugqa womyalo ofloatayo (ne-{{key:Shift}}, ngezinyathelo ezinkulu); i-{{key:Up}} ifloata owefakiwe futhi i-{{key:Down}} emphethelweni ongaphansi iwufake. Umphetho wangaphezulu ungumkhawulo: i-{{key:Up}} ne-{{key:Down}} zengeza noma zisuse umugqa, i-{{key:Home}} iwenza umugqa oyodwa, i-{{key:End}} ingeyide kakhulu. Abafundi besikrini bayazwa yonke imilayezo, nasemugqeni womyalo oyodwa.
 
-{{ui:CadCraft}} › {{ui:Command line}} inezinketho ezifanayo: {{ui:Docked at the bottom}} noma {{ui:Floating}}, {{ui:History lines shown}} (0 kuya kwele-12) kanye no-{{ui:Standard height}}. I-{{cmd:COMMANDLINE}} (`CMDLINE`) izisetha kusuka emugqeni womyalo. Indawo nobude kugcinwa ngeCadCraft kulesi sishaqeli kanye nesakhiwo esisele, ngakho umsebenzi osindisiwe uyazithwala; i-{{ui:General}} › {{ui:Reset the layout}} ibuyisela umugqa womyalo kubude bawo bejwayelekile. Efonini, umugqa womyalo uhlala udockiwe ngomugqa owodwa womlando; inkinobho yomlando isebenza nalapho.
+{{ui:CadCraft}} › {{ui:Umugqa womyalo}} inezinketho ezifanayo: {{ui:Beka phansi}} noma {{ui:Uphakamile}}, {{ui:Imigqa yomlando ebonisiwe}} (0 kuya ku-12) kanye ne-{{ui:Ubude obujwayelekile}}. I-{{cmd:COMMANDLINE}} (`CMDLINE`) iyazisetha komugqa womyalo. Indawo nobude kugcinwa ngakwe-CadCraft kule browser kanye nakho konke okunye, ngakho imvelo yomsebenzi elondoloziwe iyazithwala; i-{{ui:Okuvamile}} › {{ui:Setha kabusha isakhiwo}} ifaka umugqa womyalo ebudeni bawo obujwayelekile kabusha. Kufoni umugqa womyalo uhlala ufakiwe kanye nomugqa oyodwa womlando; inkinobho yomlando nayo isebenza lapho.
 
-Uma iwindi lifushane futhi isheke lesakhiwo likunikeza isakhiwo esiqinile, i-{{ui:Yes}} yalo nayo iguqula umugqa womyalo ube umugqa owodwa uma umdwebo usafushane ngemva kwamabha wamathuluzi.
+{{ui:CadCraft}} › {{ui:Izinhlamvu zezinketho}} igcina izinhlamvu oze wazikhetha zezinketho zomyalo: i-{{ui:Hlela…}} ivula ifayela, i-{{ui:Ngenisa…}} iyalishintsha ngelokhethayo futhi i-{{ui:Thumela}} iyalilondoloza. Bheka [Nika izinketho zomyalo izinhlamvu zakho](topic:option-letters).
 
-## Indawo engaphezulu
+Uma iwindi lifushane futhi ukuhlola kwesakhiwo kunikeza isakhiwo esiqinile, i-{{ui:Yebo}} yaso nayo iguqula umugqa womyalo ube umugqa oyodwa uma umdwebo usafushane ngemva kwamathuluzi.
 
-{{ui:CadCraft}} › {{ui:Top area}}: **Okujwayelekile** (okokuqala) noma **Okuhlangene**. Okuhlangene kugcina amabha angaphezu komdwebo emancane kuzo zonke izitayela zemenyu: amagama amaqembu nemibhalo ngaphansi kwezithonjana iyanyamalala (amathiphu nabafundi besikrini aseqhubeka nawo) futhi izinkinobho ziyaqina. Lisebenza kanye ne-[Imigqa yebha yamathuluzi](topic:settings#toolbar-rows): i-Hlangene ne-**Umugqa o-1** zinika umdwebo indawo eningi kakhulu. I-{{cmd:TOPAREA}} iyasetha.
+## Indawo ephezulu
+
+{{ui:CadCraft}} › {{ui:Indawo ephezulu}}: **Okujwayelekile** (okokuqala) noma **Ekhompakthi**. I-Compact igcina amabha angaphezulu komdwebo amancane kuzo zonke izitayela zemenyu: amagama amaqembu nemibhalo ngaphansi kwezithombe iyanyamalala (amathiphu nabafundi besikrini asaqhubeka) nezinkinobho ziyaqina. Isebenza ne-[Imigqa yethuluzi](topic:settings#toolbar-rows): i-Compact ne-**1 row** zinika umdwebo indawo eningi kakhulu. I-{{cmd:TOPAREA}} iyasetha.
 
 ## Isikhombisi sekhona
 
 Okuhlala ekhoneni lomdwebo:
 
-- **Okuzenzakalelayo** (okokuqala): isithonjana seeksisi kuthebhu ethi {{ui:Model}} nekhyubhu lokubuka kuthebhu ethi {{ui:3D}}.
-- **Isithonjana seeksisi**: isimaka se-X no-Y ngaphansi kwesobunxele kuthebhu ethi {{ui:Model}}, nesimaka esincane se-X, Y no-Z kuthebhu ethi {{ui:3D}}.
-- **Ikhyubhu lokubuka**: ikhyubhu ngaphezulu kwesobunxele nakwesokudla kwazo zombili izithebhu. Kuthebhu ethi {{ui:Model}} likhombisa umdwebo ukusuka phezulu, futhi ukuchofoza olunye uhlangothi, umphetho noma ikhona kuvula ithebhu ethi {{ui:3D}} ibukisisa ukusuka khona. Kuthebhu ethi 3D liyaguquka kanye nombono: chofoza ukuze ubuke ohlangothini, donsa ukuze uzungeze, futhi indlu ibuyela emboneni we-iso. Bheka [Imodeli ku-3D](topic:3d-solids).
-- **Lutho**: akukho okulapho ekhoneni.
+- **Ngokuzenzakalelayo** (okokuqala): isithonjana seeksisi kuthebhu le-{{ui:Imodeli}} nekhyubhu lokubuka kuthebhu le-{{ui:3D}}.
+- **Isithonjana seeksisi**: isimaki se-X ne-Y ngaphansi kwesobunxele kuthebhu le-{{ui:Imodeli}}, nesimaki esincane se-X, Y ne-Z kuthebhu le-{{ui:3D}}.
+- **Ikhyubhu lokubuka**: ikhyubhu ngaphezulu kwesokudla kwazo zombili izithebhu. Kuthebhu le-{{ui:Imodeli}} libonisa umdwebo ukusuka phezulu, nokuchofoza ubuso, umphetho noma ikhona elihlukile kuvula ithebhu le-{{ui:3D}} libheke kusuka lapho. Kuthebhu le-3D liphendukela nokubuka: chofoza ukubheka ohlangothini, donsa ukuzungeza, bese indlu ibuyela ekubukeni kwe-iso. Bheka [Imodeli ku-3D](topic:3d-solids).
+- **Lutho**: akukho okusekhoneni.
 
-Amashidi awabonisi lutho kulezi zimo.
+Amashidi awabonisi lutho kwezimbili.
 
-## Ubude nendawo yokukhetha
+## Ubude nendawo yokukhethwa
 
-- **Ebhalweni lesimo** (okokuqala): lapho izinto zikhethiwe, ibha yesimo ibonisa ubude bazo bonke nendawo yalezo ezivaliwe. Bheka [Iziphethu zokukhetha](topic:properties-panel#totals-of-a-selection).
-- **Icashile**: ibha yesimo iyazishiya. Izakhiwo zisabonisa zona uma zinhlanu.
+- **Kwibha yesimo** (okokuqala): lapho izinto zikhethiwe, ibha yesimo ibonisa ubude bazo bonke nendawo yazo zonke ezivaliwe. Bheka [Izinhlanganisela zokukhethwa](topic:properties-panel#totals-of-a-selection).
+- **Ifihliwe**: ibha yesimo iyazishiya. I-Properties isabonisa zona zezinto eziningi.
 
-## Igridi, Ortho namabamba
+## Igridi, i-Ortho nokubamba
 
-Lokhu akusemaphaneli: izinkinobho ze-{{ui:Grid}}, {{ui:Ortho}} ne-{{ui:Snap}} ebhalweni lesimo (noma {{key:F7}}, {{key:F8}}, {{key:F3}}) nohlu lwamabamba ezinto ngaphansi kwazo ziyakhunjulwa uma usuka kuzo. Bheka [Bamba kumaphoyinti ezinto](topic:object-snaps).
+Lezi azikho ocingweni: izinkinobho ze-{{ui:Igridi}}, {{ui:Ortho}} ne-{{ui:Bamba}} kwibha yesimo (noma {{key:F7}}, {{key:F8}}, {{key:F3}}) nohlu lokubamba izinto oluseceleni kwazo ziyakhunjulwa uma ushiya. Bheka [Bamba amaphoyinti ezintweni](topic:object-snaps).

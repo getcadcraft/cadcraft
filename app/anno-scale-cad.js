@@ -39,7 +39,7 @@
  *   annoView(doc, frozen) → (e → e | resized e | null) | null · annoHidden(doc, e) → bool · annoVpKey(vp) → marker | null
  */
 import { rescale, validRatio, modelHeight, cleanStandard, KINDS } from './annoscale.js';
-import { policy } from './defaults-hook.js';
+import { officeTextHeight } from './office-cad.js';   // 0.11 BK.181
 import { mmPerDrawingUnit } from './units.js';
 import { DIM_DEFAULTS } from './dims.js';
 import { nOf } from './sheets.js';   // ORS.26: a viewport's scale as people read it
@@ -100,10 +100,8 @@ export function paperSizeOf(doc, e) {
 }
 export function annoTextHeight(doc, kind = 'text') {
   if (!KINDS.includes(kind)) return null;
-  const v = policy('all.anno.' + kind);
-  if (typeof v !== 'number') return null;
-  const std = cleanStandard({ heights: { [kind]: v } }).standard;
-  const h = modelHeight(kind, annoScaleOf(doc), std, unitMm(doc));
+  // 0.11 BK.181: the office standard in force (office-cad.js: the drawing's own record, else the team's, else Default Policies all.anno.*)
+  const h = officeTextHeight(doc, kind, annoScaleOf(doc), unitMm(doc));
   return Number.isFinite(h) && h > 0 ? Math.round(h * 1e9) / 1e9 : null;
 }
 

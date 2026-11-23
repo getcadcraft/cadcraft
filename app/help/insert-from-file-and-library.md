@@ -9,10 +9,14 @@ keywords: insert, file, library, librarycraft, item, equipment, block from anoth
 ## Insert a block from another drawing
 
 1. Type `I` and press {{key:Enter}}, or click {{ui:Insert}} in the Blocks group.
-2. At `Enter block name or [File/Library]`, type `F` and press {{key:Enter}}.
+2. The command line at the bottom of the window asks `Enter block name or [File/Library]`. Type `F` there and press {{key:Enter}}.
 3. Choose the DWG or DXF on this computer. It is read here; it is not opened, and nothing is uploaded.
 4. In the {{ui:Insert from}} dialog, pick a block from the list (type in {{ui:Filter blocks}} to find it), or keep {{ui:The whole drawing}}. Click {{ui:Insert}}.
 5. Click where it goes, and fill in any attributes it asks for.
+
+You can also start from the {{ui:Blocks}} panel: type `F` in its {{ui:Filter blocks}} box and press {{key:Enter}}, or type something no block matches and click {{ui:From a file…}}. `L` and {{ui:Library…}} open the library the same way. Before version 0.10.1 a letter typed in {{ui:Filter blocks}} only searched this drawing's blocks and answered "No block matches the filter."
+
+To keep a drawing of your own blocks at hand, click {{ui:Add a drawing}} under {{ui:Libraries}} in the {{ui:Blocks}} panel and choose the DWG or DXF. Its blocks are listed with pictures; click one to place it.
 
 The whole drawing comes in as one block named after the file. Blocks inside the block you picked come too. The layers they use are added to this drawing.
 
@@ -77,6 +81,21 @@ The Library has three kinds of item: Symbols (drawing conventions, 2D), Types (w
 ## Sign in to the library
 
 Click {{ui:Sign in to the library}}. A small window opens on the site; once you are signed in there, CadCraft can show your team's items and register what you place, so you hear when an item you used changes. The sign-in lasts for this browser tab. Revoke it any time from your account's security page.
+
+## Keep your own objects in My objects
+
+{{ui:My objects}} is a private list in the Library that only you can see. It is not in the public library, not in search, and not shown to your team, and it follows your account to every computer where you sign in to the library.
+
+1. In the Library panel, click {{ui:Files…}} and read a file.
+2. On the item you want again, click {{ui:Keep in my objects}}.
+3. Later, click {{ui:My objects}} and click {{ui:Place}}. It places like any library item, and {{ui:Check for updates}} covers it.
+4. {{ui:Remove from my objects}} takes it out of the list. Copies already placed in drawings stay.
+
+You need to be signed in to the library. Reading a file uploads nothing; keeping an item sends that one item to your account.
+
+:::note
+My objects is being tested and may not be open for your account yet. If it says "My objects is not open for this account yet", you can still place items from your own files with {{ui:Files…}}.
+:::
 
 ## Common mistakes
 

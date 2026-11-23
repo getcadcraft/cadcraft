@@ -176,7 +176,7 @@ export function installDrawingLock({ host, fileHost, doc, t, print, ask, win = w
     beat,
   };
   if (locks) {
-    const bye = () => { if (timer) { win.clearInterval(timer); timer = 0; } locks.releaseAll(); };
+    const bye = () => { if (timer) { win.clearInterval(timer); timer = 0; } (locks.releaseAllNow || locks.releaseAll).call(locks); };
     win.addEventListener('pagehide', bye);
   }
   return api;

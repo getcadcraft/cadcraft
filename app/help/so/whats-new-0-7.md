@@ -2,7 +2,7 @@
 title: Waxa cusub ee 0.7 (hore)
 summary: PDF hoos-saar iyo soo dhoofinta PDF, naqshadaha scan-ka oo leh trace otomaatig, splines dhab ah oo leh SPLINE, SPLINEDIT iyo PEDIT, maareeyaha qaabka cabbirka, qoraal ilaalinaya qaabkiisa, WBLOCK iyo miisaankaaga, jidh 3D ka yimid barnaamijyada kale, diiwaangelinta scans-ka, panelka Laser, USD export, History iyo daabacaadda CadCraft Studio, naqshad hage-ah oo koowaad, qalabka dhinac kasta ama safaf yar, iyo wax badan oo kaaliyayaasha AI.
 keywords: waxa cusub 0.7, nooca hore, qoraallada siidaynta, liiska isbeddelka, isbeddel, 0.7, nooca, astaamaha cusub, pdf, pdfattach, pdfimport, hoos-saar, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, qaabeyn, wblock, scalelistedit, liiska miisaanka, acis, jidh 3D, registerscans, diiwaangeli scans, icp, e57, las, laser, grbl, g-code, usd, usdout, taariikh, noocyo, isbarbardhig, daabac, daabacaha, png, svg, qaabka soo saarka, nooca khadka, safar, xaashi gaaban, khariidadda amarrada, booska qalabka, safka qalabka, toolbardock, regen, regenall, trackpad, fur-jiid, bogga koodka, cyrillic, kuuriyaan, jabbaani, shiinees, korontada, rcd, p&id, pid, acad.lsp, acaddoc.lsp, galka taageerada, kaaliyayaasha, mcp, unugyada, boortaqiis
-from: d07ca034
+from: d9a8ea79
 ---
 
 Waxa isbeddelay CadCraft 0.7, marka la barbardhigo 0.6. Badankiisa waxaa lagu weydiistay Discord. Liiska waxaa lagu kooxeeyay qaybaha, kuwa ugu muhiimsan ayaa horreeya.

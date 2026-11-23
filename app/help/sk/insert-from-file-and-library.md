@@ -1,84 +1,103 @@
 ---
-title: Vloženie zo súboru alebo z knižnice
-summary: Prineste blok alebo celý výkres z iného DWG alebo DXF a umiestnite položky z knižnice, zo súboru alebo z inej knižnice s ich uvedením autorov a aktualizáciami.
-keywords: vložiť, súbor, knižnica, librarycraft, položka, vybavenie, blok z iného výkresu, wblock, centrum návrhu, uvedenie autorov, licencia, aktualizácia, zdroj, item.json
-from: 316188d2
+title: Vloženie zo súboru alebo knižnice
+summary: Prineste blok alebo celý výkres z iného DWG alebo DXF a vložte položky z Knižnice, zo súboru alebo z inej knižnice s ich uvedeniami autorov a aktualizáciami.
+keywords: vložiť, súbor, knižnica, librarycraft, položka, zariadenie, blok z iného výkresu, wblock, design center, uvedenie autora, licencia, aktualizácia, kanál, item.json
+from: f6e4e452
 ---
 
 ## Vloženie bloku z iného výkresu
 
-1. Zadajte `I` a stlačte {{key:Enter}}, alebo kliknite na {{ui:Vložiť}} v skupine Bloky.
-2. Pri výzve `Zadajte názov bloku alebo [Súbor (F)/Knižnica (L)]` zadajte `F` a stlačte {{key:Enter}}.
-3. Vyberte DWG alebo DXF na tomto počítači. Číta sa tu; neotvára sa a nič sa nenahráva.
-4. V dialógovom okne {{ui:Vložiť z}} vyberte blok zo zoznamu (píšte do poľa {{ui:Filtrovať bloky}}, aby ste ho našli), alebo ponechajte {{ui:Celý výkres}}. Kliknite na {{ui:Vložiť}}.
-5. Kliknite, kam má ísť, a vyplňte atribúty, ak ich vyžaduje.
+1. Napíšte `I` a stlačte {{key:Enter}}, alebo kliknite na {{ui:Vložiť}} v skupine Bloky.
+2. Riadok príkazov v dolnej časti okna sa pýta `Enter block name or [File/Library]`. Napíšte tam `F` a stlačte {{key:Enter}}.
+3. Vyberte DWG alebo DXF na tomto počítači. Číta sa tu; neotvára sa a nič sa neodosiela.
+4. V dialógu {{ui:Vložiť z}} vyberte blok zo zoznamu (píšte do {{ui:Filtrovať bloky}}, aby ste ho našli), alebo ponechajte {{ui:Celý výkres}}. Kliknite na {{ui:Vložiť}}.
+5. Kliknite, kam má ísť, a vyplňte atribúty, ktoré pýta.
 
-Celý výkres sa vloží ako jeden blok pomenovaný podľa súboru. Aj bloky vnútri vybraného bloku prídu so ním. Hladiny, ktoré používajú, sa pridajú do tohto výkresu.
+Môžete začať aj od panela {{ui:Bloky}}: napíšte `F` do jeho poľa {{ui:Filtrovať bloky}} a stlačte {{key:Enter}}, alebo napíšte niečo, čo sa so žiadnym blokom nezhoduje, a kliknite na {{ui:Zo súboru…}}. `L` a {{ui:Knižnica…}} otvoria knižnicu rovnako. Pred verziou 0.10.1 písmeno napísané do {{ui:Filtrovať bloky}} prehľadávalo iba bloky tohto výkresu a odpovedalo „No block matches the filter."
 
-Ak je iný výkres v iných jednotkách (napríklad v palcoch a milimetroch), CadCraft prispôsobí mierku odkazu a oznámi to v histórii.
+Ak chcete mať výkres vlastných blokov po ruke, kliknite na {{ui:Pridať výkres}} pod {{ui:Knižnice}} na paneli {{ui:Bloky}} a vyberte DWG alebo DXF. Jeho bloky sa zobrazia s obrázkami; kliknutím na jeden ho umiestnite.
 
-### Ak je názov už použitý
+Celý výkres prichádza ako jeden blok pomenovaný podľa súboru. Prichádzajú aj bloky vnútri vybraného bloku. Hladiny, ktoré používajú, sa pridajú do tohto výkresu.
 
-Ak tento výkres už má blok s rovnakým názvom, CadCraft sa opýta:
+Ak je iný výkres v iných jednotkách (napríklad palce a milimetre), CadCraft referenciu zmení na mierku a oznámi to v histórii.
 
-- {{ui:Ponechať existujúce}} použije blok tohto výkresu s týmto názvom.
-- {{ui:Premenovať}} vloží nový ako `Názov (2)`.
+### Keď je názov už použitý
 
-Celé vloženie je jeden krok: {{key:Mod+Z}} odstráni odkaz aj skopírované definície.
+Ak má tento výkres už blok s rovnakým názvom, CadCraft sa opýta:
+
+- {{ui:Ponechať existujúci}} použije blok tohto výkresu s týmto názvom.
+- {{ui:Premenovať}} prinesie nový ako `Name (2)`.
+
+Celé vloženie je jeden krok: {{key:Mod+Z}} odoberie referenciu a skopírované definície.
 
 ## Otvorenie knižnice
 
-Kliknite na {{ui:Knižnica…}} v paneli {{ui:Bloky}}, alebo na {{ui:Knižnica}} v skupine Bloky, alebo zadajte `LIB`. Pri výzve `INSERT` ju otvorí aj `L`.
+Kliknite na {{ui:Knižnica…}} na paneli {{ui:Bloky}}, alebo na {{ui:Knižnica}} v skupine Bloky, alebo napíšte `LIB`. Pri výzve `INSERT` ju `L` tiež otvorí.
 
 Knižnica má štyri zdroje, ako karty:
 
-- {{ui:Knižnica}}: knižnica CadCraft. Hľadajte podľa názvu, výrobcu alebo modelu a filtrujte podľa kategórie.
-- {{ui:Súbory…}}: súbor položky (`item.json`) z ľubovoľnej knižnice, alebo výkres, tabuľku či 3D model, z ktorých sa vytvoria položky: DWG alebo DXF (každý blok sa stane položkou), CSV so stĺpcami názov a veľkosť, alebo model glTF či OBJ. Nič sa nenahráva.
-- {{ui:Štandardné}}: oceľové profily (ako rezy, pohľady alebo 3D prvky) a štandardné diely ako skrutky, matice a ložiská, vytvorené tu z publikovaných tabuliek. Pozri [Umiestnenie oceľových profilov a štandardných dielov](topic:steel-and-standard-parts).
-- {{ui:Ďalšie zdroje}}: iné knižnice, ktoré odpovedajú rovnako ako Knižnica. Ich adresu pridajte iba raz; tento prehliadač si ju zapamätá.
+- {{ui:Knižnica}}: knižnica CadCraftu. Hľadajte podľa názvu, výrobcu alebo modelu a filtrujte podľa kategórie.
+- {{ui:Súbory…}}: súbor položky (`item.json`) z ktorejkoľvek knižnice, alebo výkres, tabuľka či 3D model, z ktorých sa vytvoria položky: DWG alebo DXF (každý blok sa stane položkou), CSV so stĺpcami názvu a veľkosti, alebo model glTF či OBJ. Nič sa neodosiela.
+- {{ui:Štandard}}: oceľové profily (ako rezy, pohľady alebo 3D prvky) a štandardné diely ako skrutky, matice a ložiská, vytvorené tu z uverejnených tabuliek. Pozrite [Umiestnenie oceľových profilov a štandardných dielov](topic:steel-and-standard-parts).
+- {{ui:Ďalšie zdroje}}: iné knižnice, ktoré odpovedajú rovnakým spôsobom ako Knižnica. Pridajte ich adresu raz; tento prehliadač si ju zapamätá.
 
-Každá karta zobrazuje ukážku, názov, výrobcu a model, licenciu a verziu. Stiahnutá položka je označená {{ui:Stiahnutá}} s dôvodom; CadCraft sa pred jej umiestnením opýta.
+Každá karta zobrazuje náhľad, názov, výrobcu a model, licenciu a verziu. Stiahnutá položka je označená {{ui:Stiahnuté}} s dôvodom; CadCraft sa pred jej umiestnením opýta.
 
 ## Umiestnenie položky
 
 1. Kliknite na {{ui:Umiestniť}} na karte.
-2. Kliknite, kam má položka ísť. Najprv zadajte `R`, aby ste ju otočili, alebo `S`, aby ste zmenili jej mierku.
-3. Pri výzve `Zadajte číslo položky (CC-ITEM)` stlačte {{key:Enter}} pre ďalšie voľné číslo, alebo zadajte vlastné.
+2. Kliknite, kam položka ide. Najprv napíšte `R`, aby ste ju otočili, alebo `S`, aby ste zmenili mierku.
+3. Pri `Enter Item number (CC-ITEM)` stlačte {{key:Enter}} pre najbližšie voľné číslo, alebo napíšte svoje vlastné.
 
-Položka sa stane blokom pomenovaným `LIB_<name>_v<version>`, nakresleným v jednotkách tohto výkresu. Ak výkres nemá jednotky, položka sa vloží v milimetroch a história to oznámi; najprv nastavte {{ui:Jednotky}} na pravom paneli.
+Položka sa stane blokom pomenovaným `LIB_<name>_v<version>`, nakresleným v jednotkách tohto výkresu. Ak výkres nemá jednotky, položka sa vloží v milimetroch a história to povie; najprv nastavte {{ui:Jednotky}} v pravom paneli.
 
-Jej údaje idú so položkou ako neviditeľné atribúty: id a verzia položky, licencia a uvedenie autora, výrobca, model, kategória a rozmery. Pozri [Atribúty bloku](topic:attributes).
+Jej údaje cestujú ako neviditeľné atribúty: id položky a verzia, licencia a uvedenie autora, výrobca, model, kategória a rozmery. Pozrite [Atribúty bloku](topic:attributes).
 
 ## Položky vo vašom jazyku
 
-Položka môže mať názov a popis aj v iných jazykoch. Keď ich má v jazyku, na ktorý je CadCraft nastavený (Nastavenia › Všeobecné › Jazyk), karta a názov položky umiestneného bloku ich použijú. Samotný blok má názov odvodený z vlastného názvu položky, takže výkres má jeden blok na položku bez ohľadu na to, v akom jazyku ju umiestnil.
+Položka môže niesť svoj názov a popis v iných jazykoch. Keď ich má v jazyku, na ktorý je CadCraft nastavený (Nastavenia › Všeobecné › Jazyk), karta a názov položky umiestneného bloku ich použijú. Samotný blok si ponecháva názov odvodený z vlastného názvu položky, takže výkres má jeden blok na položku bez ohľadu na to, v ktorom jazyku ju umiestnil.
 
 ## Kontrola aktualizácií
 
 1. Otvorte knižnicu.
-2. Kliknite na {{ui:Skontrolovať aktualizácie}}.
+2. Kliknite na {{ui:Kontrola aktualizácií}}.
 
-Každá položka knižnice vo výkrese je uvedená s číslami položiek a tým, či je aktuálna, má novšiu verziu (a čo sa zmenilo), alebo bola stiahnutá. Kliknite na {{ui:Aktualizovať}} pri riadku, alebo na {{ui:Aktualizovať všetko}}. Každý odkaz sa presunie na blok novej verzie a zachová si číslo položky, množstvo, miesto, uhol a hladinu. {{key:Mod+Z}} aktualizáciu zruší.
+Každá položka knižnice vo výkrese sa vypíše s jej číslami položiek a s tým, či je aktuálna, má novšiu verziu (a čo sa zmenilo), alebo bola stiahnutá. Kliknite na {{ui:Aktualizovať}} v riadku alebo na {{ui:Aktualizovať všetko}}. Každá referencia sa presunie na blok novej verzie a zachová si číslo položky, množstvo, miesto, uhol a hladinu. {{key:Mod+Z}} zruší aktualizáciu.
 
-## Uvedenie použitých zdrojov
+## Uvedenie autorov pre to, čo ste použili
 
-Kliknite na {{ui:Uvedenie autorov knižnice}}. Každá položka je uvedená s riadkom uvedenia autora a licenciou.
+Kliknite na {{ui:Uvedenia autorov knižnice}}. Každá položka je vypísaná s riadkom uvedenia autora a licenciou.
 
-- {{ui:Kopírovať uvedenie autora}} skopíruje riadok jednej položky; {{ui:Kopírovať všetko}} skopíruje všetky riadky.
-- {{ui:Stiahnuť CSV}} uloží zoznam s číslami položiek, výrobcami, modelmi, licenciami a uvedeniami autorov. Otvorí sa v ľubovoľnom tabuľkovom editore.
+- {{ui:Kopírovať uvedenie autora}} skopíruje riadok jednej položky; {{ui:Kopírovať všetko}} skopíruje každý riadok.
+- {{ui:Stiahnuť CSV}} uloží zoznam s číslami položiek, výrobcami, modelmi, licenciami a uvedeniami autorov. Otvorí sa v ľubovoľnej tabuľkovej aplikácii.
 
-Licencie ako CC BY vyžadujú, aby ste autora uviedli tam, kde dielo používate. Uveďte riadky na výkrese, v špecifikácii alebo v projektových poznámkach.
+Licencie ako CC BY od vás žiadajú uviesť autora tam, kde dielo používate. Dajte riadky na výkres, do špecifikácie alebo do projektových poznámok.
 
-## Symboly a aktíva
+## Symboly a zdroje
 
-Knižnica má tri druhy položiek: Symboly (konvencie výkresu, 2D), Typy (z čoho sa prvok skladá) a Aktíva (fyzické objekty). Na karte {{ui:Knižnica}} zoznam {{ui:Druh položky}} zobrazuje Symboly a Aktíva spolu, iba Symboly, alebo iba Aktíva. Typy sú to, z čoho sa skladá projekt BimCraft, preto ich CadCraft nevypisuje.
+Knižnica má tri druhy položiek: Symboly (konvencie kreslenia, 2D), Typy (z čoho sa prvok skladá) a Zdroje (fyzické objekty). Na karte {{ui:Knižnica}} zoznam {{ui:Druh položky}} zobrazuje Symboly a zdroje spolu, iba Symboly alebo iba Zdroje. Typy sú to, z čoho sa skladá projekt BimCraft, takže ich CadCraft nevypisuje.
 
 ## Prihlásenie do knižnice
 
-Kliknite na {{ui:Prihlásiť sa do knižnice}}. Otvorí sa malé okno na stránke; keď sa tam prihlásite, CadCraft vám môže ukázať položky vášho tímu a zaznamenať, čo umiestňujete, aby ste sa dozvedeli, keď sa položka, ktorú ste použili, zmení. Prihlásenie platí pre túto kartu prehliadača. Kedykoľvek ho môžete zrušiť na stránke zabezpečenia svojho účtu.
+Kliknite na {{ui:Prihlásiť sa do knižnice}}. Otvorí sa malé okno na stránke; keď sa tam prihlásite, CadCraft vám môže ukázať položky vášho tímu a zaznamenať, čo umiestňujete, takže sa dozviete, keď sa zmení položka, ktorú ste použili. Prihlásenie platí pre túto kartu prehliadača. Kedykoľvek ho zrušte na stránke zabezpečenia vášho účtu.
+
+## Ponechanie vlastných objektov v Mojich objektoch
+
+{{ui:Moje objekty}} je súkromný zoznam v Knižnici, ktorý vidíte iba vy. Nie je vo verejnej knižnici, nie je vo vyhľadávaní a nezobrazuje sa vášmu tímu a nasleduje váš účet na každom počítači, kde sa prihlásite do knižnice.
+
+1. V paneli Knižnica kliknite na {{ui:Súbory…}} a prečítajte súbor.
+2. Pri položke, ktorú chcete znova, kliknite na {{ui:Ponechať v mojich objektoch}}.
+3. Neskôr kliknite na {{ui:Moje objekty}} a kliknite na {{ui:Umiestniť}}. Umiestni sa ako každá položka knižnice a {{ui:Kontrola aktualizácií}} ju pokrýva.
+4. {{ui:Odstrániť z mojich objektov}} ju odstráni zo zoznamu. Kópie už umiestnené vo výkresoch zostanú.
+
+Musíte byť prihlásení do knižnice. Čítanie súboru nič neodosiela; ponechanie položky odošle len túto jednu položku na váš účet.
+
+:::note
+Moje objekty sa testuje a pre váš účet nemusí byť ešte otvorené. Ak píše „My objects is not open for this account yet", môžete stále umiestňovať položky z vlastných súborov cez {{ui:Súbory…}}.
+:::
 
 ## Časté chyby
 
-- **"Vytváranie položiek z typov IFC je v BimCraft."** Súbory IFC a rodín sa čítajú v aplikácii BimCraft. Položku vytvorte tam alebo v knižnici, potom tu použite jej `item.json`.
-- **"Knižnicu sa nepodarilo kontaktovať."** Ste offline alebo je knižnica nedostupná. Položky, ktoré už sú vo výkrese, to neovplyvní.
-- **Položka je príliš veľká alebo príliš malá.** Jednotky výkresu sú zle alebo nie sú nastavené. Vráťte krok späť, nastavte {{ui:Jednotky}} a položku umiestnite znova.
+- **„Making items from IFC types is in BimCraft."** Súbory IFC a rodiny sa čítajú v aplikácii BimCraft. Vytvorte položku tam alebo v Knižnici a potom použite jej `item.json` tu.
+- **„The library could not be reached."** Ste offline alebo knižnica nefunguje. Položky už vo výkrese nie sú ovplyvnené.
+- **Položka je príliš veľká alebo príliš malá.** Jednotky výkresu sú zlé alebo nenastavené. Vráťte krok späť, nastavte {{ui:Jednotky}} a umiestnite ju znova.

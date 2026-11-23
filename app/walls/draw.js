@@ -69,12 +69,13 @@ export function rotatedRectangle(p, q, r) {
   return closedPath(w > 0 ? pts : pts.reverse());   // anticlockwise either way
 }
 
-export function polygon(c, p, n, { fit = 'inscribed' } = {}) {
+export function polygon(c, p, n, { fit = 'inscribed', level = false } = {}) {
   if (!(Number.isInteger(n) && n >= 3 && n <= 64)) fail('walls.err.sides');
   const r = dist(c, p);
   if (r < MIN) fail('walls.err.small');
   const a0 = Math.atan2(p[1] - c[1], p[0] - c[0]), R = fit === 'circumscribed' ? r / Math.cos(Math.PI / n) : r;
-  const start = fit === 'circumscribed' ? a0 - Math.PI / n : a0;   // circumscribed: p is the middle of the first side
+  let start = fit === 'circumscribed' ? a0 - Math.PI / n : a0;   // circumscribed: p is the middle of the first side
+  if (level) start = -Math.PI / 2 - Math.PI / n;   // level: the bottom side is horizontal whatever way p lies (0.10.1, Imtaar)
   const pts = [];
   for (let i = 0; i < n; i++) { const f = start + i * TAU / n; pts.push([c[0] + R * Math.cos(f), c[1] + R * Math.sin(f)]); }
   return closedPath(pts);

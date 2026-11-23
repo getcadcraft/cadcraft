@@ -10,9 +10,10 @@ import { frame, num, el } from './ui-util.js';
 import { missingFonts as shxMissing } from './shx-text.js';
 import { sendHandoff } from './handoff.js';
 import { readSwExport, loadSwSketch } from './swsketch.js';
-import { dxfTextOf, dxfPartsOf } from './dxf-open.js';
+import { dxfTextOf } from './dxf-open.js';
 import { readDxf } from './dxf.js';
-import { importDwg, VERSIONS, preR13 } from './dwg-import.js';
+import { readDxfAsync, readDwgDrawingAsync } from './dxf-read-async.js';   // 0.11 PERF.30: the DXF reader in a worker
+import { importDwg, importDwgAsync, VERSIONS, preR13 } from './dwg-import.js';
 
 export function mountOpen(ctx) {
   const { doc, view, host, engine, print, status, renderInfo, hideHint, focusCommandLine, tabs, localHist, offerAddons, renderTabs, ask, busy, root } = ctx;
@@ -21,7 +22,7 @@ export function mountOpen(ctx) {
   let readDwg = null;   // cc-dwg's reader in a worker (./dwg/read-async.js: readDwgAsync, 0.4 1.3), imported with the first DWG
 
   const openTypes = () => [
-    { description: t('files.type.drawings'), extensions: ['.dwg', '.dxf'] },
+    { description: t('files.type.drawings'), extensions: ['.dwg', '.dxf', '.cbor'] },   // .cbor: a drawing saved as CBOR (FX.391)
     { description: t('files.type.pdf'), extensions: ['.pdf'] },   // 0.7 D7.24
     { description: t('files.type.sheetset'), extensions: ['.ccsheets'] },
     { description: t('files.type.cloud'), extensions: CLOUD_READ.map((e) => '.' + e) },   // a point cloud under the drawing (SG.1; formats from cloud-types.js, 0.6 PF)
@@ -55,12 +56,12 @@ export function mountOpen(ctx) {
     let file;
     try { const b = await hf.file(); file = b instanceof File ? b : new File([b], hf.name, { lastModified: hf.lastModified || Date.now() }); }
     catch (err) { print(t('app.open.failed', { file: hf.name, why: err.message })); return; }
-    if ((await openLocal(file)) && hf.writable && /\.(dwg|dxf)$/i.test(hf.name)) {
+    if ((await openLocal(file)) && hf.writable && /\.(dwg|dxf|cbor)$/i.test(hf.name)) {
       host.drawingLock?.opened(hf, lockGo);   // ORS.27: take the lock (not when read-only)
       if (lockGo === 'readonly') return;   // ORS.27: read-only = no file to save back to (Save asks for a name)
       ctx.keepTarget(hf);
       // the file as it was when opened is the first copy in History (0.7 D7.31): saving over it would otherwise lose it
-      if (localHist && hf.path) file.arrayBuffer().then((b) => localHist.snapshot({ key: hf.path, name: hf.name.replace(/\.[^.]+$/, ''), bytes: new Uint8Array(b), format: /\.dxf$/i.test(hf.name) ? 'dxf' : 'dwg', note: 'opened' })).catch((err) => console.warn('history:', err));
+      if (localHist && hf.path) file.arrayBuffer().then((b) => localHist.snapshot({ key: hf.path, name: hf.name.replace(/\.[^.]+$/, ''), bytes: new Uint8Array(b), format: /\.cbor$/i.test(hf.name) ? 'dxfcbor' : /\.dxf$/i.test(hf.name) ? 'dxf' : 'dwg', note: 'opened' })).catch((err) => console.warn('history:', err));
     }
   }
 
@@ -78,7 +79,7 @@ export function mountOpen(ctx) {
     if (['pln', 'pla', 'tpl', 'bpn'].includes(ext)) { otherProject(file, ext); return; }
     if (ext === 'ccsheets') { print(t('sheetset.open.viafolder', { file: file.name })); host.sheetSet?.focus(); return; }   // a set needs its folder (its drawings)
     if (host.openAppFile && (await host.openAppFile(file))) return;   // .lsp / .dcl load, .pgp aliases (appload.js)
-    if (ext !== 'dwg' && ext !== 'dxf') { print(t('app.open.wrong_type', { file: file.name })); return; }
+    if (ext !== 'dwg' && ext !== 'dxf' && ext !== 'cbor') { print(t('app.open.wrong_type', { file: file.name })); return; }
     await freeEngine();
     busy('Opening ' + file.name + '…');
     await frame();
@@ -86,7 +87,11 @@ export function mountOpen(ctx) {
       const t0 = performance.now();
       const { drawing, format, bytes } = await readDrawing(file, ext);
       if (!tabs.pristine()) await tabs.add({ name: file.name.replace(/\.[^.]+$/, '') });   // its own tab, as AutoCAD (doctabs.js)
-      doc.load({ ...drawing, meta: { ...drawing.meta, name: file.name.replace(/\.[^.]+$/, ''), source: file.name, format, size: file.size } });
+      // 0.11 PERF.9 / PERF.30 (perf-finish-11): the drawing goes in, and its picture is built, in slices: the page keeps painting and
+      // taking input while a big drawing opens (it was one task of 2.7 to 5.6 s after the read)
+      view.holdFit = true;   // view.fit() below, once the picture is built
+      try { await doc.loadAsync({ ...drawing, meta: { ...drawing.meta, name: file.name.replace(/\.[^.]+$/, ''), source: file.name, format, size: file.size } }); } finally { view.holdFit = false; }
+      await view.prepareCache(doc.space);
       if (recovered) { Object.assign(doc.meta, recovered); doc.savedVersion = -1; doc.emit(); }   // recovered work is not saved to a file yet
       else import('./live.js').then((m) => m.stampFileHash(doc, bytes)).catch(() => {});   // Studio Live: same file → no snapshot (LV.8)
       ctx.lastReport = drawing.report;
@@ -180,6 +185,7 @@ export function mountOpen(ctx) {
 
   /** A DWG or DXF on this computer → { drawing (doc.load() input), format, bytes (as read: Studio Live's file hash) }. */
   async function readDrawing(file, ext) {
+    if (ext === 'cbor') ext = 'dxf';   // FX.391: DXF groups saved as CBOR go through the DXF door (dxf-open.js tells them apart by content)
     const data = new Uint8Array(await file.arrayBuffer());
     let drawing, format;
     if (ctx.recoverNotes) {   // ORS.14 RECOVER: the same readers, fed tolerantly (recover.js); what was skipped goes into the notes
@@ -194,17 +200,37 @@ export function mountOpen(ctx) {
       return { drawing: r.drawing, format: r.format, bytes: data };
     }
     if (ext === 'dxf') {
-      const dx = dxfPartsOf(data);   // 0.10 PERF.20: a big file is read in parts, never as one string
-      drawing = readDxf(dx.text);   // $DWGCODEPAGE / UTF-8 (0.7 D7.16); binary DXF (ORS.18)
+      // 0.10 PERF.20: a big file is read in parts, never as one string; 0.11 PERF.30: in a worker (dxf-read-async.js), same drawing
+      const dx = await readDxfAsync(data);   // $DWGCODEPAGE / UTF-8 (0.7 D7.16); binary DXF (ORS.18)
+      drawing = dx.drawing;
       if (dx.binary) drawing.meta.dxfBinary = true;   // ORS.18: Save keeps a binary DXF binary
+      if (dx.cbor) drawing.meta.dxfCbor = true;   // FX.391: Save keeps a CBOR drawing CBOR
       format = 'DXF' + (VERSIONS[drawing.meta.version] ? ' ' + VERSIONS[drawing.meta.version] : '') + (drawing.meta.version ? ' (' + drawing.meta.version + ')' : '');
     } else {
       const tag = new TextDecoder().decode(data.subarray(0, 6));
-      const model = await dwgModel(data, false, file.name);
-      drawing = importDwg(model, { versionTag: tag });
+      drawing = await dwgInWorker(data, tag, file.name);   // 0.11 PERF.30: read and imported in the worker (dxf-read-async.js), same drawing
+      if (!drawing) {   // a small file, or no worker: the reader's worker, then the import here in slices (0.11 PERF.9)
+        const model = await dwgModel(data, false, file.name);
+        drawing = await importDwgAsync(model, { versionTag: tag });
+      }
       format = 'DWG' + (VERSIONS[tag] ? ' ' + VERSIONS[tag] : '') + ' (' + tag + ')';
     }
     return { drawing, format, bytes: data };
+  }
+
+  /** 0.11 PERF.30: a DWG read and imported in the drawing worker (the page never holds the reader's model) → the drawing, or null to read it
+   *  the other way (a small file, no worker, a worker that stopped). R12 and older are refused here as in dwgModel. */
+  async function dwgInWorker(data, tag, label) {
+    const old = preR13(tag);
+    if (old) throw Object.assign(new Error(t('app.open.pre_r13', { release: old, version: tag.replace(/\0+$/, '') })), { expected: true });
+    busy('Reading ' + label + '…');
+    await frame();
+    try { return (await readDwgDrawingAsync(data, { versionTag: tag }))?.drawing || null; }
+    catch (err) {
+      if (err?.workerDied) { console.warn(err); return null; }
+      if (err?.unreadable) { console.warn(err); throw new Error(t('app.open.unreadable', { version: tag || t('app.open.unknown_version') })); }
+      throw err;
+    }
   }
 
   /** The drawing model of a DWG (cc-dwg's readDwg), or of a DXF for the library's block adapter (dxf-model.js). */
@@ -254,7 +280,7 @@ export function mountOpen(ctx) {
   }
   function pickDrawing() {
     return new Promise((done) => {
-      const inp = el('input', { type: 'file', accept: '.dwg,.dxf', className: 'visually-hidden', tabIndex: -1, 'aria-hidden': 'true' });
+      const inp = el('input', { type: 'file', accept: '.dwg,.dxf,.cbor', className: 'visually-hidden', tabIndex: -1, 'aria-hidden': 'true' });
       let settled = false;
       const finish = (v) => { if (settled) return; settled = true; inp.remove(); done(v); };
       inp.addEventListener('cancel', () => finish(null));
@@ -262,7 +288,7 @@ export function mountOpen(ctx) {
         const f = inp.files[0];
         if (!f) { finish(null); return; }
         const ext = (f.name.match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
-        if (ext !== 'dwg' && ext !== 'dxf') { print(t('app.insertf.not_dwg', { file: f.name })); finish(null); return; }
+        if (ext !== 'dwg' && ext !== 'dxf' && ext !== 'cbor') { print(t('app.insertf.not_dwg', { file: f.name })); finish(null); return; }
         busy('Reading ' + f.name + '…');
         await frame();
         let got = null;

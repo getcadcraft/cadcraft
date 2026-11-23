@@ -521,6 +521,8 @@ html.cc-phone .cc-seltotals { display: none; }
 .cc-snapkinds summary::-webkit-details-marker { display: none; }
 .cc-snapkinds fieldset { position: absolute; z-index: 20; right: 0; bottom: calc(100% + .35rem); min-width: 12rem; margin: 0; padding: .5rem .75rem; background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); }
 .cc-snapkinds legend { float: left; width: 100%; font-size: .8125rem; font-weight: 700; margin: 0 0 .3rem; padding: 0; }
+.cc-snapkinds fieldset { white-space: normal; width: max-content; max-width: calc(100vw - 8px); }   /* a status bar's nowrap must not lay the list out in one row */
+.cc-snapkinds[open] > [data-snap-kinds] > label { display: flex; white-space: nowrap; }   /* one snap a line, also in the Pro skin's status bar (its labels are inline-flex) */
 .cc-snapkinds label { display: flex; align-items: center; gap: .45rem; padding: .12rem 0; font-size: .875rem; cursor: pointer; }
 .cc-snapkinds input { accent-color: var(--action); }
 
@@ -584,6 +586,9 @@ html.cc-phone .cc-seltotals { display: none; }
 .cc-choose-list { height: auto; min-height: 12rem; }
 /* Save as: one ruled row per format */
 .cc-formats { display: grid; gap: .6rem; }
+/* Save as (FX.391): the format list scrolls inside the dialog; the title and the Save / Cancel row stay in view */
+.cc-saveas[open] { display: flex; flex-direction: column; overflow: hidden; }
+.cc-saveas .cc-formats { overflow: auto; min-height: 0; }
 .cc-format { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .65rem; align-items: start; padding: .65rem .75rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
 .cc-format:has(input:checked) { border: var(--pen-2) solid var(--ink); padding: calc(.65rem - 1px) calc(.75rem - 1px); }
 .cc-format input { margin-top: .2rem; accent-color: var(--ink); }
@@ -700,6 +705,32 @@ html.cc-phone .cc-seltotals { display: none; }
 .cc-al-text { font-family: var(--font-mono, ui-monospace, monospace); font-size: .875rem; width: 100%; min-height: 16rem; resize: vertical; padding: .5rem; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
 .cc-al-errors { margin: 0; padding-left: 1.2rem; color: var(--layer-red); font-size: .875rem; }
 .cc-al-errors:empty { display: none; }
+.cc-ok-chips { display: flex; flex-wrap: wrap; gap: .375rem; max-height: 8rem; overflow-y: auto; }   /* OPT.1: the options met lately */
+.cc-ok-chips:empty { display: none; }
+.cc-ok-add { --ok-h: 2.5rem; display: grid; grid-template-columns: minmax(9rem, 1.1fr) minmax(11rem, 1.6fr) minmax(6rem, .7fr) auto; gap: .625rem; align-items: end; }   /* OPT.3: command, option, your letters, Add: one row, one height */
+.cc-ok-field { display: grid; grid-template-rows: auto var(--ok-h); gap: .25rem; font-size: .875rem; font-weight: 600; min-width: 0; margin: 0; }
+.cc-ok-field > span { line-height: 1.2; }
+/* the three controls are the same box: the Add button's height, the dialog's white (a field is never the grey of a card), one text size */
+.cc-ok-field .cc-select, .cc-ok-field .cc-input { box-sizing: border-box; width: 100%; height: var(--ok-h); min-height: var(--ok-h); margin: 0; padding: 0 .625rem; font-size: 1rem; font-weight: 500; line-height: 1.2; color: var(--ink); background-color: var(--sheet-2); border: var(--pen-1) solid var(--ink-2, var(--line)); border-radius: var(--radius); }
+.cc-ok-field .cc-select { appearance: none; -webkit-appearance: none; padding-right: 2rem; text-overflow: ellipsis; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right .95rem center, right .6rem center; background-size: .35rem .35rem, .35rem .35rem; background-repeat: no-repeat; }
+.cc-ok-field .cc-select option { font-weight: 400; color: var(--ink); background: var(--sheet-2); }
+.cc-ok-field .cc-input { text-transform: uppercase; font-family: var(--font-mono, ui-monospace, monospace); }
+.cc-ok-add > .btn-sm-cc { box-sizing: border-box; height: var(--ok-h); min-height: var(--ok-h); margin: 0; padding-block: 0; }
+.cc-optkeys .cc-al-text { background: var(--sheet-2); }
+.cc-ok-msg { list-style: none; padding-left: 0; margin: .25rem 0 0; }
+.cc-ok-h { font-size: 1rem; margin: 1rem 0 .25rem; }
+.cc-ok-scroll { max-height: 14rem; overflow-y: auto; }
+.cc-ok-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.cc-ok-table th, .cc-ok-table td { text-align: left; padding: .3rem .5rem; border-bottom: var(--pen-1) solid var(--line); }
+.cc-ok-table th:last-child, .cc-ok-table td:last-child { width: 2.25rem; text-align: right; }
+.cc-ok-text { margin-top: .75rem; }
+.cc-ok-text summary { cursor: pointer; }
+@media (max-width: 40rem) { .cc-ok-add { grid-template-columns: 1fr; } }
+.cc-ok-msg:empty { display: none; }
+.cc-set-btns { display: flex; flex-wrap: wrap; gap: .5rem; }   /* OPT.1: Settings › Option letters */
+.cc-ok-chip { font-family: var(--font-mono, ui-monospace, monospace); }
 .cc-db .cc-select { width: 100%; }
 .cc-dcl { width: fit-content; min-width: min(22rem, calc(100vw - 2rem)); max-width: calc(100vw - 2rem); }   /* a routine's dialog is as wide as its tiles */
 .cc-dcl-body { padding: .9rem 1rem; display: flex; flex-direction: column; gap: .6rem; overflow: auto; max-height: calc(100vh - 7rem); }
@@ -1084,7 +1115,7 @@ dialog .cc-tablist .cc-tab { min-height: 2.25rem; padding: .45rem .9rem .35rem; 
 /* ---- The Pro skin (shell layouts pro-cad1 … pro-cad4, 0.10 PRO.1): the command window at the chrome's size. Two lines of history over one
    input line, the history in the fixed-width face, the field framed like the skin's other fields. The size grips, F2 and the fit steps are unchanged. ---- */
 body.ws-skin-pro .cc-cmd { background: var(--pro-panel); border-top: 1px solid var(--pro-line); }
-body.ws-skin-pro .cc:not(.cc-fit-tight) .cc-history { height: 2.375rem; }
+body.ws-skin-pro .cc:not(.cc-fit-tight) .cc-cmd:not([data-cmd-lines="n"]) .cc-history { height: 2.375rem; }   /* FX (Imtaar 2026-11-21): a dragged number of history lines wins */
 body.ws-skin-pro .cc-history { padding: .125rem .625rem; font: .71875rem/1.45 var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace); color: var(--pro-muted); }
 body.ws-skin-pro .cc-history li { line-height: 1.45; }
 body.ws-skin-pro .cc-history li.is-cmd { color: var(--pro-ink); }
@@ -1093,3 +1124,22 @@ body.ws-skin-pro .cc-prompt { font-size: .75rem; font-weight: 600; color: var(--
 body.ws-skin-pro .cc-cmd-input { height: 1.375rem; padding: 0 .375rem; font: 500 .75rem var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace); color: var(--pro-ink); background: var(--pro-field); border: 1px solid var(--pro-line); border-radius: var(--pro-r); }
 body.ws-skin-pro .cc-cmd-input:focus { border: 1px solid var(--pro-accent); }
 body.ws-skin-pro :is(.cc-cmd-btn, .cc-cmd-grip) { color: var(--pro-muted); border-radius: var(--pro-r); }
+
+/* 0.11 SU.1804 (cad-11): the Parameters manager (blockparams-ui.js) */
+.cc-bpm { width: min(56rem, 96vw); }
+.cc-bpm-body { display: flex; flex-direction: column; gap: .75rem; max-height: 70vh; overflow: auto; }
+.cc-bpm-section h3 { font-size: 1rem; margin: 0 0 .4rem; }
+.cc-bpm-table { width: 100%; border-collapse: collapse; }
+.cc-bpm-table th, .cc-bpm-table td { padding: .2rem .3rem; text-align: left; vertical-align: middle; border-bottom: var(--pen-1) solid var(--line); }
+.cc-bpm-table .cc-input { width: 100%; min-width: 4rem; }
+.cc-bpm-vis { border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .5rem; margin-bottom: .5rem; }
+.cc-bpm-vhead { display: flex; gap: .5rem; align-items: center; }
+.cc-bpm-vhead .cc-x { margin-left: auto; }
+.cc-bpm-states { list-style: none; margin: .4rem 0; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
+.cc-bpm-state { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.cc-bpm-state .cc-input { width: 9rem; }
+.cc-bpm-state.is-now { font-weight: 600; }
+.cc-bpm-row { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+.cc-bpm-row .cc-input { flex: 1 1 10rem; }
+.cc-note.is-bad { color: var(--layer-red); }
+@media (max-width: 40rem) { .cc-bpm-table thead { display: none; } .cc-bpm-table tr { display: grid; grid-template-columns: 1fr 1fr; } }

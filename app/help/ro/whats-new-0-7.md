@@ -2,7 +2,7 @@
 title: Ce este nou în 0.7 (anterior)
 summary: Suprapuneri PDF și import PDF, desene scanate cu vectorizare automată, splines reale cu SPLINE, SPLINEDIT și PEDIT, un manager de stiluri de cotare, text care își păstrează formatarea, WBLOCK și scările proprii, solide 3D din alte programe, înregistrarea scanărilor, un panou Laser, export USD, Istoric și tipărire în CadCraft Studio, un prim desen ghidat, bara de instrumente pe orice latură sau în mai puține rânduri și mai multe pentru asistenții AI.
 keywords: noutăți 0.7, versiune anterioară, note de lansare, jurnal de modificări, modificări, 0.7, versiune, funcții noi, pdf, pdfattach, pdfimport, suprapunere, scanare, scanattach, scantrace, vectorizare, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatare, wblock, scalelistedit, listă de scări, acis, solide 3D, registerscans, înregistrarea scanărilor, icp, e57, las, laser, grbl, g-code, usd, usdout, istoric, versiuni, comparare, tipărire, imprimantă, png, svg, stil de trasare, tip de linie, ghid, foaie de comenzi, hartă de comenzi, poziție bară de instrumente, rânduri de bară de instrumente, toolbardock, regen, regenall, trackpad, glisare, pagină de cod, chirilic, coreean, chinez, japonez, electric, rcd, p&id, pid, acad.lsp, acaddoc.lsp, folder de suport, asistenți, mcp, unități, portugheză
-from: d07ca034
+from: d9a8ea79
 ---
 
 Aceasta este lista modificărilor din CadCraft 0.7, față de 0.6. O mare parte a fost cerută pe Discord. Lista este grupată pe zone, cu cele mai importante primele.

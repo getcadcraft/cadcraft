@@ -31,6 +31,8 @@ import { translation, ident, apply, mmul, bboxAdd } from './m3d/vec.js';
 import { prims, ellipsePoints } from './geom.js';
 import { cadcraftString } from './gcons.js';
 import { t } from './i18n.js';
+import { runNow, ticker } from './slices.js';   // 0.11 PERF.9: split3d in slices (split3dSteps)
+import { affineMul as mul2 } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 /** Visual styles of the 3D tab → ModelCraft View3D style {mode, edges}. */
 export const STYLES = {
@@ -69,6 +71,13 @@ export function withUnit(text, units) {
 
 // ---------------------------------------------------------------------------
 // The model, with its history in the Doc's
+
+const DEFER_FACES = 2000;   // 0.11 PERF.9: more 3D faces than this are welded after the drawing is on screen
+function settleWhenIdle(m) {
+  const go = () => { if (m.facesWaiting && m.doc && m.doc._m3d === m) m.doc.model3d; };   // the getter settles it
+  if (typeof requestIdleCallback === 'function') requestIdleCallback(go, { timeout: 3000 });
+  else if (typeof setTimeout === 'function' && typeof window !== 'undefined') setTimeout(go, 500);
+}
 
 export class Model3D extends Model {
   constructor(doc = null) {
@@ -119,9 +128,30 @@ export class Model3D extends Model {
   canUndo() { return this.doc ? this.doc.canUndo : super.canUndo(); }
   canRedo() { return this.doc ? this.doc.canRedo : super.canRedo(); }
 
+  /** Other programs' 3D faces (metres) → one mesh definition placed at the root. */
+  buildFaces(polys) {
+    const d = meshDef(this, polys, t('model3d.faces_file'));
+    this.place(this.root, d.id, ident());
+  }
+  /** 0.11 PERF.9: build the faces a big file left waiting (fromFile), as if fromFile had built them: no undo step, not dirty. */
+  settle() {
+    const polys = this.facesWaiting;
+    if (!polys) return false;
+    this.facesWaiting = null;
+    const dirty = this.dirty;
+    this.buildFaces(polys);
+    this.undoStack = []; this.redoStack = []; this._base = null; this.dirty = dirty;
+    this.version++;
+    return true;
+  }
+
   /** A drawing was opened (or New): CadCraft's own copy of the model, else other programs' 3D faces. */
-  fromFile(in3d, units, report) {
+  fromFile(in3d, units, report) { return runNow(this.fromFileSteps(in3d, units, report)); }
+  /** 0.11 PERF.9: fromFile as a generator (doc.loadAsync runs it in slices). */
+  *fromFileSteps(in3d, units, report) {
+    const tick = ticker(1024);
     const notes = report && Array.isArray(report.notes) ? report.notes : [];
+    this.facesWaiting = null;
     this.reset();
     this.syncUnits();
     const k = mPerUnit(units);
@@ -149,10 +179,14 @@ export class Model3D extends Model {
         }
         if (pts.length > 1 && pts[0].every((x, i) => Math.abs(x - pts[pts.length - 1][i]) <= 1e-9)) pts.pop();
         if (pts.length >= 3) polys.push(pts);
+        if (tick()) yield;
       }
       if (polys.length) {
-        const d = meshDef(this, polys, t('model3d.faces_file'));
-        this.place(this.root, d.id, ident());
+        // 0.11 PERF.9 (cad-11): welding other programs' 3D faces into one mesh is the biggest step of opening such a drawing (Plans.dwg:
+        // 2.4 s of the page's thread before anything showed). Past DEFER_FACES faces it is built when the 3D model is first asked for
+        // (doc.model3d settles it: the 3D tab, a save, a snapshot) or when the page is idle after the drawing is on screen.
+        if (polys.length > DEFER_FACES && this.doc) { this.facesWaiting = polys; settleWhenIdle(this); }
+        else this.buildFaces(polys);
         notes.push(t('model3d.read.loose_faces', { n: polys.length }));
       }
       if (loose.length > 200000) notes.push(t('model3d.read.faces_left_out', { n: loose.length - 200000 }));
@@ -173,13 +207,17 @@ export class Model3D extends Model {
  * in the block itself, and on sheets, they become flat closed outlines (as 0.2 drew them), so references and sheets
  * show them in 2D. → {text (CadCraft's JSON, when the reader found the block), faces (model space)}.
  */
-export function split3d(input) {
+export function split3d(input) { return runNow(split3dSteps(input)); }
+/** 0.11 PERF.9: split3d as a generator (it yields while it places and flattens faces); importDwgAsync runs it in slices. */
+export function* split3dSteps(input) {
   if (!input || typeof input !== 'object') return { text: null, faces: [] };
+  const tick = ticker(512);
   const faces = Array.isArray(input.faces3d) ? input.faces3d : [];
-  const strip = (list, keep) => {
+  const strip = (list, keep) => {   // 0.11 PERF.9: one pass that keeps the order (it spliced one face at a time: quadratic on a big file)
     if (!Array.isArray(list)) return 0;
-    let n = 0;
-    for (let i = list.length - 1; i >= 0; i--) if (list[i] && list[i].type === 'face3d') { if (keep) keep.splice(keep.length - n, 0, list[i]); list.splice(i, 1); n++; }
+    let n = 0, w = 0;
+    for (let i = 0; i < list.length; i++) { const e = list[i]; if (e && e.type === 'face3d') { if (keep) keep.push(e); n++; } else list[w++] = e; }
+    list.length = w;
     return n;
   };
   const kept = [];
@@ -196,24 +234,25 @@ export function split3d(input) {
   }
   if (own.size) {
     const byName = new Map(blocks.map((b) => [b.name, b]));
-    const walk = (list, m, depth, out) => {
+    const walk = function* (list, m, depth, out) {
       if (depth > 16 || out.length > MAX_PLACED) return;
       for (const e of list || []) {
         if (e?.type !== 'insert') continue;
         const b = byName.get(e.block);
         if (!b) continue;
         const mm = mul2(m, insertMatrix2(e, b));
-        for (const f of own.get(b.name) || []) out.push({ ...f, layer: f.layer === '0' ? e.layer || '0' : f.layer, pts: f.pts.map((q) => [mm[0] * q[0] + mm[2] * q[1] + mm[4], mm[1] * q[0] + mm[3] * q[1] + mm[5], q[2] || 0]) });
-        walk(b.entities, mm, depth + 1, out);
+        for (const f of own.get(b.name) || []) { out.push({ ...f, layer: f.layer === '0' ? e.layer || '0' : f.layer, pts: f.pts.map((q) => [mm[0] * q[0] + mm[2] * q[1] + mm[4], mm[1] * q[0] + mm[3] * q[1] + mm[5], q[2] || 0]) }); if (tick()) yield; }
+        yield* walk(b.entities, mm, depth + 1, out);
       }
     };
     const out = [];
-    walk(input.entities, [1, 0, 0, 1, 0, 0], 0, out);
+    yield* walk(input.entities, [1, 0, 0, 1, 0, 0], 0, out);
     placed = Math.min(out.length, MAX_PLACED);
     for (let i = 0; i < placed; i++) faces.push(out[i]);   // Plans.dwg: 200k placed faces threw "Maximum call stack size exceeded" here (0.9 FX.142)
   }
-  const toOutlines = (list) => {
+  const toOutlines = function* (list) {
     if (!Array.isArray(list)) return;
+    let flatHere = 0;
     for (let i = 0; i < list.length; i++) {
       const e = list[i];
       if (e?.type !== 'face3d') continue;
@@ -221,12 +260,13 @@ export function split3d(input) {
       for (const q of e.pts) if (!pts.length || Math.hypot(q[0] - pts[pts.length - 1].x, q[1] - pts[pts.length - 1].y) > 1e-12) pts.push({ x: q[0], y: q[1], b: 0 });
       if (pts.length > 1 && Math.hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) <= 1e-12) pts.pop();
       list[i] = pts.length >= 2 ? { type: 'poly', layer: e.layer || '0', color: e.color ?? null, closed: pts.length > 2, pts } : null;
-      flat++;
+      flat++; flatHere++;
+      if (tick()) yield;
     }
-    for (let i = list.length - 1; i >= 0; i--) if (list[i] === null) list.splice(i, 1);
+    if (flatHere) { let w = 0; for (let i = 0; i < list.length; i++) if (list[i] !== null) list[w++] = list[i]; list.length = w; }   // 0.11 PERF.9: one pass (was a splice per face)
   };
-  for (const b of blocks) toOutlines(b?.entities);
-  for (const l of Array.isArray(input.layouts) ? input.layouts : []) toOutlines(l?.entities);
+  for (const b of blocks) yield* toOutlines(b?.entities);
+  for (const l of Array.isArray(input.layouts) ? input.layouts : []) yield* toOutlines(l?.entities);
   if (input.report && Array.isArray(input.report.notes)) {
     if (flat) input.report.notes.push(t('model3d.read.flat', { n: flat }));
     if (placed) input.report.notes.push(t('model3d.read.placed', { n: placed }));
@@ -240,9 +280,6 @@ function insertMatrix2(e, b) {
   const c = Math.cos(e.rot || 0), s = Math.sin(e.rot || 0), sx = e.sx ?? 1, sy = e.sy ?? 1, bx = b.base?.x || 0, by = b.base?.y || 0;
   const a = c * sx, bb = s * sx, cc = -s * sy, d = c * sy;
   return [a, bb, cc, d, (e.x || 0) - (a * bx + cc * by), (e.y || 0) - (bb * bx + d * by)];
-}
-function mul2(m, n) {
-  return [m[0] * n[0] + m[2] * n[1], m[1] * n[0] + m[3] * n[1], m[0] * n[2] + m[2] * n[3], m[1] * n[2] + m[3] * n[3], m[0] * n[4] + m[2] * n[5] + m[4], m[1] * n[4] + m[3] * n[5] + m[5]];
 }
 
 /** A saved 3D view (untrusted: from a file): { eye, target ([x, y, z] meters), persp, fov, style } or null. */
@@ -276,7 +313,8 @@ export function read3dText(ents) {
 }
 
 /** A DWG (cc-dwg's drawing model): CadCraft's 3D JSON from block CADCRAFT_3D → drawing.model3d; that block leaves the drawing. */
-export function read3dFromDwg(db, drawing) {
+export function read3dFromDwg(db, drawing) { return runNow(read3dFromDwgSteps(db, drawing)); }
+export function* read3dFromDwgSteps(db, drawing) {
   const blk = (db?.blocks || []).find((b) => isM3dBlock(b.name));
   if (blk) {
     const ents = (blk.entities || []).map((e) => ({ cc: [cadcraftString(e.xdata) ?? ''] }));
@@ -286,7 +324,7 @@ export function read3dFromDwg(db, drawing) {
     if (view) drawing.view3d = view;
   }
   if (Array.isArray(drawing.blocks)) drawing.blocks = drawing.blocks.filter((b) => !isM3dBlock(b.name));
-  split3d(drawing);
+  yield* split3dSteps(drawing);
   return drawing;
 }
 

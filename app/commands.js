@@ -63,6 +63,7 @@ import { linkHatch, sourcesOf } from './hatch-assoc.js';   // 0.9 PLAN2D.1
 import { arrayAssocOn, setArrayAssoc, makeArray, fromPlain, explodeArray } from './arrays.js';   // ORS.2: arrays that stay editable
 import { withGradient, askGradient } from './hatch-gradient.js';   // ORS.7: gradient fills
 import { trimHatchAt } from './hatch-trim.js';   // ORS.29: TRIM cuts a hatch
+import { gridOf, gridPatch } from './gridspec.js';
 import { limitsOf, insideLimits, limitsPatch, defaultLimits, CHECKED } from './limits.js';
 import { formatLength, formatArea, parseLength, readLength, readNumber, readAngle, tAngle, fmtAngle, aunitCode, isArithmetic, calcMessage, unitsOf, LUNITS, isImperialFormat, lunitCode, mmPerDrawingUnit } from './units.js';
 import { install3d } from './commands3d.js';
@@ -73,6 +74,7 @@ import { isXrefRoot } from './xref.js';
 import { lassoHits, pointInPoly } from './lasso.js';
 import { curveAt, circleTTR, circleTTT } from './tancircle.js';
 import { setVisibility, freeObjects } from './dyn-blocks.js';
+import { matchOption as matchOptionKeys, guessOption, ownKey } from './optionkeys.js';   // OPT.1: the person's own option letters, unambiguous short forms
 import { retype } from './keylayout.js';   // ORS.25: a word typed with a non-Latin keyboard layout, read by its physical keys
 import { openVis, closeVis, switchState, hideIds, showFi, hiddenParts, newState, renameState, deleteState, syncCurrent } from './visedit.js';
 import { activeUcs, toWorld as ucsToWorld, toUcs, vecToWorld, setUcs, threePoint, fromObject, cleanUcs, ucsData, UCS_NAME_RE } from './ucs.js';
@@ -151,9 +153,12 @@ export class Engine {
   }
 
   // ---- input ----
-  text(raw) {
+  /** `src.script`: input a script, LISP or a toolbar macro sends: the built-in English option letters only (OPT.1). */
+  text(raw, src = {}) {
     const s = String(raw ?? '');
     const typed = s.trim();
+    // OPT.1: at a point prompt an object snap word, and at "Select objects" ALL / L / LAST, are never a person's own option letters
+    const mo = (x, options) => matchOption(x, options, { command: this.running, own: !src.script, reserved: (u) => (this.waiting?.kind === 'point' && !!snapWord(u)) || (this.waiting?.kind === 'select' && /^(ALL|L|LAST)$/.test(u)) });
     if (!this.waiting) {
       if (!typed) { if (this.last) return this.run(this.last); return; }
       // ORS.25: not a command as typed (Greek, Cyrillic, Arabic … layout active): the same keys read as Latin (keylayout.js)
@@ -165,11 +170,11 @@ export class Engine {
     // Enter where a point or an object is required (and there is no default) ends the command
     if (!typed && (w.kind === 'point' || w.kind === 'entity') && !w.opts.none && w.opts.default === undefined) { this.escape(); return; }
     if (!typed) return this.resolve(w.opts.none === false ? undefined : (w.opts.default !== undefined ? w.opts.default : null));
-    const opt = matchOption(typed, w.opts.options);
+    const opt = mo(typed, w.opts.options);
     if (opt) return this.resolve({ option: opt.key });
     {   // ORS.25: an option letter typed with a non-Latin layout active (never at a prompt for text: that returned above)
-      const again = retype(typed, (x) => !!matchOption(x, w.opts.options) || (w.kind === 'select' && /^(ALL|L|LAST)$/i.test(x)), this.host.keyHint?.(s));
-      if (again) return this.text(again);
+      const again = retype(typed, (x) => !!mo(x, w.opts.options) || (w.kind === 'select' && /^(ALL|L|LAST)$/i.test(x)), this.host.keyHint?.(s));
+      if (again) return this.text(again, src);
     }
     if (w.opts.accept) { const v = w.opts.accept(typed); if (v !== null && v !== undefined) return this.resolve({ option: '_typed', value: v }); }   // a command's own token (ZOOM 2x)
     switch (w.kind) {
@@ -216,7 +221,20 @@ export class Engine {
       }
       default: break;
     }
+    // OPT.1: nothing took it. Letters that can mean only one of the options shown answer that option ("P" where only POlar starts
+    // with P); several candidates are named. Tried last, so nothing that worked before changes; never for script input.
+    if (!src.script && w.opts.options?.length) {
+      let g = guessOption(typed, w.opts.options);
+      if (!g) { const again = retype(typed, (x) => !!guessOption(x, w.opts.options), this.host.keyHint?.(s)); if (again) g = guessOption(again, w.opts.options); }
+      if (g?.option) return this.resolve({ option: g.option.key });
+      if (g?.ambiguous) {
+        this.host.print(t('optkeys.ambiguous', { typed, list: g.ambiguous.map((o) => this.optionText(o)).join(', ') }));
+        this.host.prompt(this.promptText());
+        return;
+      }
+    }
     this.host.print(t(INVALID[w.kind] || 'cmd.invalid_input'));
+    if (!src.script && !this.optHintShown && /^\p{L}+$/u.test(typed) && (w.opts.options || []).some((o) => !o.hidden)) { this.optHintShown = true; this.host.print(t('optkeys.hint')); }   // once a session
     this.host.prompt(this.promptText());
   }
 
@@ -369,6 +387,9 @@ export class Engine {
     if (d !== null) {
       const base = this.waiting?.opts.base || this.base;
       const cur = this.host.cursor;
+      // 0.10.1 (#1971): a prompt for a radius (opts.radial: POLYGON, WALLPOLY) takes the number even while the pointer has not left the
+      // centre (clicked, then typed): there is no direction to read, so the radius runs along the UCS X axis
+      if (base && d > 0 && this.waiting?.opts.radial && (!cur || dist(base, cur) < 1e-12)) return polar(base, u ? u.ang : 0, d);
       if (!base || !cur || dist(base, cur) < 1e-12) return null;
       return polar(base, angleOf(base, cur), d);
     }
@@ -398,14 +419,41 @@ export class Engine {
     return p ? '#*' + n(p.x) + ',' + n(p.y) : null;
   }
 
+  /** An option as the prompt shows it: the person's own letters after it when they gave some (OPT.1), else as before. */
+  optionText(o) {
+    const mine = ownKey(this.running, o.key);
+    if (mine) return o.label + ' (' + mine + ')';
+    // a translated label may not start with the letters to type: then they follow it, 'Deshacer (U)'
+    return String(o.label).toUpperCase().startsWith(String(o.key).toUpperCase()) ? o.label : o.label + ' (' + o.key + ')';
+  }
+
+  /** OPT.1: the options the person met lately, by command, for the OPTIONKEYS editor ("ARRAY.PO  Polar"). Newest first, 12 commands. */
+  noteOptions(options) {
+    const shown = (options || []).filter((o) => !o.hidden && o.key !== '?');
+    if (!this.running || !shown.length) return;
+    const seen = (this.optSeen ||= new Map());
+    const m = seen.get(this.running) || new Map();
+    for (const o of shown) m.set(String(o.key).toUpperCase(), o.label);
+    seen.delete(this.running); seen.set(this.running, m);
+    while (seen.size > 12) seen.delete(seen.keys().next().value);
+  }
+  optionPrompts() { return [...(this.optSeen || [])].reverse().map(([command, m]) => ({ command, options: [...m].map(([key, label]) => ({ key, label })) })); }
+
+  /** FX (Imtaar 2026-11-21): a distance default in the drawing's units: 14'-10" in a feet-and-inches drawing, never 177.8259. Decimal and
+   *  scientific drawings keep the short number. */
+  fmtDistance(v) {
+    const u = unitsOf(this.doc?.meta || {});
+    return [3, 4, 5].includes(lunitCode(u.lunits)) ? formatLength(v, u) : fmt(v);
+  }
+
   promptText() {
     const w = this.waiting;
     if (!w) return '';
-    // a translated label may not start with the letters to type: then they follow it, 'Deshacer (U)'
-    const opts = (w.opts.options || []).filter((o) => !o.hidden).map((o) => (String(o.label).toUpperCase().startsWith(String(o.key).toUpperCase()) ? o.label : o.label + ' (' + o.key + ')'));
+    const opts = (w.opts.options || []).filter((o) => !o.hidden).map((o) => this.optionText(o));
+    this.noteOptions(w.opts.options);
     const dOpt = typeof w.opts.default === 'string' ? (w.opts.options || []).find((o) => o.en === w.opts.default && o.en !== o.key) : null;   // a default given as an English label shows translated
     const def = w.opts.default !== undefined && w.opts.default !== null && (w.kind !== 'point' || dOpt)   // a point prompt shows a default option (UCS <World>)
-      ? ' <' + (w.kind === 'angle' ? fmt(deg(normAngle(w.opts.default - (w.opts.ucs ? activeUcs(this.doc)?.ang || 0 : 0)))) : typeof w.opts.default === 'number' ? fmt(w.opts.default) : dOpt ? dOpt.label : w.opts.default) + '>' : '';
+      ? ' <' + (w.kind === 'angle' ? fmt(deg(normAngle(w.opts.default - (w.opts.ucs ? activeUcs(this.doc)?.ang || 0 : 0)))) : typeof w.opts.default === 'number' ? (w.kind === 'distance' ? this.fmtDistance(w.opts.default) : fmt(w.opts.default)) : dOpt ? dOpt.label : w.opts.default) + '>' : '';
     // a prompt that already lists its options in the text ("… [LAyer/Block]", in any language) would show them twice, and a translator's letters can
     // disagree with the ones the command takes: the list built from the options is the one that is right (0.8 round 4, cad_PART_4)
     const text = opts.length ? w.prompt.replace(/(\s+or)?\s*\[[^\]\n]*\/[^\]\n]*\]/i, '') : w.prompt;
@@ -526,12 +574,8 @@ const INVALID = {   // language keys, read when printed (module top level runs b
   entity: 'cmd.invalid.entity',
 };
 
-function matchOption(t, options = []) {
-  const u = t.toUpperCase();
-  const starts = (s) => typeof s === 'string' && s.toUpperCase().startsWith(u);
-  // the label in the page's language, or the English one (scripts and LISP type English words in every language)
-  return options.find((o) => o.key.toUpperCase() === u) || options.find((o) => u.length >= 1 && u.length >= o.key.length && (starts(o.label) || starts(o.en)));
-}
+/** The option typed text answers (optionkeys.js: the person's own letters, then the built-in ones). */
+function matchOption(typed, options = [], ctx = {}) { return matchOptionKeys(typed, options, ctx); }
 
 /** An option: `label` is English; the prompt shows opt.<word> from the language file when it has one ("Close" → opt.close). */
 const opt = (key, label) => {
@@ -558,7 +602,9 @@ export function lookup(name) {
   const u = raw.replace(/^[_.'-]+/, '');
   return COMMANDS.get(u) || COMMANDS.get(ALIASES.get(u));
 }
-export function commandList() { return [...COMMANDS.values()].filter((c) => !c.hidden).map((c) => ({ name: c.name, aliases: c.aliases, help: (typeof c.help === 'function' ? c.help() : c.help) || '' })); }
+// a command's help: `helpKey` (the language key, read when the list is asked for: 0.11 PERF.72, the commands' 151 `help: () => t(key)` closures),
+// else `help` (a function, or words)
+export function commandList() { return [...COMMANDS.values()].filter((c) => !c.hidden).map((c) => ({ name: c.name, aliases: c.aliases, help: (typeof c.help === 'function' ? c.help() : c.helpKey ? t(c.helpKey) : c.help) || '' })); }
 
 const ent = (c, e) => ({ layer: c.doc.current.layer, color: c.doc.current.color, ...c.doc.currentStyle(), ...e });
 
@@ -600,7 +646,7 @@ def('LINE', ['L'], async (c) => {
     made.push(c.add(ent(c, { type: 'line', x1: prev.x, y1: prev.y, x2: p.x, y2: p.y })));
     prev = p;
   }
-}, { help: () => t('cmd.line.straight_segments_each_own') });
+}, { helpKey: 'cmd.line.straight_segments_each_own' });
 
 def('PLINE', ['PL'], async (c) => {
   const start = await c.point(t('cmd.pline.specify_start_point'));
@@ -642,7 +688,7 @@ def('PLINE', ['PL'], async (c) => {
     pts.push({ x: p.x, y: p.y, b: 0 });
   }
   if (pts.length >= 2) c.add(ent(c, { type: 'poly', pts, closed }));
-}, { help: () => t('cmd.pline.polyline_line_arc_segments') });
+}, { helpKey: 'cmd.pline.polyline_line_arc_segments' });
 
 /** Pick one line, arc, circle or polyline segment (also inside a block) for a tangent circle → { o, at } (tancircle.js). */
 async function pickTangent(c, prompt) {
@@ -672,7 +718,7 @@ async function circleTtt(c) {
   if (!k) { c.print(t('cmd.circle.no_circle')); return; }
   c.add(ent(c, { type: 'circle', ...k }));
 }
-def('TTR', [], (c) => circleTtr(c), { help: () => t('cmd.ttr.help') });
+def('TTR', [], (c) => circleTtr(c), { helpKey: 'cmd.ttr.help' });
 
 def('CIRCLE', ['C'], async (c) => {
   const r0 = await c.point(t('cmd.circle.specify_center_point_circle'), { options: [opt('3P', '3P'), opt('2P', '2P'), opt('T', 'Ttr (tan tan radius)'), { key: 'TTT', label: 'TTT', hidden: true }] });   // i18n-ignore (English option labels: opt() shows opt.<word>)
@@ -707,7 +753,7 @@ def('CIRCLE', ['C'], async (c) => {
     c.add(ent(c, { type: 'circle', cx: center.x, cy: center.y, r: radius }));
     return;
   }
-}, { help: () => t('cmd.circle.center_radius_diameter_2') });
+}, { helpKey: 'cmd.circle.center_radius_diameter_2' });
 
 // ---- XLINE and RAY (0.5 DR.6): construction lines, infinite both ways / one way (geom.js UNBOUNDED). ----
 /** The direction of a straight object at the pick (a line, construction line, or the polyline segment nearest it) → unit, or null. */
@@ -804,12 +850,12 @@ def('XLINE', ['XL'], async (c) => {
       }
     }
   }
-}, { help: () => t('cmd.xline.help') });
+}, { helpKey: 'cmd.xline.help' });
 
 def('RAY', [], async (c) => {
   const a = await c.point(t('cmd.ray.start'));
   return throughPoints(c, 'ray', (p) => { const u = unitDir(p.x - a.x, p.y - a.y); return u && { x: a.x, y: a.y, ...u }; });
-}, { help: () => t('cmd.ray.help') });
+}, { helpKey: 'cmd.ray.help' });
 
 // ---- ARC (0.9 FX.137): the eleven ways of drawing an arc, geometry in arcs.js (lib/arcs, shared by every drawing app) ----
 const ARC_FAMILY = [['SCE', 'SCA', 'SCL'], ['CSE', 'CSA', 'CSL'], ['SEA', 'SED', 'SER']];
@@ -879,7 +925,7 @@ def('ARC', ['A'], async (c) => {
   if (!res.arc) { c.print(t('cmd.arc.err.' + res.error)); return; }
   const a = res.arc;
   c.add(ent(c, { type: 'arc', cx: a.cx, cy: a.cy, r: a.r, a0: a.a0, a1: a.a1 }));
-}, { help: () => t('cmd.arc.help') });
+}, { helpKey: 'cmd.arc.help' });
 
 def('RECTANG', ['REC', 'RECTANGLE'], async (c) => {
   const a = await c.point(t('cmd.area.first'));
@@ -887,7 +933,7 @@ def('RECTANG', ['REC', 'RECTANGLE'], async (c) => {
   const b = await c.point(t('cmd.rectang.specify_other_corner_point'), { base: a });
   if (Math.abs(b.x - a.x) < 1e-12 || Math.abs(b.y - a.y) < 1e-12) { c.print(t('cmd.rectang.rectangle_needs_width_height')); return; }
   c.add(ent(c, rect(a, b)));
-}, { help: () => t('cmd.rectang.closed_polyline_two_corners') });
+}, { helpKey: 'cmd.rectang.closed_polyline_two_corners' });
 
 def('POLYGON', ['POL'], async (c) => {
   const n = await c.number(t('cmd.polygon.enter_number_sides'), { default: c.engine.lastSides || 4 });
@@ -904,9 +950,9 @@ def('POLYGON', ['POL'], async (c) => {
     return { type: 'poly', closed: true, pts: Array.from({ length: sides }, (_, i) => ({ ...polar(center, a0 + i * TAU / sides, R), b: 0 })) };
   };
   c.preview((cur) => [make(cur)]);
-  const p = await c.point(t('cmd.circle.specify_radius_circle'), { base: center });
+  const p = await c.point(t('cmd.circle.specify_radius_circle'), { base: center, radial: true });
   c.add(ent(c, make(p)));
-}, { help: () => t('cmd.polygon.regular_polygon') });
+}, { helpKey: 'cmd.polygon.regular_polygon' });
 
 def('ELLIPSE', ['EL'], async (c) => {
   const a = await c.point(t('cmd.ellipse.specify_axis_endpoint_ellipse'), { options: [opt('C', 'Center'), ...(isoState.on ? [opt('I', 'Isocircle')] : [])] });   // ORS.10
@@ -931,7 +977,7 @@ def('ELLIPSE', ['EL'], async (c) => {
     const u = { x: -major.y / L * d, y: major.x / L * d };
     c.add(ent(c, { type: 'ellipse', cx: center.x, cy: center.y, mx: u.x, my: u.y, ratio: L / d, t0: 0, t1: TAU }));
   } else c.add(ent(c, make(d)));
-}, { help: () => t('cmd.ellipse.axis_endpoints_other_half') });
+}, { helpKey: 'cmd.ellipse.axis_endpoints_other_half' });
 
 def('POINT', ['PO'], async (c) => {
   for (;;) {
@@ -939,7 +985,7 @@ def('POINT', ['PO'], async (c) => {
     if (!p) return;
     c.add(ent(c, { type: 'point', x: p.x, y: p.y }));
   }
-}, { help: () => t('cmd.point.point_objects') });
+}, { helpKey: 'cmd.point.point_objects' });
 
 def('TEXT', ['DT', 'DTEXT'], async (c) => {
   const p = await c.point(t('cmd.attdef.at'), { options: [opt('J', 'Justify')] });
@@ -964,7 +1010,7 @@ def('TEXT', ['DT', 'DTEXT'], async (c) => {
     c.add(ent(c, { type: 'text', x: pos.x, y: pos.y, h, rot: normAngle(rot || 0), s: line, ha, va, wf: 1, ...sty }));
     y += h * 1.667;   // DTEXT line spacing
   }
-}, { help: () => t('cmd.text.help') });
+}, { helpKey: 'cmd.text.help' });
 
 // ---- HATCH: solid fills and the standard patterns (hatch.js) ----
 
@@ -1040,7 +1086,7 @@ def('HATCH', ['H', 'BH', 'BHATCH', '-HATCH'], async (c) => {
   const h = make(picks.flatMap((p) => p.loops));
   if (!h.solid && !hatchLines(h, c.doc)) c.print(t('cmd.hatch.dense'));
   c.doc.change('HATCH', () => { const a = c.doc.add(h); if (S.assoc !== false) linkHatch(c.doc, a, picks); });
-}, { help: () => t('cmd.hatch.help') });
+}, { helpKey: 'cmd.hatch.help' });
 
 // ---- STYLE: text styles (0.9 FX.92; textstyles.js) — the dialog, or -STYLE on the command line ----
 
@@ -1074,8 +1120,8 @@ async function textStyleLine(c) {
 def('STYLE', ['ST', 'TEXTSTYLE', 'DDSTYLE'], async (c) => {
   if (c.host.textStyleManager) { await c.host.textStyleManager(); return; }
   await textStyleLine(c);
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.style.help') });
-def('-STYLE', [], (c) => textStyleLine(c), { noRepeat: true, keepSelection: true, help: () => t('cmd.style.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.style.help' });
+def('-STYLE', [], (c) => textStyleLine(c), { noRepeat: true, keepSelection: true, helpKey: 'cmd.style.help' });
 
 // ---- MTEXT (paragraph text) and TEXTEDIT: the browser edits in place (host.editText), else the command line asks ----
 
@@ -1136,7 +1182,7 @@ def('MTEXT', ['MT', 'T'], async (c) => {
   if (!made.mt) delete made.mt;
   c.doc.current.textHeight = made.h;
   c.add(made);
-}, { help: () => t('cmd.mtext.help') });
+}, { helpKey: 'cmd.mtext.help' });
 
 // ---- REVCLOUD: revision clouds ----
 
@@ -1200,7 +1246,7 @@ def('REVCLOUD', ['RC'], async (c) => {
     c.print(t('cmd.rc.done'));
     return;
   }
-}, { help: () => t('cmd.rc.help') });
+}, { helpKey: 'cmd.rc.help' });
 
 // ---- MLEADER: an arrowhead, a leader, a landing and paragraph text, as one object (leader.js) ----
 
@@ -1228,7 +1274,7 @@ def('MLEADER', ['MLD', 'MLEAD'], async (c) => {
   const made = { ...e, ...(r ? { s: String(r.s ?? ''), h: r.h > 0 ? r.h : e.h, ...(r.ww > 0 ? { ww: r.ww } : {}), ...(r.ls && r.ls !== 1 ? { ls: r.ls } : {}) } : {}) };
   c.add(made);
   if (!String(made.s).trim()) c.print(t('cmd.mld.notext'));
-}, { help: () => t('cmd.mld.help') });
+}, { helpKey: 'cmd.mld.help' });
 
 def('TEXTEDIT', ['ED', 'DDEDIT'], async (c) => {
   const pre = [...c.host.selection].map((id) => c.doc.get(id)).filter((e) => (e?.type === 'text' || e?.type === 'mleader') && c.doc.editable(e));
@@ -1258,7 +1304,7 @@ def('TEXTEDIT', ['ED', 'DDEDIT'], async (c) => {
       c.doc.change('TEXTEDIT', () => c.doc.update(e.id, next));
     }
   }
-}, { help: () => t('cmd.textedit.help') });
+}, { helpKey: 'cmd.textedit.help' });
 
 // ---- modify ----
 
@@ -1268,7 +1314,7 @@ def('ERASE', ['E', 'DELETE'], async (c) => {
   c.doc.change('ERASE', () => { for (const id of ids) c.doc.remove(id); });
   c.host.setSelection(new Set());
   c.print(ids.size + ' erased');
-}, { help: () => t('cmd.erase.remove_objects') });
+}, { helpKey: 'cmd.erase.remove_objects' });
 
 async function moveLike(c, copy) {
   const ids = await c.select();
@@ -1303,8 +1349,8 @@ async function moveLike(c, copy) {
     if (!copy) return;
   }
 }
-def('MOVE', ['M'], (c) => moveLike(c, false), { help: () => t('cmd.move.move_objects_base_point') });
-def('COPY', ['CO', 'CP'], (c) => moveLike(c, true), { help: () => t('cmd.copy.copy_objects_many_times') });
+def('MOVE', ['M'], (c) => moveLike(c, false), { helpKey: 'cmd.move.move_objects_base_point' });
+def('COPY', ['CO', 'CP'], (c) => moveLike(c, true), { helpKey: 'cmd.copy.copy_objects_many_times' });
 
 // ---- ALIGN and Align and distribute (0.6 DF.2, align.js) ----
 
@@ -1334,7 +1380,7 @@ def('ALIGN', ['AL'], async (c) => {
   if (!m) { c.print(t('cmd.align.same')); return; }
   apply(c, src, m, false);
   c.print(t('cmd.align.done', { objects: t('cmd.n.objects', { n: src.length }) }));
-}, { help: () => t('cmd.align.help') });
+}, { helpKey: 'cmd.align.help' });
 
 /** Move each object by its vector (one undo step: the command's). */
 function moveBy(c, moves, label) {
@@ -1354,7 +1400,7 @@ def('ALIGNTO', [], async (c) => {
   const point = to === 'P' ? await c.point(t('cmd.alignto.point')) : null;
   const n = moveBy(c, alignMoves(c.doc, ids, { side: ALIGN_SIDES[side], to: ALIGN_TO[to], point, ucs: activeUcs(c.doc) }), 'ALIGNTO');
   c.print(n ? t('cmd.alignto.done', { objects: t('cmd.n.objects', { n }) }) : t('cmd.alignto.nothing'));
-}, { keepSelection: true, help: () => t('cmd.alignto.help') });
+}, { keepSelection: true, helpKey: 'cmd.alignto.help' });
 
 def('DISTRIBUTE', [], async (c) => {
   const ids = await c.select();
@@ -1365,7 +1411,7 @@ def('DISTRIBUTE', [], async (c) => {
   c.engine.distAxis = axis; c.engine.distMode = mode;
   const n = moveBy(c, distributeMoves(c.doc, ids, { axis: axis === 'H' ? 'h' : 'v', mode: mode === 'C' ? 'centers' : 'gaps', ucs: activeUcs(c.doc) }), 'DISTRIBUTE');
   c.print(n ? t('cmd.distribute.done', { objects: t('cmd.n.objects', { n }) }) : t('cmd.distribute.nothing'));
-}, { keepSelection: true, help: () => t('cmd.distribute.help') });
+}, { keepSelection: true, helpKey: 'cmd.distribute.help' });
 
 // ---- EXPORTPOINTS (0.6 DF.7; ptexport.js): points and block insertion points to a CSV / TXT for BIM and survey programs ----
 def('EXPORTPOINTS', ['EXPPTS'], async (c) => {
@@ -1403,11 +1449,11 @@ def('EXPORTPOINTS', ['EXPPTS'], async (c) => {
   c.host.saveBlob(name, text, ft === 'T' ? 'text/plain' : 'text/csv');
   const nb = pts.filter((p) => p.from === 'block').length;
   c.print(t('cmd.exportpoints.done', { n: pts.length, blocks: nb, file: name, format: fmt, units: t(un === 'M' ? 'cmd.exportpoints.u.m' : un === 'F' ? 'cmd.exportpoints.u.ft' : 'cmd.exportpoints.u.drawing'), coords: t(inUcs ? 'cmd.exportpoints.c.ucs' : 'cmd.exportpoints.c.world') }));
-}, { help: () => t('cmd.exportpoints.help') });
+}, { helpKey: 'cmd.exportpoints.help' });
 
-def('ALIGNPANEL', ['ALP'], (c) => { if (c.engine.host.alignPanel) c.engine.host.alignPanel(); else c.print(t('cmd.alignpanel.none')); }, { keepSelection: true, noRepeat: true, help: () => t('cmd.alignpanel.help') });
+def('ALIGNPANEL', ['ALP'], (c) => { if (c.engine.host.alignPanel) c.engine.host.alignPanel(); else c.print(t('cmd.alignpanel.none')); }, { keepSelection: true, noRepeat: true, helpKey: 'cmd.alignpanel.help' });
 // LASER (0.7 SU.772): the Laser panel (laser-cad.js over lib/laser's panel): layers → cut / score / engrave / fill / picture, GRBL G-code, Web Serial
-def('LASER', ['LASERCUT'], async (c) => { if (c.engine.host.laserPanel) await c.engine.host.laserPanel(); else c.print(t('cmd.laser.none')); }, { keepSelection: true, noRepeat: true, help: () => t('cmd.laser.help') });
+def('LASER', ['LASERCUT'], async (c) => { if (c.engine.host.laserPanel) await c.engine.host.laserPanel(); else c.print(t('cmd.laser.none')); }, { keepSelection: true, noRepeat: true, helpKey: 'cmd.laser.help' });
 
 // ---- clipboard (COPYCLIP / CUTCLIP / COPYBASE / PASTECLIP / PASTEORIG) and DUPLICATE ----
 
@@ -1430,7 +1476,7 @@ def('COPYCLIP', [], async (c) => {
   const ids = await c.select(t('cmd.copyclip.select_objects_copy'));
   if (!ids.size) return;
   toClipboard(c, ids);
-}, { keepSelection: true, help: () => t('cmd.copyclip.help') });
+}, { keepSelection: true, helpKey: 'cmd.copyclip.help' });
 
 def('CUTCLIP', [], async (c) => {
   const ids = await c.select(t('cmd.cutclip.select_objects_cut'));
@@ -1438,14 +1484,14 @@ def('CUTCLIP', [], async (c) => {
   if (!toClipboard(c, ids)) return;
   c.doc.change('CUTCLIP', () => { for (const id of ids) if (c.doc.get(id)?.type !== 'viewport') c.doc.remove(id); });
   c.host.setSelection(new Set());
-}, { help: () => t('cmd.cutclip.cut_objects_clipboard_ctrl') });
+}, { helpKey: 'cmd.cutclip.cut_objects_clipboard_ctrl' });
 
 def('COPYBASE', [], async (c) => {
   const base = await c.point(t('cmd.stretch.base'));
   const ids = await c.select(t('cmd.copyclip.select_objects_copy'));
   if (!ids.size) return;
   toClipboard(c, ids, base);
-}, { keepSelection: true, help: () => t('cmd.copybase.copy_objects_clipboard_base') });
+}, { keepSelection: true, helpKey: 'cmd.copybase.copy_objects_clipboard_base' });
 
 /** The clipboard's contents, or null (and why). */
 function fromClipboard(c) {
@@ -1478,13 +1524,13 @@ def('PASTECLIP', [], async (c) => {
   const p = await c.point(t('cmd.pasteclip.specify_insertion_point'));
   c.preview(null);
   finishPaste(c, clip, p.x - base.x, p.y - base.y, 'PASTECLIP');
-}, { keepSelection: true, help: () => t('cmd.pasteclip.paste_clipboard_follows_cursor') });
+}, { keepSelection: true, helpKey: 'cmd.pasteclip.paste_clipboard_follows_cursor' });
 
 def('PASTEORIG', [], async (c) => {
   const clip = fromClipboard(c);
   if (!clip) return;
   finishPaste(c, clip, 0, 0, 'PASTEORIG');
-}, { keepSelection: true, help: () => t('cmd.pasteorig.paste_clipboard_coordinates_was') });
+}, { keepSelection: true, helpKey: 'cmd.pasteorig.paste_clipboard_coordinates_was' });
 
 def('DUPLICATE', ['DUP'], async (c) => {
   const ids = await c.select(t('cmd.duplicate.select_objects_duplicate'));
@@ -1501,17 +1547,17 @@ def('DUPLICATE', ['DUP'], async (c) => {
   const made = c.doc.change('DUPLICATE', () => src.map((e) => { const t = txEntity(c.doc.get(e.id) || e, m); delete t.id; return c.doc.add(t).id; }));
   c.host.setSelection(new Set(made));
   c.print(t('cmd.duplicate.done', { objects: t('cmd.n.objects', { n: made.length }) }));
-}, { keepSelection: true, help: () => t('cmd.duplicate.copy_moves_pointer_click') });
+}, { keepSelection: true, helpKey: 'cmd.duplicate.copy_moves_pointer_click' });
 
 def('SELECTALL', ['AI_SELALL'], async (c) => {
   const ids = c.doc.all().filter((e) => c.doc.editable(e)).map((e) => e.id);
   c.host.setSelection(new Set(ids));
   c.print(t('cmd.selectall.done', { n: ids.length }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.selectall.select_every_object_you') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.selectall.select_every_object_you' });
 
 def('DESELECT', ['AI_DESELECT', 'SELECTNONE'], async (c) => {
   c.host.setSelection(new Set());
-}, { noRepeat: true, help: () => t('cmd.deselect.clear_selection_esc') });
+}, { noRepeat: true, helpKey: 'cmd.deselect.clear_selection_esc' });
 
 // ---- QSELECT and SELECTSIMILAR (qselect.js) ----
 
@@ -1557,7 +1603,7 @@ def('QSELECT', ['QS'], async (c) => {
   const next = spec.append ? new Set([...current, ...found]) : found;
   c.host.setSelection(next);
   c.print(t('cmd.qs.done', { n: found.size }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.qs.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.qs.help' });
 
 def('SELECTSIMILAR', ['SIM'], async (c) => {
   const E = c.engine;
@@ -1580,7 +1626,7 @@ def('SELECTSIMILAR', ['SIM'], async (c) => {
   const found = similarTo(c.doc.all().filter((e) => c.doc.editable(e)), refs, E.similarOn, c.doc);
   c.host.setSelection(found);
   c.print(t('cmd.sim.done', { n: found.size }));
-}, { keepSelection: true, help: () => t('cmd.sim.help') });
+}, { keepSelection: true, helpKey: 'cmd.sim.help' });
 
 // ---- FIND: find and replace in text, attribute values and dimension text (findtext.js) ----
 
@@ -1607,13 +1653,13 @@ def('FIND', [], async (c) => {
   }
   c.host.setSelection(new Set(ms.map((m) => m.id)));
   c.print(t('cmd.find.found', { n: ms.reduce((a, m) => a + m.count, 0), m: new Set(ms.map((m) => m.id)).size }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.find.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.find.help' });
 
 def('SELECT', [], async (c) => {
   const ids = await c.select(undefined, { fresh: true });
   c.host.setSelection(ids);
   c.print(t('sel.select.done', { n: ids.size }));
-}, { noRepeat: true, keepSelection: true, help: () => t('sel.select.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'sel.select.help' });
 
 
 /** Move or copy objects through m, as one change. `after(pairs)` runs inside it, pairs = [[source id, result id]]. */
@@ -1655,7 +1701,7 @@ def('STRETCH', ['S'], async (c) => {
   let n = 0;
   c.doc.change('STRETCH', () => { for (const e of src) { const cur = c.doc.get(e.id); const nx = cur && moved(cur, d.x, d.y); if (nx) { c.doc.update(e.id, nx); n++; } } });
   c.print(t('cmd.stretch.done', { n }));
-}, { help: () => t('cmd.stretch.help') });
+}, { helpKey: 'cmd.stretch.help' });
 
 /** The copies an array makes (not the originals): rectangular {cols, rows, dx, dy} or polar {center, items, fill, rotate}. */
 function arrayCopies(src, a, limit = 20000) {
@@ -1686,8 +1732,9 @@ async function arrayCmd(c, kind) {
   if (!ids.size) return;
   const src = [...ids].map((id) => c.doc.get(id)).filter((e) => e && e.type !== 'viewport');
   if (!kind) {
-    const k = await c.keyword(t('cmd.array.type'), { options: [opt('R', t('opt.rectangular')), opt('PO', t('opt.polar'))], default: 'R' });
-    kind = (k?.option || k) === 'PO' ? 'polar' : 'rect';
+    // 0.10.1 FIX-0101-ARRAY-P: only two types are offered here (no PAth), so a lone P is POlar too; hidden, the prompt stays "POlar"
+    const k = await c.keyword(t('cmd.array.type'), { options: [opt('R', t('opt.rectangular')), opt('PO', t('opt.polar')), { key: 'P', label: t('opt.polar'), hidden: true }], default: 'R' });
+    kind = ['PO', 'P'].includes(k?.option || k) ? 'polar' : 'rect';
   }
   let a;
   if (kind === 'rect') {
@@ -1727,9 +1774,9 @@ async function arrayCmd(c, kind) {
   c.doc.change('ARRAY', () => { for (const e of copies) { const x = { ...e }; delete x.id; c.doc.add(x); } });
   c.print(t('cmd.array.done', { n: copies.length }));
 }
-def('ARRAY', ['AR'], (c) => arrayCmd(c, null), { help: () => t('cmd.array.help') });
-def('ARRAYRECT', [], (c) => arrayCmd(c, 'rect'), { help: () => t('cmd.arrayrect.help') });
-def('ARRAYPOLAR', [], (c) => arrayCmd(c, 'polar'), { help: () => t('cmd.arraypolar.help') });
+def('ARRAY', ['AR'], (c) => arrayCmd(c, null), { helpKey: 'cmd.array.help' });
+def('ARRAYRECT', [], (c) => arrayCmd(c, 'rect'), { helpKey: 'cmd.arrayrect.help' });
+def('ARRAYPOLAR', [], (c) => arrayCmd(c, 'polar'), { helpKey: 'cmd.arraypolar.help' });
 
 // ---- BREAK and LENGTHEN ----
 
@@ -1761,8 +1808,8 @@ async function breakCmd(c, atPoint) {
     return;
   }
 }
-def('BREAK', ['BR'], (c) => breakCmd(c, false), { help: () => t('cmd.break.help') });
-def('BREAKATPOINT', [], (c) => breakCmd(c, true), { help: () => t('cmd.breakat.help') });
+def('BREAK', ['BR'], (c) => breakCmd(c, false), { helpKey: 'cmd.break.help' });
+def('BREAKATPOINT', [], (c) => breakCmd(c, true), { helpKey: 'cmd.breakat.help' });
 
 def('LENGTHEN', ['LEN'], async (c) => {
   const E = c.engine;
@@ -1828,7 +1875,7 @@ def('LENGTHEN', ['LEN'], async (c) => {
     if (r.error) { c.print(t('cmd.len.err.' + r.error)); continue; }
     c.doc.change('LENGTHEN', () => c.doc.update(e.id, r));
   }
-}, { help: () => t('cmd.len.help') });
+}, { helpKey: 'cmd.len.help' });
 
 // ---- JOIN and MATCHPROP ----
 
@@ -1848,7 +1895,7 @@ def('JOIN', ['J'], async (c) => {
   const n = r.results.reduce((a, x) => a + x.from.length, 0);
   c.print(t('cmd.join.done', { n, m: r.results.length }));
   if (r.left.length) c.print(t('cmd.join.left', { n: r.left.length }));
-}, { help: () => t('cmd.join.help') });
+}, { helpKey: 'cmd.join.help' });
 
 const MATCH_KEYS = [['C', 'color', 'opt.color'], ['LA', 'layer', 'opt.layer'], ['T', 'text', 'opt.text'], ['D', 'dim', 'opt.dimension'], ['H', 'hatch', 'opt.hatch']];
 
@@ -1891,7 +1938,7 @@ def('MATCHPROP', ['MA', 'PAINTER'], async (c) => {
     c.print(t('cmd.ma.done', { n }));
     return;
   }
-}, { help: () => t('cmd.ma.help') });
+}, { helpKey: 'cmd.ma.help' });
 
 def('ROTATE', ['RO'], async (c) => {
   const ids = await c.select();
@@ -1903,7 +1950,7 @@ def('ROTATE', ['RO'], async (c) => {
   if (a === null || a === undefined) return;
   c.engine.lastRotation = a;
   apply(c, src, mAbout(base, mRotate(a)), false);
-}, { help: () => t('cmd.rotate.rotate_objects_about_base') });
+}, { helpKey: 'cmd.rotate.rotate_objects_about_base' });
 
 def('SCALE', ['SC'], async (c) => {
   const ids = await c.select();
@@ -1914,7 +1961,7 @@ def('SCALE', ['SC'], async (c) => {
   const s = await c.distance(t('cmd.scale.specify_scale_factor'), { base });
   if (!s) return;
   apply(c, src, mAbout(base, mScale(s)), false);
-}, { help: () => t('cmd.scale.scale_objects_about_base') });
+}, { helpKey: 'cmd.scale.scale_objects_about_base' });
 
 def('MIRROR', ['MI'], async (c) => {
   const ids = await c.select();
@@ -1931,7 +1978,7 @@ def('MIRROR', ['MI'], async (c) => {
   let n = 0;
   apply(c, src, mMirror(a, b), !erase, (pairs) => { n = erase ? resignAmong(c.doc, new Set(pairs.map((p) => p[0]))) : mirrorConstraints(c.doc, pairs); });
   if (n) c.print(t('cmd.mirror.constraints', { n }));
-}, { help: () => t('cmd.mirror.mirror_objects_across_line') });
+}, { helpKey: 'cmd.mirror.mirror_objects_across_line' });
 
 def('OFFSET', ['O'], async (c) => {
   const d = await c.distance(t('cmd.offset.specify_offset_distance'), { options: [opt('T', 'Through')], default: c.engine.lastOffset ?? 'Through' });
@@ -1955,7 +2002,7 @@ def('OFFSET', ['O'], async (c) => {
     delete o.id;
     c.doc.change('OFFSET', () => c.doc.add(o));
   }
-}, { help: () => t('cmd.offset.parallel_copies_distance') });
+}, { helpKey: 'cmd.offset.parallel_copies_distance' });
 
 function closestT(p, q) { // local import-free helper (geom.primParam without the arc rev flag)
   if (p.k === 'L') { const dx = p.x2 - p.x1, dy = p.y2 - p.y1, L = dx * dx + dy * dy; return L ? Math.max(0, Math.min(1, ((q.x - p.x1) * dx + (q.y - p.y1) * dy) / L)) : 0; }
@@ -2204,7 +2251,7 @@ async function trimOrExtend(c, isTrim) {
   }
 }
 
-def('TRIM', ['TR'], (c) => trimOrExtend(c, true), { help: () => t('cmd.trim.help') });
+def('TRIM', ['TR'], (c) => trimOrExtend(c, true), { helpKey: 'cmd.trim.help' });
 // 0.6 DF.13: AutoCAD's variable: 1 Quick (every object is a cutting edge), 0 Standard (choose the edges first)
 def('TRIMEXTENDMODE', [], async (c) => {
   const s = trimState(c);
@@ -2212,8 +2259,8 @@ def('TRIMEXTENDMODE', [], async (c) => {
   if (n !== 0 && n !== 1) { c.print(t('cmd.trimextendmode.range')); return; }
   s.trimMode = n === 0 ? 'standard' : 'quick';
   c.print(t('cmd.trimextendmode.set', { n, mode: t(n === 0 ? 'opt.standard' : 'opt.quick') }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.trimextendmode.help') });
-def('EXTEND', ['EX'], (c) => trimOrExtend(c, false), { help: () => t('cmd.extend.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.trimextendmode.help' });
+def('EXTEND', ['EX'], (c) => trimOrExtend(c, false), { helpKey: 'cmd.extend.help' });
 
 /** Where a trimmed piece lies along the original line or arc: { t0, t1 } (0…1). */
 function pieceRange(orig, piece) {
@@ -2326,7 +2373,7 @@ def('FILLET', ['F'], async (c) => {
     if (!applyCorner(c, 'fillet', r, 'FILLET')) continue;
     if (!multiple) return;
   }
-}, { help: () => t('cmd.fillet.help') });
+}, { helpKey: 'cmd.fillet.help' });
 
 def('CHAMFER', ['CHA'], async (c) => {
   const E = c.engine;
@@ -2383,7 +2430,7 @@ def('CHAMFER', ['CHA'], async (c) => {
     if (!applyCorner(c, 'chamfer', r, 'CHAMFER')) continue;
     if (!multiple) return;
   }
-}, { help: () => t('cmd.chamfer.help') });
+}, { helpKey: 'cmd.chamfer.help' });
 
 /** The linked drawing (xref.js) a block belongs to — its root's name — or null for an ordinary block (read-only: C35). */
 const linkOf = (doc, name) => {
@@ -2411,7 +2458,7 @@ def('EXPLODE', ['X'], async (c) => {
   c.host.setSelection(new Set());
   for (const name of linked) c.print(t('cmd.xref.readonly', { name }));
   if (n || !linked.size) c.print(n ? n + ' exploded' : t('cmd.explode.only_polylines_block_references'));
-}, { help: () => t('cmd.explode.break_polylines_blocks_dimensions') });
+}, { helpKey: 'cmd.explode.break_polylines_blocks_dimensions' });
 
 // ---- dimensions ----
 
@@ -2478,13 +2525,13 @@ async function twoOrigins(c) {
 def('DIMLINEAR', ['DLI', 'DIMLIN'], async (c) => {
   const [p1, p2] = await twoOrigins(c);
   await placeDim(c, (cur, rot, text) => dimEnt(c, { kind: 'linear', p1, p2, loc: P(cur), rot: rot ?? linearRot(p1, p2, cur, activeUcs(c.doc)), text }), { linear: true });
-}, { help: () => t('cmd.dimlinear.horizontal_vertical_distance_r') });
+}, { helpKey: 'cmd.dimlinear.horizontal_vertical_distance_r' });
 
 def('DIMALIGNED', ['DAL', 'DIMALI'], async (c) => {
   const [p1, p2] = await twoOrigins(c);
   if (dist(p1, p2) < 1e-12) { c.print(t('cmd.dimaligned.two_points_same')); return; }
   await placeDim(c, (cur, _r, text) => dimEnt(c, { kind: 'aligned', p1, p2, loc: P(cur), text }));
-}, { help: () => t('cmd.dimaligned.true_distance_between_two') });
+}, { helpKey: 'cmd.dimaligned.true_distance_between_two' });
 
 async function radial(c, kind) {
   for (;;) {
@@ -2497,8 +2544,24 @@ async function radial(c, kind) {
     return;
   }
 }
-def('DIMRADIUS', ['DRA', 'DIMRAD'], (c) => radial(c, 'radius'), { help: () => t('cmd.dimradius.radius_arc_circle') });
-def('DIMDIAMETER', ['DDI', 'DIMDIA'], (c) => radial(c, 'diameter'), { help: () => t('cmd.dimdiameter.diameter_arc_circle') });
+def('DIMRADIUS', ['DRA', 'DIMRAD'], (c) => radial(c, 'radius'), { helpKey: 'cmd.dimradius.radius_arc_circle' });
+def('DIMDIAMETER', ['DDI', 'DIMDIA'], (c) => radial(c, 'diameter'), { helpKey: 'cmd.dimdiameter.diameter_arc_circle' });
+
+/**
+ * DIMANGULAR's pick on a polyline: the side nearest the pick point (polyPrims order; `seg` = the side's index).
+ * angPrimAt → that primitive; angSegAt → a straight side as a line { x1, y1, x2, y2, i } (a LINE itself gives i -1), else null.
+ */
+function angPrimAt(e, q) {
+  let best = null, bd = Infinity;
+  for (const p of prims(e)) { const d = dist(q, primPoint(p, closestT(p, q))); if (d < bd) { bd = d; best = p; } }
+  return best;
+}
+function angSegAt(e, q) {
+  if (e.type === 'line') return { x1: e.x1, y1: e.y1, x2: e.x2, y2: e.y2, i: -1 };
+  if (e.type !== 'poly' || !q) return null;
+  const p = angPrimAt(e, q);
+  return p && p.k === 'L' && Math.hypot(p.x2 - p.x1, p.y2 - p.y1) > 1e-12 ? { x1: p.x1, y1: p.y1, x2: p.x2, y2: p.y2, i: p.seg } : null;
+}
 
 def('DIMANGULAR', ['DAN', 'DIMANG'], async (c) => {
   const pick = await c.entity(t('cmd.dimangular.select_arc_circle_line'), { none: true });
@@ -2509,7 +2572,10 @@ def('DIMANGULAR', ['DAN', 'DIMANG'], async (c) => {
     const b = await c.point(t('cmd.mea.end2'), { base: v });
     make = (cur) => ({ c: P(v), p1: P(a), p2: P(b), loc: P(cur) });
   } else {
-    const e = c.doc.get(pick.id);
+    let e = c.doc.get(pick.id);
+    // a polyline's arc side (bulge) measures like an ARC
+    const pa = e.type === 'poly' ? angPrimAt(e, pick.point) : null;
+    if (pa && pa.k === 'A') e = { type: 'arc', cx: pa.cx, cy: pa.cy, r: pa.r, a0: normAngle(pa.a0), a1: normAngle(pa.a1) };
     if (e.type === 'arc') {
       const cen = { x: e.cx, y: e.cy }, p1 = polar(cen, e.a0, e.r), p2 = polar(cen, e.a1, e.r), mid = polar(cen, e.a0 + normAngle(e.a1 - e.a0) / 2, e.r);
       make = (cur) => ({ c: cen, p1, p2, loc: dist(cen, cur) > 1e-12 ? P(cur) : mid });
@@ -2517,18 +2583,26 @@ def('DIMANGULAR', ['DAN', 'DIMANG'], async (c) => {
       const cen = { x: e.cx, y: e.cy }, p1 = polar(cen, angleOf(cen, pick.point), e.r);
       const b = await c.point(t('cmd.mea.end2'), { base: cen });
       make = (cur) => ({ c: cen, p1, p2: P(b), loc: P(cur) });
-    } else if (e.type === 'line') {
+    } else if (e.type === 'line' || (e.type === 'poly' && angSegAt(e, pick.point))) {
+      // Imtaar 2026-11-21: a polyline side (also a closed POLYGON / rectangle) is taken as directly as a LINE
+      const s1 = angSegAt(e, pick.point);
       c.host.setSelection(new Set([e.id]));
       let f;
-      for (;;) { const q = await c.entity(t('cmd.mea.line2')); f = c.doc.get(q.id); if (f.type === 'line' && f.id !== e.id) break; c.print(t('cmd.dimangular.pick_second_different_line')); }
+      for (;;) {
+        const q = await c.entity(t('cmd.mea.line2'));
+        const g = c.doc.get(q.id), s2 = g && angSegAt(g, q.point);
+        if (s2 && !(g.id === e.id && s2.i === s1.i)) { f = s2; break; }
+        c.print(t('cmd.dimangular.pick_second_different_line'));
+      }
       c.host.setSelection(new Set());
+      e = s1;
       const cross = (e.x2 - e.x1) * (f.y2 - f.y1) - (e.y2 - e.y1) * (f.x2 - f.x1);
       if (Math.abs(cross) < 1e-12 * Math.hypot(e.x2 - e.x1, e.y2 - e.y1) * Math.hypot(f.x2 - f.x1, f.y2 - f.y1)) { c.print(t('cmd.chamfer.err.parallel')); return; }
       make = (cur) => { const r = angularFromLines(e, f, cur); return r ? { ...r, loc: P(cur) } : null; };
     } else { c.print(t('cmd.dimangular.pick_arc_circle_line')); return; }
   }
   await placeDim(c, (cur, _r, text) => { const g = make(cur); return g && dist(g.c, g.loc) > 1e-12 ? dimEnt(c, { kind: 'angular', ...g, text }) : null; });
-}, { help: () => t('cmd.dimangular.angle_between_two_lines') });
+}, { helpKey: 'cmd.dimangular.angle_between_two_lines' });
 
 /** The dimension DIMCONTINUE / DIMBASELINE start from: the last one made, else pick one. */
 async function chainFrom(c) {
@@ -2566,8 +2640,8 @@ async function chain(c, baseline) {
     d = made; n++;
   }
 }
-def('DIMCONTINUE', ['DCO', 'DIMCONT'], (c) => chain(c, false), { help: () => t('cmd.dimcontinue.chain_dimensions_each_end') });
-def('DIMBASELINE', ['DBA', 'DIMBASE'], (c) => chain(c, true), { help: () => t('cmd.dimbaseline.dimensions_stacked_one_base') });
+def('DIMCONTINUE', ['DCO', 'DIMCONT'], (c) => chain(c, false), { helpKey: 'cmd.dimcontinue.chain_dimensions_each_end' });
+def('DIMBASELINE', ['DBA', 'DIMBASE'], (c) => chain(c, true), { helpKey: 'cmd.dimbaseline.dimensions_stacked_one_base' });
 
 // ---- DIMSTYLE, DIMEDIT, DIMTEDIT (0.7 D7.14; dimstyles.js) ----
 
@@ -2607,8 +2681,8 @@ async function dimStyleLine(c) {
 def('DIMSTYLE', ['DST', 'DDIM', 'D'], async (c) => {
   if (c.host.dimStyleManager) { await c.host.dimStyleManager(); return; }
   await dimStyleLine(c);
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.dimstyle.help') });
-def('-DIMSTYLE', [], (c) => dimStyleLine(c), { noRepeat: true, keepSelection: true, help: () => t('cmd.dimstyle.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.dimstyle.help' });
+def('-DIMSTYLE', [], (c) => dimStyleLine(c), { noRepeat: true, keepSelection: true, helpKey: 'cmd.dimstyle.help' });
 
 /** The dimensions a DIMEDIT / DIMTEDIT acts on: the selection (noun-verb), else asked. */
 async function pickDims(c, prompt) {
@@ -2656,7 +2730,7 @@ def('DIMEDIT', ['DED', 'DIMED'], async (c) => {
   if (!list.length) return;
   changeDims(c, 'DIMEDIT', list, (e) => { const n = { ...e, st: { ...(e.st || {}) } }; delete n.trot; delete n.st.just; return n; });
   c.print(t('cmd.dimedit.done', { n: list.length }));
-}, { help: () => t('cmd.dimedit.help') });
+}, { helpKey: 'cmd.dimedit.help' });
 
 def('DIMTEDIT', ['DIMTED'], async (c) => {
   const list = await pickDims(c, t('cmd.dimtedit.select'));
@@ -2675,7 +2749,7 @@ def('DIMTEDIT', ['DIMTED'], async (c) => {
     changeDims(c, 'DIMTEDIT', lin, (e) => ({ ...e, st: { ...(e.st || {}), just } }));
   }
   c.print(t('cmd.dimedit.done', { n: list.length }));
-}, { help: () => t('cmd.dimtedit.help') });
+}, { helpKey: 'cmd.dimtedit.help' });
 
 /** Dimension settings typed at the command line, as in AutoCAD (DIMSCALE 100, DIMTXT 2.5 …). */
 const DIMVARS = { DIMSCALE: 'scale', DIMTXT: 'txt', DIMASZ: 'asz', DIMDEC: 'dec', DIMGAP: 'gap', DIMEXE: 'exe', DIMEXO: 'exo' };   // help: cmd.dimvar.<key>
@@ -2695,7 +2769,7 @@ def('DIMLUNIT', [], async (c) => {
   if (!LUNITS[v] && v !== 6) { c.print(t('cmd.dimlunit.stays', { v: cur })); return; }
   c.doc.current.dim = { ...c.doc.current.dim, lunit: lunitCode(v) };
   c.print(t('cmd.dimlunit.set', { v: lunitCode(v), format: lengthFormatName(v) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.dimlunit.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.dimlunit.help' });
 
 /**
  * DIMTEXTUNIT (0.6 DC.72): the units dimension text is written in — mm, cm, m, km, or the drawing's own (dimstyle.js
@@ -2719,14 +2793,14 @@ def('DIMTEXTUNIT', ['DTU'], async (c) => {
     c.doc.current.dim = withTextUnit(c.doc.current.dim, unit, mm);
     c.print(t('cmd.dimtextunit.set', { unit: name }));
   }
-}, { noRepeat: true, help: () => t('cmd.dimtextunit.help') });
+}, { noRepeat: true, helpKey: 'cmd.dimtextunit.help' });
 
 /** PLOTSTYLES (0.6 DC.14): the plot style table editor (plotstyle-ui.js); the tables are kept with the drawing. */
 def('PLOTSTYLES', ['STYLESMANAGER', 'PSTABLES'], async (c) => {
   if (!c.host.plotStyles) { c.print(t('plotstyle.cmd.browser')); return; }
   const name = await c.host.plotStyles(c.doc.layout?.plotStyle || c.doc.meta.plotStyles?.model || '');
   if (name) c.print(t('plotstyle.cmd.done'));
-}, { noRepeat: true, keepSelection: true, help: () => t('plotstyle.cmd.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'plotstyle.cmd.help' });
 
 def('POLARANG', [], async (c) => {
   const st = c.host.settings;
@@ -2736,7 +2810,7 @@ def('POLARANG', [], async (c) => {
   st.polarInc = v;
   c.host.saveSettings?.();
   c.print(t('cmd.polarang.set', { v: fmt(v) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.polarang.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.polarang.help' });
 
 // ---- LINKVIEWS: pan and zoom move together in every pane (split screen, Q.5; for comparing two revisions tiled) ----
 def('LINKVIEWS', ['SYNCVIEWS'], async (c) => {
@@ -2747,7 +2821,7 @@ def('LINKVIEWS', ['SYNCVIEWS'], async (c) => {
   if (k !== 'ON' && k !== 'OFF') return;
   c.host.linkViews(k === 'ON');
   c.print(t(k === 'ON' ? 'cmd.linkviews.on' : 'cmd.linkviews.off'));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.linkviews.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.linkviews.help' });
 
 // ---- OPENIN3D: the drawing to the 3D modeling app in a new tab (handoff.js; only where that app takes a handoff) ----
 def('OPENIN3D', [], async (c) => {
@@ -2758,7 +2832,7 @@ def('OPENIN3D', [], async (c) => {
   } catch (err) {
     c.print(t(err?.code === 'blocked' ? 'cmd.open3d.blocked' : err?.code === 'storage' ? 'cmd.open3d.storage' : 'cmd.open3d.failed', { error: String(err?.message || err) }));
   }
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.open3d.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.open3d.help' });
 
 // ---- LASSOMODE: press and drag draws a lasso (1, default) or a rectangle (0); Settings › CadCraft › Dragging to select ----
 def('LASSOMODE', [], async (c) => {
@@ -2766,7 +2840,7 @@ def('LASSOMODE', [], async (c) => {
   if (!st || !c.host.setLasso) { c.print(t('cmd.lassomode.browser')); return; }
   const n = await c.number(t('cmd.lassomode.ask'), { default: st.lasso === 'box' ? 0 : 1 });
   if (n === 0 || n === 1) c.host.setLasso(n === 1); else c.print(t('cmd.lassomode.range'));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.lassomode.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.lassomode.help' });
 
 // ---- CURSORSIZE: the crosshair's size, in AutoCAD's percent of the screen (0.8 D8.14; view.js CURSOR_SIZES) ----
 // 100 runs the crosshair edge to edge (Settings › Cursor › Full screen); smaller values pick the nearest of Small, Medium, Large.
@@ -2782,7 +2856,7 @@ def('CURSORSIZE', [], async (c) => {
   const size = cursorSizeOfPercent(n);
   c.host.setCursorSize(size);
   c.print(t('cmd.cursorsize.set', { size: t(size === 'full' ? 'set.full_screen' : 'set.' + size) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.cursorsize.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.cursorsize.help' });
 
 // ---- TOOLBAR / TOOLBARROWS (CP.1, GJoe2 getcadcraft/cadcraft#2): what the toolbar buttons show, and how many rows the bars use ----
 // Ctrl+F1 steps through the first, Shift+Ctrl+F1 through the second; both are also in Settings.
@@ -2794,7 +2868,7 @@ def('TOOLBAR', [], async (c) => {
   const mode = key === 'I' ? 'icons' : key === 'T' ? 'labels' : 'both';
   c.host.setToolbarDisplay(mode);
   c.print(t('status.toolbar.display', { mode: t('set.toolbar_display.' + mode) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.toolbar.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.toolbar.help' });
 def('TOOLBARROWS', [], async (c) => {
   if (!c.host.setToolbarRows) { c.print(t('cmd.toolbar.browser')); return; }
   const cur = c.host.getToolbarRows?.() || 'auto';
@@ -2803,10 +2877,10 @@ def('TOOLBARROWS', [], async (c) => {
   const mode = key === '1' ? '1' : key === '2' ? '2' : 'auto';
   c.host.setToolbarRows(mode);
   c.print(t('status.toolbar.rows', { rows: t('set.toolbar_rows.' + mode) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.toolbarrows.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.toolbarrows.help' });
 
 /** TOUR (0.7 D7.06): the six-step first drawing, again. */
-def('TOUR', ['TUTORIAL'], async (c) => { if (c.host.startTour) c.host.startTour(); else c.print(t('cmd.toolbar.browser')); }, { noRepeat: true, keepSelection: true, help: () => t('cmd.tour.help') });
+def('TOUR', ['TUTORIAL'], async (c) => { if (c.host.startTour) c.host.startTour(); else c.print(t('cmd.toolbar.browser')); }, { noRepeat: true, keepSelection: true, helpKey: 'cmd.tour.help' });
 
 /** TOOLBARDOCK (0.7 D7.02): the side the toolbar sits on — Top (as it always was), Bottom, Left or Right. Also in Settings › CadCraft. */
 def('TOOLBARDOCK', ['TBDOCK'], async (c) => {
@@ -2817,7 +2891,7 @@ def('TOOLBARDOCK', ['TBDOCK'], async (c) => {
   const side = { T: 'top', B: 'bottom', L: 'left', R: 'right' }[key] || 'top';
   c.host.setToolbarDock(side);
   c.print(t('status.toolbar.dock', { side: t('set.toolbar_dock.' + side) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.toolbardock.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.toolbardock.help' });
 
 /** COMMANDLINE (0.9 SU.1083, cmdline.js): Dock it at the bottom, Float it, One line (the history in a pop-up, F2), Lines (how many history
  *  lines), History (the pop-up now). Also the command line's own … menu and Settings › CadCraft › Command line. */
@@ -2834,7 +2908,7 @@ def('COMMANDLINE', ['CMDLINE'], async (c) => {
     const n = await c.number(t('cmd.commandline.lines'), { default: cl.state().lines ?? 4 });
     if (Number.isInteger(n) && n >= 0 && n <= 12) cl.lines(n); else c.print(t('cmd.commandline.lines.bad'));
   }
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.commandline.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.commandline.help' });
 /** TOPAREA (0.9 SU.1083): Standard or Compact bars above the drawing (Settings › CadCraft › Top area). */
 def('TOPAREA', [], async (c) => {
   if (!c.host.setTopArea) { c.print(t('cmd.toolbar.browser')); return; }
@@ -2843,7 +2917,7 @@ def('TOPAREA', [], async (c) => {
   const mode = String((k && k.option) || (typeof k === 'string' ? k : 'S')).toUpperCase() === 'C' ? 'compact' : 'standard';
   c.host.setTopArea(mode);
   c.print(t('status.top_area', { mode: t('set.top_area.' + mode) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.toparea.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.toparea.help' });
 
 // ---- LWDISPLAY: lineweights on screen (the status bar's LWT; view.js + lwdisplay.js) ----
 def('LWDISPLAY', ['LWT'], async (c) => {
@@ -2853,7 +2927,7 @@ def('LWDISPLAY', ['LWT'], async (c) => {
   const r = await c.keyword(t('cmd.lwdisplay.ask'), { options: [opt('ON', 'ON'), opt('OFF', 'OFF')], default: cur });
   const k = typeof r === 'string' ? r : r?.option;
   if (k === 'ON' || k === 'OFF') c.host.setToggle('lwt', k === 'ON');
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.lwdisplay.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.lwdisplay.help' });
 
 // ---- UNITS: how lengths are written and typed (units.js) ----
 
@@ -2900,7 +2974,7 @@ def('UNITS', ['UN', 'DDUNITS'], async (c) => {
     c.print(t('cmd.units.typing'));
     if (c.doc.meta.units && c.doc.meta.units !== 'inches') c.print(t('cmd.units.inches', { units: c.doc.meta.units }));
   }
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.units.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.units.help' });
 
 // ---- LIMITS: the drawing limits (0.8 D8.2; limits.js) ----
 
@@ -2927,7 +3001,38 @@ def('LIMITS', [], async (c) => {
   doc.change('LIMITS', () => doc.setMeta(patch));
   c.print(t('cmd.limits.set', { ll: pair(ll.x, ll.y), ur: pair(ur.x, ur.y), state: t(patch.limits.on ? 'cmd.limits.state.on' : 'cmd.limits.state.off') }));
   if (patch.limits.on) c.print(t('cmd.limits.zoomhint'));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.limits.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.limits.help' });
+
+// ---- GRID: the grid's own spacing and major lines (0.10.1 FIX-0101-GRID-SPEC; gridspec.js) ----
+
+def('GRID', [], async (c) => {
+  const doc = c.doc;
+  const now = () => { const g = gridOf(doc.meta); return g.set ? t('cmd.grid.now', { step: fmtLen(c, g.step), major: g.major }) : t('cmd.grid.now.auto'); };
+  c.print(now());
+  for (;;) {
+    const g = gridOf(doc.meta);
+    const a = await c.number(t('cmd.grid.ask') + (g.set ? ' <' + fmtLen(c, g.step) + '>' : ''), { length: true, none: true, options: [opt('ON', 'ON'), opt('OFF', 'OFF'), opt('M', t('opt.major')), opt('A', t('opt.auto'))] });
+    if (a === null || a === undefined || a === '') return;   // Enter: keep what is there
+    if (a?.option === 'ON' || a?.option === 'OFF') { c.host.setToggle?.('grid', a.option === 'ON'); c.print(t(a.option === 'ON' ? 'cmd.grid.on' : 'cmd.grid.off')); return; }
+    if (a?.option === 'A') { doc.change('GRID', () => doc.setMeta(gridPatch(doc.meta, { auto: true }))); c.host.saveSettings?.(); c.print(t('cmd.grid.auto')); return; }
+    if (a?.option === 'M') {
+      if (!g.set) { c.print(t('cmd.grid.needstep')); continue; }
+      const n = await c.number(t('cmd.grid.major.ask') + ' <' + g.major + '>', { default: g.major });
+      const patch = typeof n === 'number' ? gridPatch(doc.meta, { major: n }) : null;
+      if (!patch) { c.print(t('cmd.grid.major.bad')); continue; }
+      doc.change('GRID', () => doc.setMeta(patch));
+      c.print(now());
+      return;
+    }
+    const patch = typeof a === 'number' ? gridPatch(doc.meta, { step: a }) : null;
+    if (!patch) { c.print(t('cmd.grid.bad')); continue; }
+    doc.change('GRID', () => doc.setMeta(patch));
+    c.host.setToggle?.('grid', true);
+    c.print(now());
+    c.print(t('cmd.grid.majorhint'));
+    return;
+  }
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.grid.help' });
 
 // ---- AUNITS: how angles are shown and typed (0.8 SU.932; angles.js) ----
 
@@ -2956,7 +3061,7 @@ def('AUNITS', ['ANGUNITS'], async (c) => {
   const r = setAngleFormat(c.doc, code, prec);
   c.print(t('cmd.aunits.set', { format: angleFormatName(r.aunits), example: fmtAngle({ aunits: r.aunits, auprec: r.prec }, 44.6083333) }));
   if (r.aunits) c.print(t('cmd.aunits.typing'));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.aunits.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.aunits.help' });
 
 // ---- ANNOSCALE: the drawing's annotation scale (0.10 BK.10; anno-scale-cad.js, the rule is annoscale.js) ----
 // Draw at 1:1; annotative text and dimensions are sized on paper and resized when this scale changes, in one undo step.
@@ -2972,7 +3077,7 @@ def('ANNOSCALE', ['CANNOSCALE'], async (c) => {
   c.print(t('cmd.annoscale.done', { scale: name(res.to), n: res.changed }));
   const h = annoTextHeight(doc);   // the office's paper height for new text (Default Policies), at this scale
   if (h) { doc.current.textHeight = h; c.print(t('cmd.annoscale.text', { h: formatLength(h, unitsOf(doc.meta)) })); }
-}, { help: () => t('cmd.annoscale.help') });
+}, { helpKey: 'cmd.annoscale.help' });
 
 // ---- SCALELISTEDIT: the drawing's own scales for viewports and plots (0.7 D7.19; scales.js) ----
 
@@ -3012,7 +3117,7 @@ def('SCALELISTEDIT', ['SCALELIST'], async (c) => {
       if ((y?.option || y) === 'Y') { resetScales(doc); c.print(t('cmd.scalelist.reset.done')); }
     }
   }
-}, { noRepeat: true, help: () => t('cmd.scalelist.help') });
+}, { noRepeat: true, helpKey: 'cmd.scalelist.help' });
 
 // ---- blocks ----
 
@@ -3045,7 +3150,7 @@ def('BLOCK', ['B', 'BMAKE'], async (c) => {
   if (attdefs.length) c.print(t('cmd.attdef.inblock', { n: attdefs.length }));
   c.engine.lastBlock = name;
   c.print(t('cmd.block.made', { name, n: src.length }));
-}, { help: () => t('cmd.block.make_block_objects_they') });
+}, { helpKey: 'cmd.block.make_block_objects_they' });
 
 // ---- WBLOCK: a block, objects or the whole drawing written out as a drawing of its own (0.7 D7.13) ----
 
@@ -3098,7 +3203,7 @@ def('WBLOCK', ['W', '-WBLOCK'], async (c) => {
     });
     if (clash) c.print(t('cmd.wblock.clash', { name: bname }));
   }
-}, { help: () => t('cmd.wblock.help') });
+}, { helpKey: 'cmd.wblock.help' });
 
 // ---- ATTDEF and the block editor (BEDIT / BCLOSE) ----
 
@@ -3144,7 +3249,7 @@ def('ATTDEF', ['ATT', 'DDATTDEF', '-ATTDEF'], async (c) => {
   const rot = await c.angle(t('cmd.attdef.rot'), { base: at, default: activeUcs(c.doc)?.ang || 0, ucs: true });   // new text runs along the UCS (DR.8)
   c.add(ent(c, { type: 'text', x: at.x, y: at.y, h, rot: normAngle(rot || 0), s: tag, ha: 'left', va: 'baseline', wf: 1, attdef: { tag, prompt, def, invisible: M.invisible, constant: M.constant, preset: M.preset } }));
   c.print(t('cmd.attdef.made', { tag }));
-}, { help: () => t('cmd.attdef.help') });
+}, { helpKey: 'cmd.attdef.help' });
 
 def('BEDIT', ['BE'], async (c) => {
   const doc = c.doc;
@@ -3180,7 +3285,7 @@ def('BEDIT', ['BE'], async (c) => {
   c.host.onBlockEdit?.(doc.blockEdit);
   c.host.zoomExtents?.();
   c.print(t('cmd.bedit.open', { name }));
-}, { noRepeat: true, help: () => t('cmd.bedit.help') });
+}, { noRepeat: true, helpKey: 'cmd.bedit.help' });
 
 /** Close the block editor: save the block (one undo step with everything done in it) or throw the edits away. */
 export function closeBlockEdit(doc, save) {
@@ -3278,7 +3383,7 @@ def('BVSTATE', ['BVS'], async (c) => {
     if (e) stateErr(c, e, name); else c.print(t('cmd.bvstate.deleted', { state: name }));
   }
   c.host.onBlockEdit?.(c.doc.blockEdit);
-}, { noRepeat: true, help: () => t('cmd.bvstate.help') });
+}, { noRepeat: true, helpKey: 'cmd.bvstate.help' });
 def('BVHIDE', ['BVH'], async (c) => {
   const be = visEditor(c);
   if (!be) return;
@@ -3286,7 +3391,7 @@ def('BVHIDE', ['BVH'], async (c) => {
   if (!ids?.size) return;
   const n = hideIds(c.doc, be, [...ids]);
   c.print(n ? t('cmd.bvhide.done', { n, state: be.vis.cur }) : t('cmd.bvhide.none'));
-}, { help: () => t('cmd.bvhide.help') });
+}, { helpKey: 'cmd.bvhide.help' });
 def('BVSHOW', ['BVSH'], async (c) => {
   const be = visEditor(c);
   if (!be) return;
@@ -3306,8 +3411,8 @@ def('BVSHOW', ['BVSH'], async (c) => {
   if (!fis.length) return;
   const n = showFi(c.doc, be, fis);
   c.print(t('cmd.bvshow.done', { n, state: be.vis.cur }));
-}, { help: () => t('cmd.bvshow.help') });
-def('BPARAMETER', ['BPARAM'], (c) => { c.print(t('cmd.bparameter.not_built')); }, { help: () => t('cmd.bparameter.help') });
+}, { helpKey: 'cmd.bvshow.help' });
+def('BPARAMETER', ['BPARAM'], (c) => { c.print(t('cmd.bparameter.not_built')); }, { helpKey: 'cmd.bparameter.help' });
 
 def('BCLOSE', [], async (c) => {
   const be = c.doc.blockEdit;
@@ -3319,7 +3424,7 @@ def('BCLOSE', [], async (c) => {
   c.print(t(save ? 'cmd.bclose.saved' : 'cmd.bclose.discarded', { name: be.name, n: c.doc.blockUses(be.name) }));
   if (be.synced) c.print(t('cmd.attsync.done', { name: be.name, n: be.synced }));
   if (be.note) c.print(t(be.note, { name: be.name }));
-}, { noRepeat: true, help: () => t('cmd.bclose.help') });
+}, { noRepeat: true, helpKey: 'cmd.bclose.help' });
 
 // ---- attribute editing (0.6 DF.5; attedit.js): EATTEDIT, ATTEDIT, ATTSYNC, BATTMAN; REFEDIT / REFCLOSE ----
 
@@ -3341,7 +3446,7 @@ def('EATTEDIT', ['DDATTE'], async (c) => {
   if (!e) return;
   if (c.host.attEditor) { await c.host.attEditor(e.id); return; }   // the dialog (attedit-ui.js)
   await typedAttEdit(c, e);
-}, { help: () => t('cmd.eattedit.help') });
+}, { helpKey: 'cmd.eattedit.help' });
 
 /** Each editable attribute's value asked in turn; Enter keeps it (ATTEDIT, and EATTEDIT without the dialog). */
 async function typedAttEdit(c, e) {
@@ -3362,7 +3467,7 @@ async function typedAttEdit(c, e) {
 def('ATTEDIT', ['ATE', '-ATTEDIT'], async (c) => {
   const e = await attRef(c, t('cmd.eattedit.select'));
   if (e) await typedAttEdit(c, e);
-}, { help: () => t('cmd.attedit.help') });
+}, { helpKey: 'cmd.attedit.help' });
 
 def('ATTSYNC', [], async (c) => {
   const names = namedBlocks(c.doc).filter((n) => (c.doc.blocks.get(n).attdefs || []).length || refsOf(c.doc, n).some((r) => r.e.attrs));
@@ -3384,7 +3489,7 @@ def('ATTSYNC', [], async (c) => {
   let total = 0;
   c.doc.change('ATTSYNC', () => { for (const n of list) { const k2 = syncBlock(c.doc, n); total += k2; if (k2) c.print(t('cmd.attsync.done', { name: n, n: k2 })); } });
   if (!total) c.print(t('cmd.attsync.nothing'));
-}, { help: () => t('cmd.attsync.help') });
+}, { helpKey: 'cmd.attsync.help' });
 
 def('BATTMAN', [], async (c) => {
   const names = namedBlocks(c.doc).filter((n) => (c.doc.blocks.get(n).attdefs || []).length);
@@ -3392,7 +3497,7 @@ def('BATTMAN', [], async (c) => {
   if (!c.host.attManager) { c.print(t('cmd.battman.browser')); return; }
   const sel = [...c.host.selection].map((id) => c.doc.get(id)).find((e) => e?.type === 'insert' && names.includes(e.block));
   await c.host.attManager(sel?.block || c.engine.lastBlock || names[0]);
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.battman.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.battman.help' });
 
 /** REFEDIT: the block's contents put where the reference shows them, as editable objects; the rest is faded. */
 export function openRefEdit(doc, refId) {
@@ -3447,7 +3552,7 @@ def('REFEDIT', [], async (c) => {
   if (r.error) { c.print(t(r.error, { name: e.block })); return; }
   c.host.onRefEdit?.(c.doc.refEdit);
   c.print(t('cmd.refedit.open', { name: e.block, n: r.n }));
-}, { noRepeat: true, help: () => t('cmd.refedit.help') });
+}, { noRepeat: true, helpKey: 'cmd.refedit.help' });
 
 def('REFCLOSE', [], async (c) => {
   const re = c.doc.refEdit;
@@ -3458,7 +3563,7 @@ def('REFCLOSE', [], async (c) => {
   c.host.onRefEdit?.(null);
   c.print(t(save ? 'cmd.refclose.saved' : 'cmd.refclose.discarded', { name: re.name, n: c.doc.blockUses(re.name) }));
   if (re.synced) c.print(t('cmd.attsync.done', { name: re.name, n: re.synced }));
-}, { noRepeat: true, help: () => t('cmd.refclose.help') });
+}, { noRepeat: true, helpKey: 'cmd.refclose.help' });
 
 function nests(doc, inner, name, depth = 0) {
   const b = doc.blocks.get(inner);
@@ -3502,12 +3607,12 @@ def('INSERT', ['I', 'DDINSERT'], async (c) => {
   c.engine.lastBlock = name;
   const placed = await placeBlock(c, name, { scale, attrs });
   if (placed && libItem) c.host.libraryPlaced?.(libItem, placed);
-}, { help: () => t('cmd.insert.help') });
+}, { helpKey: 'cmd.insert.help' });
 
 def('LIBRARY', ['LIB'], async (c) => {
   if (!c.host.openLibrary) { c.print(t('cmd.library.library_needs_browser')); return; }
   c.host.openLibrary();
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.library.library_panel_place_items') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.library.library_panel_place_items' });
 
 /**
  * Place a reference to `name`: preview, S/R options, then each attribute value the block asks for
@@ -3609,7 +3714,7 @@ def('PURGE', ['PU'], async (c) => {
     }
   });
   c.print(n ? t('cmd.purge.removed', { n }) : t('cmd.purge.none'));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.purge.remove_block_definitions_nothing') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.purge.remove_block_definitions_nothing' });
 
 // ---- layouts and plotting ----
 
@@ -3628,7 +3733,7 @@ def('LAYOUT', ['LO', 'NEWLAYOUT'], async (c) => {
   });
   doc.setSpace(layout);
   c.print(t('cmd.layout.made', { name, paper: p.label }));
-}, { noRepeat: true, help: () => t('cmd.layout.new_sheet_title_block') });
+}, { noRepeat: true, helpKey: 'cmd.layout.new_sheet_title_block' });
 
 def('MVIEW', ['MV'], async (c) => {
   const lay = c.doc.layout;
@@ -3644,7 +3749,7 @@ def('MVIEW', ['MV'], async (c) => {
   const frz = [...c.doc.layers.values()].filter((l) => l.newVpFrozen).map((l) => l.name);   // layers frozen in new viewports (VP.2)
   c.doc.change('MVIEW', () => c.doc.add({ type: 'viewport', layer: 'Viewports', color: null, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, w, h, cx: aim.cx, cy: aim.cy, s: aim.s, ...(frz.length ? { frz } : {}) }));
   c.print(t('cmd.mview.made', { scale: scaleLabel(c.doc, lay.paper.unit, aim.s) }));
-}, { help: () => t('cmd.mview.viewport_onto_model_layout') });
+}, { helpKey: 'cmd.mview.viewport_onto_model_layout' });
 
 // ---- VPORTS: split the drawing area into panes, each with its own view (panes.js; 0.4 part 2 Q.1). On a sheet it is
 // MVIEW (viewports on paper), as in AutoCAD. View › More holds the same choices.
@@ -3666,9 +3771,9 @@ async function splitPanes(c) {
   c.host.setPanes(layout);
   c.print(layout === 'single' ? t('cmd.vports.single') : t('cmd.vports.done', { n: { '2v': 2, '2h': 2, '3r': 3, '3l': 3, '4': 4 }[layout] }));
 }
-def('VPORTS', ['VIEWPORTS'], async (c) => (c.doc.layout ? lookup('MVIEW').fn(c) : splitPanes(c)), { noRepeat: true, keepSelection: true, help: () => t('cmd.vports.help') });
+def('VPORTS', ['VIEWPORTS'], async (c) => (c.doc.layout ? lookup('MVIEW').fn(c) : splitPanes(c)), { noRepeat: true, keepSelection: true, helpKey: 'cmd.vports.help' });
 // SPLIT: the same panes from a sheet too (View › More uses it, so its items never turn into MVIEW)
-def('SPLIT', [], (c) => splitPanes(c), { noRepeat: true, keepSelection: true, help: () => t('cmd.split.help') });
+def('SPLIT', [], (c) => splitPanes(c), { noRepeat: true, keepSelection: true, helpKey: 'cmd.split.help' });
 
 def('VPVIEW', [], async (c) => {
   const lay = c.doc.layout;
@@ -3707,7 +3812,7 @@ def('VPVIEW', [], async (c) => {
   const aim = aimViewport(c.doc, lay.paper.unit, vp.w, vp.h, win);
   c.doc.change('VPVIEW', () => c.doc.update(vp.id, { ...c.doc.get(vp.id), cx: aim.cx, cy: aim.cy, s: aim.s }));
   c.print(t('cmd.vpview.done', { scale: scaleLabel(c.doc, lay.paper.unit, aim.s) }));
-}, { help: () => t('cmd.vpview.set_what_viewport_shows') });
+}, { helpKey: 'cmd.vpview.set_what_viewport_shows' });
 
 // ---- UCS and PLAN (0.5 DR.8; ucs.js): a coordinate system of your own and a turned view. Neither is an edit (no undo
 // step, no unsaved mark): objects keep their world coordinates. As with UCSFOLLOW 1, setting a UCS turns the active pane's
@@ -3783,7 +3888,7 @@ def('UCS', [], async (c) => {
     setUcs(c.doc, list[i]);
     return afterUcs(c);
   }
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.ucs.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.ucs.help' });
 // View › More: turn the view a quarter (= UCS Z ∓90, then the view follows) or back to the world; their own names, so
 // the aliases file can give them a key (ALIASEDIT: TL=TURNLEFT)
 function quarterTurn(c, sign) {
@@ -3792,9 +3897,9 @@ function quarterTurn(c, sign) {
   setUcs(c.doc, sign ? { x: cur ? cur.x : 0, y: cur ? cur.y : 0, ang: (cur ? cur.ang : 0) + sign * Math.PI / 2 } : null);
   afterUcs(c);
 }
-def('TURNLEFT', [], (c) => quarterTurn(c, -1), { noRepeat: true, keepSelection: true, help: () => t('cmd.turnleft.help') });
-def('TURNRIGHT', [], (c) => quarterTurn(c, 1), { noRepeat: true, keepSelection: true, help: () => t('cmd.turnright.help') });
-def('TURNWORLD', [], (c) => quarterTurn(c, 0), { noRepeat: true, keepSelection: true, help: () => t('cmd.turnworld.help') });
+def('TURNLEFT', [], (c) => quarterTurn(c, -1), { noRepeat: true, keepSelection: true, helpKey: 'cmd.turnleft.help' });
+def('TURNRIGHT', [], (c) => quarterTurn(c, 1), { noRepeat: true, keepSelection: true, helpKey: 'cmd.turnright.help' });
+def('TURNWORLD', [], (c) => quarterTurn(c, 0), { noRepeat: true, keepSelection: true, helpKey: 'cmd.turnworld.help' });
 
 def('PLAN', [], async (c) => {
   const k = await c.keyword(t('cmd.plan.ask'), { options: [opt('C', 'Current ucs'), opt('U', 'Ucs'), opt('W', 'World')], default: 'Current ucs' });   // i18n-ignore (English option labels: opt() shows opt.<word>)
@@ -3810,31 +3915,37 @@ def('PLAN', [], async (c) => {
   if (!c.host.turnView) { c.print(t('cmd.plan.browser')); return; }
   c.host.turnView(ang);
   c.print(t(ang ? 'cmd.plan.turned' : 'cmd.plan.world', { ang: fmt(deg(normAngle(ang))) }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.plan.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.plan.help' });
+
+// ---- OPTIONKEYS (OPT.1): the person's own letters for command options (ARRAY.PO, P), beside the aliases file (optionkeys.js) ----
+def('OPTIONKEYS', ['OPTKEYS'], async (c, engine) => {
+  if (!c.host.optionKeysEdit) { c.print(t('optkeys.nodialog')); return; }
+  await c.host.optionKeysEdit({ recent: engine.optionPrompts() });
+}, { noRepeat: true, keepSelection: true, helpKey: 'optkeys.help' });
 
 // ---- SHORTCUTS (0.5 WL.18): keys for any command, beside the aliases file ----
 def('SHORTCUTS', ['KEYS'], async (c) => {
   if (!c.host.shortcuts) { c.print(t('keys.browser')); return; }
   await c.host.shortcuts.open();
-}, { noRepeat: true, keepSelection: true, help: () => t('keys.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'keys.help' });
 
 // ---- OSNAP / DDOSNAP / SHORTCUTMENU: the object snap menu by name (desktop report 2026-11-05) ----
 def('OSNAP', ['DDOSNAP', 'OSNAPSETTINGS', 'SHORTCUTMENU'], async (c) => {
   if (!c.host.openSnapKinds) { c.print(t('cmd.osnap.browser')); return; }
   c.host.openSnapKinds();
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.osnap.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.osnap.help' });
 
 // ---- COMPARESETTINGS (0.5 WL.12): dimension styles, text styles, layers, sheets and units side by side ----
 def('COMPARESETTINGS', ['CMPSET'], async (c) => {
   if (!c.host.compareSettings) { c.print(t('cmd.cmp.browser')); return; }
   await c.host.compareSettings();
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.cmp.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.cmp.help' });
 
 // ---- HISTORY (0.7 D7.31): the versions of this drawing, to open, restore and compare ----
 def('HISTORY', ['HIST'], async (c) => {
   if (!c.host.history) { c.print(t('hist.cmd.unavailable')); return; }
   c.host.history();   // not awaited: the panel stays open beside the drawing while commands go on (Open, Restore need the command line free)
-}, { noRepeat: true, keepSelection: true, help: () => t('hist.cmd.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'hist.cmd.help' });
 
 // ---- VPLAYER (0.5 VP.2): freeze layers in some viewports only. The Layers panel's viewport column does the same for one
 // viewport; the layer flag "frozen in new viewports" (Vpvisdflt) is what MVIEW starts a viewport with. ----
@@ -3901,7 +4012,7 @@ def('VPLAYER', [], async (c) => {
     });
     c.print(t('cmd.vplayer.done.' + { F: 'freeze', T: 'thaw', R: 'reset' }[key], { n: names.length, v: vps.length }));
   }
-}, { help: () => t('cmd.vplayer.help') });
+}, { helpKey: 'cmd.vplayer.help' });
 
 // ---- MSPACE / PSPACE (0.5 VP.4): work on the model through a viewport of the open sheet, and back. The browser keeps
 // the state (view.js enterViewport); double-clicking inside a viewport / outside it does the same. ----
@@ -3921,12 +4032,12 @@ def('MSPACE', ['MS'], async (c) => {
   }
   c.host.setSelection(new Set());
   c.host.enterViewport(vp);
-}, { noRepeat: true, help: () => t('cmd.mspace.help') });
+}, { noRepeat: true, helpKey: 'cmd.mspace.help' });
 def('PSPACE', ['PS'], async (c) => {
   if (!c.host.viewportEntered?.()) { c.print(t('cmd.pspace.not_inside')); return; }
   c.host.leaveViewport();
   c.print(t('cmd.pspace.done'));
-}, { noRepeat: true, help: () => t('cmd.pspace.help') });
+}, { noRepeat: true, helpKey: 'cmd.pspace.help' });
 
 // ---- VIEWLABEL (0.5 WL.11): a view title or callout on a sheet that shows its viewport's view name as a live field: the text
 // carries `field: { k: 'vpview', vp }` and an edit hook rewrites it in the same undo step whenever that viewport's name changes.
@@ -3958,12 +4069,12 @@ def('VIEWLABEL', ['VL'], async (c) => {
   const p = at || { x: vp.x - vp.w / 2, y: vp.y - vp.h / 2 - h * 1.6 };
   c.add(ent(c, { type: 'text', x: p.x, y: p.y, h, rot: 0, s, ha: 'left', va: 'baseline', wf: 1, field: { k: 'vpview', vp: vp.id } }));
   if (!vp.vname) c.print(t('cmd.viewlabel.unnamed'));
-}, { help: () => t('cmd.viewlabel.help') });
+}, { helpKey: 'cmd.viewlabel.help' });
 
 def('PLOT', ['PRINT', 'PUBLISH', 'EXPORTPDF'], async (c) => {
   if (!c.host.plot) { c.print(t('cmd.plot.plotting_needs_browser')); return; }
   await c.host.plot(c);
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.plot.plot_pdf_layout_model') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.plot.plot_pdf_layout_model' });
 
 // ---- inquiry ----
 
@@ -3972,7 +4083,7 @@ def('DIST', ['DI'], async (c) => {
   c.preview((cur) => [{ type: 'line', x1: a.x, y1: a.y, x2: cur.x, y2: cur.y }]);
   const b = await c.point(t('cmd.mea.p2'), { base: a });
   c.print(tAngle('cmd.mea.dist', { d: fmtLen(c, dist(a, b)), dx: fmtLen(c, b.x - a.x), dy: fmtLen(c, b.y - a.y) }, c.doc.meta, deg(normAngle(angleOf(a, b)))));
-}, { help: () => t('cmd.dist.distance_angle_between_two') });
+}, { helpKey: 'cmd.dist.distance_angle_between_two' });
 
 // ---- AREA and MEASUREGEOM ----
 
@@ -4031,7 +4142,7 @@ def('AREA', ['AA'], async (c) => {
     tally(m && m.area);
     if (!mode) return;
   }
-}, { noRepeat: false, keepSelection: false, help: () => t('cmd.area.help') });
+}, { noRepeat: false, keepSelection: false, helpKey: 'cmd.area.help' });
 
 def('MEASUREGEOM', ['MEA'], async (c) => {
   for (let first = true; ; first = false) {
@@ -4082,13 +4193,13 @@ def('MEASUREGEOM', ['MEA'], async (c) => {
       else await areaByPoints(c, p);
     }
   }
-}, { help: () => t('cmd.mea.help') });
+}, { helpKey: 'cmd.mea.help' });
 
 def('ID', [], async (c) => {
   const p = await c.point(t('cmd.id.specify_point'));
   const q = toUcs(activeUcs(c.doc), p);   // in the UCS (DR.8)
   c.print(t('cmd.id.result', { x: fmtLen(c, q.x), y: fmtLen(c, q.y) }));
-}, { help: () => t('cmd.id.coordinates_point') });
+}, { helpKey: 'cmd.id.coordinates_point' });
 
 // 0.6 DF.3: a calculation on the command line, as units.js reads typed lengths: 12'6"+3/4", (24'-0")/3, 2*450mm
 def('CAL', [], async (c) => {
@@ -4097,7 +4208,7 @@ def('CAL', [], async (c) => {
   const r = readLength(s, c.doc.meta.lunits, c.doc.meta.units);
   if (!r.ok) { c.print(calcMessage(r)); return; }
   c.print(t('cmd.cal.result', { value: fmtLen(c, r.value), raw: String(Number(r.value.toPrecision(12))) }));
-}, { help: () => t('cmd.cal.help') });
+}, { helpKey: 'cmd.cal.help' });
 
 def('LIST', ['LI', 'LS'], async (c) => {
   const ids = await c.select();
@@ -4106,7 +4217,7 @@ def('LIST', ['LI', 'LS'], async (c) => {
     c.print(t('cmd.list.line', { type: typeName(e), layer: e.layer, what: describe(e, unitsOf(c.doc.meta)) }));
     if (e.type === 'insert') for (const a of attrRows(e, c.doc.blocks.get(e.block))) c.print('  ' + a.tag + ' = ' + (a.value === '' ? t('cmd.list.attr.empty') : a.value) + (a.invisible ? '  ' + t('cmd.list.attr.invisible') : a.hidden ? '  ' + t('cmd.list.attr.state_hidden') : '') + (a.constant ? '  ' + t('cmd.list.attr.constant') : ''));
   }
-}, { help: () => t('cmd.list.describe_objects_history') });
+}, { helpKey: 'cmd.list.describe_objects_history' });
 
 export function describe(e, units = null) {
   const L = units ? (n) => formatLength(n, units) : fmt;   // lengths in the drawing's format; angles, ratios and scales stay plain
@@ -4158,11 +4269,11 @@ def('ZOOM', ['Z'], async (c) => {
   c.preview((cur) => [rect(a, cur)]);
   const b = await c.point(t('cmd.mtext.corner'), { base: a });
   c.host.zoomWindow(a, b);
-}, { help: () => t('cmd.zoom.extents_window'), noRepeat: true, keepSelection: true });
+}, { helpKey: 'cmd.zoom.extents_window', noRepeat: true, keepSelection: true });
 
 // REGEN / REGENALL (0.7 CAD-REGEN): the pictures are rebuilt from the drawing (the drawing itself is not changed, no undo step)
-def('REGEN', ['RE'], async (c) => { c.host.regen?.(false); c.print(t('cmd.regen.done')); }, { help: () => t('cmd.regen.help'), noRepeat: true, keepSelection: true });
-def('REGENALL', ['REA'], async (c) => { const n = c.host.regen?.(true) ?? 0; c.print(t('cmd.regenall.done', { n })); }, { help: () => t('cmd.regen.help_all'), noRepeat: true, keepSelection: true });
+def('REGEN', ['RE'], async (c) => { c.host.regen?.(false); c.print(t('cmd.regen.done')); }, { helpKey: 'cmd.regen.help', noRepeat: true, keepSelection: true });
+def('REGENALL', ['REA'], async (c) => { const n = c.host.regen?.(true) ?? 0; c.print(t('cmd.regenall.done', { n })); }, { helpKey: 'cmd.regen.help_all', noRepeat: true, keepSelection: true });
 
 // ---- named views (NAMEDVIEW): kept in the drawing; the file's VIEW table once cad-files writes it ----
 
@@ -4203,21 +4314,21 @@ def('NAMEDVIEW', ['NV', 'VIEWS'], async (c) => {
   const v = { name: old ? old.name : name, ...box, ...(here ? { layout: here } : {}) };
   doc.change('NAMEDVIEW', () => doc.setViews([...doc.views.filter((x) => x !== old), v]));
   c.print(t(old ? 'cmd.nv.replaced' : 'cmd.nv.saved', { name: v.name }));
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.nv.help') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.nv.help' });
 
-def('UNDO', ['U'], async (c) => { const l = c.doc.undo(); c.print(l ? 'Undid ' + l : t('cmd.undo.nothing_undo')); }, { noRepeat: true, help: () => t('cmd.undo.undo_last_command') });
-def('REDO', [], async (c) => { const l = c.doc.redo(); c.print(l ? 'Redid ' + l : t('cmd.redo.nothing_redo')); }, { noRepeat: true, help: () => t('cmd.redo.redo_what_was_undone') });
-def('LAYER', ['LA', 'DDLMODES', 'LAYERPALETTE', 'CLASSICLAYER'], async (c) => { if (c.host.layerManager) await c.host.layerManager(); else c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, help: () => t('cmd.layer.manager') });   // 0.9.1: the Layer manager dialog
-def('LAYERPANEL', [], async (c) => { c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, help: () => t('cmd.layer.show_layers_panel') });
-def('NEW', [], async (c) => { await c.host.newDrawing?.(); }, { noRepeat: true, help: () => t('cmd.new.start_new_drawing') });
-def('OPEN', [], async (c) => { await c.host.openFile?.(); }, { noRepeat: true, help: () => t('cmd.open.open_dwg_dxf_computer') });
-def('SAMPLES', ['SAMPLE'], async (c) => { if (c.host.openSamples) await c.host.openSamples(); else c.print(t('cmd.samples.browser')); }, { noRepeat: true, help: () => t('cmd.samples.help') });   // 0.6 DF.9
-def('SAVE', ['QSAVE'], async (c) => { await c.host.saveFile?.(); }, { noRepeat: true, help: () => t('cmd.save.download_drawing_format_dwg') });
-def('SAVEAS', [], async (c) => { await c.host.saveAs?.(); }, { noRepeat: true, help: () => t('cmd.saveas.download_drawing_dwg_dxf') });
-def('DXFOUT', [], async (c) => { await c.host.saveFile?.('dxf', false); }, { noRepeat: true, help: () => t('cmd.dxfout.download_drawing_dxf_r12') });
+def('UNDO', ['U'], async (c) => { const l = c.doc.undo(); c.print(l ? 'Undid ' + l : t('cmd.undo.nothing_undo')); }, { noRepeat: true, helpKey: 'cmd.undo.undo_last_command' });
+def('REDO', [], async (c) => { const l = c.doc.redo(); c.print(l ? 'Redid ' + l : t('cmd.redo.nothing_redo')); }, { noRepeat: true, helpKey: 'cmd.redo.redo_what_was_undone' });
+def('LAYER', ['LA', 'DDLMODES', 'LAYERPALETTE', 'CLASSICLAYER'], async (c) => { if (c.host.layerManager) await c.host.layerManager(); else c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, helpKey: 'cmd.layer.manager' });   // 0.9.1: the Layer manager dialog
+def('LAYERPANEL', [], async (c) => { c.host.showLayers?.(); }, { noRepeat: true, keepSelection: true, helpKey: 'cmd.layer.show_layers_panel' });
+def('NEW', [], async (c) => { await c.host.newDrawing?.(); }, { noRepeat: true, helpKey: 'cmd.new.start_new_drawing' });
+def('OPEN', [], async (c) => { await c.host.openFile?.(); }, { noRepeat: true, helpKey: 'cmd.open.open_dwg_dxf_computer' });
+def('SAMPLES', ['SAMPLE'], async (c) => { if (c.host.openSamples) await c.host.openSamples(); else c.print(t('cmd.samples.browser')); }, { noRepeat: true, helpKey: 'cmd.samples.help' });   // 0.6 DF.9
+def('SAVE', ['QSAVE'], async (c) => { await c.host.saveFile?.(); }, { noRepeat: true, helpKey: 'cmd.save.download_drawing_format_dwg' });
+def('SAVEAS', [], async (c) => { await c.host.saveAs?.(); }, { noRepeat: true, helpKey: 'cmd.saveas.download_drawing_dwg_dxf' });
+def('DXFOUT', [], async (c) => { await c.host.saveFile?.('dxf', false); }, { noRepeat: true, helpKey: 'cmd.dxfout.download_drawing_dxf_r12' });
 def('HELP', ['?'], async (c) => {
   for (const k of commandList()) c.print(k.name + (k.aliases.length ? ' (' + k.aliases.join(', ') + ')' : '') + ' — ' + k.help);
-}, { noRepeat: true, keepSelection: true, help: () => t('cmd.help.list') });
+}, { noRepeat: true, keepSelection: true, helpKey: 'cmd.help.list' });
 
 // ---- parametric: GEOMCONSTRAINT / GC*, DIMCONSTRAINT / DC*, PARAMETERS, CONSTRAINTBAR, DELCONSTRAINT, AUTOCONSTRAIN (pcommands.js)
 // The command registry add-ons use (0.4 part 2 A.3, docs/ADDONS-SPEC.md §5.4; addons/commands-api.js): CadCraft's own feature

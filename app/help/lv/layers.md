@@ -1,118 +1,120 @@
 ---
-title: Zīmējuma organizēšana ar slāņiem
-summary: Izveidojiet slāņus sienām, durvīm un piezīmēm, iestatiet krāsas, padariet slāni par pašreizējo un izslēdziet, iesaldējiet, bloķējiet slāņus vai neļaujiet tos drukāt.
-keywords: slānis, slāņi, la, pašreizējais slānis, iesaldēt, atkausēt, bloķēt, izslēgt, ieslēgt, drukāt, nedrukāt, krāsa, slāņa rekvizīti, layiso, layuniso, izolēt, layoff, layfrz, laymcur, layon, laythw, pārdēvēt, laymrg, apvienot, laydel, dzēst slāni
-from: cd033591
+title: Rasējuma kārtošana ar slāņiem
+summary: Izveidojiet slāņus sienām, durvīm un piezīmēm, iestatiet krāsas, padariet slāni pašreizējo un izslēdziet, iesaldējiet, bloķējiet vai atturiet slāņus no drukas.
+keywords: slānis, slāņi, la, pašreizējais slānis, iesaldēt, atsaldēt, bloķēt, izslēgt, ieslēgt, drukāt, neizdrukāt, krāsa, slāņa rekvizīti, layiso, layuniso, izolēt, layoff, layfrz, laymcur, layon, laythw, pārdēvēt, laymrg, apvienot, laydel, dzēst slāni
+from: ba9f0617
 ---
 
-## Ko izveidosiet
+## Ko jūs izveidosiet
 
-Trīs slāņus: Walls, Doors un Notes, katram ar savu krāsu, ar objektiem uz katra un objektiem, kas pārvietoti starp tiem.
+Trīs slāņus, Sienas, Durvis un Piezīmes, katram ar savu krāsu, ar objektiem uz katra un objektiem, kas pārvietoti starp tiem.
 
 ## Slāņu panelis
 
-Slāņi atrodas kreisajā panelī zem {{ui:Slāņi}}. Katrā rindā no kreisās uz labo redzams:
+Slāņi atrodas panelī kreisajā pusē, zem {{ui:Slāņi}}. Katra rinda no kreisās uz labo parāda:
 
-- punkts: aizpildīts **pašreizējam** slānim, kurā ievietojas jauni objekti;
-- krāsas paraugs;
-- slāņa nosaukums;
-- četras pogas: ieslēgt/izslēgt (acs), iesaldēt (sniegpārsla), bloķēt (lakats) un drukāt (printeris).
+- punktu: aizpildītu pašreizējam slānim, kur tiek ievietoti jauni objekti;
+- krāsas paraugu;
+- slāņa nosaukumu;
+- četras pogas: ieslēgt/izslēgt (acs), iesaldēt (sniegpārsla), bloķēt (atslēga) un drukāt (printeris).
 
-Katram zīmējumam ir slānis `0`. Ierakstot `LA` un nospiežot {{key:Enter}}, jūs nonākat panelī.
+Katram rasējumam ir slānis, ko sauc par `0`. Ierakstot `LA` un nospiežot {{key:Enter}}, jūs nonākat panelī.
 
-## Izveidot slāņus
+## Izveidojiet slāņus
 
-1. Noklikšķiniet uz {{ui:Jauns slānis}} virs saraksta. Atveras nosaukuma lauks.
+1. Noklikšķiniet uz {{ui:Jauns slānis}} virs saraksta. Atveras nosaukuma lodziņš.
 2. Ierakstiet `Walls` un nospiediet {{key:Enter}} (vai noklikšķiniet uz {{ui:Pievienot}}).
 
-Statusa joslā ir teikts: "Pievienots slānis Walls un padarīts par pašreizējo." Jaunajam slānim tiek piešķirta krāsa 7 (gaišajā motīvā melna, tumšajā — balta).
+Statusa joslā ir teikts "Pievienots slānis Walls un padarīts pašreizējs". Jaunajam slānim ir krāsa 7 (melna gaišajā motīvā, balta tumšajā).
 
-3. Vēlreiz noklikšķiniet uz {{ui:Jauns slānis}}, ierakstiet `Doors` un nospiediet {{key:Enter}}.
-4. Vēlreiz noklikšķiniet uz {{ui:Jauns slānis}}, ierakstiet `Notes` un nospiediet {{key:Enter}}.
+3. Noklikšķiniet uz {{ui:Jauns slānis}} vēlreiz, ierakstiet `Doors` un nospiediet {{key:Enter}}.
+4. Noklikšķiniet uz {{ui:Jauns slānis}} vēlreiz, ierakstiet `Notes` un nospiediet {{key:Enter}}.
 
 Notes tagad ir pašreizējais.
 
-## Piešķirt katram slānim krāsu
+## Piešķiriet katram slānim krāsu
 
 1. Noklikšķiniet uz krāsas parauga rindā Walls. Atveras jūsu sistēmas krāsu izvēle.
 2. Izvēlieties krāsu un apstipriniet.
 
-Paraugs un viss slānī Walls, kas krāsots {{ui:Pēc slāņa}}, mainās.
+Paraugs un viss uz Walls, kas ir krāsots {{ui:Pēc slāņa}}, mainās.
 
 :::note
-Izvēlēta krāsa, kas atbilst vienai no 255 standarta CAD krāsām, tiek saglabāta kā šis numurs. Jebkura cita krāsa CadCraft tiek saglabāta precīzi, bet DWG vai DXF failā tiek saglabāta kā tuvākā standarta krāsa.
+Izvēlēta krāsa, kas atbilst vienai no 255 standarta CAD krāsām, tiek saglabāta kā šis numurs. Jebkura cita krāsa tiek saglabāta CadCraft precīzi, bet DWG vai DXF failā tiek saglabāta kā tuvākā standarta krāsa.
 :::
 
-## Zīmēt uz slāņa
+## Zīmējiet uz slāņa
 
 1. Noklikšķiniet uz nosaukuma **Walls** sarakstā. Tā punkts aizpildās, un statusa joslā ir teikts "Pašreizējais slānis: Walls".
-2. Uzzīmējiet taisnstūri (`REC`). Tas tiek ievietots slānī Walls.
-3. Noklikšķiniet uz **Doors** un uzzīmējiet loku (`A`). Tas tiek ievietots slānī Doors.
+2. Uzzīmējiet taisnstūri (`REC`). Tas iet uz Walls.
+3. Noklikšķiniet uz **Doors** un uzzīmējiet loku (`A`). Tas iet uz Doors.
 
-Pašreizējo slāni var izvēlēties arī labajā pusē sadaļā {{ui:Pašreizējie iestatījumi}} (kad nekas nav atlasīts), zem {{ui:Slānis}}.
+Varat izvēlēties pašreizējo slāni arī {{ui:Pašreizējie iestatījumi}} labajā pusē (nekas nav atlasīts), sadaļā {{ui:Slānis}}.
 
-## Pārvietot objektus uz citu slāni
+## Pārvietojiet objektus uz citu slāni
 
 1. Atlasiet objektus.
 2. Labajā panelī izvēlieties jauno slāni sadaļā {{ui:Slānis}}.
 
-Tie tiek pārvietoti uz šo slāni un pārņem tā krāsu, ja to krāsa ir {{ui:Pēc slāņa}}.
+Tie pārvietojas uz šo slāni un pārņem tā krāsu, ja to krāsa ir {{ui:Pēc slāņa}}.
 
 ## Izslēgt, iesaldēt, bloķēt un drukāt
 
 | Poga | Ko tā dara |
 |---|---|
-| Ieslēgt/izslēgt (acs) | Paslēpj slāņa objektus. Tos nevar redzēt, atlasīt vai piesaistīties tiem. |
-| Iesaldēt (sniegpārsla) | CadCraft tam ir tāds pats efekts kā izslēgšanai. Tas ir atsevišķi, jo citas programmas tos apstrādā atšķirīgi, un iestatījums tiek saglabāts. |
-| Bloķēt (lakats) | Objekti paliek redzami, un uz tiem var piesaistīties, bet tos nevar atlasīt vai mainīt. Labi piemērots fonam, pār kuru zīmējat. |
-| Drukāt (printeris) | Kad poga ir nospiesta, slānis tiek rādīts ekrānā, bet **neiekļauts drukās** un PDF failos. Izmantojiet to konstrukcijas līnijām un piezīmēm sev. |
+| Ieslēgt/izslēgt (acs) | Paslēpj slāņa objektus. Tos nevar redzēt, atlasīt vai pievilkt. |
+| Iesaldēt (sniegpārsla) | CadCraft tas pats, kas izslēgt. Atsevišķi, jo citas programmas tos apstrādā atšķirīgi, un iestatījums tiek saglabāts. |
+| Bloķēt (atslēga) | Objekti paliek redzami un jūs varat tiem pievilkties, bet tos nevar atlasīt vai mainīt. Labi fonam, pār kuru zīmējat. |
+| Drukāt (printeris) | Kad nospiests, slānis tiek rādīts ekrānā, bet **netiek iekļauts drukās** un PDF. Izmantojiet to konstrukcijas līnijām un piezīmēm sev. |
 
-Novietojiet kursoru virs pogas, lai redzētu, ko tā darīs ("Izslēgt", "Iesaldēt", "Bloķēt", "Nedrukāt šo slāni").
+Novietojiet kursoru virs pogas, lai redzētu, ko tā darīs ("Izslēgt", "Iesaldēt", "Bloķēt", "Neizdrukāt šo slāni").
 
-Pašreizējo slāni nevar izslēgt: statusa joslā ir teikts "Tas ir pašreizējais slānis. Vispirms padariet pašreizējo citu slāni." Noklikšķinot uz slāņa nosaukuma, lai to padarītu pašreizējo, tas arī tiek ieslēgts un atkausēts.
+Pašreizējo slāni nevar izslēgt: statusa joslā ir teikts "Tas ir pašreizējais slānis. Vispirms padariet pašreizējo citu slāni." Noklikšķinot uz slāņa nosaukuma, lai to padarītu pašreizējo, tas arī ieslēdzas un atsaldējas.
 
-Katra slāņa izmaiņa, paneļa vai komandas veidā, ir viens atsaukšanas solis: {{key:Mod+Z}} to atjauno.
+Katra slāņa izmaiņa — panelī vai ar komandu — ir viens atsaukšanas solis: {{key:Mod+Z}} to atjauno.
 
-## Strādāt ar slāņiem, atlasot objektus
+## Strādājiet ar slāņiem, izvēloties objektus
 
-Slāņa nosaukums nav jāzina: atlasiet objektu, kas tajā atrodas. Ierakstiet komandu vai atveriet {{ui:Rīki}} slāņu paneļa augšdaļā.
+Jums nav jāzina slāņa nosaukums: izvēlieties objektu, kas atrodas uz tā. Ierakstiet komandu vai atveriet {{ui:Rīki}} slāņu paneļa augšdaļā.
 
 | Komanda | Ko tā dara |
 |---|---|
-| {{cmd:LAYISO}} | Atlasiet objektus, nospiediet {{key:Enter}}: ieslēgti paliek tikai to slāņi, visi pārējie slāņi tiek izslēgti. Ja pašreizējais slānis ir izslēgts, viens no izolētajiem slāņiem kļūst par pašreizējo. |
-| {{cmd:LAYUNISO}} | Ieslēdz atpakaļ slāņus, ko izslēdza pēdējā {{cmd:LAYISO}} komanda, un atdod pašreizējo slāni, ko tā bija mainījusi. |
-| {{cmd:LAYOFF}} | Noklikšķiniet uz objektiem pēc kārtas: katra objekta slānis tiek izslēgts. Ierakstiet `U`, lai atsauktu pēdējo, un {{key:Enter}}, lai pabeigtu. |
-| {{cmd:LAYFRZ}} | Tas pats, bet katrs slānis tiek iesaldēts. |
-| {{cmd:LAYMCUR}} | Noklikšķiniet uz objekta: tā slānis kļūst par pašreizējo (un tiek ieslēgts un atkausēts). Ja jau ir atlasīts viens objekts, tiek izmantots tas. |
+| {{cmd:LAYISO}} | Atlasiet objektus, nospiediet {{key:Enter}}: paliek ieslēgti tikai to slāņi, visi pārējie slāņi tiek izslēgti. Ja pašreizējais slānis ir izslēgts, viens no izolētajiem slāņiem kļūst par pašreizējo. |
+| {{cmd:LAYUNISO}} | Ieslēdz atpakaļ slāņus, ko pēdējā {{cmd:LAYISO}} izslēdza, un atdod pašreizējo slāni, ko tā bija mainījusi. |
+| {{cmd:LAYOFF}} | Noklikšķiniet uz objektiem vienu pēc otra: katra objekta slānis tiek izslēgts. Ierakstiet `U`, lai atsauktu pēdējo, {{key:Enter}}, lai pabeigtu. |
+| {{cmd:LAYFRZ}} | Tas pats, bet iesaldē katru slāni. |
+| {{cmd:LAYMCUR}} | Noklikšķiniet uz objekta: tā slānis kļūst pašreizējais (un tiek ieslēgts un atsaldēts). Ja jau ir atlasīts viens objekts, tiek izmantots tas. |
 | {{cmd:LAYON}} | Ieslēdz visus slāņus. |
-| {{cmd:LAYTHW}} | Atkausē visus slāņus. |
+| {{cmd:LAYTHW}} | Atsaldē visus slāņus. |
 
-Pašreizējo slāni šādā veidā nekad neizslēdz vai nesaldē: par to informē vēsture, un vispirms varat padarīt pašreizējo citu slāni ar {{cmd:LAYMCUR}}. Atlasot bloka atsauci, tiek izmantots paša atsauces slānis.
+Pašreizējo slāni šādi nekad neizslēdz vai nesaldē: vēsturē to pasaka, un vispirms varat padarīt citu slāni pašreizējo ar {{cmd:LAYMCUR}}. Izvēloties bloka atsauci, tiek izmantots pašas atsauces slānis.
 
-## Pārdēvēt, apvienot un dzēst slāņus
+## Pārdēvējiet, apvienojiet un dzēsiet slāņus
 
-- {{cmd:RENAME}}: ierakstiet `LA`, veco nosaukumu un jauno. Visi slāņa objekti seko. (`B` pārdēvē bloku tāpat, ar visām tā atsaucēm.)
-- {{cmd:LAYMRG}}: noklikšķiniet uz objekta katrā slānī, ko apvienot (vai ierakstiet `N` un nosaukumu), nospiediet {{key:Enter}}, tad izvēlieties mērķa slāni un atbildiet `Y`. Objekti tiek pārvietoti uz mērķi — modelī, lapās un blokos —, un apvienotie slāņi tiek dzēsti.
-- {{cmd:LAYDEL}}: atlasiet objektu slānī (vai ierakstiet `N` un tā nosaukumu) un atbildiet `Y`. Slānis tiek dzēsts **kopā ar visiem tajā esošajiem objektiem** visur. Slāni 0, DEFPOINTS un pašreizējo slāni nevar dzēst.
+- {{cmd:RENAME}}: ierakstiet `LA`, veco nosaukumu un jauno. Katrs objekts uz slāņa seko. (`B` pārdēvē bloku tāpat, ar visām atsaucēm uz to.)
+- {{cmd:LAYMRG}}: noklikšķiniet uz objekta katrā slānī, ko apvienot (vai ierakstiet `N` un nosaukumu), nospiediet {{key:Enter}}, tad izvēlieties mērķa slāni un atbildiet `Y`. Objekti pāriet uz mērķi — modelī, lapās un blokos —, un apvienotie slāņi pazūd.
+- {{cmd:LAYDEL}}: izvēlieties objektu uz slāņa (vai `N` un tā nosaukumu) un atbildiet `Y`. Slānis pazūd **kopā ar katru objektu uz tā**, visur. Slāni 0, DEFPOINTS un pašreizējo slāni nevar dzēst.
 
-Katra no tām ir viens atsaukšanas solis. Visas trīs atrodas {{ui:Rīki}} slāņu paneļa augšdaļā.
+Katrs ir viens atsaukšanas solis. Visi trīs atrodas {{ui:Rīki}} slāņu paneļa augšdaļā.
 
-1. Noklikšķiniet uz vienas sienas līnijas, tad ierakstiet `LAYISO` un nospiediet {{key:Enter}}. Ieslēgts paliek tikai Walls.
-2. Zīmējiet vai mainiet, kas nepieciešams, slānī Walls.
-3. Ierakstiet `LAYUNISO` un nospiediet {{key:Enter}}. Doors un Notes atkal parādās.
+1. Noklikšķiniet uz vienas sienas līnijas, tad ierakstiet `LAYISO` un nospiediet {{key:Enter}}. Paliek ieslēgta tikai Walls.
+2. Zīmējiet vai mainiet, kas nepieciešams, uz Walls.
+3. Ierakstiet `LAYUNISO` un nospiediet {{key:Enter}}. Doors un Notes atgriežas.
 
 ## Biežākās kļūdas
 
-- **Jaunas līnijas ievietojās nepareizā slānī.** Pirms zīmēšanas pārbaudiet, kurš punkts ir aizpildīts. Jauns slānis kļūst par pašreizējo, tiklīdz to pievienojat.
+- **Jaunās līnijas nonāca nepareizā slānī.** Pirms zīmēšanas pārbaudiet, kurš punkts ir aizpildīts. Jauns slānis kļūst pašreizējais, tiklīdz to pievienojat.
 - **Objekts neatlasās.** Tā slānis ir bloķēts, izslēgts vai iesaldēts.
-- **Slānis joprojām drukājas citā programmā.** DXF R12 nevar saglabāt "nedrukāt". CadCraft saglabā šo iestatījumu pats, ja zīmējumam ir lapa, bet citas programmas šo slāni izdrukās.
-- **Slāņu nosaukumi pēc saglabāšanas ir lielajos burtos.** DXF R12 saglabā nosaukumus lielajos burtos, tāpēc `Walls` atgriežas kā `WALLS`, un atstarpes kļūst par `_`. Saglabātais DWG saglabā nosaukumus tādus, kādus ierakstījāt.
-- **Slāņa pārdēvēšana, apvienošana vai dzēšana.** Izmantojiet {{cmd:RENAME}}, {{cmd:LAYMRG}} vai {{cmd:LAYDEL}} (arī {{ui:Rīki}}): skatiet iepriekš.
+- **Slānis joprojām drukājas citā programmā.** DXF R12 nevar saglabāt "neizdrukāt". CadCraft saglabā šo iestatījumu sev, ja rasējumam ir lapa, bet citas programmas drukās šo slāni.
+- **Slānu nosaukumi lielajos burtos pēc saglabāšanas.** DXF R12 glabā nosaukumus lielajos burtos, tāpēc `Walls` atgriežas kā `WALLS`, un atstarpes kļūst par `_`. Saglabāts DWG saglabā nosaukumus tā, kā tos ierakstījāt.
+- **Slāna pārdēvēšana, apvienošana vai dzēšana.** Izmantojiet {{cmd:RENAME}}, {{cmd:LAYMRG}} vai {{cmd:LAYDEL}} (arī {{ui:Rīki}}): skatiet zemāk.
 
-## Grupēt slāņus
+## Grupējiet slāņus
 
-Lai saraksts būtu īss, ievietojiet slāņus mapēs, piemēram, Esošais, Projektētais un Inženiertīkli. Katra mape ir saritināma, un tās slēdži ieslēdz vai izslēdz visus tās slāņus, iesaldē tos vai bloķē kopā. Pašreizējo slāni nekad neizslēdz.
+Lai saraksts paliktu īss, ievietojiet slāņus mapēs, piemēram, Esošais, Projektētais un Pakalpojumi. Katra mape salokās, un tās slēdži ieslēdz vai izslēdz visus tās slāņus, iesaldē vai bloķē tos kopā. Pašreizējais slānis nekad netiek izslēgts.
 
-Slāņu paneļa {{ui:Rīki}} izvēlieties {{ui:Pievienot gatavas grupas}} komplektam, kas sagatavots nelieliem dzīvojamo ēku darbiem, {{ui:Grupēt pēc nosaukuma}}, lai grupētu slāņus ar vienādu priedēkli (`E-Walls`, `E-Doors`), vai {{ui:Jauna grupa}}. Velciet slāni uz mapi vai izmantojiet sarakstu virs slāņiem pašreizējam slānim. Ierakstiet {{ui:Atrast slāni}}, lai sašaurinātu sarakstu. `LAYGROUP` (`LG`) dara to pašu komandrindā.
+Panelī Slāņi {{ui:Rīki}} izvēlieties {{ui:Pievienot gatavas grupas}} komplektam, kas paredzēts maziem dzīvojamiem darbiem, {{ui:Grupēt pēc nosaukuma}}, lai grupētu slāņus, kam ir vienāds priekšvārds (`E-Walls`, `E-Doors`), vai {{ui:Jauna grupa}}. Velciet slāni uz mapi vai izmantojiet sarakstu virs slāņiem pašreizējam slānim. Ierakstiet {{ui:Atrast slāni}}, lai sašaurinātu sarakstu. `LAYGROUP` (`LG`) dara to pašu komandrindā.
 
-Paši slāņi nemainās, tāpēc citas CAD programmas tos redz kā parastu plakanu sarakstu. CadCraft grupas glabā failā.
+Lai pārdēvētu grupu, veiciet dubultklikšķi uz tās nosaukuma (vai atlasiet to un nospiediet {{key:F2}}), ierakstiet jauno nosaukumu un nospiediet {{key:Enter}}; {{key:Esc}} paturē veco, un {{cmd:UNDO}} to atjauno. {{ui:Jauna grupa}} ir {{ui:Rīki}} slāņu panelī.
+
+Paši slāņi nemainās, tāpēc citas CAD programmas tos redz kā parastu plakanu sarakstu. CadCraft glabā grupas failā.

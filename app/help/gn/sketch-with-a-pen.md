@@ -1,32 +1,36 @@
 ---
-title: Boceto con lápiz ha geometría precisa
-summary: Dibujá a mano alzada con lápiz, mouse térã dedo, ha cada trazo oikuaa ha ojapo línea limpia, círculo, arco, rectángulo térã polilínea oipe'ỹ vove lápiz, ojoajusta ndive lo ya dibujado, ha tamaño listo para escribir por encima.
-keywords: boceto, lápiz, lápiz óptico, mano alzada, dedo, limpieza, precisa, ajuste, SKETCHLIVE, SKETCHFIX, tamaño, escribir encima
-from: cd87eb75
+title: Bosquejar con lápiz y obtener geometría precisa
+summary: Dibujá a mano alzada con lápiz, mouse o dedo y cada trazo se vuelve una línea, círculo, arco, rectángulo o polilínea limpia al levantar el lápiz, ajustada a lo ya dibujado, con su tamaño listo para escribir encima.
+keywords: boceto, lápiz, stylus, mano alzada, dedo, limpiar, precisa, ajuste, SKETCHLIVE, SKETCHFIX, tamaño, escribir encima, presión, grosor de línea, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Eñepyrũ {{cmd:SKETCHLIVE}} (térã **Dibujar › Más › Boceto con lápiz**) ha dibujá peteĩ trazo eñapretáva ha eñemboguejýva. Oipe'ỹ vove lápiz, CadCraft ohechakuaa mba'e ereipotáva ha omoĩ dibujo-pe:
+Iniciá {{cmd:SKETCHLIVE}} (térã ehai **Dibujar › Más › Boceto con lápiz**) ha dibujá peteĩ trazo presionando y arrastrando. Cuando levantás el lápiz, CadCraft ointerpreta lo que quisiste ha oponé plano-pe:
 
-| Nde trazo | Mba'épa ereguereko |
+| Nde trazo | Mba'e oúva |
 |---|---|
-| Casi recto | Peteĩ línea. Línea casi nivel térã plomo oñemoĩ exactamente nivel térã plomo. |
+| Casi recto | Línea. Línea casi horizontal térã vertical oñemoĩ justo horizontal térã vertical. |
 | Cerrado y redondo | Círculo |
-| Parte de una forma redonda | Arco |
-| Cerrado con cuatro esquinas en ángulo recto | Rectángulo |
-| Mba'e ambue | Polilínea con lados cuadrados |
+| Parte de forma redonda | Arco |
+| Cerrado con cuatro esquinas de ángulo recto | Rectángulo |
+| Ambue mba'e | Polilínea con lados cuadrados |
 
-Trazo punta oñemboguejy pe punta mboyve oĩva ojedibujáva jave, upévare pared ojedibujáva oñemboguejy pared apytépe.
+Trazo-kuéra punta oñemoĩ punta más cercana ojeŕoguáva, upévare muro bosquejado oñeñeha ojeŕoguáva ndive.
 
-## Tamaño ári escribi
+## Tamaño escribi rehe
 
-Peteĩ trazo rire, command line ohechauka tamaño (línea **length**, círculo térã arco **radius**, rectángulo **width**) default-ramo. Emoĩ {{key:Enter}} ojeguerohory hag̃ua, térã emoñe'ẽ peteĩ número térã longitud, ejemplo `12'6"`, ojeikeha hag̃ua. Línea ohupi'a iñe'ẽ punta, círculo centro, rectángulo primer esquina.
+Peteĩ trazo rire, línea de comandos-pe oñeinforma tamaño (línea **longitud**, círculo térã arco **radio**, rectángulo **ancho**) defecto-pe. Ejecutá {{key:Enter}} ojeikuaa, térã ehai número térã longitud ha'e `12'6"` ojeikambia. Línea oguarda primer punta, círculo centro, rectángulo primer esquina.
 
-Emoĩ {{key:Enter}} prompt vacío-pe ojeheja hag̃ua, térã emoñe'ẽ `U` ojeheja hag̃ua último trazo. Sesión entera peteĩ paso undo.
+Ejecutá {{key:Enter}} prompt vacío-pe ojepe'a, térã ehai `U` últimamente trazo ojepe'a. Sesión entera peteĩ paso deshacer.
 
-## Tuichaite trazo peteĩ jave ojeregua ha ojeapura
+## Ojehaʼáva trazo-kuéra peteĩ jeýpe
 
-{{cmd:SKETCHFIX}} ojekuaa trazo kuera ha omoĩ precisos opavave oipe'ỹ vove {{key:Enter}}, ojepy'apy hag̃ua peteĩ diseño ligero ojapóva lijeramente.
+{{cmd:SKETCHFIX}} ohenói trazo-kuéra ha oñemoĩ precisa {{key:Enter}} ejecutáramo, oiporúva diseño ojapo rápido.
 
 :::note
-Opavave ojapo ñande computadora-pe reglas rehegua, ndaha'éi modelo ha ndojeitái mba'eve.
+Opavave oikuaa compu-pe reglas-pe, modelo ndaipóri, ndaipóri oñemondo mba'ére.
 :::
+
+## Presión oñemoĩ grosor de línea
+
+Lápiz ojehai ámbue app-pe (Configuración › Global › Dispositivos de entrada › Lápiz), lápiz-pe ojapo trazo oguereko punto opavave ome'ẽva ha presión. Peteĩ trazo luz ohupy objeto fino, ha firme pesado: trazo presión mediana oñemoĩ 0,18, 0,25, 0,35 térã 0,50 mm, ha línea de comandos oñeinforma. Mouse térã dedo-pe ojapo trazo oguereko grosor de línea actual, upéicha ojaposáva. {{cmd:PENPRESSURE}} ojepe'a térã ojevolve; elección navegador-pe oguarda.

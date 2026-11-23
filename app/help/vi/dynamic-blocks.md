@@ -1,33 +1,46 @@
 ---
 title: Khối động
-summary: CadCraft xử lý khối động trong DWG thế nào: chúng giữ tên thật, hiển thị trạng thái đã lưu, chuyển trạng thái hiển thị, hiển thị các giá trị khác, và vẫn là khối động khi được lưu.
-keywords: khối động, dynamic block, dynamic blocks, hiển thị, visibility, trạng thái hiển thị, lật, kéo giãn, tra cứu, tham số, tùy chỉnh, thuộc tính khối, khối *u, dynamic
-from: 26b6aa80
+summary: CadCraft làm gì với khối động trong DWG: giữ đúng tên của chúng, hiện trạng thái đã lưu, chuyển trạng thái hiển thị, xem các giá trị khác, và vẫn là khối động khi lưu.
+keywords: khối động, trạng thái hiển thị, lật, kéo giãn, tra cứu, tham số, tùy chỉnh, thuộc tính khối, *u blocks, động
+from: dea2ee7c
 ---
 
 ## Những gì hoạt động
 
-Một DWG được tạo bằng khối động sẽ mở với chúng hoạt động đến mức này:
+Một DWG có khối động mở ra với chúng hoạt động đến mức sau:
 
-- **Tên thật của chúng.** Một khối động được liệt kê trong bảng {{ui:Khối}} dưới tên riêng ("Receptacle", "Sink"), không phải là khối `*U` không tên.
-- **Trạng thái đã lưu của chúng.** Mỗi tham chiếu hiển thị đúng những gì chương trình khác đã hiển thị: trạng thái hiển thị đã được đặt, được kéo giãn hoặc lật như khi đã lưu.
-- **Chuyển trạng thái hiển thị.** Chọn một tham chiếu (hoặc vài tham chiếu cùng khối), mở {{ui:Thuộc tính}}, và trong mục {{ui:Tùy chỉnh}} chọn một trạng thái khác từ danh sách {{ui:Trạng thái hiển thị}}. Tham chiếu hiển thị trạng thái đó ngay, cả các thuộc tính của nó: những thuộc tính trạng thái ẩn sẽ biến mất, những thuộc tính nó hiện sẽ xuất hiện với giá trị. Một tham chiếu giữ mọi giá trị, nên không có gì trở về rỗng; {{ui:Thuộc tính}} liệt kê những cái bị ẩn với đánh dấu "ẩn". {{key:Mod+Z}} đưa trạng thái cũ trở lại trong một bước.
-- **Grip.** Một khối động được chọn hiển thị grip riêng tại nơi các tham số của nó nằm: một tam giác nhỏ cho trạng thái hiển thị (nhấp để xem danh sách trạng thái), mũi tên ở hai đầu một khoảng cách, mũi tên kép cho lật. Chỉ grip hiển thị có tác dụng hiện tại; các grip khác thông báo điều đó trên thanh trạng thái.
-- **Các giá trị khác, chỉ đọc.** Dưới danh sách hiển thị, {{ui:Tùy chỉnh}} cũng hiển thị khoảng cách, góc căn chỉnh, trạng thái lật và các điểm của khối như bản vẽ đang giữ.
-- **Chỉnh sửa trạng thái hiển thị.** Mở khối bằng {{cmd:BEDIT}}: trình chỉnh sửa hiển thị một trạng thái, được ghi tên trên thanh phía trên bản vẽ (chọn trạng thái khác ở đó). Gõ {{cmd:BVSTATE}} để chuyển, thêm (ẩn mọi thứ, hiện mọi thứ hoặc giữ những gì đang hiện), đổi tên hoặc xóa một trạng thái; {{cmd:BVHIDE}} ẩn các đối tượng được chọn trong trạng thái đang hiện; {{cmd:BVSHOW}} hiện những cái đã ẩn, mờ đi để bạn nhấp vào cái cần đưa trở lại. Lưu khối: các tham chiếu đặt sang trạng thái đã đổi tên sẽ giữ nó dưới tên mới, còn những tham chiếu đặt sang trạng thái đã xóa sẽ hiển thị trạng thái đầu tiên.
-- **Vẫn là khối động.** Khi lưu dưới dạng DWG theo phiên bản của bản vẽ, các khối vẫn động, với trạng thái bạn đã chọn: chương trình khác mở chúng như những khối động giống nhau. Các trạng thái hiển thị bạn đã chỉnh sửa cũng được lưu: tên mới, các trạng thái bạn đã thêm và những gì mỗi trạng thái hiển thị.
+- **Tên đúng của chúng.** Một khối động được liệt kê trong bảng {{ui:Khối}} dưới tên riêng của nó ("Receptacle", "Sink"), không phải là khối `*U` không tên.
+- **Trạng thái mà chúng được lưu.** Mỗi tham chiếu hiện đúng những gì chương trình kia đã hiển thị: trạng thái hiển thị đã được đặt, được kéo giãn hoặc lật như lúc lưu.
+- **Chuyển trạng thái hiển thị.** Chọn một tham chiếu (hoặc vài tham chiếu cùng khối), mở {{ui:Thuộc tính}}, và trong mục {{ui:Tùy chỉnh}} chọn trạng thái khác từ danh sách {{ui:Trạng thái hiển thị}}. Tham chiếu hiện trạng thái đó ngay, các thuộc tính của nó cũng vậy: những thuộc tính trạng thái ẩn đi sẽ biến mất, những thuộc tính trạng thái hiện ra sẽ xuất hiện với giá trị của chúng. Một tham chiếu giữ mọi giá trị, nên không có gì trở về trống; {{ui:Thuộc tính}} liệt kê những cái bị ẩn, đánh dấu "đã ẩn". {{key:Mod+Z}} đưa trạng thái cũ trở lại trong một bước.
+- **Grip.** Một khối động đang chọn hiện các grip riêng tại chỗ các tham số của nó: một tam giác nhỏ cho trạng thái hiển thị (nhấp để xem danh sách trạng thái), mũi tên ở hai đầu một khoảng cách, mũi tên kép cho lật. Hiện nay chỉ grip trạng thái hiển thị có tác dụng; các grip khác báo điều đó trên thanh trạng thái.
+- **Các giá trị khác, chỉ đọc.** Bên dưới danh sách hiển thị, {{ui:Tùy chỉnh}} cũng hiện các khoảng cách, góc căn chỉnh, trạng thái lật và điểm của khối như bản vẽ đang giữ.
+- **Chỉnh sửa trạng thái hiển thị.** Mở khối bằng {{cmd:BEDIT}}: trình soạn hiện một trạng thái, được ghi tên trên thanh phía trên bản vẽ (chọn trạng thái khác ở đó). Gõ {{cmd:BVSTATE}} để chuyển, thêm (ẩn mọi thứ, hiện mọi thứ, hoặc giữ những gì đang hiện), đổi tên hoặc xóa một trạng thái; {{cmd:BVHIDE}} ẩn các đối tượng đã chọn trong trạng thái đang hiện; {{cmd:BVSHOW}} hiện các đối tượng bị ẩn dưới dạng mờ để bạn nhấp chọn những cái cần đưa lại. Lưu khối: các tham chiếu đặt ở trạng thái đã đổi tên giữ nó dưới tên mới, và các tham chiếu đặt ở trạng thái đã xóa hiện trạng thái đầu tiên.
+- **Vẫn là khối động.** Lưu thành DWG ở phiên bản bản vẽ đã mở ra, các khối vẫn là khối động, với trạng thái bạn đã chọn: chương trình kia mở chúng như cùng các khối động đó. Các trạng thái hiển thị bạn đã sửa cũng được lưu: tên mới, các trạng thái bạn đã thêm và những gì mỗi trạng thái hiện.
 
-## Chỉ đọc, hoặc chưa có
+## Những gì chỉ đọc, hoặc chưa có
 
-| Chưa có | Hiện tại thay vào đó |
+| Chưa có | Thay vào đó, hiện tại |
 |---|---|
-| Thay đổi khoảng cách, góc hoặc lật (các hành động kéo giãn, dời, lật) | Chúng hiển thị chỉ đọc trong {{ui:Tùy chỉnh}}; chỉnh sửa trong chương trình đã tạo ra khối. |
-| Tham số tra cứu, XY, xoay và cực | Chưa đọc: tham chiếu hiển thị như đã lưu. |
-| Kéo grip khoảng cách, lật và điểm | Chúng hiển thị nơi các tham số nằm; grip hiển thị và danh sách {{ui:Trạng thái hiển thị}} trong Thuộc tính chuyển trạng thái. |
-| Tạo khối động (thêm tham số, hoặc thêm trạng thái hiển thị vào khối chưa có) | Khối bạn tạo trong CadCraft là khối thường; {{cmd:BPARAMETER}} cho biết điều đó. |
-| Thêm hoặc xóa đối tượng của khối có trạng thái hiển thị trong trình chỉnh sửa khối | Khối khi đó được lưu như khối thường (trình chỉnh sửa cho biết khi đóng). |
-| Giữ chúng động trong phiên bản DWG khác hoặc trong DXF | Chúng được lưu như khối thường hiển thị trạng thái bạn chọn, và việc lưu cho biết điều đó. |
+| Thay đổi khoảng cách, góc hoặc lật (các hành động kéo giãn, dời, lật) | Chúng hiện chỉ đọc trong {{ui:Tùy chỉnh}}; sửa trong chương trình đã tạo khối. |
+| Tham số tra cứu, XY, xoay và cực | Chưa đọc: tham chiếu hiện như đã lưu. |
+| Kéo các grip khoảng cách, lật và điểm | Chúng hiện đúng vị trí các tham số; grip trạng thái hiển thị và danh sách {{ui:Trạng thái hiển thị}} trong Thuộc tính chuyển trạng thái. |
+| Tạo khối động cùng loại với chương trình kia (kéo giãn, lật, tra cứu) | Khối bạn tạo trong CadCraft là khối thường; {{cmd:BPARAMETER}} nói điều đó. Tham số riêng và nhiều tham số hiển thị nằm trong trình quản lý Tham số (xem "Tham số và trạng thái hiển thị riêng" bên dưới). |
+| Thêm hoặc xóa đối tượng của khối có trạng thái hiển thị trong trình soạn khối | Khối khi đó được lưu thành khối thường (trình soạn nói điều đó khi đóng). |
+| Giữ chúng là khối động trong một phiên bản DWG khác hoặc trong DXF | Chúng được lưu thành khối thường hiện trạng thái bạn đã chọn, và lần lưu nói điều đó. |
 
 :::note
-Di chuyển hoặc thay đổi đối tượng trong {{cmd:BEDIT}} giữ một khối có trạng thái hiển thị ở dạng động. Một khối không có trạng thái, hoặc một khối có đối tượng được thêm hoặc xóa trong trình chỉnh sửa, sẽ thành khối thường.
+Dời hoặc đổi đối tượng trong {{cmd:BEDIT}} giữ khối có trạng thái hiển thị là khối động. Khối không có trạng thái, hoặc khối mà đối tượng được thêm hoặc xóa trong trình soạn, sẽ thành khối thường.
 :::
+
+## Tham số và trạng thái hiển thị riêng
+
+Khối bạn tạo trong CadCraft có thể mang tham số riêng và **nhiều** tham số hiển thị, mỗi tham số có trạng thái riêng. Gõ {{cmd:BPARAMS}} (hoặc `BPM`) để mở **Trình quản lý tham số** cho khối đang sửa trong {{cmd:BEDIT}}, cho khối của tham chiếu đã chọn, hoặc cho khối bạn nêu tên.
+
+- **Tham số**: một tên, một kiểu (số, chiều dài, góc, đếm, có/không), và một giá trị hoặc công thức trên các tham số khác (`w * 2`, `if(n > 3, 1, 0)`). {{ui:Cho ra}} hiện kết quả. Một công thức không chạy được, hoặc một giá trị không hợp kiểu của nó (đếm 1.5), bị từ chối và trình quản lý nói lý do; không có gì khác đổi.
+- **Tham số hiển thị**: {{ui:Thêm tham số hiển thị}} tạo một cái với trạng thái đầu tiên. Mỗi trạng thái có thể đổi tên, gỡ (trạng thái cuối cùng vẫn còn), hoặc được gán một số "hiện khi". Một công thức chọn trạng thái từ các tham số (trạng thái có số khớp, nếu không thì trạng thái ở vị trí đó trong danh sách); không có công thức, mỗi tham chiếu tự chọn.
+- **Đặt đối tượng vào một trạng thái**: trong trình soạn khối, chọn các đối tượng, gõ {{cmd:BPARAMS}}, rồi nhấp {{ui:Đặt các đối tượng đã chọn vào đây}} tại trạng thái. Đối tượng mà không tham số hiển thị nào liệt kê luôn hiện.
+- **Tham chiếu này**: khi bắt đầu từ một tham chiếu đã chọn, trình quản lý cũng hiện các giá trị và trạng thái riêng của tham chiếu đó.
+
+Ngoài trình soạn khối, mọi thay đổi là một bước hoàn tác. Trong trình soạn khối, các thay đổi thuộc về trình soạn: {{ui:Lưu khối}} giữ chúng. `-BPARAMS` hỏi cùng nội dung trên dòng lệnh.
+
+**Trong tệp.** DWG và DXF giữ các tham số, đối tượng nào ở trạng thái nào, và giá trị riêng của mỗi tham chiếu, trong các bản ghi riêng của CadCraft; mở lại tệp trong CadCraft thì mọi thứ trở lại. Chương trình khác thấy mỗi tham chiếu là khối với đầy đủ các đối tượng, vì một DWG chỉ giữ tối đa một tham số hiển thị cho mỗi khối cùng loại. Một tham chiếu mà chương trình khác đã dời, hoặc một khối có đối tượng mà nó đã đổi, sẽ quay lại không có các phần không còn khớp (không đoán gì cả).

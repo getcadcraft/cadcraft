@@ -72,6 +72,7 @@ export const COMMANDS = [
   C('draw.circle', 'draw', 'bi-circle', T('Draw', 'CIRCLE'), tab),
   C('draw.arc', 'draw', 'bi-bezier2', T('Draw', 'ARC'), tab),
   C('draw.arc-3p', 'draw', 'bi-bezier2', T('Draw', 'ARC 3P'), tab),
+  // i18n-ignore-start: command names the ribbon runs, not words (words-11)
   C('draw.arc-sce', 'draw', 'bi-bezier2', T('Draw', 'ARC SCE'), tab),
   C('draw.arc-sca', 'draw', 'bi-bezier2', T('Draw', 'ARC SCA'), tab),
   C('draw.arc-scl', 'draw', 'bi-bezier2', T('Draw', 'ARC SCL'), tab),
@@ -82,6 +83,7 @@ export const COMMANDS = [
   C('draw.arc-csa', 'draw', 'bi-bezier2', T('Draw', 'ARC CSA'), tab),
   C('draw.arc-csl', 'draw', 'bi-bezier2', T('Draw', 'ARC CSL'), tab),
   C('draw.arc-con', 'draw', 'bi-bezier2', T('Draw', 'ARC CON'), tab),
+  // i18n-ignore-end
   C('draw.rectang', 'draw', 'bi-square', T('Draw', 'RECTANG'), tab),
   C('draw.polygon', 'draw', 'bi-hexagon', T('Draw', 'POLYGON'), tab),
   C('draw.ellipse', 'draw', 'bi-egg', T('Draw', 'ELLIPSE'), tab),
@@ -312,6 +314,7 @@ export const COMMANDS = [
   C('view.zoomin', 'view', 'bi-plus-circle', T('View', 'ZOOM 2X'), tab),   // 0.9 D9.9: zoom in 2x
   C('view.zoomout', 'view', 'bi-dash-circle', T('View', 'ZOOM 0.5X'), tab),
   C('view.ucs', 'view', 'bi-bounding-box-circles', T('View', 'UCS'), tab),   // 0.9 D9.5: the UCS commands on the toolbar's View More menu
+  // i18n-ignore: command name (words-11)
   C('view.ucs-object', 'view', 'bi-bounding-box', T('View', 'UCS OB'), tab),
   C('view.ucs-world', 'view', 'bi-globe2', T('View', 'UCS W'), tab),
   C('view.split-2v', 'view', 'bi-layout-split', T('View', 'SPLIT 2V'), tab),
@@ -351,6 +354,7 @@ export const COMMANDS = [
   C('tools.documents', 'tools', 'bi-folder2-open', T('View', 'DOCUMENTS'), tab),   // 0.8 SU.1058: the Documents panel (View › More)
   C('tools.appload', 'tools', 'bi-filetype-js', T('View', 'APPLOAD'), tab),
   C('tools.aliasedit', 'tools', 'bi-card-text', T('View', 'ALIASEDIT'), tab),
+  C('tools.optionkeys', 'tools', 'bi-alphabet', T('View', 'OPTIONKEYS'), tab),   // OPT.1
   C('tools.lispedit', 'tools', 'bi-code-square', T('View', 'LISPEDIT'), tab),   // ORS.31
   C('tools.shortcuts', 'tools', 'bi-keyboard', T('View', 'SHORTCUTS'), tab),
   C('file.laser', 'file', 'bi-lightning', T('View', 'LASER'), tab),   // 0.7 SU.772: the Laser panel (View › More)
@@ -468,7 +472,7 @@ export const STYLES = {
       rtab('annotate', [['text', ['draw.text', 'draw.mtext', 'draw.textstyle', 'edit.find']], ['dimensions', ['annotate.dimaligned', 'annotate.dimangular', 'annotate.dimradius', 'annotate.dimdiameter', 'annotate.dimcontinue', 'annotate.dimbaseline', ...ORS_DIMS.dims], MIXED], ['markup', ['annotate.revcloud', 'annotate.redline', ...ORS_DIMS.notes]]]),
       rtab('parametric', [['geometric', [L('param.auto'), L('param.geom'), ...GEOM, 'param.bars-show', 'param.bars-hide']], ['dimensional', ['param.dim', ...DCONS, 'param.dcdisplay'], MIXED], ['manage', ['param.delete', 'param.parameters', 'param.swbout']]]),
       rtab('view', [['navigate', ['view.extents', 'view.window', 'view.previous', 'view.zoomin', 'view.zoomout']], ['viewports', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews'], MIXED], ['coordinates', ['view.turn-left', 'view.turn-right', 'view.turn-world', 'view.ucs', 'view.ucs-object', 'view.ucs-world']], ['model', ['view.model', 'view.3d', 'view.open3d', 'view.autosheet']], ['aids', AIDS, MIXED]]),
-      rtab('manage', [['customization', ['tools.appload', 'tools.aliasedit', ...ORS_BLOCKS.tools, 'tools.shortcuts']], ['compare', ['tools.compare', 'tools.history', 'tools.documents', 'tools.classes', 'tools.floors']]]),
+      rtab('manage', [['customization', ['tools.appload', 'tools.aliasedit', 'tools.optionkeys', ...ORS_BLOCKS.tools, 'tools.shortcuts']], ['compare', ['tools.compare', 'tools.history', 'tools.documents', 'tools.classes', 'tools.floors']]]),
       rtab('output', [['plot', ['file.plot', 'file.laser']], ['sheets', ['sheets.layout', 'sheets.mview', ...ORS_ARRAYS.sheets]]]),
       TAB_3D(['3d', 'modeling', 'solidedit', 'modify', 'views', 'visual', 'export']),
     ],
@@ -502,7 +506,7 @@ export const STYLES = {
       rtab('sheets', [['sheets', ['sheets.layout', 'sheets.mview', ...ORS_ARRAYS.sheets]], ['plot', ['file.plot', 'file.laser']]]),
       rtab('view', [['zoom', ['view.extents', 'view.window', 'view.previous', 'view.zoomin', 'view.zoomout']], ['panes', ['view.split-2v', 'view.split-2h', 'view.split-4', 'view.split-1', 'view.linkviews']], ['turn', ['view.turn-left', 'view.turn-right', 'view.turn-world', 'view.ucs', 'view.ucs-object', 'view.ucs-world']], ['show', ['view.model', 'view.3d', 'view.open3d', 'view.maplayers', 'view.pcattach', 'view.pointcloud', 'view.autosheet']], ['aids', AIDS]]),
       TAB_3D(['3d', 'modeling', 'solidedit', 'modify', 'views', 'visual', 'export']),
-      rtab('tools', [['measure', ['tools.dist', 'tools.area', 'tools.measuregeom', ...ORS_DRAFT.tools]], ['customize', ['tools.appload', 'tools.aliasedit', ...ORS_BLOCKS.tools, 'tools.shortcuts', 'tools.compare', 'tools.history', 'tools.documents', 'tools.classes', 'tools.floors']]]),
+      rtab('tools', [['measure', ['tools.dist', 'tools.area', 'tools.measuregeom', ...ORS_DRAFT.tools]], ['customize', ['tools.appload', 'tools.aliasedit', 'tools.optionkeys', ...ORS_BLOCKS.tools, 'tools.shortcuts', 'tools.compare', 'tools.history', 'tools.documents', 'tools.classes', 'tools.floors']]]),
     ],
     keys: { ...DEFAULT_KEYS },
     mouse: { wheel: 1, zoomSpeed: 1, pan2d: ['middle', 'right'], orbit3d: null },

@@ -40,6 +40,7 @@ import { hatchLines } from './hatch.js';
 import { gradientBands } from './hatch-gradient.js';   // ORS.7: gradient fills plot as flat bands
 import { viewportOutline } from './vpclip.js';   // ORS.16: clipped viewports
 import { readTtf, FontUse, fontObjects, missingGlyphs } from './pdf-font.js';
+import { escXml as xml } from './util.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 export const PEN_WIDTHS = [0.13, 0.18, 0.25, 0.35, 0.5, 0.7];
 const MARGIN = 5;   // mm round a model plot (most printers cannot print to the edge)
@@ -676,7 +677,6 @@ export function drawPreview(ctx, list, { pxPerMm, pen = 0.25, font = 'Helvetica,
 // SVG and PNG (0.7 D7.20): the same display list as the PDF and the preview. Pictures are not drawn in either (the PDF
 // carries them); both say how many were left out.
 
-const xml = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const svgOpacity = (a) => (Number.isFinite(a) && a < 1 ? ` opacity="${num(Math.max(0, a))}"` : '');
 
 /** A stroke group's path data (mm, y up: the page flips it once). Arcs go in pieces of at most 90°, as the PDF's Béziers do. */

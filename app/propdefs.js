@@ -371,6 +371,7 @@ function dimDefs(ctx) {
     S('tad', 'text', 'choice', 'tad', { when: (e) => !!e.kind, conv: Number, choices: () => [0, 1, 2, 4].map((k) => [k, t('props.tad.' + k)]) }),
     S('just', 'text', 'choice', 'just', { when: (e) => !!e.kind && notAng(e), conv: Number, choices: () => [0, 1, 2].map((k) => [k, t('props.djust.' + k)]) }),
     S('tih', 'text', 'bool', 'tih', { when: (e) => !!e.kind }),
+    S('atxt', 'text', 'choice', 'atxt', { when: (e) => e.kind === 'angular', conv: Number, choices: () => [0, 1, 2].map((k) => [k, t('props.atxt.' + k)]), title: 'props.dim.atxt.title' }),   // owner 2026-11-21
     { key: 'dim.trot', sec: 'text', kind: 'ang', label: t('props.dim.trot'), when: (e) => !!e.kind, get: (e) => deg(e.trot || 0),
       set: (e, v) => { const n = put(e, 'trot', v ? normAngle(rad(v)) : undefined); delete n.block; return n; } },
     S('tfill', 'text', 'choice', 'tfill', { when: (e) => !!e.kind, conv: Number, choices: () => [0, 1, 2].map((k) => [k, t('props.tfill.' + k)]) }),

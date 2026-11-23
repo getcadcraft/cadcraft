@@ -2,7 +2,7 @@
 title: Yang baru di 0.7 (sebelumnya)
 summary: Underlay PDF dan impor PDF, gambar hasil pindai dengan jejak otomatis, spline sungguhan dengan SPLINE, SPLINEDIT dan PEDIT, pengelola gaya dimensi, teks yang mempertahankan formatnya, WBLOCK dan skala Anda sendiri, benda padat 3D dari program lain, registrasi hasil pindai, panel Laser, ekspor USD, Riwayat dan pencetakan di CadCraft Studio, gambar pertama yang dipandu, bilah alat di sisi mana pun atau dalam baris yang lebih sedikit, dan lebih banyak fitur untuk asisten AI.
 keywords: yang baru 0.7, rilis sebelumnya, catatan rilis, changelog, perubahan, 0.7, versi, fitur baru, pdf, pdfattach, pdfimport, underlay, pindai, scanattach, scantrace, jejak, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, format, wblock, scalelistedit, daftar skala, acis, benda padat 3d, registerscans, registrasi pindai, icp, e57, las, laser, grbl, g-code, usd, usdout, riwayat, versi, bandingkan, cetak, printer, png, svg, gaya plot, jenis garis, tur, lembar contekan, peta perintah, posisi bilah alat, baris bilah alat, toolbardock, regen, regenall, trackpad, geser, halaman kode, sirilik, korea, tionghoa, jepang, kelistrikan, rcd, p&id, pid, acad.lsp, acaddoc.lsp, folder dukungan, asisten, mcp, satuan, portugis
-from: d07ca034
+from: d9a8ea79
 ---
 
 Inilah yang berubah di CadCraft 0.7, dibandingkan dengan 0.6. Banyak dari fiturnya diminta di Discord. Daftar ini dikelompokkan per area, dengan yang paling penting di awal.

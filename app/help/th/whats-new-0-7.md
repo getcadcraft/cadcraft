@@ -2,7 +2,7 @@
 title: มีอะไรใหม่ใน 0.7 (ก่อนหน้า)
 summary: PDF underlay และการนำเข้า PDF แบบสแกนพร้อมการ trace อัตโนมัติ สไปลน์จริงด้วย SPLINE, SPLINEDIT และ PEDIT ตัวจัดการรูปแบบไดเมนชัน ข้อความที่คงการจัดรูปแบบ WBLOCK และมาตราส่วนของคุณเอง โซลิด 3D จากโปรแกรมอื่น การลงทะเบียนสแกน พาเนลเลเซอร์ การส่งออก USD ประวัติและการพิมพ์ใน CadCraft Studio การเริ่มต้นแบบมีคำแนะนำ แถบเครื่องมือด้านใดก็ได้หรือในจำนวนแถวที่น้อยลง และอื่น ๆ สำหรับผู้ช่วย AI
 keywords: มีอะไรใหม่ 0.7, รุ่นก่อนหน้า, บันทึกการเผยแพร่, changelog, การเปลี่ยนแปลง, 0.7, เวอร์ชัน, ฟีเจอร์ใหม่, pdf, pdfattach, pdfimport, underlay, สแกน, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, การจัดรูปแบบ, wblock, scalelistedit, รายการมาตราส่วน, acis, โซลิด 3D, registerscans, การลงทะเบียนสแกน, icp, e57, las, เลเซอร์, grbl, g-code, usd, usdout, ประวัติ, เปรียบเทียบ, พิมพ์, เครื่องพิมพ์, png, svg, ตารางสไตล์การพล็อต, linetype, ทัวร์, แผ่นสรุปคำสั่ง, แผนที่คำสั่ง, ตำแหน่งแถบเครื่องมือ, จำนวนแถวแถบเครื่องมือ, toolbardock, regen, regenall, แทร็กแพด, ปัดนิ้ว, code page, cyrillic, korean, chinese, japanese, ไฟฟ้า, rcd, p&id, pid, acad.lsp, acaddoc.lsp, โฟลเดอร์สนับสนุน, ผู้ช่วย, mcp, หน่วย, โปรตุเกส
-from: d07ca034
+from: d9a8ea79
 ---
 
 นี่คือสิ่งที่เปลี่ยนแปลงใน CadCraft 0.7 เมื่อเทียบกับ 0.6 หลายอย่างเป็นสิ่งที่ผู้ใช้ขอมาทาง Discord รายการจัดกลุ่มตามพื้นที่การทำงาน โดยเรียงรายการที่สำคัญที่สุดก่อน

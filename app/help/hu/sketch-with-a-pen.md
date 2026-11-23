@@ -1,32 +1,36 @@
 ---
-title: Vázlatrajzolás tollal, pontos geometriával
-summary: Rajzoljon szabadkézzel tollal, egérrel vagy ujjal: minden vonásból tiszta vonal, kör, ív, téglalap vagy polivonal lesz, amint felemeli a tollat. A vonás a már meglévő rajzhoz illeszkedik, mérete pedig gépelhetően készen áll.
-keywords: vázlat, toll, érintőtoll, szabadkézi, ujj, tisztítás, pontos, snap, SKETCHLIVE, SKETCHFIX, méret, felülírás
-from: cd87eb75
+title: Rajzolás tollal és pontos geometria
+summary: Szabadkézzel rajzoljon tollal, egérrel vagy ujjal: minden vonásból tiszta vonal, kör, ív, téglalap vagy polivonal lesz, amint felemeli a tollat, a meglévő rajzhoz igazítva, méretét pedig átírhatja.
+keywords: vázlat, toll, érintőceruza, szabadkézi, ujj, tisztítás, pontos, fogás, SKETCHLIVE, SKETCHFIX, méret, átírás, nyomás, vonalvastagság, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Indítsa el a {{cmd:SKETCHLIVE}} parancsot (vagy válassza a **Rajzolás › Továbbiak › Vázlatrajzolás tollal** menüpontot), és rajzoljon egy vonást a toll nyomva tartásával és húzásával. Amikor felemeli a tollat, a CadCraft felismeri, mire gondolt, és ezt teszi a rajzba:
+Indítsa el a {{cmd:SKETCHLIVE}} parancsot (vagy válassza a **Rajzolás › Továbbiak › Rajzolás tollal** menüpontot), és húzzon egy vonást a nyomva tartott és mozgatott mutatóval. Amikor felemeli a tollat, a CadCraft értelmezi a szándékát, és a rajzba teszi:
 
-| A vonás | Az eredmény |
+| Az Ön vonása | Ezt kapja |
 |---|---|
-| Majdnem egyenes | Vonal. A majdnem vízszintes vagy függőleges vonal pontosan vízszintes vagy függőleges lesz. |
+| Közel egyenes | Vonal. A közel vízszintes vagy függőleges vonal pontosan vízszintes vagy függőleges lesz. |
 | Zárt és kerek | Kör |
 | Kerek alakzat része | Ív |
-| Zárt, négy derékszögű sarokkal | Téglalap |
-| Minden más | Derékszögű szakaszokból álló polivonal |
+| Négy derékszögű sarkú zárt alakzat | Téglalap |
+| Minden más | Derékszögű oldalú polivonal |
 
-A vonás végei a már meglévő legközelebbi végpontra húzódnak, így a megrajzolt fal a mellette lévő falhoz csatlakozik.
+A vonás végeit a már meglévő rajz legközelebbi végéhez húzza, így egy vázlatos fal csatlakozik a mellette lévő falhoz.
 
-## Méret felülírása
+## Méret átírása
 
-Minden vonás után a parancssor alapértelmezettként mutatja annak méretét (vonalnál a **hosszát**, körnél vagy ívnél a **sugarát**, téglalapnál a **szélességét**). Nyomja meg az {{key:Enter}} billentyűt a megtartásához, vagy gépeljen be egy számot, illetve egy hosszúságot, például `12'6"`-ot, a cseréjéhez. A vonal megtartja az első végét, a kör a középpontját, a téglalap az első sarkát.
+Minden vonás után a parancssor a vonás méretét mutatja alapértelmezettként (egy vonal **hosszát**, egy kör vagy ív **sugarát**, egy téglalap **szélességét**). Nyomja meg az {{key:Enter}} billentyűt a megtartásához, vagy írjon be egy számot vagy hosszt, például `12'6"`, hogy lecserélje. A vonal az első végpontját, a kör a középpontját, a téglalap az első sarkát megtartja.
 
-Üres parancssornál nyomja meg az {{key:Enter}} billentyűt a befejezéshez, vagy gépelje be a `U` betűt (Visszavonás) az utolsó vonás visszavonásához. A teljes munkamenet egy visszavonási lépés.
+Üres kérdésnél nyomja meg az {{key:Enter}} billentyűt a befejezéshez, vagy írja be a `U` betűt az utolsó vonás visszavonásához. Az egész munkamenet egy visszavonási lépés.
 
-## Több vonás egyidejű tisztítása
+## Több vonás egyszerre tisztítása
 
-A {{cmd:SKETCHFIX}} vonásokat gyűjt, és az {{key:Enter}} megnyomásakor mindet pontossá teszi, ami a gyorsan felrajzolt, durva elrendezéshez illik.
+A {{cmd:SKETCHFIX}} vonásokat gyűjt, és az {{key:Enter}} megnyomásakor mindet pontossá teszi, ez gyorsan rajzolt, durva elrendezéshez jó.
 
 :::note
-Minden a saját számítógépén, szabályok alapján készül el: nincs modell, és semmi nem kerül elküldésre sehova.
+Minden szabályok alapján számítódik ki a saját számítógépén, modell nélkül, és semmi nem küldődik sehová.
 :::
+
+## A nyomás állítja a vonalvastagságot
+
+Ahol a tollat bekapcsolták az alkalmazásokhoz (Beállítások › Globális › Beviteli eszközök › Toll), a tollal húzott vonás minden pontot és a nyomását is megőrzi. A könnyű vonás vékony, az erős vastag objektumot készít: a vonás átlagos nyomása 0,18, 0,25, 0,35 vagy 0,50 mm-t választ, és a parancssor megmondja, melyiket. Az egérrel vagy ujjal húzott vonások a szokásos aktuális vonalvastagságot kapják. A {{cmd:PENPRESSURE}} ezt kikapcsolja (vagy újra bekapcsolja); a választás ebben a böngészőben marad meg.

@@ -25,10 +25,24 @@ A DWG made with dynamic blocks opens with them working this far:
 | Changing distances, angles or flips (stretch, move, flip actions) | They show read only in {{ui:Custom}}; edit in the program that made the block. |
 | Lookup, XY, rotation and polar parameters | Not read yet: the reference shows as saved. |
 | Dragging the distance, flip and point grips | They show where the parameters are; the visibility grip and the {{ui:Visibility}} list in Properties switch states. |
-| Making dynamic blocks (adding parameters, or visibility states to a block that has none) | Blocks you make in CadCraft are plain blocks; {{cmd:BPARAMETER}} says so. |
+| Making dynamic blocks of the other program's kind (stretch, flip, lookup) | Blocks you make in CadCraft are plain blocks; {{cmd:BPARAMETER}} says so. Your own parameters and several visibility parameters are in the Parameters manager (see "Your own parameters and visibility states" below). |
 | Adding or erasing objects of a block with visibility states in the block editor | The block is then saved as a plain block (the editor says so when it closes). |
 | Keeping them dynamic in another DWG version or in DXF | They are saved as plain blocks showing the state you chose, and the save says so. |
 
 :::note
 Moving or changing objects in {{cmd:BEDIT}} keeps a block with visibility states dynamic. A block without states, or one whose objects were added or erased in the editor, becomes a plain block.
 :::
+
+## Your own parameters and visibility states
+
+A block you make in CadCraft can carry its own parameters and **several** visibility parameters, each with its own states. Type {{cmd:BPARAMS}} (or `BPM`) to open the **Parameters manager** for the block you are editing in {{cmd:BEDIT}}, for the selected reference's block, or for the block you name.
+
+- **Parameters**: a name, a type (number, length, angle, count, yes/no), and a value or a formula over other parameters (`w * 2`, `if(n > 3, 1, 0)`). {{ui:Comes to}} shows the result. A formula that does not work, or a value that does not fit its type (a count of 1.5), is refused and the manager says why; nothing else changes.
+- **Visibility parameters**: {{ui:Add visibility parameter}} makes one with a first state. Each state can be renamed, removed (the last one stays) or given a "shows when" number. A formula picks the state from the parameters (the state whose number matches, else the state at that place in the list); with no formula, each reference chooses its own.
+- **Putting objects in a state**: in the block editor select the objects, type {{cmd:BPARAMS}} and click {{ui:Put the selected objects here}} on the state. Objects that no visibility parameter lists always show.
+- **This reference**: started on a selected reference, the manager also shows that reference's own values and states.
+
+Outside the block editor every change is one undo step. In the block editor the changes are the editor's: {{ui:Save block}} keeps them. `-BPARAMS` asks the same on the command line.
+
+**In the file.** DWG and DXF keep the parameters, which objects are in which state, and each reference's own values, in CadCraft's own records; open the file again in CadCraft and everything is back. Another program sees each reference as the block with all its objects, since a DWG holds at most one visibility parameter per block of its own kind. A reference that another program moved, or a block whose objects it changed, comes back without the parts that no longer line up (nothing is guessed).
+

@@ -1,110 +1,112 @@
 ---
-title: Configuración CadCraft
-summary: Configuración ojeporúva dibujo aplicación-pe: cursor tamaño, mba'éichapa ojehasa copia cursor-gui, clic mbaʼépa ojapo selección-pe, cuántas fila barra herramienta-pe, mboyve línea de comandos oĩ ha mboyve, arriba compacto, ha esquina indicador.
-keywords: línea de comandos, línea de comandos flotante, flotar, acoplar, una línea, f2, historial de comandos, commandline, cmdline, toparea, área superior, compacto, cursorsize, cruz de pantalla completa, cursor pantalla completa, borde a borde, filas barra herramienta, visualización barra herramienta, ctrl f1, configuración, preferencias, opciones, indicador esquina, cubo de vista, icono de eje, icono ucs, cursor, cruz, caja de selección, punto de pegado, punto base, clic en objetos, selección, pickadd, shift, restablecer
-from: 0896eb42
+title: Configuración de CadCraft
+summary: Configuración de la app de dibujo: tamaño del cursor, dónde cuelga una copia pegada, qué hace un clic con la selección, cuántas filas usa la barra de herramientas, dónde está la línea de comandos y su altura, área superior compacta e indicador de esquina.
+keywords: línea de comandos, línea de comandos flotante, flotar, acoplar, una línea, f2, historial de comandos, commandline, cmdline, toparea, área superior, compacta, cursorsize, cursor pantalla completa, borde a borde, filas de barra de herramientas, visualización barra, ctrl f1, configuración, preferencias, opciones, indicador de esquina, cubo de vista, icono de eje, icono UCS, cursor, cruz, caja de selección, punto de pegado, punto base, clic en objetos, selección, pickadd, shift, restablecer
+from: ae1a81db
 ---
 
-Ejepe'a {{ui:Configuración}} engranaje app barra-pe térã {{key:Mod+,}}. Peteĩ pestaña, {{ui:CadCraft}}, ko'ã configuración aplicación-pe ojeguerekóva; {{ui:General}} ko'ã aplicación familia opa oñemboguahẽva (tema, panel texto tamaño ha ancho, barra herramienta apariencia ha orden). Configuración CadCraft-pe rehecha aplicación-pe: ejapo ko'ẽrõ, ha tembiporu ko'ã navegador-pe oñongatu. {{ui:Restablecer configuración CadCraft}} opa peteĩ-peteĩ inicio-pe omoĩ.
+Abrí {{ui:Configuración}} con el engranaje de la barra de app o {{key:Mod+,}}. Primera pestaña, {{ui:CadCraft}}, contiene configuración de esta app; {{ui:General}} contiene la de la familia (tema, tamaño de texto de paneles y anchos, aspecto y orden de la barra). Configuración CadCraft-pe solo app-pe existe: aquí cambiá, navegador oguarda. {{ui:Restablecer configuración de CadCraft}} opavave inicio-pe oikuaa.
 
 ## Cursor
 
-**Pequeño**, **Mediano** (inicio), **Grande** térã **Pantalla completa**: cruz tamaño ha caja de selección dibujo-pe. Caja de selección tuichave ojepe'a objetos mbykyve ndojuhúkuri, táctil pantalla térã dibujo mbaʼe ndojejuhúva ojepytyvõ.
+**Pequeño**, **Mediano** (inicio), **Grande** o **Pantalla completa**: cruz tamaño ha caja de selección plano-pe. Caja de selección grande objeto lejos ojejuhu; pantalla táctil térã muy fino dibujo-pe ayuda.
 
-**Pantalla completa** cruz mokõi línea borde a borde dibujo-pe ojeporu, mando ndojejapóvape avei, ha hechauka ojoguáva opa vista. Vista iñapytépe ojehasa, línea panel iñapytépe oikóta. AutoCAD {{cmd:CURSORSIZE}} 100 ojapo: eskribi {{cmd:CURSORSIZE}} ha 100 pantalla completa-pe; mbykyve número ojeporu tamaño ojekuaáva (5 pe mbykyve Pequeño, 5 ha 9 Mediano, 10 ha 99 Grande).
+**Pantalla completa** cruz dos línea borde a borde plano-pe, comando ojecorrer ha no; opavave alineado ojeikuaa. Pantalla dividida-pe, línea ojeporu ventana trabajo-pe. {{cmd:CURSORSIZE}} 100 AutoCAD-icha: {{cmd:CURSORSIZE}} 100 pantalla completa; número michĩve tamaño más cercano (5 menos Pequeño, 5 a 9 Mediano, 10 a 99 Grande).
 
 ## Punto de pegado
 
-Mbovy copia pegado oñemboguapy cursor-gui {{key:Mod+V}} ({{cmd:PASTECLIP}}) ojepe'a peve:
+Copia pegada dónde cuelga cursor-pe {{key:Mod+V}} ({{cmd:PASTECLIP}}) rire, eclic peve:
 
-- **Izquierda inferior esquina** (inicio): objetos copiados extensión izquierda inferior esquina, AutoCAD-pe ojekuaáva.
-- **Centro**: extensión mboyve. Ojepe'a símbolo ojeplaza jave ohecha porã.
+- **Esquina inferior izquierda** (inicio): objetos copiados alcance esquina inferior izquierda, AutoCAD-icha.
+- **Centro**: alcance mitad. Símbolo ojeikuaa ojojoguáva.
 
-`COPYBASE` ojapo copia opa oñemoĩ punto base ojepe'a. {{ui:Pegar en el mismo lugar}} ({{key:Mod+Shift+V}}) ko'ã configuración ndojehecháiva: coordenadas original ohechauka. Ecuchá [Copiar, pegar y duplicar](topic:copy-paste).
+`COPYBASE` ojapo copia siempre ehai punto base-pe cuelga. {{ui:Pegar en el mismo lugar}} ({{key:Mod+Shift+V}}) configuración ndoporúi: coordenadas original ojeguarda. Eheka [Copiar, pegar y duplicar](topic:copy-paste).
 
-## Clic objetos
+## Clic objetos-pe
 
-Mba'épa clic drawing-pe selección-pe ojapo mando ndojejapóvape:
+Comando ndojepyrũ ramo plano-pe clic mba'e selección-pe:
 
-- **Selección-pe agrega** (inicio): peteĩ clic térã ventana objeto ojepe'a; {{key:Shift}}+clic, térã {{key:Shift}}+ventana ohaʼa.
-- **Reemplaza la selección**: clic térã ventana ojepe'a ojepe'a ojeporavo. {{key:Shift}}+clic objeto agrega, térã ojepe'a ojuhúva ohaʼa; {{key:Shift}}+ventana agrega.
+- **Selección agregá** (inicio): peteĩteĩ clic térã ventana objeto agrega; {{key:Shift}}+clic, térã {{key:Shift}}+ventana, oguejy.
+- **Selección reemplazá**: clic térã ventana solo ohai ojehai. {{key:Shift}}+clic objeto agrega, térã ojeselecciona-va oguejy; {{key:Shift}}+ventana agrega.
 
-`Select objects:` prompt-pe mando iñapytépe clic oipe'a ojepe'a (y {{key:Shift}} oipe'a), configuración ndojehecháiva. Ecuchá [Ejepe'a objetos](topic:select-objects).
+`Seleccione objetos:` comando-pe clic siempre agrega ({{key:Shift}} oguejy), configuración ojekuaaporãramo. Eheka [Seleccionar objetos](topic:select-objects).
 
-## Clic lugar ndaipóri
+## Espacio vacío clic
 
-Mba'épa clic objeto ndaipóri lugar-pe mando ndojejapóvape. Mba'e: ventana ojepe'a oñepyrũ (mokõi clic oñemboty).
+Objeto ndoguerekói lugar-pe clic, comando ndojepyrũ ramo. Ambas forma selección ventana oñepyrũ (segundo clic ojepe'a).
 
-- **Selección ojehaʼa** (inicio): ojepe'a ojehaʼa. {{key:Shift}} ejepe'a ojepe'a ejeguerekoháicha.
-- **Selección oñongatu**: ojepe'a oñongatu, ambue programa-pe ojapo; ventana agrega. {{key:Esc}} ejepe'a selección omboty.
+- **Selección ojeguejy** (inicio): ojehai ojeguejy. {{key:Shift}} clic-pe retene.
+- **Selección mantené**: selección oĩ, ventana agrega. {{key:Esc}} selección oguejy.
 
-## Arrastrar ejepe'a
+## Arrastre selección-pe
 
-Lugar ndaipóri ejepe'a ha arrastra mba'épa oñemoĩ:
+Espacio vacío-pe presiona y arrastra ohai:
 
-- **Lazo** (inicio): lazo libre. Derecha-pe ejeasegura primero ojehasa totalmente iñapytépe; izquierda-pe ojehupyty ojeporavo; {{key:Space}} arrastrando ventana, cruce ha cerca oñemboguapy.
-- **Rectángulo**: caja, clic ha ambue clic ojapo.
+- **Lazo** (inicio): mano alzada contorno. Derecha-pe primero, ojehai completamente; izquierda-pe primero, tocado opavave ojehai. {{key:Space}} arrastrando ventana, cruce, cerca rehe ojambia.
+- **Rectángulo**: caja, clic y segundo clic dibuja.
 
-{{cmd:LASSOMODE}} `1` térã `0` oñemoĩ mbaʼe. Ecuchá [Lazo ejepe'a](topic:lasso-selection).
+{{cmd:LASSOMODE}} `1` térã `0` mismo ojapo. Eheka [Selección lazo](topic:lasso-selection).
 
-## Arrastrar recortar ha extender
+## Arrastre recortar y extender
 
-Lugar ndaipóri ejepe'a ha arrastra {{cmd:TRIM}} ha {{cmd:EXTEND}}-pe:
+{{cmd:TRIM}} ha {{cmd:EXTEND}}-pe espacio vacío-pe presiona ha arrastrá ohai:
 
-- **Ruta** (inicio): lazo libre; opa pieza ojeguebyrýva recortado (térã extendido).
-- **Ventana**: caja; opa pieza ojedotáva recortado, `C` opción ojapo.
+- **Ruta** (inicio): mano alzada ruta; opavave pieza ojecruza ojerecorta (térã extendida).
+- **Ventana**: caja; opavave pieza ojetoca ojerecorta, `C` opción icha.
 
-Ecuchá [Recortar ha extender](topic:trim-and-extend).
+Eheka [Recortar y extender](topic:trim-and-extend).
 
-## Barra herramienta lugar
+## Barra de herramientas posición
 
-{{ui:CadCraft}} › {{ui:Posición de la barra de herramientas}}: **Arriba** (inicio), **Abajo**, **Izquierda** térã **Derecha**. Izquierda térã derecha-pe herramienta grupo columna-pe oñemoĩ ha ojeguerekõ ventana tuichaiterei jave, botón dos térã mbohapy línea-pe. Elección configuración-pe oñongatu, {{cmd:TOOLBARDOCK}} (`TBDOCK`) mando línea-gui omoĩ. {{ui:General}} › {{ui:Restablecer el diseño}} barra arriba-pe omoĩ.
+{{ui:CadCraft}} › {{ui:Posición de la barra de herramientas}}: **Arriba** (inicio), **Abajo**, **Izquierda** térã **Derecha**. Izquierda térã derecha-pe grupo-kuéra columna-pe ojeapila, ventana alto-pe ojeme'ẽ; botón dos térã mbohapy linea-pe. Elección configuración-pe oguarda, {{cmd:TOOLBARDOCK}} (`TBDOCK`) línea de comandos-pe ojapo. {{ui:General}} › {{ui:Restablecer el diseño}} barra arriba-pe omoĩ.
 
-Menú estilo barra toolbar iñapytépe oĩ ha ndive ojeheka, {{ui:Cinta}} estilo oñemoĩ arriba térã abajo-pe: lado-pe columna michĩ ojeguerekõ. Teléfono-pe barra teléfono diseño oĩ hendaguépe.
+Menú estilo barra toolbar-pe ojemoveva, pero {{ui:Cinta}} estilo arriba térã abajo-pe oguereko: costado-pe estrecho columna ojeme'ẽ. Teléfono-pe barra teléfono diseño-pe.
 
-## Barra herramienta fila
+## Barra de herramientas filas
 
-Mboyve línea herramienta ojeporu drawing-gui, CadCraft barra-pe ha {{ui:Dibujo clásico}} ha {{ui:Cinta}} estilo-pe:
+Cuántas línea herramienta, arriba dibujo-pe: {{ui:Dibujo clásico}} ha {{ui:Cinta}} estilo-pe avei:
 
-- **Ajustar ojehasa** (inicio): herramienta ventana ancho-pe ojesarái.
-- **2 filas**: 2 línea peve. Ojesarái dos línea térã menos ojuhu jave, ojesarái; ndaipóri jave, ojeguerekõ dos fila tuichaitereíva.
-- **1 fila**: peteĩ línea ojeguerekõ, dibujo ojeguerekóva tuichave.
+- **Ajustar ventana** (inicio): herramienta ventana ancho-pe ojeajusta.
+- **2 filas**: máximo dos línea. Dos línea ajustan ndoide ancho ojehechaukáramo; ambue, dos fila ojemove costado-pe.
+- **1 fila**: peteĩ línea ojemove costado-pe, plano más lugar.
 
-{{key:Shift+Ctrl+F1}} oñemoĩ mbohapy, {{cmd:TOOLBARROWS}} mando omoĩ. Botón ohechauka (icono ha texto, icono nomás, térã texto nomás) {{ui:General}} › {{ui:Barra de herramientas}} configuración; {{key:Ctrl+F1}} oñemoĩ, {{cmd:TOOLBAR}} mando omoĩ.
+{{key:Shift+Ctrl+F1}} mbohapy ojerreha, {{cmd:TOOLBARROWS}} ojapo. Botón ohechauka (ícono y texto, solo ícono, solo texto) {{ui:General}} › {{ui:Barra de herramientas}} ojeporu; {{key:Ctrl+F1}} ojerreha, {{cmd:TOOLBAR}} ojapo.
 
 ## Línea de comandos
 
-Línea de comandos oñemoĩ dibujo mboyve, térã flota dibujo-pe, ha peteĩ línea michĩ ikatu.
+Línea de comandos plano abajo-pe ojeporu, térã plano arriba-pe flota, ha peteĩ línea anchavo.
 
-- **Oflota.** Eja'o izquierda pe grip dibujo-pe, térã {{ui:Flotar sobre el dibujo}} {{ui:Opciones de la línea de comandos}} menú-pe (mbohapy pun derecha pe). Eja'o grip jey oñemoveve; ojehecha ventana jave. Derecha borde eja'o ancho térã mbyky. Estado barra-pe ejeasegura, térã {{ui:Acoplar abajo}}, oñemboguapy.
-- **Mbyky térã alto.** Superior borde eja'o: peteĩ paso peteĩ historia línea. Cero línea peve **una línea de comandos**: prompt ha eskribi, mensaje ojehechauka. Superior borde doble clic: peteĩ línea ha altura ojeguerekova.
-- **Historia.** {{key:F2}}, térã reloj botón línea de comandos ({{ui:Historial de comandos (F2)}}), historia línea rupi ohechauka (ojeguerekópe ventana alto ojeguerekoháicha). Eskribi línea de comandos-pe oñemboguapy; {{key:PageUp}} ha {{key:PageDown}} historia ojehasa; {{key:Esc}}, {{key:F2}} térã clic ojeasegura omboty.
-- **Teclado.** Grip botón ha: flechas ojesarái (Shift ndive, tuichave). {{key:Up}} oflota, {{key:Down}} abajo borde acoplar. Superior borde {{key:Up}} ha {{key:Down}} línea agregar ha omboguejy; {{key:Home}} peteĩ línea; {{key:End}} tuichave. Lector pantalla opa mensaje oendu.
+- **Flotá.** Eiporavo grip izquierda extremo-pe plano-pe, térã {{ui:Flotar sobre el dibujo}} {{ui:Opciones de la línea de comandos}} menú-pe (tres punto derecha extremo-pe). Grip nuevo mové; lugar ventana tamaño cambio-pe oguarda. Derecha borde ancho/estrecho. Barra estado-pe soltá, térã {{ui:Acoplar abajo}} acoplado.
+- **Estrecho térã alto.** Borde superior arrastrá: peteĩ paso peteĩ línea historia. Cero línea peve **línea de comandos peteĩ línea**: solo prompt ha escrito; mensaje nuevo arriba ohechauka. Borde superior doble clic: entre peteĩ línea ha altura anterior.
+- **Historia.** {{key:F2}}, térã reloj botón línea de comandos-pe ({{ui:Historial de comandos (F2)}}), historia opavave línea arriba ohechauka (flota abajo ventana alto-pe). Escritura línea de comandos-pe sigue; {{key:PageUp}} ha {{key:PageDown}} historia ojerreha; {{key:Esc}}, {{key:F2}} térã clic otro lugar-pe ojepe'a. F2 nde atajo ojeporu nde.
+- **Teclado.** Grip botón: flechas flotante línea ojemove (Shift ndive, paso mayor); {{key:Up}} acoplado flota, {{key:Down}} inferior borde-pe acopla. Borde superior separador: {{key:Up}} ha {{key:Down}} línea agrega térã quita, {{key:Home}} peteĩ línea, {{key:End}} más alto. Lector de pantalla opavave mensaje oye, peteĩ línea-pe avei.
 
-{{ui:CadCraft}} › {{ui:Línea de comandos}} oguereko ko'ã elección: {{ui:Acoplada abajo}} térã {{ui:Flotante}}, {{ui:Líneas de historial mostradas}} (0 peve 12) ha {{ui:Altura estándar}}. {{cmd:COMMANDLINE}} (`CMDLINE`) mando línea-gui omoĩ. Lugar ha altura CadCraft-pe navegador-pe oñongatu; {{ui:General}} › {{ui:Restablecer el diseño}} línea de comandos altura estándar-pe omoĩ. Teléfono-pe línea de comandos abajo ojeguerekõ peteĩ historia línea; historia botón oñemboguapy.
+{{ui:CadCraft}} › {{ui:Línea de comandos}} mismo elección: {{ui:Acoplada abajo}} térã {{ui:Flotante}}, {{ui:Líneas de historial mostradas}} (0 a 12) ha {{ui:Altura estándar}}. {{cmd:COMMANDLINE}} (`CMDLINE`) línea de comandos-pe ojapo. Lugar ha altura CadCraft-pe navegador-pe oguarda; {{ui:General}} › {{ui:Restablecer el diseño}} línea de comandos altura estándar-pe acopla. Teléfono-pe línea de comandos acoplado peteĩ línea historia-ndive; historia botón avei ojeporu.
 
-Ventana michĩ ha diseño ojehechaukáicha ojeguerekõ, {{ui:Sí}} oñemoĩ línea de comandos peteĩ línea-pe, dibujo mbyky ojeguerekóramo herramienta barra rire.
+{{ui:CadCraft}} › {{ui:Letras de opciones}} comando opción letra-kuéra ojeguarda: {{ui:Editar…}} archivo ojepyrũ, {{ui:Importar…}} ojambia, {{ui:Exportar}} ojeguarda. Eheka [Oñeme'ẽ opciones de comando letra propia](topic:option-letters).
 
-## Arriba área
+Plano ojepe'a ha diseño ojeikuaa ajuste más estrecho ofrece, {{ui:Sí}} línea de comandos peteĩ línea ojapo, plano ojeikuaa.
 
-{{ui:CadCraft}} › {{ui:Área superior}}: **Estándar** (inicio) térã **Compacto**. Compacto oñemoĩ barra mbyky opa menú-pe: grupo nombre ha icono texto ndoguerekói (tooltip ha lector pantalla oguereko), botón tuichave. Ojeporu [Barra herramienta fila](topic:settings#toolbar-rows) ndive: Compacto ha **1 fila** dibujo tuichave ojeguerekóva. {{cmd:TOPAREA}} oñemoĩ.
+## Área superior
 
-## Esquina indicador
+{{ui:CadCraft}} › {{ui:Área superior}}: **Estándar** (inicio) térã **Compacta**. Compacta barra arriba-pe ojemboýke, ojeporu opavave menú estilo-pe: grupo nombre ha íconos palabra ojepe'a (tooltip ha lector de pantalla oikuaa) ha botón más apretado. Con [Filas de la barra de herramientas](topic:settings#toolbar-rows): Compacta ha **1 fila** plano más lugar. {{cmd:TOPAREA}} ojapo.
 
-Mba'épa oĩ dibujo esquina-pe:
+## Indicador de esquina
 
-- **Automático** (inicio): {{ui:Modelo}} pestaña eje icono ha {{ui:3D}} pestaña vista cubo.
-- **Icono eje**: X ha Y marca {{ui:Modelo}} pestaña izquierda inferior, 3D pestaña X, Y ha Z marca.
-- **Cubo de vista**: cubo derecha superior dos pestaña-pe. {{ui:Modelo}} pestaña-pe ohechauka dibujo arriba-gui, ha clic otra cara, borde térã esquina oñemboguapy {{ui:3D}} pestaña oñeñeʼẽ upe lugar-gui. 3D pestaña-pe vista-pe oñemboguapy: clic lado-gui mirar, arrastrar orbit, ha casa iso vista-pe omoĩ. Ecuchá [Modelo 3D](topic:3d-solids).
-- **Ninguno**: esquina-pe ndaipóri.
+Plano esquina-pe ohechauka:
 
-Hojas ndoguerekói ninguno.
+- **Automático** (inicio): {{ui:Modelo}} pestaña-pe eje ícono, {{ui:3D}} pestaña-pe cubo de vista.
+- **Icono de eje**: X ha Y marcador {{ui:Modelo}} pestaña inferior izquierda, 3D pestaña-pe X, Y ha Z pequeño marcador.
+- **Cubo de vista**: cubo derecha superior ambas pestaña-pe. {{ui:Modelo}}-pe planta vista; cara térã esquina clic {{ui:3D}} pestaña abre desde allí. 3D-pe vista-pe girá: clic lado-pe mirá, arrastrá orbitá, casa iso vista-pe.
+- **Ninguno**: nada esquina-pe.
 
-## Selección largo ha área
+Hojas ninguno ohechauka.
 
-- **Barra de estado-pe** (inicio): objetos ejepe'a jave, barra de estado opa largo ha cerrado área total ohechauka. Ecuchá [Totales de una selección](topic:properties-panel#totals-of-a-selection).
-- **Oculto**: barra de estado ndohechauka. Propiedades ohechauka heta objeto-pe avei.
+## Longitud ha área selección
 
-## Cuadrícula, Ortogonal ha ajustes
+- **Estado barra-pe** (inicio): objetos selección-pe, estado barra total longitud ha cerrados área ohechauka. Eheka [Totales de una selección](topic:properties-panel#totals-of-a-selection).
+- **Oculto**: estado barra ndohechaukái. Propiedades ojehechauka varios objetos-pe.
 
-Diálogo-pe ndaipóri: {{ui:Cuadrícula}}, {{ui:Ortogonal}} ha {{ui:Ajustar}} botón barra de estado-pe (térã {{key:F7}}, {{key:F8}}, {{key:F3}}) ha ajuste objetos lista ojeguerekóva ojehasa mboyve oñongatu. Ecuchá [Ajustar puntos de objetos](topic:object-snaps).
+## Cuadrícula, ortogonal y ajustes
+
+Ko'ã diálogo-pe ndoike: {{ui:Cuadrícula}}, {{ui:Ortogonal}} y {{ui:Ajustar}} botón estado barra-pe (térã {{key:F7}}, {{key:F8}}, {{key:F3}}) ha objeto ajuste lista ojeguarda. Eheka [Ajustar a puntos de objetos](topic:object-snaps).

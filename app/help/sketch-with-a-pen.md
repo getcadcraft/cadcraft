@@ -3,7 +3,7 @@ title: Sketch with a pen and get precise geometry
 summary: Draw freehand with a pen, mouse or finger and each stroke becomes a clean line, circle, arc, rectangle or polyline as you lift the pen, snapped to what is already drawn, with its size ready to type over.
 section: tasks
 order: 63
-keywords: sketch, pen, stylus, freehand, finger, clean up, precise, snap, SKETCHLIVE, SKETCHFIX, size, type over
+keywords: sketch, pen, stylus, freehand, finger, clean up, precise, snap, SKETCHLIVE, SKETCHFIX, size, type over, pressure, lineweight, Apple Pencil, PENPRESSURE
 ---
 
 Start {{cmd:SKETCHLIVE}} (or choose **Draw › More › Sketch with a pen**) and draw a stroke by pressing and dragging. When you lift the pen, CadCraft reads what you meant and puts it in the drawing:
@@ -31,3 +31,8 @@ Press {{key:Enter}} on an empty prompt to finish, or type `U` to take the last s
 :::note
 Everything is worked out on your computer by rules, with no model and nothing sent anywhere.
 :::
+
+## Pressure sets the lineweight
+
+Where the pen is turned on for the apps (Settings › Global › Input devices › Pen), a stroke drawn with a pen carries every point the pen gave and its pressure. A light stroke makes a thin object and a firm one a heavy one: the stroke's average pressure picks 0.18, 0.25, 0.35 or 0.50 mm, and the command line says which. Strokes drawn with a mouse or a finger take the current lineweight as before. {{cmd:PENPRESSURE}} turns this off (or on again); the choice is kept in this browser.
+

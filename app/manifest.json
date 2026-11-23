@@ -43,6 +43,7 @@
   ],
   "addons": "own",
   "input": "input-cadcraft.js",
+  "inputGroup": "keys",
   "workspaces": {
     "layouts": [
       "docked",

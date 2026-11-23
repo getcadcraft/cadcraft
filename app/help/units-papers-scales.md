@@ -125,3 +125,8 @@ A layer, or an object, can have a **lineweight** (0.05 to 2.11 mm) and a **linet
 Linetypes show on screen and in plots. Their dashes are in drawing units: a metric drawing uses the ISO sizes (DASHED: 12.7 mm dashes), an inch drawing the inch ones (0.5"). If the dashes look too small or too large, change the drawing's {{ui:Linetype scale}} (LTSCALE): every dash and gap is multiplied by it; an object's own scale multiplies it again. A pattern too fine to see at all is drawn as a solid line.
 
 Lineweights print in plots, in mm on the paper whatever the scale. Lines with the {{ui:Default}} lineweight use the pen width chosen in the {{ui:Plot to PDF}} dialog (0.13 to 0.70 mm; 0.25 mm to start with); a lineweight of 0 prints as the thinnest line. On screen every line is one pixel wide until you press {{ui:LWT}} in the status bar (or type {{cmd:LWDISPLAY}}): then a lineweight above 0.25 mm draws wider (0.5 mm = 2 pixels) in the model, and at its true width on the paper on a sheet. The choice is kept in this browser.
+
+## The office standard
+
+An office can keep its paper text heights, layers, title block fields and templates in one record, the office standard. CadCraft reads it in this order: the drawing's own record (set with {{cmd:OFFICESTANDARD}} › `Import`, kept in the file), your team's shared standard, then your Default Policies. Annotative text and dimensions take their paper height from it at the annotation scale. An empty standard changes nothing. {{cmd:OFFICESTANDARD}} › `Layers` adds the office layers a drawing lacks.
+

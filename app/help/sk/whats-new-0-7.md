@@ -2,7 +2,7 @@
 title: Čo je nové vo verzii 0.7 (staršie)
 summary: PDF podklady a import PDF, skenované výkresy s automatickým trasovaním, skutočné splajny s SPLINE, SPLINEDIT a PEDIT, správca štýlov kót, text, ktorý si zachová formátovanie, WBLOCK a vlastné mierky, 3D telesá z iných programov, registrácia skenov, panel Laser, export USD, História a tlač v CadCraft Studio, sprievodca prvým výkresom, panel nástrojov na ľubovoľnej strane alebo v menšom počte riadkov a ďalšie pre AI asistentov.
 keywords: čo je nové 0.7, staršia verzia, poznámky k vydaniu, changelog, zmeny, 0.7, verzia, nové funkcie, pdf, pdfattach, pdfimport, podklad, sken, scanattach, scantrace, trasovanie, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formátovanie, wblock, scalelistedit, zoznam mierok, acis, 3D telesá, registerscans, registrácia skenov, icp, e57, las, laser, grbl, g-code, usd, usdout, história, verzie, porovnanie, tlač, tlačiareň, png, svg, štýl tlače, typ čiary, prehliadka, prehľad, mapa príkazov, poloha panela nástrojov, riadky panela nástrojov, toolbardock, regen, regenall, trackpad, potiahnutie, kódová stránka, cyrilika, kórejčina, čínština, japončina, elektroinštalácia, rcd, p&id, pid, acad.lsp, acaddoc.lsp, priečinok podpory, asistenti, mcp, jednotky, portugalčina
-from: d07ca034
+from: d9a8ea79
 ---
 
 Toto sa zmenilo v CadCraft 0.7 oproti 0.6. Veľa z toho si vyžiadali na Discorde. Zoznam je zoskupený podľa oblastí, najdôležitejšie na začiatku.

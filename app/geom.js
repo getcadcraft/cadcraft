@@ -558,8 +558,33 @@ export function entityBounds(e, blocks) {
   const b = emptyBounds();
   if (UNBOUNDED.has(e.type)) return b;   // construction lines have no extents (DR.6)
   if (e.type === 'point') { growPt(b, e.x, e.y); return b; }
+  if (e.type === 'insert') {
+    // 0.11 PERF.9 (perf-finish-11): the same primitives prims() lists for a reference, each grown into the box as it is made, so a block
+    // of 100,000 objects is never one array of 100,000 primitives (Plans.dwg: 140 ms and a 300 ms garbage collection in one task)
+    const blk = blocks?.get(e.block);
+    if (blk) {
+      const m = insertMatrix(e, blk);
+      for (const c of (blk.bp ? bpParts(blk, e.bp) : blk.entities)) for (const p of prims(c, blocks, 1)) for (const q of txPrim(p, m)) primBounds(q, b);
+      for (const t of attrTexts(e, blk)) for (const p of prims(t)) for (const q of txPrim(p, m)) primBounds(q, b);
+    }
+    if (!validBounds(b)) growPt(b, e.x, e.y);
+    return b;
+  }
   for (const p of prims(e, blocks)) primBounds(p, b);
-  if (e.type === 'insert' && !validBounds(b)) growPt(b, e.x, e.y);
+  return b;
+}
+
+/** 0.11 PERF.9: entityBounds as a generator that pauses inside a big block reference (view.js cacheSteps); the same box. */
+export function* entityBoundsSteps(e, blocks) {
+  if (e.type !== 'insert') return entityBounds(e, blocks);
+  const b = emptyBounds(), blk = blocks?.get(e.block);
+  if (blk) {
+    const m = insertMatrix(e, blk);
+    let n = 0;
+    for (const c of (blk.bp ? bpParts(blk, e.bp) : blk.entities)) { for (const p of prims(c, blocks, 1)) for (const q of txPrim(p, m)) primBounds(q, b); if (++n % 256 === 0) yield; }
+    for (const t of attrTexts(e, blk)) for (const p of prims(t)) for (const q of txPrim(p, m)) primBounds(q, b);
+  }
+  if (!validBounds(b)) growPt(b, e.x, e.y);
   return b;
 }
 

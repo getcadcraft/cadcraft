@@ -69,7 +69,17 @@ export class Def {
   }
 }
 
-const nid = (def) => def.next++;
+// 0.11 DC.27: ids from session tags (lib/history/ids.js has the scheme; ModelCraft takes a tag per counter when a file opens, ids-mc.js).
+// rollId is ids.js nextNumber, copied so the kernel stays flat (CadCraft's m3d/ copy): past the last number of a tag (a multiple of 2^21)
+// or of 2^53, the first number of a new random tag.
+const TAG_SPAN = 2097152;
+export function rollId(n) {
+  n = Number(n) || 1;
+  if (n < TAG_SPAN || (n % TAG_SPAN !== 0 && Number.isSafeInteger(n + 1))) return n;
+  const a = new Uint32Array(1), was = [Math.floor(n / TAG_SPAN), Math.floor((n - 1) / TAG_SPAN)];
+  for (;;) { globalThis.crypto.getRandomValues(a); const t = a[0]; if (t >= 1 && t <= 4294967294 && !was.includes(t)) return t * TAG_SPAN + 1; }
+}
+const nid = (def) => { const n = rollId(def.next); def.next = n + 1; return n; };
 export function vAdd(def, p) { const id = nid(def); def.verts.set(id, [p[0], p[1], p[2]]); return id; }
 
 /**
@@ -123,7 +133,7 @@ export function setMeshHooks(h) { Object.assign(MESH_HOOKS, h); }
  */
 export const isStacked = (d) => !!d && !!d.mods && !Array.isArray(d.mods);
 const groupModsOf = (m) => {
-  if (!m || typeof m !== 'object' || Array.isArray(m) || typeof m.src !== 'string' || !/^d\d{1,9}$/.test(m.src) || !Array.isArray(m.ops) || m.ops.length > 32) return null;
+  if (!m || typeof m !== 'object' || Array.isArray(m) || typeof m.src !== 'string' || !/^d\d{1,16}$/.test(m.src) || !Array.isArray(m.ops) || m.ops.length > 32) return null;
   if (MESH_HOOKS.cleanGroup) return MESH_HOOKS.cleanGroup(m);
   try { return { src: m.src, ops: JSON.parse(JSON.stringify(m.ops)) }; } catch { return null; }
 };
@@ -761,9 +771,13 @@ export function removeLooseVerts(def) {
 
 /** A vertex between two collinear edges (and nothing else) disappears; the edges become one. */
 export function healCollinear(def, vids) {
+  // 0.11 PERF.76: the vertex-to-edges map is built once and kept in step with each merge (it was rebuilt from every edge for every vertex),
+  // the edge-to-faces map only when a merge changed a loop
+  const VE = vertEdges(def);
+  let ef = null;
   for (const v of vids) {
     if (!def.verts.has(v)) continue;
-    const ve = vertEdges(def).get(v) || [];
+    const ve = VE.get(v) || [];
     if (ve.length !== 2) continue;
     const e1 = def.edges.get(ve[0]), e2 = def.edges.get(ve[1]);
     const a = e1.a === v ? e1.b : e1.a, b = e2.a === v ? e2.b : e2.a;
@@ -772,13 +786,15 @@ export function healCollinear(def, vids) {
     const u1 = norm(sub(A, V)), u2 = norm(sub(B, V));
     if (dot(u1, u2) > -1 + 1e-9) continue;
     if (edgeBetween(def, a, b) !== null) continue;
-    const ef = edgeFaces(def);
+    ef = ef || edgeFaces(def);
     const f1 = (ef.get(key(v, a)) || []).slice().sort().join(), f2 = (ef.get(key(v, b)) || []).slice().sort().join();
     if (f1 !== f2) continue;
     for (const f of def.faces.values()) for (const l of f.loops) { const i = l.indexOf(v); if (i >= 0) l.splice(i, 1); }
     eRemove(def, ve[0]); eRemove(def, ve[1]);
-    eAdd(def, a, b, e1.soft && e2.soft, e1.curve === e2.curve ? e1.curve : undefined, e1.hidden && e2.hidden);
+    const ne = eAdd(def, a, b, e1.soft && e2.soft, e1.curve === e2.curve ? e1.curve : undefined, e1.hidden && e2.hidden);
     def.verts.delete(v);
+    ef = null; VE.delete(v);
+    for (const end of [a, b]) { const l = (VE.get(end) || []).filter((x) => x !== ve[0] && x !== ve[1]); if (ne !== null && !l.includes(ne)) l.push(ne); VE.set(end, l); }
   }
 }
 
@@ -1269,7 +1285,7 @@ export function ngonPts(c, n, u, r, sides) {
 // ---------------------------------------------------------------------------
 // Curves (0.4 M3): arcs, circles and polygons are plain edges carrying one `curve` id
 
-export const CURVE_ID = /^(arc|circle|polygon|curve):\d{1,9}$/;
+export const CURVE_ID = /^(arc|circle|polygon|curve):\d{1,16}$/;   // 0.11 DC.27: up to 16 digits (session tags; was 9)
 /** A function that gives copied edges fresh curve ids in `def` (a copy is a curve of its own). */
 export function curveRemapper(def) {
   const m = new Map();
@@ -1622,7 +1638,8 @@ export function edgeChain(def, eids) {
   const ends = [...adj].filter(([, l]) => l.length === 1).map(([v]) => v);
   const verts = [];
   let cur = ends[0] ?? [...adj.keys()][0], prev = null;
-  while (cur !== undefined && !verts.includes(cur)) { verts.push(cur); const nx = adj.get(cur).find((x) => x !== prev && !verts.includes(x)); prev = cur; cur = nx; }
+  const seenV = new Set();   // 0.11 PERF.76: a Set, not includes() per step along the path
+  while (cur !== undefined && !seenV.has(cur)) { verts.push(cur); seenV.add(cur); const nx = adj.get(cur).find((x) => x !== prev && !seenV.has(x)); prev = cur; cur = nx; }
   if (verts.length !== adj.size) throw new Error(t('m3d.model.the_path_is_in_more_than'));
   return { verts, closed: !ends.length };
 }
@@ -2051,7 +2068,12 @@ export class Model {
   imagesJSON() {
     const used = new Set();
     for (const d of this.defs.values()) {
-      if (d.mesh) { const ms = d.shown; for (let f = 0; f < ms.nf; f++) { if (ms.faceDead(f)) continue; const c = ms.facePaint(f); if (isImagePaint(c)) used.add(imageId(c)); } }
+      if (d.mesh) {
+        // 0.11 PERF.7: the paints the living faces use, read once each (a regular expression per face was 0.1 to 0.2 s at 500k faces)
+        const ms = d.shown, fm = ms.fMat, ff = ms.fFl, seen = new Uint8Array(ms.paints.length);
+        for (let f = 0; f < ms.nf; f++) { const i = fm[f]; if (i >= 0 && i < seen.length && !(ff[f] & 1)) seen[i] = 1; }
+        for (let i = 0; i < seen.length; i++) { const c = ms.paints[i]; if (seen[i] && c && isImagePaint(c)) used.add(imageId(c)); }
+      }
       else for (const f of d.faces.values()) if (isImagePaint(f.color)) used.add(imageId(f.color));
       for (const i of d.insts.values()) if (isImagePaint(i.color)) used.add(imageId(i.color));
     }
@@ -2097,7 +2119,7 @@ export class Model {
   get root() { return this.defs.get('root'); }
   def(id) { return this.defs.get(id); }
   newDef(kind, name) {
-    const id = 'd' + this.nextId++;
+    const id = 'd' + this.takeId();
     const d = new Def(id, kind, name || this.uniqueName(kind === 'component' ? 'Component' : 'Group'));
     this.defs.set(id, d);
     return d;
@@ -2106,7 +2128,9 @@ export class Model {
     const names = new Set([...this.defs.values()].map((d) => d.name));
     for (let i = 1; ; i++) if (!names.has(base + '#' + i)) return base + '#' + i;
   }
-  newGuideId() { return this.nextId++; }
+  newGuideId() { return this.takeId(); }
+  /** The next number of the model's counter (definitions d<n>, guides, dimensions, lights, sections); 0.11 DC.27: a new tag past the end of one. */
+  takeId() { const n = rollId(this.nextId); this.nextId = n + 1; return n; }
   /**
    * Move placement iid of the group open at `from` into the group open at `to` (0.4 M22: the Outliner's drag), keeping
    * where it is in the world. Refused when `to` is it or inside it (a group cannot hold itself). → its new id.
@@ -2457,7 +2481,7 @@ export class Model {
   }
   /** A new mesh definition holding `mesh` (not placed). */
   newMeshDef(mesh, name) {
-    const id = 'd' + this.nextId++;
+    const id = 'd' + this.takeId();
     const d = new MeshDef(id, cleanText(name, 120) || this.uniqueName(t('m3d.mesh.name')), mesh);
     this.defs.set(id, d);
     this.meshes.set(mesh.uid, mesh);
@@ -2871,7 +2895,7 @@ export class Model {
     const ids = new Set(clip.defs.map((d) => d && d.id));
     const map = new Map();
     for (const dj of clip.defs) {
-      if (!dj || typeof dj.id !== 'string' || !/^d\d{1,9}$/.test(dj.id)) fail(t('m3d.model.a_definition_id_is_wrong'));
+      if (!dj || typeof dj.id !== 'string' || !/^d\d{1,16}$/.test(dj.id)) fail(t('m3d.model.a_definition_id_is_wrong'));
       if (same && dj.kind === 'component' && this.defs.get(dj.id)?.kind === 'component') map.set(dj.id, dj.id);
     }
     // a component may not end up inside itself: nothing reused may contain the definitions being edited
@@ -3148,7 +3172,7 @@ export class Model {
     if (!made && (!Array.isArray(j.defs) || !j.defs.length)) fail(t('m3d.model.it_has_no_model'));
     const defs = made || new Map();
     for (const dj of made ? [] : j.defs.slice(0, 100000)) {
-      if (!dj || typeof dj.id !== 'string' || !/^(root|d\d{1,9})$/.test(dj.id)) fail(t('m3d.model.a_definition_id_is_wrong'));
+      if (!dj || typeof dj.id !== 'string' || !/^(root|d\d{1,16})$/.test(dj.id)) fail(t('m3d.model.a_definition_id_is_wrong'));   // 0.11 DC.27: 16 digits (was 9)
       if (defs.has(dj.id)) fail(t('m3d.model.a_definition_appears_twice'));
       const d = defOf(dj, fail);
       defs.set(d.id, d);
@@ -3341,7 +3365,7 @@ export function defToJSON(d, raw = false, shown = false) {
   };
 }
 /** A mesh definition's JSON without its mesh (the shape older readers expect: no geometry of its own, no placements). */
-function meshHead(d) {
+export function meshHead(d) {
   return { id: d.id, kind: 'mesh', name: d.name, next: 1, verts: [], edges: [], faces: [], insts: [], ...(d.mods?.length ? { mods: d.mods } : {}), ...(d.lattice ? { lattice: d.lattice } : {}), ...(d.curve ? { curve: d.curve } : {}) };
 }
 /** A definition as undo keeps it: a mesh only as {ref: its uid, v: its state} (MD.1 delta undo); the rest as defToJSON. */
@@ -3388,9 +3412,9 @@ function defOf(dj, fail) {
 function defFromJSON(d, j, fail = (m) => { throw new Error(m); }) {
   if (typeof j.starter === 'string' && /^[a-z0-9_-]{1,40}$/.test(j.starter)) d.starter = j.starter;   // 0.4 M25: which starter thing it is (entourage ids have hyphens: ent-tree-…)
   // 0.4 M26: a stretched copy remembers its original and size
-  if (j.dyn && typeof j.dyn.src === 'string' && /^d\d{1,9}$/.test(j.dyn.src) && Array.isArray(j.dyn.size) && j.dyn.size.length === 3 && j.dyn.size.every((x) => Number.isFinite(x) && x >= 0)) d.dyn = { src: j.dyn.src, size: j.dyn.size.slice() };
+  if (j.dyn && typeof j.dyn.src === 'string' && /^d\d{1,16}$/.test(j.dyn.src) && Array.isArray(j.dyn.size) && j.dyn.size.length === 3 && j.dyn.size.every((x) => Number.isFinite(x) && x >= 0)) d.dyn = { src: j.dyn.src, size: j.dyn.size.slice() };
   if (j.mods && !Array.isArray(j.mods)) { const m = groupModsOf(j.mods); if (m) d.mods = m; }   // 0.8 GH.2
-  const intId = (x) => Number.isInteger(x) && x > 0 && x < 1e9;
+  const intId = (x) => Number.isSafeInteger(x) && x > 0;   // 0.11 DC.27: up to 2^53 (session tags; was below 1e9)
   let max = 0;
   for (const v of Array.isArray(j.verts) ? j.verts : []) {
     if (!Array.isArray(v) || v.length !== 4 || !intId(v[0]) || !isPt(v.slice(1))) fail(t('m3d.model.a_vertex_is_wrong'));

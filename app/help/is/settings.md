@@ -1,110 +1,112 @@
 ---
 title: Stillingar CadCraft
-summary: Stillingar sem tilheyra teikniforritinu: stærð bendils, hvar afrituð útgáfa hangir frá bendlinum, hvað smellur gerir við valið, hve margar línur tækjastikan notar, hvar skipanalínan er og hversu há hún er, þétt efsta svæði og hornvísirinn.
-keywords: skipanalína, fljótandi skipanalína, fljóta, festa, ein lína, f2, ferill skipana, commandline, cmdline, toparea, efsta svæði, þétt, cursorsize, bendill á öllum skjánum, kant í kant, línur tækjastikunnar, ctrl f1, stillingar, valkostir, hornvísir, ásamerki, sýniteningur, bendill, kross, límingarpunktur, grunnpunktur, smellt á hluti, val, pickadd, shift, endurstilla
-from: 0896eb42
+summary: Stillingarnar sem heyra teikniforritinu til: stærð bendils, hvar límt afrit hangir frá bendlinum, hvað smellur gerir við valið, hversu margar raðir tækjastikan notar, hvar skipanalínan er og hversu há hún er, þétt efsta svæði og hornvísirinn.
+keywords: skipanalína, fljótandi skipanalína, fljóta, festa, ein lína, f2, ferill skipana, commandline, cmdline, toparea, efsta svæði, þétt, cursorsize, krosshár á öllum skjánum, jaðar til jaðars, raðir tækjastikunnar, tækjastika, ctrl f1, stillingar, valkostir, hornvísir, ás-tákn, ucs-tákn, bendill, krosshár, veljari, límpunktur, grunnpunktur, smellur á hluti, valið, pickadd, shift, endurstilla
+from: ae1a81db
 ---
 
-Opnaðu {{ui:Stillingar}} með gírnum í forritastikunni eða með {{key:Mod+,}}. Fyrsti flipinn, {{ui:CadCraft}}, geymir stillingar sem tilheyra þessu forriti; {{ui:Almennt}} geymir þær sem öll forrit fjölskyldunnar deila (þema, stærð texta og breidd spjalda, og útlit og röð tækjastikunnar). Stillingar CadCraft eru aðeins í forritinu: þú breytir þeim hér, og þessi vafri man þær. {{ui:Endurstilla CadCraft-stillingar}} setur allar aftur í upphafsgildi.
+Opnaðu {{ui:Stillingar}} með gírnum í forritastikunni eða með {{key:Mod+,}}. Fyrsti flipinn, {{ui:CadCraft}}, geymir stillingarnar sem heyra þessu forriti til; {{ui:Almennt}} geymir þær sem öll forrit fjölskyldunnar deila (þema, stærð og breidd texta spjaldsins, og útlit og röð tækjastikunnar). Stillingar CadCraft eru aðeins í forritinu: þú breytir þeim hér, og þessi vafri man þær. {{ui:Endurstilla stillingar CadCraft}} setur hverja þeirra aftur í upphafsgildi.
 
 ## Bendill
 
-**Lítill**, **Miðlungs** (upphafsgildið), **Stór** eða **Allur skjárinn**: stærð krossins og valreitsins í teikningunni. Stærri valreitur velur hluti úr aðeins lengri fjarlægð, sem hjálpar á snertiskjá eða mjög fínni teikningu.
+**Lítill**, **Miðlungs** (upphafsstillingin), **Stór** eða **Allur skjár**: stærð krosshársins og veljarans í teikningunni. Stærri veljari velur hluti líka úr örlítið lengri fjarlægð, sem hjálpar á snertiskjá eða í mjög fínni teikningu.
 
-**Allur skjárinn** teiknar tvær línur krossins frá kanti til kants yfir teikninguna, líka þegar engin skipun er í gangi, svo þú getir séð með eigin augum að tveir hlutir raðast saman yfir alla sýnina. Með skiptri sýn haldast línurnar í þeim glugga sem þú vinnur í. Sama og {{cmd:CURSORSIZE}} 100 í AutoCAD: skrifaðu {{cmd:CURSORSIZE}} og 100 fyrir allan skjáinn; lægri tala velur næstu stærð (undir 5 Lítill, 5 til 9 Miðlungs, 10 til 99 Stór).
+**Allur skjár** keyrir tvær línur krosshársins frá jaðri til jaðars yfir teikninguna, líka þegar engin skipun er keyrð, svo þú getir séð með augunum að tveir hlutir liggi saman yfir alla sýnina. Þegar sýnin er skipt halda línurnar sér í þeirri rúðu sem þú vinnur í. Sami háttur og {{cmd:CURSORSIZE}} 100 í AutoCAD: skrifaðu {{cmd:CURSORSIZE}} og 100 fyrir allan skjáinn; lægri tala velur næstu stærð (undir 5 Lítill, 5 til 9 Miðlungs, 10 til 99 Stór).
 
-## Límingarpunktur
+## Límpunktur
 
-Hvar afrituð útgáfa hangir frá bendlinum eftir {{key:Mod+V}} ({{cmd:PASTECLIP}}), þar til þú smellir:
+Hvar límt afrit hangir frá bendlinum eftir {{key:Mod+V}} ({{cmd:PASTECLIP}}), þar til þú smellir:
 
-- **Neðra vinstra horn** (upphafsgildið): neðra vinstra horn ytri marka afrituðu hlutanna, eins og í AutoCAD.
-- **Miðja**: miðja markanna. Gott til að setja tákn eftir auga.
+- **Neðra vinstra horn** (upphafsstillingin): neðra vinstra horn útmarka afritaðra hluta, eins og í AutoCAD.
+- **Miðja**: miðja útmarkanna. Hentugt til að setja tákn inn eftir augnmáli.
 
 Afrit sem gert er með `COPYBASE` hangir alltaf frá grunnpunktinum sem þú valdir. {{ui:Líma á sama stað}} ({{key:Mod+Shift+V}}) hunsar þessa stillingu: það heldur upprunalegu hnitunum. Sjá [Afrita, líma og tvöfalda](topic:copy-paste).
 
 ## Smellt á hluti
 
-Hvað smellur í teikningunni gerir við valið þegar engin skipun er í gangi:
+Hvað smellur í teikningunni gerir við valið þegar engin skipun er keyrð:
 
-- **Bætir við valið** (upphafsgildið): hver smellur eða gluggi bætir hlutum við; {{key:Shift}}+smellur, eða {{key:Shift}}+gluggi, tekur þá út.
-- **{{ui:Kemur í stað valsins}}**: smellur eða gluggi velur aðeins það sem hann nær í. {{key:Shift}}+smellur bætir við hlut, eða tekur út þann sem þegar er valinn; {{key:Shift}}+gluggi bætir við.
+- **Bætir við valið** (upphafsstillingin): hver smellur eða gluggi bætir hlutum við; {{key:Shift}}+smellur, eða {{key:Shift}}+gluggi, tekur þá út.
+- **Kemur í stað valsins**: smellur eða gluggi velur aðeins það sem hann nær yfir. {{key:Shift}}+smellur bætir hlut við, eða tekur út einn sem þegar er valinn; {{key:Shift}}+gluggi bætir við.
 
-Við spurninguna `Veldu hluti:` inni í skipun bæta smellir alltaf við (og {{key:Shift}} tekur út), hvað sem þessi stilling segir. Sjá [Velja hluti](topic:select-objects).
+Við spurninguna `Select objects:` inni í skipun bæta smellir alltaf við (og {{key:Shift}} tekur út), sama hvað þessi stilling segir. Sjá [Velja hluti](topic:select-objects).
 
-## Smellt á autt svæði
+## Smellt á tóman stað
 
-Hvað smellur þar sem enginn hlutur er gerir þegar engin skipun er í gangi. Hvort sem er byrjar hann valglugga (annar smellur klárar hann).
+Hvað smellur þar sem enginn hlutur er gerir þegar engin skipun er keyrð. Í báðum tilvikum byrjar hann valglugga (annar smellur lýkur honum).
 
-- **Hreinsar valið** (upphafsgildið): það sem var valið er sleppt. Haltu {{key:Shift}} niðri meðan þú smellir til að halda því.
-- **{{ui:Heldur valinu}}**: valið helst, eins og í öðrum teikniforritum; glugginn bætist við það. Ýttu á {{key:Esc}} til að hreinsa valið.
+- **Hreinsar valið** (upphafsstillingin): það sem var valið er sleppt. Haltu {{key:Shift}} meðan þú smellir til að halda því.
+- **Heldur valinu**: valið helst, eins og í öðrum teiknifor­ritum; glugginn bætist við það. Ýttu á {{key:Esc}} til að hreinsa valið.
 
-## Draga til að velja
+## Dragðu til að velja
 
-Hvað það teiknar að ýta og draga á autt svæði:
+Hvað það teiknar að ýta og draga á tóman stað:
 
-- **Lassó** (upphafsgildið): frjáls útlína. Ef þú dregur fyrst til hægri velur hann það sem liggur alveg inni í honum, ef þú dregur fyrst til vinstri velur hann það sem hann snertir; {{key:Space}} meðan dregið er skiptir á milli glugga, krossunar og girðingar.
+- **Lassó** (upphafsstillingin): frjáls útlína. Ef þú dregur fyrst til hægri velur það það sem liggur alveg inni í henni, ef fyrst til vinstri það sem hún snertir; {{key:Space}} meðan dregið er skiptir á milli glugga, krossgluggs og girðingar.
 - **Rétthyrningur**: kassinn, eins og smellur og annar smellur teikna hann.
 
-{{cmd:LASSOMODE}} `1` eða `0` stillir hið sama. Sjá [Lassóval](topic:lasso-selection).
+{{cmd:LASSOMODE}} `1` eða `0` stillir það sama. Sjá [Lassóval](topic:lasso-selection).
 
-## Draga til að klippa og lengja
+## Dragðu til að klippa og framlengja
 
-Hvað það gerir að ýta á autt svæði og draga í {{cmd:TRIM}} og {{cmd:EXTEND}}:
+Hvað það gerir að ýta á tóman stað og draga í {{cmd:TRIM}} og {{cmd:EXTEND}}:
 
-- **Slóð** (upphafsgildið): frjáls slóð; sérhver bútur sem hún sker er klipptur (eða lengdur).
+- **Slóð** (upphafsstillingin): frjáls slóð; sérhver bútur sem hún sker er klipptur (eða framlengdur).
 - **Gluggi**: kassi; sérhver bútur sem hann snertir er klipptur, eins og valkosturinn `C` gerir.
 
-Sjá [Klippa og lengja](topic:trim-and-extend).
+Sjá [Klipping og framlenging](topic:trim-and-extend).
 
 ## Staðsetning tækjastikunnar
 
-{{ui:CadCraft}} › {{ui:Staðsetning tækjastikunnar}}: **Efst** (upphafsgildið, eins og alltaf hefur verið), **Neðst**, **Vinstri** eða **Hægri**. Til vinstri eða hægri raðast verkfærahóparnir í dálk sem skrollar þegar hann er hærri en glugginn, og hnapparnir vefjast tveir eða þrír á línu. Valið er vistað með stillingunum þínum, og {{cmd:TOOLBARDOCK}} (`TBDOCK`) stillir það frá skipanalínunni. {{ui:Almennt}} › {{ui:Endurstilla útlitið}} setur tækjastikuna aftur efst.
+{{ui:CadCraft}} › {{ui:Staðsetning tækjastikunnar}}: **Efst** (upphafsstillingin, eins og hún hefur alltaf verið), **Neðst**, **Vinstra megin** eða **Hægra megin**. Vinstra eða hægra megin raðast hóparnir í dálk sem skrunar þegar hann er hærri en glugginn, og hnappar vefjast tveir eða þrír í línu. Valið er vistað með stillingum þínum, og {{cmd:TOOLBARDOCK}} (`TBDOCK`) setur það úr skipanalínunni. {{ui:Almennt}} › {{ui:Endurstilla útlitið}} setur tækjastikuna aftur efst.
 
-Stikur valmyndarstílanna sitja innan tækjastikunnar og færast með henni, en {{ui:Borði}}-stíllinn er gerður til að liggja þvert yfir efst eða neðst: á hlið fær hann mjóan dálk sem skrollar. Í síma er tækjastikan þar sem símauppsetningin setur hana.
+Stikur stílanna á valmyndinni sitja inni í tækjastikunni og færast með henni, en stíllinn {{ui:Borði}} er gerður til að ganga yfir efst eða neðst: við hlið fær hann mjóan dálk sem skrunar. Í síma er tækjastikan þar sem símauppsetningin setur hana.
 
-## Línur tækjastikunnar
+## Raðir tækjastikunnar
 
-Hve margar línur verkfærin nota fyrir ofan teikninguna, í CadCraft-tækjastikunni og í stílunum {{ui:Klassískt teikniforrit}} og {{ui:Borði}}:
+Hversu margar línur verkfærin nota fyrir ofan teikninguna, í CadCraft-tækjastikunni og í stílunum {{ui:Teikniforrit klassískt}} og {{ui:Borði}}:
 
-- **Vefja að breidd** (upphafsgildið): verkfærin vefjast að breidd gluggans.
-- **2 línur**: í mesta lagi tvær línur. Þegar verkfærin vefjast í tvær línur eða færri við þessa breidd vefjast þau bara; annars sitja þau í tveimur röðum sem skrolla til hliðar.
-- **1 lína**: ein lína sem skrollar til hliðar, sem gefur teikningunni mest pláss.
+- **Vefja að glugga** (upphafsstillingin): verkfærin vefjast að breidd gluggans.
+- **2 raðir**: í mesta lagi tvær línur. Þegar verkfærin vefjast í tvær línur eða færri við þessa breidd vefjast þau bara; annars sitja þau í tveimur röðum sem skrunast til hliðar.
+- **1 röð**: ein lína sem skrunar til hliðar, sem gefur teikningunni mest rými.
 
-{{key:Shift+Ctrl+F1}} fer í gegnum þessar þrjár, og {{cmd:TOOLBARROWS}} stillir eina þeirra. Hvað hnapparnir sýna (tákn og texta, aðeins tákn, eða aðeins texta) er stilling í {{ui:Almennt}} › {{ui:Tækjastika}}; {{key:Ctrl+F1}} fer í gegnum hana og {{cmd:TOOLBAR}} stillir hana.
+{{key:Shift+Ctrl+F1}} fer milli þessara þriggja, og {{cmd:TOOLBARROWS}} velur eina. Hvað hnapparnir sýna (tákn og texti, aðeins tákn, eða aðeins texti) er stilling í {{ui:Almennt}} › {{ui:Tækjastika}}; {{key:Ctrl+F1}} fer milli þeirra og {{cmd:TOOLBAR}} velur eina.
 
 ## Skipanalína
 
-Skipanalínan getur verið föst undir teikningunni, eins og hún alltaf var, eða svífað yfir henni, og hún getur verið eins mjó og ein lína.
+Skipanalínan getur verið föst undir teikningunni, eins og hún alltaf var, eða svifið yfir henni, og hún getur verið eins mjó og ein lína.
 
-- **Losaðu hana.** Dragðu gripið við vinstri endann inn í teikninguna, eða veldu {{ui:Fljóta yfir teikninguna}} í valmynd sinni {{ui:Valkostir skipanalínu}} (þrír punktar við hægri endann). Dragðu gripið aftur til að færa hana; staðsetning hennar helst þegar glugginn breytir stærð. Dragðu hægri kantinn til að gera hana breiðari eða mjórri. Slepptu henni á stöðustikuna, eða veldu {{ui:Festa neðst}}, til að festa hana aftur.
-- **Gerðu hana mjórri eða hærri.** Dragðu efri kantinn: hvert skref er ein lína sögunnar. Niður í núll línur er hún **ein-lína skipanalína**: aðeins spurningin og það sem þú skrifar, og ný skilaboð birtast fyrir ofan hana í smá stund. Tvísmellur á efri kantinn fer á milli einnar línu og þeirrar hæðar sem þú hafðir.
-- **Sagan.** {{key:F2}}, eða klukkuhnappurinn á skipanalínunni ({{ui:Ferill skipana (F2)}}), opnar alla söguna fyrir ofan línuna (fyrir neðan hana þegar línan svífur nærri efri hluta gluggans). Innsláttur fer enn í skipanalínuna; {{key:PageUp}} og {{key:PageDown}} skrolla sögunni, og {{key:Esc}}, {{key:F2}} eða smellur annars staðar lokar henni. Lykill sem þú hefur úthlutað á F2 hefur forgang þar.
-- **Af lyklaborði.** Gripið er hnappur: þegar hann hefur fókus færa örvatakkarnir svífandi skipanalínu (með {{key:Shift}}, í stærri skrefum); {{key:Up}} losar festa og {{key:Down}} við neðri kant festir hana. Efri kanturinn er skil: {{key:Up}} og {{key:Down}} bæta við eða taka línu, {{key:Home}} gerir hana að einni línu, {{key:End}} hæstu. Skjálesarar heyra enn öll skilaboð, líka í einnar línu skipanalínunni.
+- **Gerðu hana fljótandi.** Dragðu gripið vinstra megin á henni inn í teikninguna, eða veldu {{ui:Fljóta yfir teikninguna}} í valmyndinni {{ui:Valkostir skipanalínu}} (þrír punktar hægra megin). Dragðu gripið aftur til að færa hana; staðurinn hennar helst þegar glugginn breytir stærð. Dragðu hægri brún hennar til að gera hana breiðari eða mjórri. Slepptu henni á stöðustikunni, eða veldu {{ui:Festa neðst}}, til að festa hana aftur.
+- **Gerðu hana mjórri eða hærri.** Dragðu efri brúnina: hvert skref er ein lína af sögu. Niður í núll línur verður hún **skipanalína með einni línu**: aðeins spurningin og það sem þú slærð inn, og ný skilaboð birtast fyrir ofan hana í stutta stund. Tvísmellur á efri brúnina skiptir á milli einnar línu og hæðarinnar sem þú hafðir.
+- **Sagan.** {{key:F2}}, eða klukkuhnappurinn á skipanalínunni ({{ui:Ferill skipana (F2)}}), opnar alla söguna fyrir ofan línuna (fyrir neðan hana þegar línan svífur nálægt efst í glugganum). Innsláttur fer enn í skipanalínuna; {{key:PageUp}} og {{key:PageDown}} skrolla sögunni, og {{key:Esc}}, {{key:F2}} eða smellur annars staðar lokar henni. Lykill sem þú átt sjálf(ur) á F2 gengur framar þessu.
+- **Af lyklaborði.** Gripið er hnappur: þegar það er í fókus færa örvatakkarnir fljótandi skipanalínu (með {{key:Shift}}, í stærri skrefum); {{key:Up}} gerir fasta línu fljótandi og {{key:Down}} við neðri brún festir hana. Efri brúnin er skil: {{key:Up}} og {{key:Down}} bæta við eða taka burt línu, {{key:Home}} gerir hana að einni línu og {{key:End}} hæstu. Skjálesarar lesa enn hver skilaboð, líka í skipanalínu með einni línu.
 
-{{ui:CadCraft}} › {{ui:Skipanalína}} hefur sömu valkosti: {{ui:Fest neðst}} eða {{ui:Fljótandi}}, {{ui:Sýndar línur ferils}} (0 til 12) og {{ui:Venjuleg hæð}}. {{cmd:COMMANDLINE}} (`CMDLINE`) stillir þá frá skipanalínunni. Staðsetning og hæð eru geymd fyrir CadCraft í þessum vafra ásamt öðru útliti, svo vistað vinnuumhverfi ber þær með sér; {{ui:Almennt}} › {{ui:Endurstilla útlitið}} festir skipanalínuna aftur á venjulega hæð. Í síma helst skipanalínan föst með einni línu af sögu; sögu-hnappurinn virkar þar líka.
+{{ui:CadCraft}} › {{ui:Skipanalína}} hefur sömu val: {{ui:Fest neðst}} eða {{ui:Fljótandi}}, {{ui:Sýndar línur ferils}} (0 til 12) og {{ui:Venjuleg hæð}}. {{cmd:COMMANDLINE}} (`CMDLINE`) stillir þau úr skipanalínunni. Staður og hæð eru geymd fyrir CadCraft í þessum vafra ásamt öðru útliti, svo vistað vinnuumhverfi ber þau með sér; {{ui:Almennt}} › {{ui:Endurstilla útlitið}} festir skipanalínuna aftur í venjulegri hæð. Í síma er skipanalínan föst með einni línu af sögu; sögu-hnappurinn virkar þar líka.
 
-Þegar glugginn er stuttur og útlitsprófið býður þéttara útlit, kveikir {{ui:Já}} líka á einnar línu skipanalínu ef teikningin er enn of stutt eftir tækjastikurnar.
+{{ui:CadCraft}} › {{ui:Valkostastafir}} geymir stafina sem þú valdir fyrir valkosti skipana: {{ui:Breyta…}} opnar skrána, {{ui:Flytja inn…}} skiptir henni út fyrir skrá sem þú velur og {{ui:Flytja út}} vistar hana. Sjá [Gefðu valkostum skipana þinn eigin stafi](topic:option-letters).
+
+Þegar glugginn er stuttur og útlitsathugunin býður þéttara útlit, gerir {{ui:Já}} hennar skipanalínuna líka að einni línu ef teikningin er enn of stutt eftir tækjastikurnar.
 
 ## Efsta svæði
 
-{{ui:CadCraft}} › {{ui:Efsta svæði}}: **Venjulegt** (upphafsgildið) eða **Þétt**. Þétt heldur stikunum fyrir ofan teikninguna litlum í öllum valmyndarstílum: heiti hópanna og orðin undir táknunum fara (merkimiðar og skjálesarar hafa þau enn) og hnapparnir eru þéttari. Það vinnur með [Línum tækjastikunnar](topic:settings#toolbar-rows): Þétt og **1 lína** gefa teikningunni mest pláss. {{cmd:TOPAREA}} stillir það.
+{{ui:CadCraft}} › {{ui:Efsta svæði}}: **Venjulegt** (upphafsstillingin) eða **Þétt**. Þétt heldur stikunum fyrir ofan teikninguna litlum í öllum valmyndarstílum: heiti flokkanna og orðin undir táknunum fara (skýringartextar og skjálesarar hafa þau enn) og hnapparnir verða þéttari. Það virkar með [Raðir tækjastikunnar](topic:settings#toolbar-rows): Þétt og **1 röð** gefa teikningunni mest rými. {{cmd:TOPAREA}} velur það.
 
 ## Hornvísir
 
 Það sem situr í horni teikningarinnar:
 
-- **Sjálfvirkt** (upphafsgildið): ásamerkið á flipanum {{ui:Líkan}} og sýniteningurinn á flipanum {{ui:3D}}.
-- **Ásamerki**: X- og Y-merkið neðst til vinstri á flipanum {{ui:Líkan}}, og lítið X-, Y- og Z-merki á flipanum {{ui:3D}}.
-- **Sýniteningur**: teningur efst til hægri á báðum flipum. Á flipanum {{ui:Líkan}} sýnir hann teikninguna ofan frá, og smellur á annan flöt, kant eða horn opnar flipann {{ui:3D}} og horfir þaðan. Á 3D-flipanum snýst hann með sýninni: smelltu til að horfa frá hlið, dragðu til að snúa, og húsið fer aftur í ísó-sýnina. Sjá [Líkan í 3D](topic:3d-solids).
-- **Ekkert**: ekkert í horninu.
+- **Sjálfvirkt** (upphafsstillingin): ás-tákn á flipanum {{ui:Líkan}} og útsýniskubbur á flipanum {{ui:3D}}.
+- **Ás-tákn**: X- og Y-merkið neðst vinstra megin á flipanum {{ui:Líkan}}, og lítið X, Y og Z-merki á flipanum {{ui:3D}}.
+- **Útsýniskubbur**: kubbur efst hægra megin á báðum flipum. Á flipanum {{ui:Líkan}} sýnir hann teikninguna ofan frá, og smellur á annan flöt, jaðar eða horn opnar flipann {{ui:3D}} og horfir þaðan. Á 3D-flipanum snýst hann með sýninni: smelltu til að horfa frá hlið, dragðu til að sveifla, og húsið fer aftur í jafnhornasýnina. Sjá [Líkan í 3D](topic:3d-solids).
+- **Enginn**: ekkert í horninu.
 
 Blöð sýna hvorugt.
 
 ## Lengd og flatarmál valsins
 
-- **Í stöðustikunni** (upphafsgildið): þegar hlutir eru valdir sýnir stöðustikan samanlagða lengd þeirra og samanlagt flatarmál þeirra lokuðu. Sjá [Samtölur valsins](topic:properties-panel#totals-of-a-selection).
-- **Falið**: stöðustikan sleppir þeim. Eiginleikar sýna þær enn fyrir nokkra hluti.
+- **Í stöðustikunni** (upphafsstillingin): þegar hlutir eru valdir sýnir stöðustikan samlagða lengd þeirra og samlagt flatarmál þeirra lokuðu. Sjá [Samtölur valsins](topic:properties-panel#totals-of-a-selection).
+- **Falið**: stöðustikan sleppir þeim. Eiginleikar sýna þær samt fyrir marga hluti.
 
-## Hnitanet, lóðrétt/lárétt og smellifesta
+## Rist, Lóðrétt/lárétt og smellifestur
 
-Þetta er ekki í valglugganum: hnapparnir {{ui:Hnitanet}}, {{ui:Lóðrétt/lárétt}} og {{ui:Smellifesta}} í stöðustikunni (eða {{key:F7}}, {{key:F8}}, {{key:F3}}) og listinn yfir smellifestur hluta við hlið þeirra eru munaðir þegar þú skilur þá eftir. Sjá [Smella á punkta á hlutum](topic:object-snaps).
+Þetta er ekki í glugganum: hnapparnir {{ui:Rist}}, {{ui:Lóðrétt/lárétt}} og {{ui:Smellifesta}} á stöðustikunni (eða {{key:F7}}, {{key:F8}}, {{key:F3}}) og listinn yfir hlutasmellifestur við hliðina á þeim eru munaðir þegar þú yfirgefur þá. Sjá [Smella á punkta á hlutum](topic:object-snaps).

@@ -1,70 +1,70 @@
 ---
 title: Taralama ve dolgu alanları
-summary: Bir alanın içine tıklayarak ya da kapalı şekiller seçerek düz bir renk ya da standart bir desenle doldurun, desenin ölçeğini ve açısını ayarlayın ve taramayı sonradan değiştirin.
-keywords: taralama, bhatch, dolgu, düz dolgu, desen, ansi31, ansi37, tuğla, toprak, ağ, kesit çizgileri, poché, ada, sınır, ölçek, açı
-from: 14399174
+summary: Bir alanı içine tıklayarak ya da kapalı şekilleri seçerek katı bir renk ya da standart bir desenle doldurun, desenin ölçeğini ve açısını ayarlayın ve sonradan bir taralamayı değiştirin.
+keywords: taralama, bhatch, dolgu, katı dolgu, desen, ansi31, ansi37, tuğla, toprak, file, kesit çizgileri, poché, ada, sınır, ölçek, açı
+from: e7feb344
 ---
 
 ## Ne yapacaksınız
 
-ANSI31 deseniyle doldurulmuş bir duvar kesiti, içinde boş bırakılmış bir kolon ve kolonda bir düz dolgu.
+ANSI31 deseniyle doldurulmuş bir duvar kesiti, içinde boş bırakılmış bir kolon ve kolonda katı bir dolgu.
 
-## İçine tıklayarak tarama
+## Bir alanın içine tıklayarak taralama
 
-1. Bir dikdörtgen (`REC`, `0,0`, `@2000,1200`) ve içine bir daire (`C`, `1000,600`, `300`) çizin. {{ui:Sınırlar}} düğmesine tıklayın.
-2. {{ui:Çiz}} grubundaki {{ui:Taralama}} düğmesine tıklayın ya da `H` yazıp {{key:Enter}}'a basın. Geçmiş, geçerli deseni gösterir; örneğin `Geçerli taralama: ANSI31, ölçek 1, açı 0°`.
-3. `P` yazıp {{key:Enter}}'a basın, `ANSI31` yazıp {{key:Enter}}'a basın.
-4. `SC` yazıp {{key:Enter}}'a basın, `20` yazıp {{key:Enter}}'a basın. Desen boyutları kâğıt üzerinde verilir; yani 1:20 ölçekte çıktı alınacak bir çizim için ölçek 20 olmalıdır.
-5. `İç nokta seçin` isteminde dikdörtgenin içine, dairenin dışına tıklayın. Taralama bir önizleme olarak görünür.
-6. {{key:Enter}}'a basın. Dikdörtgen taranır; içindeki daire boş kalır, çünkü bir ada'dır.
+1. Bir dikdörtgen çizin (`REC`, `0,0`, `@2000,1200`) ve içine bir daire (`C`, `1000,600`, `300`). {{ui:Sınırlar}} düğmesine tıklayın.
+2. {{ui:Çiz}} grubunda {{ui:Taralama}} düğmesine tıklayın ya da `H` yazıp {{key:Enter}} tuşuna basın. Tarihçe hangi desenin geçerli olduğunu söyler, örneğin `Geçerli taralama: ANSI31, ölçek 1, açı 0°`.
+3. `P` yazıp {{key:Enter}} tuşuna basın, `ANSI31` yazıp {{key:Enter}} tuşuna basın.
+4. `SC` yazıp {{key:Enter}} tuşuna basın, `20` yazıp {{key:Enter}} tuşuna basın. Desen boyutları kâğıt üzerindedir, bu yüzden 1:20 ölçekte basılacak bir çizim için ölçek 20 olmalıdır.
+5. `İç noktayı belirtin` isteminde, dairenin dışında, dikdörtgenin içine tıklayın. Taralama bir önizleme olarak görünür.
+6. {{key:Enter}} tuşuna basın. Dikdörtgen taranır; içindeki daire boş kalır, çünkü bir adadır.
 
-Birden çok alanı tek bir taralama yapmak için {{key:Enter}}'a basmadan önce hepsinin içine tıklayabilirsiniz. `U` son alanı geri alır.
+{{key:Enter}} tuşuna basmadan önce birkaç alana tıklayarak bunları tek bir taralama yapabilirsiniz. `U` son alanı geri alır.
 
-## Düz dolgu
+## Katı dolgu
 
-1. `H` yazıp {{key:Enter}}'a basın.
-2. `P` yazıp {{key:Enter}}'a basın, `SOLID` yazıp {{key:Enter}}'a basın.
-3. Dairenin içine tıklayın, sonra {{key:Enter}}'a basın.
+1. `H` yazıp {{key:Enter}} tuşuna basın.
+2. `P` yazın, {{key:Enter}} tuşuna basın, `SOLID` yazıp {{key:Enter}} tuşuna basın.
+3. Dairenin içine tıklayın, sonra {{key:Enter}} tuşuna basın.
 
-## Seçtiğiniz kapalı şekilleri tarama
+## Seçtiğiniz kapalı şekilleri taralama
 
-İçine tıklamak yerine `İç nokta seçin` isteminde `S` (Nesneleri seç) yazın, kapalı çoklu çizgileri, daireleri ya da kapalı elipsleri seçin ve {{key:Enter}}'a basın. Bir şeklin içindeki şekiller sırayla boş bırakılır (dıştaki taranır, bir sonraki boş kalır ve böyle devam eder).
+İçine tıklamak yerine, `İç noktayı belirtin` isteminde `S` (Nesne seç) yazın, kapalı çoklu çizgileri, daireleri ya da kapalı elipsleri seçin, sonra {{key:Enter}} tuşuna basın. Bir şeklin içindeki şekiller sırayla boş bırakılır (dıştaki taranır, bir sonraki içeride boş kalır, ve böyle devam eder).
 
 ## Desenler
 
-Desen sorusunda listeyi görmek için `?` yazın. Standart desenler ANSI31'den ANSI38'e, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS ve EARTH, ayrıca SOLID'dir. Birimleri inç olan bir çizimde (ya da uzunluk biçimi fit ve inç ise) AutoCAD'deki gibi desenlerin inç boyutları kullanılır; aksi halde milimetre boyutları kullanılır.
+Listeyi görmek için desen sorusunda `?` yazın. Standart olanlar ANSI31'den ANSI38'e, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS ve EARTH, ve SOLID'dir. İnç cinsinden bir çizimde (ya da uzunluk biçimi fit ve inç olan bir çizimde) desenlerin inç boyutları kullanılır, AutoCAD'deki gibi; aksi halde milimetre boyutları.
 
-{{ui:Açı}} (`A`) tüm deseni döndürür: 90° açılı ANSI31 ters yöne eğilir.
+{{ui:Açı}} (`A`) tüm deseni döndürür: 90°'deki ANSI31 öteki yöne eğilir.
 
-**Desen dosyaları.** `İç nokta seçin` isteminde `F` (Desen dosyası) yazın ve bir `.pat` dosyası seçin. İçindeki desenler listeye eklenir; birden fazla varsa hangisinin kullanılacağı sorulur. CadCraft'in okuyamadığı desenler içeren bir dosya bunu söyler ve atlanan her desen sayılır. Bir `.pat` dosyasındaki boyutların kendi birimi yoktur, bu yüzden çizimin birimleriyle okunurlar. Yalnızca olağan `.pat` biçiminde yazılmış dosyalar denenmiştir; başka bir program tarafından yapılan hiçbir dosya denenmemiştir.
+**Desen dosyaları.** `İç noktayı belirtin` isteminde `F` (Desen dosyası) yazın ve bir `.pat` dosyası seçin. İçindeki desenler listeye katılır; birden fazlaysa hangisinin kullanılacağı sorulur. CadCraft'ın okuyamadığı desen içeren bir dosya bunu söyler ve atladığı her desen sayılır. Bir `.pat` dosyasındaki boyutların kendi birimi yoktur, bu yüzden çizimin birimlerinde okunurlar. Yalnızca olağan `.pat` biçiminde yazılmış dosyalar denenmiştir; başka bir programın yaptığı hiçbiri denenmemiştir.
 
-## Taramayı değiştirin
+## Bir taralamayı değiştirin
 
-Taramayı seçin (çizgilerinden birine tıklayın). {{ui:Özellikler}} içinde: {{ui:Desen}}, {{ui:Desen ölçeği}} ve {{ui:Desen açısı}}. Açılmış çizimlerdeki taramalar, standart desenlerden biriyse deseni gösterir; diğerleri, renklerinin açık bir tonu olarak görünür.
+Seçin (çizgilerinden birine tıklayın). {{ui:Özellikler}} içinde: {{ui:Desen}}, {{ui:Desen ölçeği}} ve {{ui:Desen açısı}}. Açılmış çizimlerdeki taralamalar, standart desenlerden biriyse desenlerini gösterir; diğerleri rengin açık bir tonu olarak görünür.
 
 ## Sık yapılan hatalar
 
-- **"Bu nokta etrafında kapalı bir sınır yok."** Dış hatta bir boşluk var ya da bir kısmı ekran dışında: CadCraft yalnızca ekranda olanlara bakar. Boşluğu kapatın (köşelere yakınlaşarak) ya da uzaklaşın.
-- **"Desen bu ölçekte çizilemeyecek kadar yoğun."** Çizgiler çizimin gösterebileceğinden daha yakın olurdu. Daha büyük bir ölçek kullanın: çıktı ölçeğini deneyin (1:20 için 20).
-- **Desen çok büyük ya da çok küçük görünüyor.** Ölçek, desen biriminin başına düşen çizim birimi olarak verilir; yukarıdaki 4. adıma bakın.
-- **Dış hattı taşımak taramayı taşımıyor.** Bir tarama sınırına bağlı değildir. İkisini birlikte taşıyın ya da yeniden taratın.
+- **"Bu noktanın çevresinde kapalı bir sınır yok."** Dış hatta bir boşluk var ya da bir kısmı ekranın dışında: CadCraft yalnızca ekranda olanlara bakar. Boşluğu kapatın (köşelerde yakınlaştırarak) ya da uzaklaşın.
+- **"Desen bu ölçekte çizilemeyecek kadar sık."** Çizgiler çizimin gösterebileceğinden daha yakın olurdu. Daha büyük bir ölçek kullanın: basım ölçeğini deneyin (1:20 için 20).
+- **Desen çok büyük ya da çok küçük görünüyor.** Ölçek, desen biriminde çizim birimi cinsindendir; yukarıdaki 4. adıma bakın.
+- **Taralama dış hattını izlemeyi bıraktı.** {{cmd:HATCH}} ile yapılmış bir taralama, yapıldığı nesnelerle birlikte kalır: dış hattı taşıyın, döndürün ya da ölçekleyin, taralama onunla gider; taralamayı bir tutamaçla yeniden şekillendirirseniz taralama yeniden hesaplanır. Bağ, dış hat artık kapanmadığında, taralamayı elle yeniden şekillendirdiğinizde ya da kırpdığınızda biter ve komut satırı bunu söyler. Hiçbir şey kaybolmaz: bağlamak için alanı yeniden taralayın.
 
-## Sınırıyla birlikte kalan tarama
+## Sınırıyla kalan bir taralama
 
-`HATCH` ile yaptığınız bir tarama, onu sınırlayanı hatırlar. Sınırı taşıyın, döndürün ya da ölçeklendirin: tarama ve deseni onunla birlikte gider. Sınırı yeniden şekillendirmek için bir tutamacı sürükleyin; tarama yeniden hesaplanır. Taramayı tek başına taşırsanız sınırı da onunla gelir, tıpkı bir çizim programındaki dolu bir şekil gibi.
+`HATCH` ile yaptığınız bir taralama, onu sınırlayanları hatırlar. Sınırı taşıyın, döndürün ya da ölçekleyin: taralama ve deseni onunla gider. Sınırı yeniden şekillendirmek için bir tutamacı sürükleyin: taralama yeniden hesaplanır. Taralamayı tek başına taşırsanız sınırı da onunla gelir, bir çizim programındaki dolu bir şekil gibi.
 
-Sınır artık kapanmıyorsa ya da taramayı elle yeniden şekillendirirseniz bağlantı kopar ve komut satırı bunu söyler. Tarama yerinde kalır. Tarama yaparken `AS` yazarak tek başına duran taramalar oluşturun. Sınırıyla birlikte kopyalanan bir taramanın kopyası kendi bağlantısına sahiptir.
+Bağ biter ve komut satırı bunu söyler: sınır artık kapanmıyorsa ya da taralamayı elle yeniden şekillendirdiyseniz. Taralamanın kendisi kalır. Taramayı yaparken `AS` yazarak tek başına duran taralamalar yapın. Sınırıyla birlikte bir taralamayı kopyalarsanız, kopyanın kendi bağı olur.
 
-`HATCHEDIT` (`HE`) bir taramanın desenini, ölçeğini, açısını ve başlangıç noktasını değiştirir ve onu bir sınıra bağlar ya da bağlantıyı sonlandırır. Bağlantı DWG ve DXF 2000 dosyalarında kaydedilir. DXF R12 dosyasında taralama nesnesi yoktur ve başka programlarda yapılan bağlantılar okunmaz: bunlar için `HATCHEDIT` ve Bağla seçeneğini kullanın.
+`HATCHEDIT` (`HE`) bir taralamanın desenini, ölçeğini, açısını ve başlangıcını değiştirir ve onu bir sınıra bağlar ya da bağı biter. Bağ DWG ve DXF 2000 dosyalarında kaydedilir. Bir DXF R12 dosyasında taralama nesnesi yoktur ve başka programlarda yapılmış bağlar okunmaz: onlar için `HATCHEDIT` ve Bağla kullanın.
 
-Sınırı kalmamış bir tarama (sınır silinmişse ya da dosya sınırsız gelmişse) sınırını geri alabilir: `HATCHGENERATEBOUNDARY` (`HGB`) taramanın her döngüsünün etrafına kapalı bir çoklu çizgi çizer ve Evet yanıtı verirseniz taramayı bunlara bağlar.
+Artık sınırı olmayan bir taralama (sınır silinmişse ya da dosya onsuz geldiyse) sınırını geri alabilir: `HATCHGENERATEBOUNDARY` (`HGB`) taralamanın her döngüsünün etrafında kapalı bir çoklu çizgi çizer ve Evet yanıtlarsanız taralamayı onlara bağlar.
 
-## Degrade dolgu
+## Geçiş dolgusu
 
-`GRADIENT` (`GD`) bir alanı desen yerine degradeyle doldurur: `HATCH` ile aynı seçimler yapılır; önce türü sorulur (doğrusal, silindirik, küresel, yarım küresel, eğri ve bunların her birinin ters hali), sonra bir renk ile ton ya da iki renk, açı ve ortalı olup olmadığı sorulur. `HATCH` içinde `G` seçeneği aynı işi yapar. `HATCHEDIT` `G` ya da {{ui:Özellikler}} altındaki Degrade, bir degradeyi değiştirir ya da herhangi bir taramayı degradeye çevirir.
+`GRADIENT` (`GD`) bir alanı bir desen yerine bir geçişle doldurur: `HATCH` ile aynı seçimler, önce türü sorduktan sonra (doğrusal, silindirik, küresel, yarım küresel, eğri ve bunların her birinin ters hali), bir tonlu bir renk ya da iki renk, açı, ve ortalı olup olmadığı. `HATCH` içinde `G` seçeneği aynısını yapar. `HATCHEDIT` `G`, ya da {{ui:Özellikler}} içindeki Geçiş, bir geçişi değiştirir ya da herhangi bir taralamayı bir geçişe çevirir.
 
-Degrade ekranda ve çıktılarda görünür. DWG 2004 ya da sonrası olarak kaydedin, diğer programlar gerçek bir degrade taraması alır. DXF 2000 ve DWG 2000'de degrade yoktur: orada CadCraft onu kendisi için tutar ve diğer programlar ilk renkle düz bir dolgu görür.
+Bir geçiş ekranda ve basımlarda görünür. DWG 2004 ve sonrası olarak kaydedin, öteki programlar gerçek bir geçiş taralaması alır. DXF 2000 ve DWG 2000'de geçiş yoktur: orada CadCraft onu kendisi için tutar ve öteki programlar ilk renkte katı bir dolgu görür.
 
-## Taramayı kırpın
+## Taralamayı kırpın
 
-`TRIM` bir taramayı diğer nesneler gibi keser. Kesme kenarının istediğiniz tarafındaki taramaya tıklayın: kenarlar taranmış alanı böler ve o parça kaldırılır. Hızlı modda her nesne bir kesme kenarıdır; çok nesne varsa önce kenarları (`T` seçeneği) seçin. Kırpılmış bir tarama artık sınırına bağlı değildir, çünkü artık onu doldurmaz.
+`TRIM` bir taralamayı herhangi bir nesne gibi keser. Kesici kenarın istediğiniz tarafındaki taralamaya tıklayın: kenarlar taranmış alanı böler ve o parça alınır. Hızlı kipte her nesne bir kesici kenardır; çok nesne varsa önce kenarları seçin (`T` seçeneği). Kırpılmış bir taralama artık sınırına bağlı değildir, çünkü artık onu doldurmaz.

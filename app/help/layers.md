@@ -116,4 +116,6 @@ Keep the list short by putting layers in folders, such as Existing, Proposed and
 
 In {{ui:Tools}} on the Layers panel, choose {{ui:Add ready-made groups}} for a set made for small residential work, {{ui:Group by name}} to group layers that share a prefix (`E-Walls`, `E-Doors`), or {{ui:New group}}. Drag a layer onto a folder, or use the list above the layers for the current layer. Type in {{ui:Find a layer}} to narrow the list. `LAYGROUP` (`LG`) does the same at the command line.
 
+To rename a group, double-click its name (or select it and press {{key:F2}}), type the new name and press {{key:Enter}}; {{key:Esc}} keeps the old one, and {{cmd:UNDO}} puts it back. {{ui:New group}} is in {{ui:Tools}} on the Layers panel.
+
 The layers themselves don't change, so other CAD programs see them as an ordinary flat list. CadCraft keeps the groups in the file.

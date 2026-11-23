@@ -1,43 +1,43 @@
 ---
 title: Organizar un dibujo con capas
-summary: Cree capas para muros, puertas y notas, asigne colores, haga una capa actual y apague, inmovilice, bloquee o excluya capas del trazado.
-keywords: capa, capas, la, capa actual, inmovilizar, descongelar, bloquear, apagar, encender, trazar, no trazar, color, propiedades de capa, layiso, layuniso, aislar, layoff, layfrz, laymcur, layon, laythw, renombrar, laymrg, fusionar, laydel, borrar capa, grupos de capas
-from: cd033591
+summary: Cree capas para muros, puertas y notas, asigne colores, haga actual una capa y desactive, congele, bloquee o excluya del trazado las capas.
+keywords: capa, capas, la, capa actual, congelar, descongelar, bloquear, desactivar, activar, trazado, no trazar, color, propiedades de capa, layiso, layuniso, aislar, layoff, layfrz, laymcur, layon, laythw, renombrar, laymrg, fusionar, laydel, eliminar capa
+from: ba9f0617
 ---
 
-## Lo que creará
+## Qué va a crear
 
-Tres capas, Muros, Puertas y Notas, cada una con su propio color, con objetos dibujados en cada una y movidos entre ellas.
+Tres capas, Muros, Puertas y Notas, cada una con su propio color, con objetos dibujados en cada una y movidos de una a otra.
 
 ## El panel Capas
 
 Las capas están en el panel de la izquierda, bajo {{ui:Capas}}. Cada fila muestra, de izquierda a derecha:
 
-- un punto: relleno para la capa **actual**, donde van los objetos nuevos;
+- un punto: relleno para la **capa actual**, donde van los objetos nuevos;
 - una muestra de color;
 - el nombre de la capa;
-- cuatro botones: encendido/apagado (ojo), inmovilizar (copo de nieve), bloquear (candado) y trazar (impresora).
+- cuatro botones: activar/desactivar (ojo), congelar (copo de nieve), bloquear (candado) y trazado (impresora).
 
-Todos los dibujos tienen una capa llamada `0`. Escriba `LA` y pulse {{key:Enter}} para ir al panel.
+Cada dibujo tiene una capa llamada `0`. Escriba `LA` y pulse {{key:Enter}} para ir al panel.
 
 ## Crear capas
 
-1. Haga clic en {{ui:Capa nueva}} sobre la lista. Se abre un cuadro para el nombre.
-2. Escriba `Muros` y pulse {{key:Enter}} (o haga clic en {{ui:Añadir}}).
+1. Haga clic en {{ui:Capa nueva}} sobre la lista. Se abre un cuadro de nombre.
+2. Escriba `Walls` y pulse {{key:Enter}} (o haga clic en {{ui:Añadir}}).
 
-La barra de estado dice "Capa Muros añadida y hecha actual". La capa nueva recibe el color 7 (negro en el tema claro, blanco en el oscuro).
+La barra de estado dice "Added layer Walls and made it current." La nueva capa recibe el color 7 (negro en el tema claro, blanco en el oscuro).
 
-3. Haga clic de nuevo en {{ui:Capa nueva}}, escriba `Puertas` y pulse {{key:Enter}}.
-4. Haga clic de nuevo en {{ui:Capa nueva}}, escriba `Notas` y pulse {{key:Enter}}.
+3. Haga clic de nuevo en {{ui:Capa nueva}}, escriba `Doors` y pulse {{key:Enter}}.
+4. Haga clic de nuevo en {{ui:Capa nueva}}, escriba `Notes` y pulse {{key:Enter}}.
 
-Ahora Notas es la capa actual.
+Notes es ahora la capa actual.
 
-## Asignar un color a cada capa
+## Dar un color a cada capa
 
-1. Haga clic en la muestra de color de la fila Muros. Se abre el selector de color de su sistema.
+1. Haga clic en la muestra de color de la fila Walls. Se abre el selector de color de su sistema.
 2. Elija un color y confirme.
 
-La muestra cambia, y todo lo de Muros que esté en color {{ui:PorCapa}} también.
+La muestra y todo lo que esté en Walls y tenga el color {{ui:PorCapa}} cambian.
 
 :::note
 Un color elegido que coincide con uno de los 255 colores CAD estándar se guarda como ese número. Cualquier otro color se conserva exactamente en CadCraft, pero se guarda como el color estándar más cercano en un archivo DWG o DXF.
@@ -45,11 +45,11 @@ Un color elegido que coincide con uno de los 255 colores CAD estándar se guarda
 
 ## Dibujar en una capa
 
-1. Haga clic en el nombre **Muros** de la lista. Su punto se rellena y la barra de estado dice "Capa actual: Muros".
-2. Dibuje un rectángulo (`REC`). Irá en Muros.
-3. Haga clic en **Puertas** y dibuje un arco (`A`). Irá en Puertas.
+1. Haga clic en el nombre **Walls** de la lista. Su punto se rellena y la barra de estado dice "Current layer: Walls".
+2. Dibuje un rectángulo (`REC`). Va a Walls.
+3. Haga clic en **Doors** y dibuje un arco (`A`). Va a Doors.
 
-También puede elegir la capa actual en {{ui:Parámetros actuales}}, a la derecha (sin nada seleccionado), en {{ui:Capa}}.
+También puede elegir la capa actual en {{ui:Parámetros actuales}} a la derecha (sin nada seleccionado), en {{ui:Capa}}.
 
 ## Mover objetos a otra capa
 
@@ -58,61 +58,63 @@ También puede elegir la capa actual en {{ui:Parámetros actuales}}, a la derech
 
 Pasan a esa capa y toman su color si su color es {{ui:PorCapa}}.
 
-## Apagar, inmovilizar, bloquear y trazar
+## Desactivar, congelar, bloquear y trazado
 
 | Botón | Qué hace |
 |---|---|
-| Encendido/apagado (ojo) | Oculta los objetos de la capa. No se pueden ver, seleccionar ni ajustar a ellos. |
-| Inmovilizar (copo de nieve) | Igual que apagar en CadCraft. Se mantiene separado porque otros programas los tratan de forma distinta, y el ajuste se guarda. |
-| Bloquear (candado) | Los objetos siguen visibles y puede ajustarse a ellos, pero no se pueden seleccionar ni cambiar. Útil para un fondo sobre el que calca. |
-| Trazar (impresora) | Cuando está pulsado, la capa se muestra en pantalla pero **se excluye de los trazados** y de los PDF. Úselo para líneas de construcción y notas para usted. |
+| Activar/desactivar (ojo) | Oculta los objetos de la capa. No se pueden ver, seleccionar ni referenciar. |
+| Congelar (copo de nieve) | Igual que desactivar en CadCraft. Se mantiene separado porque otros programas los tratan de forma distinta, y el ajuste se guarda. |
+| Bloquear (candado) | Los objetos siguen visibles y se puede hacer referencia a ellos, pero no se pueden seleccionar ni cambiar. Útil para un fondo sobre el que calca. |
+| Trazado (impresora) | Cuando está pulsado, la capa se muestra en pantalla pero **no se incluye** en los trazados ni en los PDF. Úselo para líneas de construcción y notas para usted. |
 
-Pase el ratón sobre un botón para ver qué hará ("Apagar", "Inmovilizar", "Bloquear", "No trazar esta capa").
+Pase el ratón sobre un botón para ver qué hará ("Desactivar", "Congelar", "Bloquear", "No trazar esta capa").
 
-No puede apagar la capa actual: la barra de estado dice "Esa es la capa actual. Haga primero otra capa actual." Al hacer clic en el nombre de una capa para hacerla actual, también se enciende y se descongela.
+No se puede desactivar la capa actual: la barra de estado dice "That is the current layer. Make another layer current first." Al hacer clic en el nombre de una capa para hacerla actual, también se activa y se descongela.
 
 Cada cambio de capa, en el panel o mediante un comando, es un paso de deshacer: {{key:Mod+Z}} lo devuelve.
 
-## Trabajar con capas eligiendo objetos
+## Trabajar con capas señalando objetos
 
-No necesita saber el nombre de una capa: elija un objeto que esté en ella. Escriba el comando, o abra {{ui:Herramientas}} en la parte superior del panel {{ui:Capas}}.
+No necesita saber el nombre de una capa: señale un objeto que esté en ella. Escriba el comando, o abra {{ui:Herramientas}} en la parte superior del panel {{ui:Capas}}.
 
 | Comando | Qué hace |
 |---|---|
-| {{cmd:LAYISO}} | Seleccione objetos y pulse {{key:Enter}}: solo sus capas quedan encendidas, y todas las demás se apagan. Si la capa actual estaba apagada, una de las capas aisladas pasa a ser la actual. |
-| {{cmd:LAYUNISO}} | Vuelve a encender las capas que apagó el último {{cmd:LAYISO}}, y devuelve la capa actual que cambió. |
-| {{cmd:LAYOFF}} | Haga clic en objetos uno tras otro: se apaga la capa de cada uno. Escriba `U` para deshacer el último, y {{key:Enter}} para terminar. |
-| {{cmd:LAYFRZ}} | Igual, pero inmovilizando cada capa. |
-| {{cmd:LAYMCUR}} | Haga clic en un objeto: su capa pasa a ser la actual (y se enciende y se descongela). Si ya hay un objeto seleccionado, se usa ese. |
-| {{cmd:LAYON}} | Enciende todas las capas. |
+| {{cmd:LAYISO}} | Seleccione objetos y pulse {{key:Enter}}: solo sus capas quedan activas, y todas las demás se desactivan. Si la capa actual está desactivada, una de las capas aisladas pasa a ser la actual. |
+| {{cmd:LAYUNISO}} | Vuelve a activar las capas que desactivó el último {{cmd:LAYISO}}, y devuelve la capa actual que cambió. |
+| {{cmd:LAYOFF}} | Haga clic en objetos uno tras otro: la capa de cada uno se desactiva. Escriba `U` para deshacer el último, y {{key:Enter}} para terminar. |
+| {{cmd:LAYFRZ}} | Lo mismo, pero congelando cada capa. |
+| {{cmd:LAYMCUR}} | Haga clic en un objeto: su capa pasa a ser la actual (y se activa y descongela). Si ya hay un objeto seleccionado, se usa ese. |
+| {{cmd:LAYON}} | Activa todas las capas. |
 | {{cmd:LAYTHW}} | Descongela todas las capas. |
 
-La capa actual nunca se apaga ni se inmoviliza de esta forma: el historial lo indica, y puede hacer otra capa actual con {{cmd:LAYMCUR}} primero. Al elegir una referencia de bloque se usa la capa propia de la referencia.
+La capa actual nunca se desactiva ni se congela de esta forma: el historial lo indica, y antes puede hacer actual otra capa con {{cmd:LAYMCUR}}. Si señala una referencia de bloque, se usa la capa propia de la referencia.
 
-## Renombrar, fusionar y borrar capas
+## Renombrar, fusionar y eliminar capas
 
-- {{cmd:RENAME}}: escriba `LA`, el nombre antiguo y el nuevo. Todos los objetos de la capa lo siguen. (`B` renombra un bloque de la misma forma, con todas sus referencias.)
-- {{cmd:LAYMRG}}: haga clic en un objeto de cada capa que quiera fusionar (o escriba `N` y un nombre), pulse {{key:Enter}}, luego elija la capa destino y responda `Y`. Los objetos pasan al destino (en el modelo, en las hojas y dentro de los bloques) y las capas fusionadas desaparecen.
-- {{cmd:LAYDEL}}: elija un objeto de la capa (o escriba `N` y su nombre) y responda `Y`. La capa desaparece **con todos los objetos que contiene**, en todas partes. La capa 0, DEFPOINTS y la capa actual no se pueden borrar.
+- {{cmd:RENAME}}: escriba `LA`, el nombre antiguo y el nuevo. Cada objeto de la capa lo sigue. (`B` renombra un bloque del mismo modo, con todas sus referencias.)
+- {{cmd:LAYMRG}}: haga clic en un objeto de cada capa para fusionar (o escriba `N` y un nombre), pulse {{key:Enter}}, después designe la capa de destino y responda `Y`. Los objetos pasan al destino —en el modelo, en las hojas y dentro de los bloques— y las capas fusionadas desaparecen.
+- {{cmd:LAYDEL}}: designe un objeto de la capa (o escriba `N` y su nombre) y responda `Y`. La capa desaparece **junto con todos los objetos que contiene**, en todas partes. No se pueden eliminar la capa 0, DEFPOINTS ni la capa actual.
 
-Cada uno es un paso de deshacer. Los tres están en {{ui:Herramientas}}, en la parte superior del panel {{ui:Capas}}.
+Cada una es un paso de deshacer. Las tres están en {{ui:Herramientas}} en la parte superior del panel {{ui:Capas}}.
 
-1. Haga clic en una línea de muro, escriba `LAYISO` y pulse {{key:Enter}}. Solo Muros queda encendida.
-2. Dibuje o cambie lo que necesite en Muros.
-3. Escriba `LAYUNISO` y pulse {{key:Enter}}. Puertas y Notas vuelven.
+1. Haga clic en una línea de muro y escriba `LAYISO` y pulse {{key:Enter}}. Solo Walls queda activa.
+2. Dibuje o cambie lo que necesite en Walls.
+3. Escriba `LAYUNISO` y pulse {{key:Enter}}. Doors y Notes vuelven.
 
-## Errores frecuentes
+## Errores habituales
 
-- **Las líneas nuevas fueron a la capa equivocada.** Compruebe qué punto está relleno antes de dibujar. Una capa nueva pasa a ser la actual en cuanto la añade.
-- **Un objeto no se selecciona.** Su capa está bloqueada, apagada o inmovilizada.
+- **Las líneas nuevas fueron a una capa equivocada.** Compruebe qué punto está relleno antes de dibujar. Una capa nueva se vuelve actual en cuanto la añade.
+- **Un objeto no se puede seleccionar.** Su capa está bloqueada, desactivada o congelada.
 - **La capa sigue imprimiéndose en otro programa.** DXF R12 no puede guardar "no trazar". CadCraft conserva el ajuste para sí cuando el dibujo tiene una hoja, pero otros programas trazarán esa capa.
-- **Nombres de capa en mayúsculas tras guardar.** DXF R12 guarda los nombres en mayúsculas, así que `Muros` vuelve como `MUROS`, y los espacios se convierten en `_`. Un DWG guardado conserva los nombres como los escribió.
-- **Renombrar, fusionar o borrar una capa.** Use {{cmd:RENAME}}, {{cmd:LAYMRG}} o {{cmd:LAYDEL}} (también en {{ui:Herramientas}}); véase más abajo.
+- **Nombres de capa en mayúsculas tras guardar.** DXF R12 guarda los nombres en mayúsculas, así que `Walls` vuelve como `WALLS`, y los espacios pasan a ser `_`. Un DWG guardado conserva los nombres tal como los escribió.
+- **Renombrar, fusionar o eliminar una capa.** Use {{cmd:RENAME}}, {{cmd:LAYMRG}} o {{cmd:LAYDEL}} (también en {{ui:Herramientas}}): véase más abajo.
 
 ## Agrupar capas
 
-Mantenga corta la lista poniendo las capas en carpetas, como Existente, Propuesto y Servicios. Cada carpeta se pliega, y sus interruptores encienden o apagan todas sus capas, o las inmovilizan o bloquean juntas. La capa actual nunca se apaga.
+Mantenga la lista corta colocando las capas en carpetas, por ejemplo Existente, Propuesto y Servicios. Cada carpeta se pliega, y sus interruptores activan o desactivan todas sus capas, las congelan o las bloquean juntas. La capa actual nunca se desactiva.
 
-En {{ui:Herramientas}} del panel {{ui:Capas}}, elija {{ui:Añadir grupos prefabricados}} para un conjunto pensado para obras residenciales pequeñas, {{ui:Agrupar por nombre}} para agrupar capas que comparten un prefijo (`E-Muros`, `E-Puertas`), o {{ui:Grupo nuevo}}. Arrastre una capa sobre una carpeta, o use la lista de encima de las capas para la capa actual. Escriba en {{ui:Buscar una capa}} para reducir la lista. `LAYGROUP` (`LG`) hace lo mismo desde la línea de comandos.
+En {{ui:Herramientas}} del panel Capas, elija {{ui:Añadir grupos prefabricados}} para un conjunto pensado para pequeñas obras residenciales, {{ui:Agrupar por nombre}} para agrupar capas que comparten un prefijo (`E-Walls`, `E-Doors`), o {{ui:Grupo nuevo}}. Arrastre una capa sobre una carpeta, o use la lista encima de las capas para la capa actual. Escriba en {{ui:Buscar una capa}} para reducir la lista. `LAYGROUP` (`LG`) hace lo mismo en la línea de comandos.
+
+Para renombrar un grupo, haga doble clic en su nombre (o selecciónelo y pulse {{key:F2}}), escriba el nuevo nombre y pulse {{key:Enter}}; {{key:Esc}} conserva el anterior, y {{cmd:UNDO}} lo devuelve. {{ui:Grupo nuevo}} está en {{ui:Herramientas}} del panel Capas.
 
 Las capas en sí no cambian, así que otros programas CAD las ven como una lista plana normal. CadCraft guarda los grupos en el archivo.

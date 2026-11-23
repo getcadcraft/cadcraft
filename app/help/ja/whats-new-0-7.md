@@ -2,7 +2,7 @@
 title: 0.7 の新機能 (以前のバージョン)
 summary: PDF の下敷きと PDF インポート、トレース付きのスキャン図面、SPLINE・SPLINEDIT・PEDIT による本物のスプライン、寸法スタイルマネージャー、書式を保持するテキスト、WBLOCK と独自の尺度、ほかのプログラムの 3D ソリッド、スキャンの登録、レーザーパネル、USD 書き出し、CadCraft Studio での履歴と印刷、ガイド付きの最初の図面、どの辺にも配置でき行数を減らせるツールバー、AI アシスタント向けの機能追加。
 keywords: 0.7 の新機能, 以前のリリース, リリースノート, 変更履歴, 変更点, 0.7, バージョン, 新機能, pdf, pdfattach, pdfimport, 下敷き, スキャン, scanattach, scantrace, トレース, ラスター, rastersnap, スプライン, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, 書式, wblock, scalelistedit, 尺度リスト, acis, 3D ソリッド, registerscans, スキャンの登録, icp, e57, las, レーザー, grbl, g-code, usd, usdout, 履歴, バージョン, 比較, 印刷, プリンター, png, svg, プロットスタイル, 線種, ツアー, 早見表, コマンド一覧, ツールバーの位置, ツールバーの行数, toolbardock, regen, regenall, トラックパッド, スワイプ, コードページ, キリル文字, 韓国語, 中国語, 日本語, 電気, rcd, p&id, pid, acad.lsp, acaddoc.lsp, サポートフォルダー, アシスタント, mcp, 単位, ポルトガル語
-from: d07ca034
+from: d9a8ea79
 ---
 
 以下は、0.6 と比べて CadCraft 0.7 で変更された内容です。多くは Discord での要望を受けたものです。一覧は分野ごとにまとめ、重要なものから順に並べています。

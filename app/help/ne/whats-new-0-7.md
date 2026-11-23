@@ -2,7 +2,7 @@
 title: 0.7 मा नयाँ के छ (पहिलेको)
 summary: PDF अन्डरले र PDF आयात, स्वचालित ट्रेससहित स्क्यान गरिएका ड्रइङहरू, SPLINE, SPLINEDIT र PEDIT सहित वास्तविक स्प्लाइनहरू, डाइमेन्सन स्टाइल प्रबन्धक, आफ्नो ढाँचा राख्ने पाठ, WBLOCK र तपाईंका आफ्नै स्केलहरू, अन्य प्रोग्रामका 3D सोलिडहरू, स्क्यान दर्ता गर्नु, Laser प्यानल, USD निर्यात, CadCraft Studio मा History र छपाइ, निर्देशित पहिलो ड्रइङ, कुनै पनि छेउमा वा कम पङ्क्तिमा टुलबार, र AI सहायकहरूका लागि थप।
 keywords: 0.7 मा नयाँ, पहिलेको रिलिज, रिलिज नोट, परिवर्तन लग, परिवर्तनहरू, 0.7, संस्करण, नयाँ सुविधाहरू, pdf, pdfattach, pdfimport, अन्डरले, स्क्यान, scanattach, scantrace, ट्रेस, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, ढाँचा, wblock, scalelistedit, स्केल सूची, acis, 3D सोलिड, registerscans, स्क्यान दर्ता, icp, e57, las, laser, grbl, g-code, usd, usdout, history, versions, compare, print, printer, png, svg, प्लट स्टाइल, linetype, टुर, चिट सिट, कमाण्ड म्याप, टुलबार स्थिति, टुलबार पङ्क्ति, toolbardock, regen, regenall, ट्र्याकप्याड, स्वाइप, कोड पेज, सिरिलिक, कोरियाली, चिनियाँ, जापानी, इलेक्ट्रिकल, rcd, p&id, pid, acad.lsp, acaddoc.lsp, सपोर्ट फोल्डर, सहायकहरू, mcp, एकाइहरू, पोर्चुगाली
-from: d07ca034
+from: d9a8ea79
 ---
 
 यो CadCraft 0.6 को तुलनामा CadCraft 0.7 मा के परिवर्तन भयो भन्ने हो। यसमध्ये धेरै Discord मा माग गरिएको थियो। सूची क्षेत्रअनुसार समूहबद्ध छ, सबैभन्दा महत्त्वपूर्ण पहिले।

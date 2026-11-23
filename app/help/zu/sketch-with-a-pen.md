@@ -1,32 +1,36 @@
 ---
-title: Dweba ngepeni uthole ijiyomethri enembile
-summary: Dweba ngepeni, imawusi noma umunwe, bese umugqa ngamunye uba umugqa, indilinga, umnsalo, unxande noma iphola-layini ehlanzekile uma uphakamisa ipeni, ubambelelane nalokho okudwetshiwe sekwenziwe, nosayizi wawo ulungele ukuthayipha phezu kwawo.
-keywords: isikethi, ipeni, stylus, ukudweba ngesandla, umunwe, hlanza, nembile, bamba, SKETCHLIVE, SKETCHFIX, usayizi, thayipha phezu
-from: cd87eb75
+title: Dweba ngepeni uthole ijiyomethri echaniwe
+summary: Dweba ngesandla ngepeni, ngemouse noma ngomunwe, isiteroko ngasinye sibe umugqa, indilinga, umnsalo, unxantathu noma iphola-layini ehlanzekile lapho uphakamisa khona ipeni, ibanjwe kulokho okusele kudwetshiwe, nosayizi walo ulungele ukuthayipha phezu kwawo.
+keywords: isikethi, ipeni, stylus, ngesandla, umunwe, hlanza, chanekile, bamba, SKETCHLIVE, SKETCHFIX, usayizi, thayipha phezu, ingcindezi, ubukhulu bomugqa, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Qala {{cmd:SKETCHLIVE}} (noma khetha **Dweba › Okuningi › Dweba ngepeni**) bese udweba umugqa ngokucindezela nokuhudula. Uma uphakamisa ipeni, i-CadCraft iyafunda okwakusho ukuthi ufuna futhi ikubeke emdwebeni:
+Qala {{cmd:SKETCHLIVE}} (noma khetha **Dweba › Okuningi › Sketch with a pen**) bese udweba isiteroko ngokucindezela nokudonsa. Uma uphakamisa ipeni, i-CadCraft ifunda ebekwe yikho bese iyifaka emdwebeni:
 
-| Umugqa wakho | Okuthola |
+| Isiteroko sakho | Okuzokutholakalela |
 |---|---|
-| Cishe ulunga | Umugqa. Umugqa osecishe ulingene noma ume ngqo wenziwa ulingane noma ume ngqo ngokuphelele. |
-| Uvaliwe futhi uzungezile | Indilinga |
-| Ingxenye yesimo esizungezile | Umnsalo |
-| Uvalwe ngamakhona amane alungile | Unxande |
-| Noma yini enye | Iphola-layini enamacala asikwele |
+| Cishe siqondile | Umugqa. Umugqa osondele kakhulu ukuba nqo noma ethe thaca wenziwa kuqondile ngempela. |
+| Ivaliwe futhi ijikijela | Indilinga |
+| Ingxenye yesimo esijikijelayo | Umnsalo |
+| Ivaliwe namakhona amane aqondile | Unxantathu |
+| Okunye ngakunye | Iphola-layini enemiphetho eyisikwele |
 
-Izinhlangothi zomugqa zidonsela ekugcineni okusondele kakhulu kokudwetshwe ngaphambili, ngakho udonga olwenziwe ngepeni luhlangana nodonga oluseduze.
+Imiphetho yesiteroko iyadonselwa esiphethweni esiseduze kakhulu kulokho okusele kudwetshiwe, ngakho udonga oluskethiwe luhlangana nodonga oluseduze.
 
 ## Thayipha phezu kosayizi
 
-Ngemva komugqa ngamunye umugqa womyalo ubonisa usayizi wawo (**ubude** bomugqa, **umsakazo** wendilinga noma womnsalo, **ububanzi** bonxande) njengesilinganiso esizenzakalelayo. Cindezela {{key:Enter}} ukuze uyigcine, noma uthayipha inani noma ubude njengo `12'6"` ukuze uyishintshe. Umugqa ugcina ukuqala kwawo kokuqala, indilinga igcina isikhungo sayo, nonxande ugcina ikhona lawo lokuqala.
+Ngemva kwesiteroko ngasinye umugqa womyalo ubonisa usayizi wayo (**ubude** bomugqa, **iradiyasi** yendilinga noma yomnsalo, **ububanzi** bonxantathu) njengokuzenzakalelayo. Cindezela {{key:Enter}} ukuze uyigcine, noma bhala inombolo noma ubude njengo `12'6"` ukuze uyishintshe. Umugqa ugcina isiphetho sawo sokuqala, indilinga igcina isikhungo sayo, unxantathu ugcina ikhona lawo lokuqala.
 
-Cindezela {{key:Enter}} endaweni yomyalo engenalutho ukuze uqede, noma uthayipha `U` ukuze uhlehlise umugqa wokugcina. Yonke iseshini iyisinyathelo esisodwa sokuhlehlisa.
+Cindezela {{key:Enter}} ku-prompt engenalutho ukuze uphele, noma bhala `U` ukuze ubuyisele isiteroko sokugcina. Sonke isikhathi silungu isinyathelo esisodwa sokuhlehlisa.
 
-## Ukuhlanza imigqa eminingi ngesikhathi esisodwa
+## Ukuhlanza izisiteroko ezimbalwa ngesikhathi esisodwa
 
-{{cmd:SKETCHFIX}} iqoqa imigqa bese iyenza yonke ibe nembile lapho ucindezela {{key:Enter}}, okulungele ukulungiswa kwesakhiwo okudwetshwe ngokushesha.
+I-{{cmd:SKETCHFIX}} iqoqa izisiteroko futhi izenza zonke zichanekile lapho ucindezela {{key:Enter}}, okufanele ukuhlelwa okuluhlaza okudwetshwe ngokushesha.
 
 :::note
-Konke kubalwa ekhompyutheni yakho ngemithetho, ngaphandle kwemodeli, futhi akukho okuthunyelwa noma kuphi.
+Konke kuqinisekiswa kukhompiyutha yakho ngemithetho, ngaphandle kwemodeli futhi akukho okuthunyelwa noma kuphi.
 :::
+
+## Ingcindezi ihlela ubukhulu bomugqa
+
+Lapho ipeni livulelwe izinhlelo (Izilungiselelo › Jikelele › Amadivayisi okufaka › Ipeni), isiteroko esidwetshwe ngepeni sithwala wonke amaphoyinti ipeni alinike nengcindezi yalo. Isiteroko esiyisisindo esincane senza into encane, nesiqinile senza into enzima: ingcindezi yesilinganiso sesiteroko ikhetha u-0.18, 0.25, 0.35 noma 0.50 mm, futhi umugqa womyalo uyasho ukuthi yiliphi. Izisiteroko ezidwetshwe ngemouse noma ngomunwe zithatha ubukhulu bomugqa wamanje njengakuqala. I-{{cmd:PENPRESSURE}} iyakucima (noma iyakuvula kabusha); ukukhetha kugcinwa kule browser.

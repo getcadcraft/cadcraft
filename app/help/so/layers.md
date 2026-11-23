@@ -1,118 +1,120 @@
 ---
-title: Naqshad u habee lakabyo
-summary: Samee lakabyo derbiyada, albaabyada iyo qoraallada, deji midabyada, ka dhig lakab hadda jira, oo dami, qabow, quful saar, ama ka dhig in aan lagu daabicin.
-keywords: lakab, lakabyo, la, lakabka hadda jira, qabow, dhalaali, quful, dami, shid, daabac, ma daabacayo, midab, sifooyinka lakabka, layiso, layuniso, kali, layoff, layfrz, laymcur, layon, laythw, dib u magacow, laymrg, isku dar, laydel, tirtir lakab
-from: cd033591
+title: Abaabul naqshad lakabyo ah
+summary: Samee lakabyo darbiyada, albaabbada iyo qoraallada, dheji midabyo, ka dhig lakab hadda jira, oo demi, qabo, quful dhig, ama ka celi daabacaadda.
+keywords: lakab, lakabyada, la, lakabka hadda, qabo, furo, barafka, quful, damin, daabac, ma daabacdo, midab, sifooyinka lakabka, layiso, layuniso, kala saar, layoff, layfrz, laymcur, layon, laythw, magac kale, laymrg, isku dar, laydel, tirtir lakab
+from: ba9f0617
 ---
 
 ## Waxa aad samayn doontid
 
-Saddex lakab, Derbiyo, Albaabyo iyo Qoraalo, mid kasta midabkiisa, oo leh objects lagu sawiray mid kasta oo loo wareejiyay midka kale.
+Saddex lakab, Walls, Doors iyo Notes, mid walba midabkiisa, walxo lagu sawiray mid walba, oo iska dhexdhexaad la wareejiyay.
 
-## Panelka Lakabyada
+## Panelka lakabyada
 
-Lakabyadu waxay ku jiraan panelka bidix, hoosta {{ui:Layers}}. Safka kasta wuxuu muujiyaa, midig ilaa bidix:
+Lakabyadu waxay ku nool yihiin panelka bidix, hoosta {{ui:Lakabyada}}. Safka kasta wuxuu muujiyaa, bidix ilaa midig:
 
-- dhibic: buuxa waa lakabka **hadda jira**, halkaas oo objects cusub tagaan;
-- midab-muujiye;
+- dhibic: oo buuxan lakabka **hadda jira**, halkaas walxaha cusub ay tagaan;
+- muunad midab;
 - magaca lakabka;
-- afar badhan: shid/dami (indhi), qabow (barafka), quful (qufulka) iyo daabac (printer).
+- afar badhanka: furo/damin (indho), qabo (barafka), quful (qufulka) iyo daabac (daabacaha).
 
-Naqshad kasta waxay leedahay lakab la yiraahdo `0`. Ku qor `LA` oo riix {{key:Enter}} si aad u gudubto panelka.
+Naqshad kasta waxa ku jira lakab la yiraahdo `0`. Ku qorista `LA` oo riixida {{key:Enter}} wuxuu gaaraa panelka.
 
 ## Samee lakabyo
 
-1. Guji {{ui:New layer}} korka liiska. Sanduuq magac ah ayaa furmaa.
-2. Ku qor `Derbiyo` oo riix {{key:Enter}} (ama guji {{ui:Add}}).
+1. Riix {{ui:Lakab cusub}} liiska kor ka. Sanduuqa magaca ayaa furma.
+2. Ku qor `Walls` oo riix {{key:Enter}} (ama riix {{ui:Ku dar}}).
 
-Xaaladda status bar-ka wuxuu leeyahay "Lakab Derbiyo ayaa lagu daray, waana hadda jira." Lakabka cusub wuxuu helayaa midab 7 (madow qaabka iftiinka, cad qaabka mugdiga).
+Safka xaaladdu wuxuu leeyahay "Lakabka Walls waa lagu daray oo hadda waa uu jiraa." Lakabka cusub wuxuu helaa midabka 7 (madow mawduuca iftiinka, cad mawduuca mugdiga).
 
-3. Guji {{ui:New layer}} mar kale, ku qor `Albaabyo` oo riix {{key:Enter}}.
-4. Guji {{ui:New layer}} mar kale, ku qor `Qoraalo` oo riix {{key:Enter}}.
+3. Mar kale riix {{ui:Lakab cusub}}, ku qor `Doors` oo riix {{key:Enter}}.
+4. Mar kale riix {{ui:Lakab cusub}}, ku qor `Notes` oo riix {{key:Enter}}.
 
-Hadda Qoraalo waa lakabka hadda jira.
+Notes hadda waa kan jira.
 
-## Midab u dhig lakab kasta
+## Siin lakab kasta midab
 
-1. Guji midab-muujiyaha safka Derbiyo. Dooraha midabka nidaamkaaga ayaa furmaa.
+1. Riix muunadda midabka safka Walls. Doorashada midabka nidaamkaaga ayaa furma.
 2. Dooro midab oo xaqiiji.
 
-Midab-muujiyaha iyo wax kasta oo Derbiyo ku jira oo midabkoodu yahay {{ui:By layer}} ayaa is beddelaya.
+Muunadda iyo wax kasta oo Walls ku jira oo midabkiisu yahay {{ui:Sida lakabka}} way beddelmaan.
 
 :::note
-Midab la doortay oo la mid ah mid ka mid ah 255 midabka caadiga ah ee CAD waxaa lagu kaydiyaa lambarkaas. Midab kasta oo kale CadCraft wuxuu si sax ah ugu hayaa, laakiin faylka DWG ama DXF waxaa lagu kaydiyaa midabka caadiga ah ee ugu dhow.
+Midab la doortay oo u eka mid ka mid ah 255 midabka CAD ee caadiga ah waxa lagu kaydiyaa lambarkaas. Midab kasta oo kale CadCraft wuu si sax ah u hayaa, laakiin DWG ama DXF waxa lagu kaydiyaa midabka caadiga ah ee ugu dhow.
 :::
 
-## Sawir lakab dhexdiisa
+## Sawir lakab gudihiisa
 
-1. Guji magaca **Derbiyo** liiska. Dhibicdiisu way buuxaysaa, xaaladduna waxay tiraysaa "Lakabka hadda jira: Derbiyo".
-2. Sawir afar-geesle (`REC`). Waxay tagaysaa Derbiyo.
-3. Guji **Albaabyo**, oo sawir qaws (`A`). Waxay tagaysaa Albaabyo.
+1. Riix magaca **Walls** liiska. Dhibcihiisa wuu buuxmaa, safka xaaladduna wuxuu leeyahay "Lakabka hadda: Walls".
+2. Sawir afar-geesle (`REC`). Waxay tagaysaa Walls.
+3. Riix **Doors**, oo sawir qaansho (`A`). Waxay tagaysaa Doors.
 
-Waxaad sidoo kale lakabka hadda jira ku dooran kartaa {{ui:Dejinta hadda jirta}} midig (wax la dooran maayo), hoosta {{ui:Layer}}.
+Waxa kale oo aad lakabka hadda jira ku dooran kartaa {{ui:Dejinta hadda jirta}} midig (wax la doorán mid aan jirin), hoosta {{ui:Lakab}}.
 
-## Objects u guuri lakab kale
+## U wareeji walxaha lakab kale
 
-1. Dooro objects-ka.
-2. Panelka midig, dooro lakabka cusub ee {{ui:Layer}}.
+1. Dooro walxaha.
+2. Panelka midig, dooro lakabka cusub {{ui:Lakab}}.
 
-Waxay u guuraan lakabkaas, oo qaataan midabkiisa haddii midabkoodu yahay {{ui:By layer}}.
+Waxay u wareegaan lakabkaas, oo waxay qaadanayaan midabkiisa haddii midabkoodu yahay {{ui:Sida lakabka}}.
 
-## Dami, qabow, quful iyo daabac
+## Damin, qabo, quful iyo daabac
 
-| Badhanka | Waxa uu sameeyaa |
+| Badhanka | Waxa uu sameeyo |
 |---|---|
-| Shid/dami (indhi) | Wuxuu qariyaa objects-ka lakabka. Lama arki karo, lama dooran karo, lamana xidhi karo. |
-| Qabow (barafka) | Wuxuu CadCraft-ka ku sameeyaa sida dami oo kale. Waa la kala saaray sababtoo ah barnaamijyada kale si kala duwan ayey u maamulaan, dejintuna waa la kaydiyaa. |
-| Quful (qufulka) | Objects-ku way muuqdaan oo waad xidhi kartaa, laakiin lama dooran karo ama lama beddeli karo. Waxtar u leh background aad ku raacayso. |
-| Daabac (printer) | Markii la riixo, lakabka shaashadda waa lagu muujiyaa laakiin **waa laga saaray daabacyada** iyo PDF-yada. Waxaa loo isticmaalaa khadadka dhismaha iyo qoraallada aad naftaada u qorayso. |
+| Furo/damin (indho) | Wuxuu qariyaa walxaha lakabka. Looma arki karo, looma dooran karo, ama looma xidhi karo. |
+| Qabo (barafka) | Saamaynta isku mid ah ee damin CadCraft-ka. Waa la kala saaray sababta barnaamijyada kale si kala duwan ayay u dhaqmaan, dejintuna waa la kaydiyaa. |
+| Quful (qufulka) | Walxuhu way muuqdaan oo waad ku xidhi kartaa, laakiin looma dooran karo ama looma beddeli karo. Waa fiican tahay dhabarka aad ku raacayso. |
+| Daabac (daabacaha) | Marka la riixo, lakabku wuu muuqdaa shaashadda laakiin **waa laga reebaa daabacaadda** iyo PDF-yada. Isticmaal xariiqyada dhismaha iyo qoraallada aad isaga qortid. |
 
-Ku dhaji badhanka si aad u aragto waxa uu samayn doono ("Dami", "Qabow", "Quful", "Ha daabicin lakabkan").
+Badhan kasta ku dhufo si aad u aragto waxa uu sameyn doono ("Demi", "Qabo", "Quful", "Ha daabicin lakabkan").
 
-Lakabka hadda jira looma dami karo: xaaladda status bar-ka wuxuu leeyahay "Taasi waa lakabka hadda jira. Marka hore lakab kale hadda jira ka dhig." Guji magaca lakab si uu hadda jiro, wuxuu sidoo kale shidaa oo dhalaalaa.
+Lakabka hadda jira ma demin karto: safka xaaladdu wuxuu leeyahay "Waa lakabka hadda jira. Marka hore lakab kale ka dhig mid hadda jira." Magaca lakab riixidda si aad hadda uu jiro, waxa kale oo uu shidaa oo uu barafka ka sii furaa.
 
-Isbeddel kasta oo lakabka ah, panelka ama amar ahaan, waa hal tallaabo oo dib-u-celin ah: {{key:Mod+Z}} wuu dib u celiyaa.
+Beddel kasta oo lakab ah, panelka ama amar, waa hal tallaabo oo dib loo celin karo: {{key:Mod+Z}} wuu dib u celiyaa.
 
-## Ka shaqeyn lakabyada adigoo objects dooranaya
+## Ka shaqee lakabyada adoo walxo dooranaya
 
-Uma baahnid inaad ogaato magaca lakab: dooro shay ku jira. Ku qor amarka, ama fur {{ui:Tools}} sare panelka {{ui:Layers}}.
+Ma u baahnid inaad ogaatid magaca lakab: dooro walax ku jira. Ku qor amarka, ama fur {{ui:Qalabka}} kor ka panelka {{ui:Lakabyada}}.
 
-| Amarka | Waxa uu sameeyaa |
+| Amarka | Waxa uu sameeyo |
 |---|---|
-| {{cmd:LAYISO}} | Dooro objects, riix {{key:Enter}}: kaliya lakabyadooda ayaa shidan, lakabyada kale oo dhan waa la damiyay. Haddii lakabka hadda jira la damiyay, mid ka mid ah lakabyada la kaliyeeyay ayaa hadda jira noqda. |
-| {{cmd:LAYUNISO}} | Wuxuu dib u shidayaa lakabyada uu damiyay {{cmd:LAYISO}} ugu dambeeyay, wuxuuna dib u celinayaa lakabka hadda jira ee uu beddelay. |
-| {{cmd:LAYOFF}} | Guji objects mid mid ka dib: lakab kasta oo shay kasta ku jiro wuu damaa. Ku qor `U` si aad u qaadato midka ugu dambeeyay, {{key:Enter}} si aad u dhamaysato. |
-| {{cmd:LAYFRZ}} | Isku mid, laakiin lakabyada wuxuu qabowsiinayaa. |
-| {{cmd:LAYMCUR}} | Guji shay: lakabkiisa wuxuu noqonayaa mid hadda jira (oo wuu shidmaa oo dhalaalaa). Haddii shay hore loo doortay, tan ayaa la isticmaalaa. |
-| {{cmd:LAYON}} | Wuxuu shidayaa dhammaan lakabyada. |
-| {{cmd:LAYTHW}} | Wuxuu dhalaalinayaa dhammaan lakabyada. |
+| {{cmd:LAYISO}} | Dooro walxaha, riix {{key:Enter}}: lakabyadoodu kaliya way hadhaan, lakab kasta oo kale waa la demiyaa. Haddii lakabka hadda jira la demiyo, mid ka mid ah lakabyada la kala saaray ayaa hadda jira noqda. |
+| {{cmd:LAYUNISO}} | Mar kale wuxuu furaa lakabyada {{cmd:LAYISO}} ugu dambeeyay demay, wuxuuna dib u siiyaa lakabka hadda jira ee uu beddelay. |
+| {{cmd:LAYOFF}} | Riix walxo midkiiba dabadiisa: lakab kasta oo ka mid ah wuu demaa. Ku qor `U` si aad ugu dambeeyay dib u qaadato, {{key:Enter}} si aad u dhamaysato. |
+| {{cmd:LAYFRZ}} | Isku mid, iyada oo lakab kasta qabanaysa. |
+| {{cmd:LAYMCUR}} | Riix walax: lakabkiisu wuu hadda jiraa (oo waa la furaa, barafkana waa laga furaa). Haddii hal walax horay loo doortay, waa kaas la isticmaalaa. |
+| {{cmd:LAYON}} | Wuxuu furaa lakab kasta. |
+| {{cmd:LAYTHW}} | Wuxuu barafka ka furaa lakab kasta. |
 
-Lakabka hadda jira habkan looma damin ama looma qabowsiin: taariikhdu way sheegtaa, waxaadna lakab kale hadda jira ka dhigi kartaa {{cmd:LAYMCUR}} ka hor. Dooridda block reference waxay isticmaashaa lakabka reference-ka laftiisa.
+Lakabka hadda jira marna habkan lama demo ama lama qabo: taariikhdu waa sheegtaa, waxaad marka hore lakab kale ka dhigi kartaa hadda jira {{cmd:LAYMCUR}} adoo isticmaalaya. Dooritaanka tixraac bloog wuxuu isticmaalaa lakabka tixraaca laftiisa.
 
-## Dib u magacow, isku dar iyo tirtir lakabyo
+## Magac kale, isku dar, tirtir lakabyada
 
-- {{cmd:RENAME}}: ku qor `LA`, magaca hore iyo kan cusub. Objects kasta oo lakabka ku jira ayaa raacaya. (`B` wuxuu dib u magacaabaa block-ka si la mid ah, iyo dhammaan reference-kiisa.)
-- {{cmd:LAYMRG}}: guji shay lakab kasta oo la isku darayo (ama ku qor `N` iyo magac), riix {{key:Enter}}, kadibna dooro lakabka bartilmaameedka ah oo ku jawaab `Y`. Objects-ka waxay u guuraan bartilmaameedka — moodeelka, xaashiyada iyo gudaha blocks-ka — lakabyada la isku daray ayaa baxa.
-- {{cmd:LAYDEL}}: dooro shay lakabka ku jira (ama `N` iyo magiciisa) oo ku jawaab `Y`. Lakabku wuxuu baxaa **oo dhammaan objects-ka ku jira**, meel kasta. Lakabka 0, DEFPOINTS iyo lakabka hadda jira looma tirtiri karo.
+- {{cmd:RENAME}}: ku qor `LA`, magaca hore iyo kan cusub. Walax kasta oo lakabka ku jira ayaa raacda. (`B` wuxuu bloog u magac-beddelaa si la mid ah, iyo tixraac kasta oo ku saabsan.)
+- {{cmd:LAYMRG}}: riix walax lakab kasta si aad isku darto (ama ku qor `N` iyo magac), riix {{key:Enter}}, kadibna dooro lakabka bartilmaameedka ah oo ka jawaab `Y`. Walaxda waxay u wareegaan bartilmaameedka — moodeelka, xaashiyada iyo gudaha bloogyada — lakabyada la isku daray way baabbi'aan.
+- {{cmd:LAYDEL}}: dooro walax lakabka ku jira (ama `N` iyo magiciisa) oo ka jawaab `Y`. Lakabku wuxuu baabbi'aa **iyo walax kasta oo ku jira**, meel walba. Lakabka 0, DEFPOINTS iyo lakabka hadda jira ma tirtiri karo.
 
-Mid kasta waa hal tallaabo oo dib-u-celin ah. Saddexdaba waxay ku jiraan {{ui:Tools}} sare panelka {{ui:Layers}}.
+Mid kasta waa hal tallaabo oo dib loo celin karo. Saddexdaba waxay ku jiraan {{ui:Qalabka}} kor ka panelka {{ui:Lakabyada}}.
 
-1. Guji hal xariiq derbi, kadibna ku qor `LAYISO` oo riix {{key:Enter}}. Kaliya Derbiyo ayaa shidan.
-2. Sawir ama beddel waxa aad u baahan tahay Derbiyo.
-3. Ku qor `LAYUNISO` oo riix {{key:Enter}}. Albaabyo iyo Qoraalo way soo noqonayaan.
+1. Riix hal xariiq darbi, kadibna ku qor `LAYISO` oo riix {{key:Enter}}. Walls kaliya ayaa ka hadhaya furan.
+2. Sawir ama beddel waxa aad u baahan tahay Walls.
+3. Ku qor `LAYUNISO` oo riix {{key:Enter}}. Doors iyo Notes way soo noqdaan.
 
 ## Khaladaadka caadiga ah
 
-- **Khadadka cusub lakab qaldan ayay ku dhacen.** Hubi dhibicda buuxa ka hor inta aadan sawirin. Lakab cusub wuxuu noqdaa hadda jira isla markii aad ku darto.
-- **Shay ma doorto.** Lakabkiisa waa qufulan, damay ama qabowsan.
-- **Lakabku wali ayuu ku daabacmaa barnaamij kale.** DXF R12 ma kaydin karo "ha daabicin". CadCraft wuxuu dejintaas u kaydiyaa naftiisa marka naqshaddu leedahay xaashi, laakiin barnaamijyada kale ayay lakabkaas daabici doonaan.
-- **Magacyada lakabyada xarfo waaweyn ka dib markii la kaydiyo.** DXF R12 magacyada wuxuu kaydiyaa xarfo waaweyn, sidaas darteed `Derbiyo` wuxuu soo noqonayaa `DERBIYO`, booska wuxuu noqdaa `_`. DWG la kaydiyay wuxuu ilaaliyaa magacyada sida aad qortay.
-- **Dib u magacaabid, isku dar ama tirtir lakab.** Isticmaal {{cmd:RENAME}}, {{cmd:LAYMRG}} ama {{cmd:LAYDEL}} (waxay sidoo kale ku jiraan {{ui:Tools}}): eeg hoos.
+- **Xariiqyada cusub lakab qaldan ayay tageen.** Ka hor intaadan sawirin, hubi dhibicda buuxan. Lakab cusub wuxuu noqdaa hadda jira marka aad ku darto.
+- **Walax ma dooran karto.** Lakabkiisu waa qufulan yahay, demay, ama qabanaya.
+- **Lakabku weli barnaamij kale ayuu ku daabacmaa.** DXF R12 ma kaydin karo "ha daabicin". CadCraft dejintaas isaga ayuu hayaa marka naqshaddu xaashi leedahay, laakiin barnaamijyada kale lakabkaas way daabici doonaan.
+- **Magacyada lakabyada xarfo waaweyn ayay ku noqdaan kaydinta kadib.** DXF R12 magacyada xarfo waaweyn ayuu ku kaydiyaa, sidaas darteed `Walls` wuxuu noqdaa `WALLS`, goosyada waxay noqdaan `_`. DWG la kaydiyay wuxuu magacyada u haynayaa sida aad ku qortay.
+- **Magac kale, isku dar ama tirtir lakab.** Isticmaal {{cmd:RENAME}}, {{cmd:LAYMRG}} ama {{cmd:LAYDEL}} (sidoo kale {{ui:Qalabka}} ku jira): eeg hoos.
 
-## Kooxee lakabyada
+## Ku kooxee lakabyada
 
-Liiska gaaban ka dhig adigoo lakabyada ku dhigaya folder-yo, sida Jira, La soo jeediyay iyo Adeegyada. Folder kasta wuu kala baxaa, badhamadiisa wuxuu shidaa ama damiyaa dhammaan lakabyadiisa, wuxuuna qabowsiiyaa ama qufulaa wada. Lakabka hadda jira looma damin karo.
+Liiska gaaban ku hay adoo lakabyada ku dhigaysa galalka, sida Existing, Proposed iyo Services. Gal kasta wuu dhacaa, badhamadiisuna waxay furaan ama demaan dhammaan lakabyadiisa, qabtaan ama qufulaan wada. Lakabka hadda jira marna lama demo.
 
-Ku {{ui:Tools}} panelka Layers, dooro {{ui:Add ready-made groups}} oo ah koox loo diyaariyey shuqullada guryaha yaryar, {{ui:Group by name}} si aad u kooxeysid lakabyada leh horgal (`E-Walls`, `E-Doors`), ama {{ui:New group}}. Lakab ku jiid folder, ama isticmaal liiska kor ku yaal lakabka hadda jira. Ku qor {{ui:Find a layer}} si aad u yareysid liiska. `LAYGROUP` (`LG`) wuxuu isla sidaas ku sameeyaa amarka.
+Gudaha {{ui:Qalabka}} ee panelka Lakabyada, dooro {{ui:Ku dar kooxo diyaar ah}} oo ah kooxda loo sameeyay shaqada guriyada yaryar, {{ui:Koox magac ku saabsan}} si aad u kooxeeyso lakabyada leh horgal isku mid ah (`E-Walls`, `E-Doors`), ama {{ui:Koox cusub}}. Jiid lakab galka dusheeda, ama isticmaal liiska kor ka lakabyada ee lakabka hadda jira. Ku qor {{ui:Lakab raadi}} si aad liiska u yareyso. `LAYGROUP` (`LG`) isla waxa uu sameeyaa sadarka amarka.
 
-Lakabyada laftoodu ma isbedelaan, sidaas darteed barnaamijyada CAD kale waxay arkaan liis caadi ah oo fidsan. CadCraft wuxuu kooxaha ku kaydiyaa faylka.
+Si aad u magac-beddesho koox, riix laba jeer magiciisa (ama dooro oo riix {{key:F2}}), ku qor magaca cusub oo riix {{key:Enter}}; {{key:Esc}} wuxuu hayaa kii hore, {{cmd:UNDO}} wuu dib u celiyaa. {{ui:Koox cusub}} waxa uu ku jiraa {{ui:Qalabka}} panelka Lakabyada.
+
+Lakabyadu laftoodu ma beddelmaan, sidaas darteed barnaamijyada CAD kale waxay u arkaan liis caadi ah oo fidsan. CadCraft kooxaha faylka ayuu ku hayaa.

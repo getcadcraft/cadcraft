@@ -1,82 +1,93 @@
 ---
-title: Muro 2D-kuéra: formas, cortes, desfases ha bloqueos
-summary: Dibujá muro rectángulo, polígono ha arco, cortalos ha ojoajúta, movelos peteĩ dimensión rupi, ha bloqueá peteĩ muro ambue muro térã línea de cuadrícula-pe. Mba'e herramienta ko'ã BimCraft muro-kuérape.
-keywords: muro, barra de muros, botones de muros, WALLRECT, WALLROT, WALLPOLY, WALLARC, WALLTAN, WALLPICK, WALLTRACE, WALLSPLIT, WALLSPLITGAP, WALLDISJOIN, WALLJOINSTYLE, estilo de unión, inglete, a tope, en escuadra, candado, agarre, arrastrar extremo, girar, WALLDELSEG, WALLREJOIN, WALLDIM, WALLOFFSET, WALLSTRETCH, WALLHOLD, WALLHOLDDIM, WALLGRID, WALLUNHOLD, WALLHOLDS, WALLJOINS, unión, no permitir unión, bloqueo, línea de cuadrícula, dividir, separación, desfase, línea de ubicación
-from: f41e7433
+title: Formas de muro, cortes, desfases y bloqueos para muros 2D
+summary: Dibujá muros como rectángulos, polígonos y arcos, cortalos y volvelos a unir, movelos por una cota y bloqueá un muro a otro o a una línea de cuadrícula. Las mismas herramientas que los muros de BimCraft.
+keywords: muro, barra de muros, botones de muro, WALLRECT, WALLROT, WALLPOLY, WALLARC, WALLTAN, WALLPICK, WALLTRACE, WALLSPLIT, WALLSPLITGAP, WALLDISJOIN, WALLJOINSTYLE, estilo de unión, inglete, a tope, en escuadra, candado, grip, arrastrar extremo, girar, WALLDELSEG, WALLREJOIN, WALLDIM, WALLOFFSET, WALLSTRETCH, WALLHOLD, WALLHOLDDIM, WALLGRID, WALLUNHOLD, WALLHOLDS, WALLJOINS, unión, no permitir unión, bloqueo, línea de cuadrícula, corte, espacio, desfase, línea de ubicación
+from: 49044181
 ---
 
-Ko'ã herramienta ombaapo muro 2D-kuérape `WALL`-gui (ehecha "Dibujá muro inteligentes, puerta ha ventana 2D-pe"). Ojeporu regla mba'e ha BimCraft muro herramienta-kuéra, upévare muro ojapo ijeheguáicha ha'e app-kuéra-pe.
+Estas herramientas trabajan con los muros 2D de `WALL` (ver "Dibujar muros, puertas y ventanas inteligentes en 2D"). Usan las mismas reglas que las herramientas de muro de BimCraft, así un muro se comporta igual en ambas.
 
-## Herramienta-kuéra oĩha
+## Dónde están las herramientas
 
-- Barra de herramientas-pe, {{ui:Muros}} grupo-pe oĩ {{ui:Muro}}, {{ui:Rectángulo}}, {{ui:Dividir}} ha {{ui:Desfase}}. Ijeporúvo {{ui:Más}} menú-pe oĩ opa ambue muro herramienta, peteĩteĩ ícono ndive.
-- Ribbon menú estilo-pe, {{ui:Muros}} pestaña-pe oĩ panel-kuéra {{ui:Dibujar muros}}, {{ui:Cortar}}, {{ui:Fijar y modificar}}, {{ui:Mantener}} ha {{ui:Unir}}.
-- Layout-pe, herramienta fila ha caja de herramientas ohechauka {{ui:Muros}} grupo ko'ẽ.
-- Ikatu avei escribí peteĩ comando ko'ape ojehechaukáva.
+- En la barra de herramientas, el grupo {{ui:Muros}} tiene {{ui:Muro}}, {{ui:Rectángulo}}, {{ui:Dividir}} y {{ui:Desfase}}. Su menú {{ui:Más}} contiene todas las otras herramientas de muro, cada una con su ícono.
+- En los estilos de menú cinta, la pestaña {{ui:Muros}} tiene los paneles {{ui:Dibujar muros}}, {{ui:Cortar}}, {{ui:Fijar y modificar}}, {{ui:Mantener}} y {{ui:Unión}}.
+- En un diseño, las filas de herramientas y la caja de herramientas muestran el mismo grupo {{ui:Muros}}.
+- También podés escribir cualquier comando nombrado abajo.
 
-## Uniones oñeguardáva
+## Las uniones se guardan
 
-Muro peteĩ extremo oĩ hag̃ua ambue muro-pe, CadCraft oguardá upe unión ambue muro ndive. Ndokuaái rejúva unión-kuéra ojejuhúva mboyve ha extremo-kuéra oĩva. Upévare:
+Cuando el extremo de un muro cae sobre otro muro, CadCraft guarda esa unión en ambos muros. Ya no la recalcula a partir de dónde están los extremos. Así:
 
-- Muro ojoaplo muro reñemoveva ndive oheka ha oĩ ojoaplo. Iextremo-kuéra oñemboroky ijetu'úva rapykue, ha ndaipóri mba'e oñemoĩ.
-- Peteĩ muro extremo agarre rupi emboguapy, muro ojoaplo upépe avei ijeguata ohechakuaa. Iextremo oñemboroky ijetu'úva rapykue ojoaplo hag̃ua muro emboguapýva-pe, upévare extremo oĩ upe línea-pe, ndaha'éi mborayhu ojehecháva mboyve. Vista ohechauka mokẽ oĩ. Muro ojoaplo emboguapýva-pe ojeguata ijetu'úva rapykue. Extremo emboguapýva ojapo ha'e ipopáva, ha muro ojoaplo upépe oñemoĩ ndive.
-- `ROTATE` muro ojoaplo-pe ojapo upéicha avei: ijeguata-kuéra extremo-kuéra oñemboroky ijetu'úva rapykue muro omboguapýva-pe.
-- Esquina oñemboroky hag̃ua, eskoge muro mokõi oñeñaajha ha emboguapy agarre esquina-pe. Muro mokõi oĩ esquina-pe ha mokõi oñemboguapy. Mboguapy ojoaplo muro ndajambuéi.
-- Ejepyta {{key:Alt}} agarre oĩha pe ojeporúva ojaraha, unión oñembotyky hag̃ua: muro oĩ emoĩva-pe ha ndaipóri mba'e ojeguata.
-- Emboguapy ojoaplo muro-pe iporã rupi ijoavy iporã ryvarã, ndojapói.
-- Muro ndejapova'ekue {{ui:No permitir uniones}} (`D` `WALL`-pe), térã Propiedades-pe apagápe ({{ui:No permitir unión al inicio}}, {{ui:No permitir unión al final}}), ojoaplo ndaipóri extremo-pe, ojoaplo ambue muro ndive jepe, peve ejepe'a peve.
-- `WALLDISJOIN` ({{ui:No permitir unión}} {{ui:Muros}} grupo-pe) ojapo upéicha: eheja muro extremo oĩhágui, unión ndaikatúi; heja jey ha unión oikatu.
-- Plano kuera-pe unión oguardava'ỹ oĩ. Ejapo ha'e mbeguekuaáramo nde ojapo ojepyrũ, CadCraft oheka ha oguardá unión peteĩ jey. `WALLJOINS`-pe ojapo ipahápe.
-- DWG ha DXF archivo-pe unión oĩ muro-pe. CadCraft oñeha'ã oguardavaʼekue. Programa oguardavaʼerã ndaipóri ndojapói muro bloque-kuéra ha unión ojehepyhýi. Ambue programa-pe muro mokõi ojejuhu ha unión ojeheja.
+- Los muros unidos a un muro que movés lo siguen y siguen unidos. Sus extremos se deslizan a lo largo de su propia línea, así nada gira.
+- Arrastrá un extremo de muro con su grip y el muro unido ahí mantiene su dirección. Su extremo se desliza a lo largo de su propia línea para encontrar el muro arrastrado, así el extremo arrastrado cae sobre esa línea, no siempre bajo el cursor. La vista previa muestra dónde. Un muro que choca contra el muro arrastrado sigue a lo largo de su propia línea. Arrastrar el extremo directamente a lo largo del muro cambia su longitud, y el muro unido ahí se mueve con él.
+- `ROTATE` sobre un muro unido funciona igual: los extremos de sus vecinos se deslizan a lo largo de sus propias líneas hasta el muro girado.
+- Para mover una esquina, seleccioná ambos muros que se encuentran ahí y arrastrá el grip de la esquina. Ambos muros quedan en la esquina y ambos giran. Los muros más allá quedan como estaban.
+- Mantené {{key:Alt}} al hacer clic en el nuevo lugar del grip para romper las uniones a propósito: el muro va donde lo ponés y nada lo sigue.
+- Si un arrastre haría girar un muro unido hacia atrás a través de su propio extremo lejano, se rechaza y nada cambia.
+- Un muro dibujado con {{ui:No permitir uniones}} (`D` en `WALL`), o desactivado en Propiedades ({{ui:No permitir unión al inicio}}, {{ui:No permitir unión al final}}), queda libre en ese extremo, aun si toca otro muro, hasta que lo permitas otra vez.
+- `WALLDISJOIN` ({{ui:No permitir unión}} en el grupo {{ui:Muros}}) hace lo mismo con un clic: hacé clic en un muro cerca de un extremo para no permitir uniones ahí, y clic otra vez para permitirlas.
+- Un plano antiguo todavía no tiene uniones guardadas. El primer cambio que hagas las encuentra una vez, a partir de cómo estaban los muros antes del cambio, y las guarda. `WALLJOINS` lo hace de una vez.
+- Archivos DWG y DXF llevan las uniones dentro de cada muro. CadCraft las lee tal como se guardaron. Un programa que no guarda datos extendidos muestra los muros como bloques simples y descarta las uniones; una unión cuyos muros se movieron en otro programa se descarta la próxima vez que cambies cualquiera de los dos.
 
-## Esquina-pe unión estilo
+## Estilo de unión de una esquina
 
-Esquina mokõi muro extremo-extremo oĩha ojapo inglete-kuéra, eskoge ambue estilo ndaikatúi.
+Una esquina donde dos muros se encuentran extremo a extremo se dibuja como inglete, salvo que elijas otro estilo.
 
-- `WALLJOINSTYLE` ({{ui:Estilo de unión}} {{ui:Muros}} grupo-pe): eheja esquina. Peteĩteĩ heja oho próxima estilo-pe: {{ui:Inglete}}, {{ui:A tope}}, {{ui:En escuadra}}, upéi {{ui:Inglete}} jey. Ejapo `T` ha oiko mokõi muro-pe upe ejepyta esquina-pe. {{key:Enter}} ejepyta ha'e oñemboty. Peteĩ comando ojapo peteĩ paso deshacer.
-- {{ui:A tope}}: peteĩ muro oho ambue muro ta'ýrõ peve, ha ambue ojapo ojeitíva ipuku-pe. {{ui:En escuadra}}: upéicha avei, pero muro oho ijeitépe ojapo ramo escuadra. Ángulo recto-pe mokõi oiko ojoavy.
-- Muro Propiedades-pe: {{ui:Estilo de unión al inicio}}, {{ui:Estilo de unión al final}}, ha {{ui:Pasa de largo al inicio}}, {{ui:Pasa de largo al final}}.
-- Estilo oguardá muro mokõi ndive ha oguahẽ DWG ha DXF-pe. Muro copia ndaiporúi.
-- T unión-pe ndaikatúi eskoge estilo: muro ijeitépe ojeheʼẽva oho ta'ýrõ. Esquina muro mbohapy térã heta oñemboheta oĩ inglete. Iñangarekópe ángulo (30 grado mboyve) ha muro mokõi peteĩ línea-pe avei.
+- `WALLJOINSTYLE` ({{ui:Estilo de unión}} en el grupo {{ui:Muros}}): hacé clic en la esquina. Cada clic pasa al siguiente estilo: {{ui:Inglete}}, {{ui:A tope}}, {{ui:En escuadra}}, y luego {{ui:Inglete}} otra vez. Escribí `T` para cambiar cuál de los dos muros pasa por la esquina en la que hiciste clic último. Presioná {{key:Enter}} para terminar. Una ejecución del comando es un paso deshacer.
+- {{ui:A tope}}: un muro pasa hasta la cara lejana del otro, y el otro se detiene contra su lado. {{ui:En escuadra}}: lo mismo, pero el muro que pasa termina en escuadra consigo mismo. En ángulo recto se ven igual.
+- En Propiedades de un muro: {{ui:Estilo de unión al inicio}}, {{ui:Estilo de unión al final}}, y {{ui:Pasa de largo al inicio}}, {{ui:Pasa de largo al final}}.
+- El estilo se guarda con ambos muros y viaja en archivos DWG y DXF. Una copia de un muro empieza sin él.
+- Una unión en T no tiene estilo para elegir: pasa el muro cuyo lado es tocado. Una esquina donde se encuentran tres o más muros queda como inglete. También lo es una esquina muy aguda (menos de unos 30 grados) y dos muros en una misma línea.
 
-## Ojapo muro formas
+## Dibujar formas de muro
 
-Peteĩteĩ ojapo muro peteĩ paso deshacer-pe, esquina-kuéra ojoaplo. `WALL`-pe, `O` omoĩ ojapo desfase (mboy kuaa muro nde eheja-kuéra ita'ýrõ), ha `D` ojapo ojoaplo ndaipóri muro ojapova'ekue ha'e mboyve.
+Cada una crea los muros en un paso deshacer, con las esquinas unidas. En `WALL`, `O` fija un desfase de colocación (cuánto a la izquierda de tus clics va el muro) y `D` desactiva la unión para los muros que dibujes después.
 
-- `WALLRECT` (`WR`): mokõi esquina tapykue, `RECTANG`-icha.
-- `WALLROT`: primer lado, upéi lado ambue mbohapy, rectángulo ángulo oimeraẽva-pe.
-- `WALLPOLY` (`WP`): lados cantidad (3 ha 64 peve), centro, `I` inscripto térã `C` circunscripto, upéi radio, `POLYGON`-icha.
-- `WALLARC` (`WARC`): centro, comienzo, final. `D` arco ambue tape-pe ojapo.
-- `WALLTAN`: eheja muro extremo oĩhágui, upéi arco final, oho upe muro-pe.
-- `WALLPICK`: eheja línea térã polilínea ha ehai oĩhaguéicha ambue línea ojoaplo hag̃ua.
-- `WALLTRACE`: eheja línea ha muro cerrado mbytépe, muro ojapo hag̃ua pe ipuku'ỹvéva ryepy.
+- `WALLRECT` (`WR`): dos esquinas opuestas, como `RECTANG`.
+- `WALLROT`: el primer lado, luego hasta dónde llega el otro lado, para un rectángulo a cualquier ángulo.
+- `WALLPOLY` (`WP`): cantidad de lados (3 a 64), el centro, `I` para inscrito o `C` para circunscrito, luego el radio, como `POLYGON`: hacé clic, o escribilo (un radio escrito va hacia el puntero, o a lo largo de X cuando el puntero sigue en el centro).
+- `WALLARC` (`WARC`): centro, inicio, fin. `D` invierte el sentido del arco.
+- `WALLTAN`: hacé clic cerca del extremo de un muro, luego el extremo del arco, que sale a lo largo de ese muro.
+- `WALLPICK`: hacé clic en una línea o polilínea y decí si tomar también las líneas unidas a ella.
+- `WALLTRACE`: hacé clic dentro de un área cerrada de líneas y muros para poner muros alrededor de la más pequeña.
 
-Plano muro ndaha'éi kurusu, upévare arco ojapo muro michĩ 15 grado-pe. Ojoaplo kuñai esquina icha.
+Los muros de planta son rectos, así que un arco se dibuja como muros rectos cortos de 15 grados cada uno. Se unen como cualquier esquina.
 
-## Muro cortes
+## Cortar muros
 
-- `WALLSPLIT` (`WS`): eheja muro, upéi punto. `C` ojapo oĩhágui ambue muro, `G` omoĩ separación parte-kuéra mbytépe, `F` ojapo extremo corte libre unión ndaipóri. Primer parte oguarda muro lugar, puerta ha ventana ojapo parte ndive. Corte puerta térã ventana ári ndaikatúi.
-- `WALLSPLITGAP` ({{ui:Dividir con separación}}): upe mismo corte, pero separación ojerurevégui primero.
-- `WALLDELSEG`: eheja muro, upéi pieza mokõi extremo heja hag̃ua.
-- `WALLREJOIN`: eheja parte mokõi peteĩ muro-pe, peteĩ jey hag̃ua.
+- `WALLSPLIT` (`WS`): hacé clic en el muro, luego en el punto. `C` corta donde otro muro lo cruza, `G` deja un espacio entre las partes, `F` deja los extremos cortados libres en vez de unidos. La primera parte mantiene el lugar del muro en el plano, y puertas y ventanas van con su parte. Un corte a través de una puerta o ventana se rechaza.
+- `WALLSPLITGAP` ({{ui:Dividir con separación}}): lo mismo que el corte, pero pide primero el espacio.
+- `WALLDELSEG`: hacé clic en el muro, luego en los dos extremos de la pieza a borrar.
+- `WALLREJOIN`: hacé clic en dos partes de un mismo muro para volverlas un solo muro.
 
-## Muro dimensión rupi ojoaplo
+## Mover muros por distancia
 
-- `WALLDIM`: eheja cota lineal térã alineada muro peteĩ-gui ambue-pe, upéi ejapo valor pyahu. Muro tapykue ijeitépe ojoaplo, muro ñepyrũ oñeguerekóva oiko, ha muro ojoaplo ojeguata.
-- `WALLOFFSET` (`WO`): eheja muro, upéi lado ojoaplo hag̃ua (`D` distancia ojapo, `C` copia ojapo).
-- `WALLSTRETCH`: ventana muro extremo-kuéra ári, upéi punto base ha punto mokõiha.
-- Propiedades-pe, {{ui:Longitud}} ojapo ijoapy ojeguerekóva ha muro ojoaplo tapykue ojeguata, ha {{ui:Espesor}} pyahu ojapo ojeguata {{ui:Línea de ubicación}} ojeporu (ñepyrũ ijeitépe, ijeitépe ambue térã medio).
+- `WALLDIM` ({{ui:Editar por cota}}): hacé clic en una cota lineal o alineada que va de un muro a otro, luego escribí el nuevo valor. El muro del extremo lejano se mueve en escuadra consigo mismo, el muro del primer extremo se mantiene, y los muros unidos a él siguen. El punto lejano de la cota se mueve con su muro, así la cota muestra el valor que escribiste.
+- `WALLOFFSET` (`WO`): hacé clic en un muro, luego el lado al que moverlo (`D` escribe una distancia, `C` hace una copia en su lugar).
+- `WALLSTRETCH`: una ventana alrededor de los extremos del muro, luego un punto base y un segundo punto.
+- En Propiedades, una {{ui:Longitud}} escrita mantiene el inicio y arrastra el muro unido en el extremo lejano, y un nuevo {{ui:Espesor}} crece alejándose de la {{ui:Línea de ubicación}} que elegiste (cara izquierda, cara derecha o centro).
 
-## Muro bloqueá
+## Cota entre ejes de muros
 
-Bloqueo oĩ muro archivo-pe. Muro peteĩ bloqueado oñemboguapy, ambue ojeguata. Peteĩ ojapo muro mokõi ojambue ojeháicha, ndaikatúi ndaipóri mba'e ojapo.
+La línea central de un muro no se dibuja, pero el ajuste a objetos la encuentra. Con el ajuste a objetos activo ({{key:F3}}), poné el puntero sobre el medio del espesor de un muro: la marca dice `Wall center: endpoint` o `Wall center: midpoint`, y la línea central se muestra de trazos mientras la marca esté sobre ella. Con {{ui:Perpendicular}} o {{ui:Más cercano}} activados en la lista de ajustes a objetos, esos también funcionan sobre la línea central.
 
-- `WALLHOLD`: muro peteĩ ambue muro-pe bloqueá. `A` ipahápe ambue muro línea-pe oñemoĩ, `K` ojeguerekóva distancia ojeguerekóva.
-- `WALLHOLDDIM`: mokõi muro paralelo mbytépe distancia bloqueá.
-- `WALLGRID`: muro peteĩ cuadrícula línea-pe bloqueá (línea capa cuadrícula-pe, etiqueta texto extremo-pe), línea rupi térã peteĩ extremo línea-pe. Línea-pe bloqueado muro ojeguerekóva distancia mantiene. `GRIDMOVE` rupi cuadrícula línea omboguapy, muro opa ojeguata, ijeguata-kuéra ndive. Cuadrícula línea rupi oĩva muro bloqueo'ỹ jepe opa ojeguata, ha extremo-pe oĩva ha'e extremo rupi ojeguerekóva.
-- `WALLHOLDS` bloqueo-kuéra ohechauka. `WALLUNHOLD` muro-gui bloqueo-kuéra oheja.
-- Peteĩteĩ bloqueo plano-pe candado michĩ ohechauka: muro medio-pe térã extremo-pe cuadrícula línea-pe bloqueado. Eheja candado ojeheja hag̃ua upe bloqueo.
+1. Iniciá `DIMLINEAR` (o `DIMALIGNED`).
+2. Hacé clic en el primer muro donde la marca diga `Wall center: midpoint` o `Wall center: endpoint`.
+3. Hacé clic en el segundo muro de la misma manera, luego hacé clic donde va la línea de cota.
+4. Para cambiar la distancia, iniciá `WALLDIM`, hacé clic en la cota y escribí el nuevo valor. El segundo muro se mueve.
 
-## Mba'e ndaha'éi kóre
+El ajuste a la línea central funciona en todos los comandos que piden un punto.
 
-Bloqueo muro centro línea rupi ojapo. Ko'ã muro ndoguerekói capa, upévare unión-pe prioridad capa ndaipóri, ha muro ndoñemboheta (arco rehe ehecha). Heta plano-pe herramienta-kuéra ndojapói, ha ambue CAD programa ndive ndojehechái.
+## Bloquear muros
+
+Un bloqueo se mantiene con el muro en el archivo. Si movés un muro bloqueado, el otro lo sigue. Si un cambio mueve ambos muros de forma distinta, se rechaza y nada cambia.
+
+- `WALLHOLD`: bloquea un muro a otro muro. `A` lo mueve primero a la línea del otro muro, `K` mantiene la distancia que tiene.
+- `WALLHOLDDIM`: bloquea la distancia entre dos muros paralelos.
+- `WALLGRID`: bloquea un muro a una línea de cuadrícula (una línea en una capa de cuadrícula con su etiqueta en texto en un extremo), ya sea a lo largo o con un extremo sobre ella. Un muro bloqueado a lo largo de la línea mantiene la distancia que tiene desde ella. Movés la línea de cuadrícula con `GRIDMOVE` y el muro la sigue entero, con sus muros unidos. Un muro que está a lo largo de una línea de cuadrícula se mueve entero con ella aun sin bloqueo, y un muro que solo termina en la línea se estira por ese extremo.
+- `WALLHOLDS` lista los bloqueos. `WALLUNHOLD` quita los bloqueos de un muro.
+- Cada bloqueo muestra un pequeño candado en el plano: al lado del medio del muro bloqueado, o al lado del extremo bloqueado a una línea de cuadrícula. Hacé clic en un candado para quitar ese bloqueo.
+
+## Lo que todavía no está
+
+Los bloqueos usan las líneas centrales de los muros. Acá los muros no tienen capas, así que no hay prioridad de capas en una unión, y los muros no se curvan (ver arcos arriba). Nadie probó todavía estas herramientas en un plano grande, y no se verificaron en otro programa CAD.

@@ -1,84 +1,103 @@
 ---
 title: Lisa failist või teegist
-summary: Too plokk või terve joonis sisse teisest DWG- või DXF-failist ning paiguta üksusi teegist, failist või teisest teegist koos nende autoriõiguste ja uuendustega.
-keywords: lisa, fail, teek, librarycraft, üksus, seade, plokk teisest joonisest, wblock, disainikeskus, autorimärkus, litsents, uuendus, voog, item.json
-from: 316188d2
+summary: Too plokk või terve joonis sisse teisest DWG- või DXF-failist ning paiguta esemeid teegist, failist või teisest teegist koos nende autorimärkuste ja uuendustega.
+keywords: lisa, fail, teek, librarycraft, ese, seadmed, plokk teisest joonisest, wblock, disainikeskus, autorid, autorimärkus, litsents, uuendus, voog, item.json
+from: f6e4e452
 ---
 
-## Ploki lisamine teisest joonisest
+## Plokk teisest joonisest sisestamine
 
-1. Trüki `I` ja vajuta {{key:Enter}}, või klõpsa rühmas Blocks nupul {{ui:Insert}}.
-2. Kohas `Enter block name or [File/Library]` trüki `F` ja vajuta {{key:Enter}}.
-3. Vali DWG- või DXF-fail sellel arvutil. Seda loetakse siin; seda ei avata ega laadita üles.
-4. Dialoogis {{ui:Insert from}} vali nimekirjast plokk (otsimiseks trüki väljale {{ui:Filter blocks}}) või jäta {{ui:The whole drawing}}. Klõpsa {{ui:Insert}}.
-5. Klõpsa kohale, kuhu see läheb, ja täida kõik atribuudid, mida ta küsib.
+1. Sisesta `I` ja vajuta {{key:Enter}}, või klõpsa rühmas Blocks (Plokid) nupul {{ui:Insert}} (Lisa).
+2. Akna all olev käsurida küsib `Enter block name or [File/Library]`. Sisesta siis `F` ja vajuta {{key:Enter}}.
+3. Vali DWG või DXF selles arvutis. Seda loetakse siin; seda ei avata ja midagi ei laadita üles.
+4. Dialoogis {{ui:Insert from}} (Lisa failist) vali loendist plokk (sisesta {{ui:Filter blocks}} (Filtreeri plokke) leidmiseks), või jäta {{ui:The whole drawing}} (Kogu joonis). Klõpsa {{ui:Insert}}-l.
+5. Klõpsa kohta, kuhu see läheb, ja täida need atribuudid, mida ta küsib.
 
-Kogu joonis tuleb sisse ühe plokina, mis on nimetatud faili järgi. Ka valitud plokki kuuluvad plokid tulevad kaasa. Nende kasutatavad kihid lisatakse sellele joonisele.
+Võid alustada ka paneelist {{ui:Blocks}}: sisesta selle kastis {{ui:Filter blocks}} `F` ja vajuta {{key:Enter}}, või sisesta midagi, mis ühegi plokiga ei ühti, ja klõpsa {{ui:From a file…}} (Failist…). `L` ja {{ui:Library…}} (Teek…) avavad teegi samamoodi. Enne versiooni 0.10.1 otsis kastis {{ui:Filter blocks}} sisestatud täht ainult selle joonise plokke ja vastas „No block matches the filter.” (Filtrile ei vasta ükski plokk.)
 
-Kui teine joonis on teistes ühikutes (näiteks tollid ja millimeetrid), skaleerib CadCraft viite sobima ja ütleb seda ajaloos.
+Et hoida enda plokkide joonis käepärast, klõpsa paneelis {{ui:Blocks}} jaotises {{ui:Libraries}} (Teegid) nupul {{ui:Add a drawing}} (Lisa joonis) ja vali DWG või DXF. Selle plokid on loetletud piltidega; klõpsa ühel, et see paigutada.
+
+Terve joonis tuleb sisse ühe plokina, mis on nimetatud faili järgi. Tuleb ka plokid, mis on valitud ploki sees. Nende kasutatud kihid lisatakse sellele joonisele.
+
+Kui teine joonis on teistes ühikutes (näiteks tollid ja millimeetrid), skaleerib CadCraft viite vastavaks ja ütleb seda ajaloos.
 
 ### Kui nimi on juba kasutusel
 
 Kui sellel joonisel on juba sama nimega plokk, küsib CadCraft:
 
-- {{ui:Keep existing}} kasutab selle joonise sama nimega plokki.
-- {{ui:Rename}} toob uue sisse nimega `Name (2)`.
+- {{ui:Keep existing}} (Säilita olemasolevad) kasutab selle joonise sama nimega plokki.
+- {{ui:Rename}} (Nimeta ümber) toob uue sisse nimega `Name (2)`.
 
-Kogu lisamine on üks samm: {{key:Mod+Z}} eemaldab viite ja kopeeritud definitsioonid.
+Kogu lisamine on üks samm: {{key:Mod+Z}} eemaldab viite ja kopeeritud definitsioonid uuesti.
 
 ## Teegi avamine
 
-Klõpsa paneelil Blocks nupul {{ui:Library…}}, või rühmas Blocks nupul {{ui:Library}}, või trüki `LIB`. Kohas `INSERT` avab teegi ka `L`.
+Klõpsa paneelis {{ui:Blocks}} nupul {{ui:Library…}} (Teek…), või rühmas Blocks nupul {{ui:Library}} (Teek), või sisesta `LIB`. Küsimuses `INSERT` avab selle ka `L`.
 
-Teegil on neli allikat, mis on vahelehed:
+Teegil on neli allikat, vahelehtedena:
 
-- {{ui:Library}}: CadCraft'i teek. Otsi nime, tootja või mudeli järgi ja filtreeri kategooria järgi.
-- {{ui:Files…}}: üksuse fail (`item.json`) mis tahes teegist või joonis, arvutustabel või 3D-mudel, millest üksusi teha: DWG või DXF (iga plokk saab üksuseks), CSV nime ja mõõtude veergudega või glTF- või OBJ-mudel. Miski ei laadita üles.
-- {{ui:Standard}}: terasprofiilid (lõigetena, vaadetena või 3D-elementidena) ja standardosad nagu poldid, mutrid ja laagrid, tehtud siin avaldatud tabelite järgi. Vt [Terasprofiilide ja standardosade paigutamine](topic:steel-and-standard-parts).
-- {{ui:Other feeds}}: teised teegid, mis vastavad samamoodi nagu Library. Lisa nende aadress üks kord; see brauser jätab selle meelde.
+- {{ui:Library}} (Teek): CadCrafti teek. Otsi nime, tootja või mudeli järgi ja filtreeri kategooria järgi.
+- {{ui:Files…}} (Failid…): eseme fail (`item.json`) mis tahes teegist või joonis, tabelarvutus või 3D-mudel, millest esemeid teha: DWG või DXF (iga plokk muutub eseme), CSV nime- ja suurusveergudega, või glTF- või OBJ-mudel. Midagi ei laadita üles.
+- {{ui:Standard}} (Standardne): terasprofiilid (lõigetena, vaadetena või 3D-elementidena) ja standardosad nagu poldid, mutrid ja laagrid, tehtud siin avaldatud tabelite järgi. Vt [Paiguta terasprofiilid ja standardosad](topic:steel-and-standard-parts).
+- {{ui:Other feeds}} (Muud voogud): teised teegid, mis vastavad samamoodi nagu {{ui:Library}}. Lisa nende aadress üks kord; see brauser mäletab seda.
 
-Iga kaart näitab eelvaadet, nime, tootjat ja mudelit, litsentsi ning versiooni. Tagasi võetud üksus on märgitud {{ui:Withdrawn}} koos põhjusega; enne paigutamist küsib CadCraft kinnitust.
+Iga kaart näitab eelvaadet, nime, tootjat ja mudelit, litsentsi ja versiooni. Tagasi võetud ese on märgitud {{ui:Withdrawn}} (Tagasi võetud) koos põhjusega; CadCraft küsib, enne kui sa selle paigutad.
 
-## Üksuse paigutamine
+## Eseme paigutamine
 
-1. Klõpsa kaardil {{ui:Place}}.
-2. Klõpsa kohale, kuhu üksus läheb. Enne trüki `R`, et seda pöörata, või `S`, et seda skaleerida.
-3. Kohas `Enter Item number (CC-ITEM)` vajuta {{key:Enter}} järgmise vaba numbri jaoks või trüki oma number.
+1. Klõpsa kaardil nupul {{ui:Place}} (Paiguta).
+2. Klõpsa kohta, kuhu ese läheb. Sisesta enne `R`, et seda pöörata, või `S`, et skaleerida.
+3. Küsimuses `Enter Item number (CC-ITEM)` vajuta {{key:Enter}} järgmise vaba numbri jaoks või sisesta oma.
 
-Üksus muutub plokiks nimega `LIB_<name>_v<version>`, joonistatakse selle joonise ühikutes. Kui joonisel ühikuid pole, paigutatakse üksus millimeetrites ja ajalugu ütleb seda; sea enne paremal paneelil {{ui:Units}}.
+Ese muutub plokiks nimega `LIB_<name>_v<version>`, joonistatud selle joonise ühikutes. Kui joonisel ühikuid pole, paigutatakse ese millimeetrites ja ajalugu ütleb seda; määra enne paremal paneelis {{ui:Units}} (Ühikud).
 
-Selle andmed tulevad kaasa nähtamatute atribuutidena: üksuse id ja versioon, litsents ja autorimärkus, tootja, mudel, kategooria ja mõõdud. Vt [Ploki atribuudid](topic:attributes).
+Selle andmed tulevad kaasa nähtamatute atribuutidena: eseme ID ja versioon, litsents ja autorimärkus, tootja, mudel, kategooria ja mõõdud. Vt [Plokkide atribuudid](topic:attributes).
 
-## Üksused sinu keeles
+## Esemed sinu keeles
 
-Üksusel võib olla nimi ja kirjeldus ka teistes keeltes. Kui need on keeles, millele CadCraft on seadistatud (Sätted › Üldine › Keel), kasutavad kaart ja paigutatud ploki üksuse nimi neid. Plokk ise säilitab nime, mis on tehtud üksuse enda nimest, nii et joonisel on iga üksuse kohta üks plokk, olenemata sellest, mis keeles see paigutati.
+Ese võib kanda oma nime ja kirjeldust teistes keeltes. Kui tal on need keeles, millele CadCraft on seatud (Sätted › Üldine › Keel), kasutavad kaart ja paigutatud ploki eseme nimi neid. Plokk ise hoiab nime, mis on tehtud eseme enda nime järgi, nii et joonisel on üks plokk eseme kohta, sõltumata sellest, mis keeles see paigutati.
 
 ## Uuenduste kontrollimine
 
 1. Ava teek.
-2. Klõpsa {{ui:Check for updates}}.
+2. Klõpsa {{ui:Check for updates}} (Otsi uuendusi).
 
-Iga joonise teegiüksus kuvatakse koos oma üksusenumbritega ning sellega, kas see on ajakohane, kas sellel on uuem versioon (ja mis muutus) või kas see on tagasi võetud. Klõpsa real {{ui:Update}} või {{ui:Update all}}. Iga viide liigub uue versiooni plokki ja säilitab oma üksusenumbri, koguse, asukoha, nurga ja kihi. {{key:Mod+Z}} võtab uuenduse tagasi.
+Iga teeki ese joonisel on loetletud oma eseme numbritega ja sellega, kas see on ajakohane, on uuem versioon (ja mis muutus) või on tagasi võetud. Klõpsa real nupul {{ui:Update}} (Uuenda) või {{ui:Update all}} (Uuenda kõiki). Iga viide liigub uue versiooni plokile ja säilitab oma eseme numbri, koguse, koha, nurga ja kihi. {{key:Mod+Z}} tühistab uuenduse.
 
-## Kasutatu tunnustamine
+## Märgi ära, mida kasutasid
 
-Klõpsa {{ui:Library credits}}. Iga üksus on loetletud koos oma autorimärke rea ja litsentsiga.
+Klõpsa {{ui:Library credits}} (Teegi autorid). Iga ese on loetletud oma autorimärkuse rea ja litsentsiga.
 
-- {{ui:Copy attribution}} kopeerib ühe üksuse rea; {{ui:Copy all}} kopeerib kõik read.
-- {{ui:Download CSV}} salvestab loendi koos üksusenumbrite, tootjate, mudelite, litsentside ja autorimärgetega. Selle saab avada mis tahes arvutustabelis.
+- {{ui:Copy attribution}} (Kopeeri autorimärkus) kopeerib ühe eseme rea; {{ui:Copy all}} (Kopeeri kõik) kopeerib kõik read.
+- {{ui:Download CSV}} (Laadi CSV alla) salvestab loendi eseme numbrite, tootjate, mudelite, litsentside ja autorimärkustega. See avaneb ükskõik millises tabelarvutuses.
 
-Litsentsid nagu CC BY nõuavad, et tööd kasutades autorit tunnustad. Pane read joonisele, spetsifikatsiooni või projekti märkmetesse.
+Litsentsid nagu CC BY nõuavad, et märgiksid autori ära, kus teost kasutad. Pane read joonisele, spetsifikatsiooni või projektimärkmetesse.
 
 ## Sümbolid ja varad
 
-Teegis on kolme liiki üksusi: Sümbolid (joonistuskonventsioonid, 2D), Tüübid (millest element koosneb) ja Varad (füüsilised objektid). Vahelehel {{ui:Library}} näitab loend {{ui:Kind of item}} sümbolid ja varad koos, ainult sümbolid või ainult varad. Tüübid on need, millest BimCraft'i projekt koosneb, seega CadCraft neid ei loetle.
+Teegil on kolme liiki esemeid: Sümbolid (joonistamise tähised, 2D), Tüübid (millest element on tehtud) ja Varad (füüsilised objektid). Vahelehel {{ui:Library}} näitab loend {{ui:Kind of item}} (Objekti liik) Sümboleid ja varasid koos, ainult Sümboleid või ainult Varasid. Tüübid on see, millest BimCrafti projekt on ehitatud, nii et CadCraft neid ei loetle.
 
-## Sisselogimine teeki
+## Teeki sisselogimine
 
-Klõpsa {{ui:Sign in to the library}}. Saidil avaneb väike aken; kui oled seal sisse logitud, saab CadCraft näidata sinu meeskonna üksusi ning registreerida, mida paigutad, nii et kuuled, kui kasutatud üksus muutub. Sisselogimine kehtib selle brauseri vahelehe jaoks. Tühista see millal tahes oma konto turvalehel.
+Klõpsa {{ui:Sign in to the library}} (Logi teeki sisse). Saidil avaneb väike aken; kui oled seal sisse loginud, saab CadCraft näidata sinu meeskonna esemeid ja registreerida, mida paigutad, nii et kuuled, kui kasutatud ese muutub. Sisselogimine kestab selle brauseri vahelehe jaoks. Tühista see igal ajal oma konto turvalehelt.
+
+## Hoia oma esemed rubriigis Minu objektid
+
+{{ui:My objects}} (Minu objektid) on privaatne loend teegis, mida näed ainult sina. See ei ole avalikus teegis, ei otsingus ega ei näidata sinu meeskonnale, ja see järgib sinu kontot igas arvutis, kus logid teeki sisse.
+
+1. Teegi paneelis klõpsa {{ui:Files…}} ja loe fail.
+2. Ese, mida tahad uuesti, klõpsa {{ui:Keep in my objects}} (Hoia minu objektides).
+3. Hiljem klõpsa {{ui:My objects}} ja siis {{ui:Place}}. See paigutatakse nagu iga teegi ese, ja {{ui:Check for updates}} katab selle.
+4. {{ui:Remove from my objects}} (Eemalda minu objektidest) eemaldab selle loendist. Joonistesse juba paigutatud koopiad jäävad alles.
+
+Pead olema teeki sisse logitud. Faili lugemine ei lae midagi üles; eseme hoidmine saadab ainult selle ühe eseme sinu kontole.
+
+:::note
+My objects on katsetamisel ja ei pruugi veel sinu kontole avatud olla. Kui seal on „My objects is not open for this account yet” (Minu objektid pole selle konto jaoks veel avatud), saad ikka esemeid paigutada oma failidest, kasutades {{ui:Files…}}.
+:::
 
 ## Levinud vead
 
-- **„IFC-tüüpidest üksuste tegemine on BimCraftis.“** IFC- ja perefailid loetakse BimCraft'i rakenduses. Tee üksus seal või teegis ja kasuta siin selle `item.json` faili.
-- **„Teegiga ei saa ühendust.“** Oled võrguta või teek on maas. Joonises juba olevad üksused ei mõju sellest.
-- **Üksus on liiga suur või liiga väike.** Joonise ühikud on valed või määramata. Võta tagasi, sea {{ui:Units}} ja paiguta uuesti.
+- **„Esemete tegemine IFC-tüüpidest on BimCraftis.”** IFC- ja perekonnafaile loetakse rakenduses BimCraft. Tee ese seal või teegis ja kasuta siis selle `item.json`-i siin.
+- **„Teegiga ei saanud ühendust.”** Oled võrguühenduseta või teek ei tööta. Joonisel juba olevaid esemeid see ei mõjuta.
+- **Ese on liiga suur või liiga väike.** Joonise ühikud on valed või määramata. Võta tagasi, määra {{ui:Units}} ja paiguta uuesti.

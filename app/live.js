@@ -41,6 +41,7 @@
  */
 
 import { pack, unpack } from './live-client.js';
+import { presencePump } from './presence-pump.js';
 import { t } from './i18n.js';
 import { entityBounds, validBounds } from './geom.js';
 
@@ -760,8 +761,12 @@ export function attachUi(app, adapter, client) {
     sent = k;
     client.setPresence({ ...(client.lastPresence || {}), ...p });   // keep what live-follow.js adds (vw, ld)
   }
-  const timer = setInterval(push, 33);
-  offs.push(() => clearInterval(timer));
+  const pump = presencePump(push);   // 0.11 PERF.75: on events and a 250 ms safety net, not a 33 ms timer
+  offs.push(() => pump.stop());
+  const prevInvalidate = view.invalidate;
+  const pokingInvalidate = function (...a) { pump.poke(); return prevInvalidate.apply(this, a); };
+  view.invalidate = pokingInvalidate;
+  offs.push(() => { if (view.invalidate === pokingInvalidate) view.invalidate = prevInvalidate; });
 
   // ---- follow someone's view, and the people list (0.9 ED.1 / ED.2; live-follow.js) ----------------------------------
   const view2d = () => (window.ccViews || []).find((x) => x && x.kind === '2d' && x.el) || null;

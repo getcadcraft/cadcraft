@@ -62,9 +62,11 @@ export function installTablesUi({ host, doc, view, stage, engine = null, focus =
     ta.value = text;
     ta.spellcheck = false;
     ta.setAttribute('aria-label', t('tables.ui.label', { cell: name }));
+    // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
     Object.assign(ta.style, { width: w.toFixed(0) + 'px', height: h.toFixed(0) + 'px', resize: 'both', background: '#fff', color: '#111', font: '13px/1.35 ui-monospace, Menlo, Consolas, monospace', padding: '3px 5px', boxSizing: 'border-box' });
     const hint = document.createElement('div');
     hint.textContent = t('tables.ui.hint', { cell: name });
+    // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
     Object.assign(hint.style, { font: '11px/1.3 system-ui, sans-serif', background: 'rgba(20,24,32,.88)', color: '#fff', padding: '2px 6px', borderRadius: '3px', alignSelf: 'flex-start', maxWidth: '26rem' });
     box.append(ta, hint);
     stage.append(box);

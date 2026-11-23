@@ -1,84 +1,103 @@
 ---
-title: Geli fayl ama maktabad ka
-summary: Keen block, ama naqshad oo dhan, oo ka DWG ama DXF kale, oo ka geli shayada Maktabadda, fayl ama maktabad kale, iyo rasiidhkooda iyo cusboonaysiinta.
-keywords: geli, fayl, maktabad, librarycraft, shay, qalab, block naqshad kale ka, wblock, xarunta naqshadda, kredit, aqoonsi, liisanka, cusboonaysiin, feed, item.json
-from: 316188d2
+title: Ka geli fayl ama maktabad
+summary: Soo qaad bloog, ama naqshad oo dhan, DWG ama DXF kale; ku dhig walxo maktabadda, fayl ama maktabad kale, iyo kredit-kooda iyo cusboonaysiintooda.
+keywords: geli, fayl, maktabad, librarycraft, walax, qalab, bloog ka naqshad kale, wblock, design center, kredit, aqoonsi, lisaansiyo, cusboonaysiin, feed, item.json
+from: f6e4e452
 ---
 
-## Geli block naqshad kale ka
+## Geli bloog naqshad kale ka
 
-1. Ku qor `I` oo riix {{key:Enter}}, ama guji {{ui:Geli}} kooxda Bloogyada.
-2. Marka `Enter block name or [File/Library]` ay timaado, ku qor `F` oo riix {{key:Enter}}.
-3. Dooro DWG ama DXF ku jira kumbuyuutarkan. Halkan ayaa la akhriyaa; lama furo, mana jiro wax la soo rarayo.
-4. Sanduuqa {{ui:Geli laga}} dooro block liiska ka (ku qor {{ui:Shaandee bloogyada}} si aad u heshid), ama ku hay {{ui:Naqshadda oo dhan}}. Guji {{ui:Geli}}.
-5. Guji meesha ay tagayso, oo buuxi sifooyinka haddii ay weydiiso.
+1. Ku qor `I` oo riix {{key:Enter}}, ama riix {{ui:Geli}} kooxda Bloogyada.
+2. Sadarka amarka ee hoosta daaqadda wuxuu weydiinayaa `Enter block name or [File/Library]`. Halkaas ku qor `F` oo riix {{key:Enter}}.
+3. Dooro DWG ama DXF kombiyuutarkan. Halkan waa la akhriyaa; lama furo, waxna lama soo rarin.
+4. Sanduuqa {{ui:Geli ka}} ku dooro bloog liiska ka mid ah (ku qor {{ui:Shaandee bloogyada}} si aad u hesho), ama hayso {{ui:Naqshadda oo dhan}}. Riix {{ui:Geli}}.
+5. Riix meesha ay tagayso, oo buuxi sifooyinka kasta oo ay weydiinayso.
 
-Naqshadda oo dhan waxa la geliyaa block mid oo loo magac baxay faylka. Blockyada ku jira blockga aad doorateen ayaa iyana yimaadaa. Lakabyada ay isticmaalaan waa lagu daraa naqshaddan.
+Waxa kale oo aad ka bilaabi kartaa panelka {{ui:Bloogyo}}: ku qor `F` sanduuqa {{ui:Shaandee bloogyada}} oo riix {{key:Enter}}, ama ku qor wax uusan bloog midna la mid ahayn oo riix {{ui:Fayl ka…}}. `L` iyo {{ui:Maktabad…}} waxay u furaan maktabadda si la mid ah. Ka hor nooca 0.10.1, xaraf lagu qoro {{ui:Shaandee bloogyada}} wuxuu raadiyay kaliya bloogyada naqshaddan, wuxuuna jawaabi jiray "Ma jiro bloog u dhigma shaandaha."
 
-Haddii naqshadda kale ay ku jirto unugyo kale (inches iyo millimeters, tusaale), CadCraft wuxuu tixraaca u beddelaa si ay ula mid noqdaan, wuuna sheegaa taariikhda.
+Si aad naqshad bloogyadaada gaarka ah u haysato, riix {{ui:Ku dar naqshad}} hoosta {{ui:Maktabadaha}} panelka {{ui:Bloogyo}} oo dooro DWG ama DXF. Bloogyadeeda waxa lagu liistaa sawirro; riix mid si aad u dhigto.
+
+Naqshadda oo dhan waxay u imaanaysaa hal bloog oo magaciisa loo bixiyay faylka. Bloogyada ku jira bloogga aad doorateen ayaa sidoo kale yimaadda. Lakabyada ay isticmaalaan waxa lagu daraa naqshaddan.
+
+Haddii naqshadda kale ay leedahay unugyo kala duwan (tusaale ahaan inch iyo millimitir), CadCraft wuxuu tixraaca u cabbiraa si uu isugu habboonaado, taariikhduna way sheegtaa.
 
 ### Marka magac horay loo isticmaalay
 
-Haddii naqshaddan horeba leedahay block magaceeda isku mid ah, CadCraft wuu weydiiyaa:
+Haddii naqshaddan horay u leedahay bloog isla magac ah, CadCraft wuu weydiiyaa:
 
-- {{ui:Ku hay kuwa jira}} wuxuu isticmaalaa blockga naqshaddan ee magacaas.
-- {{ui:Dib u magacee}} wuxuu keenaa mid cusub oo loo magac baxay sida `Name (2)`.
+- {{ui:Ku hay kuwa jira}} wuxuu isticmaalaa bloogga naqshaddan ee magacaas.
+- {{ui:Dib u magacee}} wuxuu cusub u geliyaa sida `Name (2)`.
 
-Geli oo dhan waa hal tallaabo: {{key:Mod+Z}} wuxuu tirtiraa tixraaca iyo qeexidda la koobiyeeyay mar kale.
+Geliska oo dhan waa hal tallaabo: {{key:Mod+Z}} wuxuu tixraaca iyo qeexidaha nuqulka ah mar kale ka saaraa.
 
 ## Fur maktabadda
 
-Guji {{ui:Maktabad…}} guddiga {{ui:Bloogyo}}, ama {{ui:Maktabad}} kooxda Bloogyada, ama ku qor `LIB`. Prompt-ka `INSERT`, `L` ayaa iyana furta.
+Riix {{ui:Maktabad…}} panelka {{ui:Bloogyo}}, ama {{ui:Maktabad}} kooxda Bloogyada, ama ku qor `LIB`. Weydiinta `INSERT`, `L` ayaa sidoo kale furta.
 
-Maktabaddu waxay leedahay afar isha, oo tabs ah:
+Maktabaddu waxay leedahay afar isha, sida tabs:
 
-- {{ui:Maktabad}}: maktabadda CadCraft. Ku raadi magac, soo saare ama modeel, oo shaandee nooca.
-- {{ui:Fayloo…}}: fayl shay (`item.json`) oo ka timaada maktabad kasta, ama naqshad, miiska xogta ama moodel 3D si aad shayo uga samayso: DWG ama DXF (block kasta wuxuu noqdaa shay), CSV leh tiirarka magaca iyo cabbirka, ama moodel glTF ama OBJ. Waxba lama soo rarin.
-- {{ui:Caadi}}: qaybaha birta (sida goyn, muuqaal dhinac ama xubno 3D) iyo qaybo caadi ah sida boolt, qaylo iyo bearing, oo halkan lagu sameeyay iyadoo laga raacayo miisaska la daabacay. Eeg [Ku dhig qaybaha birta iyo qaybaha caadiga ah](topic:steel-and-standard-parts).
-- {{ui:Ilaha kale}}: maktabado kale oo ku jawaaba siyaabo la mid ah Maktabadda. Ku dar cinwaankooda hal mar; browser-kan ayaa xusuusta.
+- {{ui:Maktabad}}: maktabadda CadCraft. Ku raadi magac, soo saaraha ama moodeelka, oo shaandee qaybta.
+- {{ui:Fayloo…}}: fayl walax (`item.json`) oo maktabad kasta ka imanaya, ama naqshad, miis xisaab, ama moodeel 3D si walax looga sameeyo: DWG ama DXF (bloog kasta wuxuu noqdaa walax), CSV oo leh tiirarka magaca iyo cabbirka, ama moodeel glTF ama OBJ. Wax lama soo rarin.
+- {{ui:Caadi}}: qaybaha bir (sida goyn, muuqaal dhinac ama xubno 3D) iyo qaybaha caadiga ah sida boolt, qaaddo iyo bearing-yada, halkan laga sameeyay miisaska la daabacay. Eeg [Dhig qaybaha biriga iyo qaybaha caadiga ah](topic:steel-and-standard-parts).
+- {{ui:Ilaha kale}}: maktabado kale oo u jawaaba sida Maktabad. Ciwaankooda mar keliya ku dar; browser-kani wuu xasuustaa.
 
-Kaarar kasta wuxuu muujinayaa hordhac, magaca, soo saaraha iyo modeelka, liisanka iyo nooca. Shay la joojiyay waxa lagu calaamadiyaa {{ui:La joojiyay}} sababta; CadCraft wuu weydiiyaa ka hor inta aadan dhigin mid.
+Kaarkasta wuxuu muujiyaa horudhac, magaca, soo saaraha iyo moodeelka, liisanka iyo nooca. Walax la qaadiyay waxa lagu calaamadeeyaa {{ui:La qaadiyay}} sababta; CadCraft wuu weydiiyaa ka hor intaadan dhigin.
 
-## Dhig shay
+## Dhig walax
 
-1. Guji {{ui:Dhig}} kaarka.
-2. Guji meesha shaygu tagayo. Ku qor `R` marka hore si aad u leexiso, ama `S` si aad u cabbirto.
-3. Marka `Enter Item number (CC-ITEM)` ay timaado, riix {{key:Enter}} si aad u hesho lambarka xorta ah ee xiga, ama ku qor lambarkaaga.
+1. Riix {{ui:Dhig}} kaarka.
+2. Riix meesha walaxu tagayso. Marka hore ku qor `R` si aad u wareejiso, ama `S` si aad u cabbirto.
+3. Marka `Enter Item number (CC-ITEM)` ay soo muuqato, riix {{key:Enter}} lambarka xor ah ee xiga, ama ku qor kaaga.
 
-Shayga wuxuu noqdaa block magaceedu yahay `LIB_<name>_v<version>`, oo lagu sawiray unugyada naqshaddan. Haddii naqshaddu aanay lahayn unugyo, shayga waxa lagu geliyaa millimitir, taariikhdu way sheegtaa; marka hore dejiso {{ui:Unugyada}} guddiga midig.
+Walaxu wuxuu noqdaa bloog magaciisu yahay `LIB_<name>_v<version>`, oo lagu sawiray unugyada naqshaddan. Haddii naqshaddu aanay unug lahayn, walaxu wuxuu u galaa millimitir taariikhduna way sheegtaa; marka hore deji {{ui:Unugyada}} panelka midig.
 
-Xogtiisa waxa lagu xidhaa sifooyin aan la arki karin: lambarka iyo nooca shayga, liisanka iyo aqoonsiga, soo saaraha, modeelka, qaybta iyo cabbirrada. Eeg [Sifooyinka blockga](topic:attributes).
+Xogtiisa waxay u socotaa sifooyin aan la arkin: aqoonsiga walaxa iyo nooca, liisanka iyo aqoonsiga, soo saaraha, moodeelka, qaybta iyo cabbirrada. Eeg [Sifooyinka bloogga](topic:attributes).
 
-## Shayada luqaddaada
+## Walaxyada luqaddaada
 
-Shay wuxuu xambaarayaa magaciisa iyo sharaxaaddiisa luqado kale. Markuu ku jiro luqadda CadCraft loo dejiyay (Dejinta › Guud › Luqadda), kaarka iyo magaca shayga ee blockga la dhigay ayaa isticmaala. Blockga laftiisu wuxuu magac ka dhisan yahay magaca shayga, sidaas darteed naqshaddu waxay leedahay hal block shay kasta, cidna luqad kastoo dhigtay.
+Walax wuxuu u sidi karaa magaciisa iyo sharaxaadiisa luqado kale. Marka ay luqadda CadCraft loo dejiyay (Dejinta › Guud › Luqadda) ku jiraan, kaarka iyo magaca walaxa bloogga la dhigay ayaa isticmaala. Bloogga laftiisu wuxuu hayaa magac ka soo baxay magaca walaxa, sidaas darteed naqshaddu waxay lahaataa hal bloog walax kasta, luqad kasta oo dhigay.
 
 ## Hubi cusboonaysiinta
 
 1. Fur maktabadda.
-2. Guji {{ui:Hubi cusboonaysiinta}}.
+2. Riix {{ui:Hubi cusboonaysiinta}}.
 
-Shay kasta oo maktabad ah ee naqshadda ku jirta waa la liistaa, lambarradiisa shayga, iyo in ay cusub tahay, ama nooc cusub ay leedahay (iyo waxa isbeddelay), ama la joojiyay. Guji {{ui:Cusbooneysii}} safka, ama {{ui:Cusbooneysii dhammaan}}. Tixraac kasta wuxuu u guuraa blockga nooca cusub, wuxuuna ilaaliyaa lambarka shayga, tirada, meesha, xagasha iyo lakabka. {{key:Mod+Z}} wuxuu ka noqdaa cusboonaysiinta.
+Walax kasta oo maktabad ah ee naqshaddu leedahay waxa lagu liistaa lambaradooda, iyo haddii ay cusub tahay (ama nooc cusub leedahay, iyo waxa beddelay), ama la qaaday. Riix {{ui:Cusbooneysii}} safka, ama {{ui:Cusbooneysii dhammaan}}. Tixraac kasta wuxuu u guurayaa bloogga nooca cusub oo wuxuu hayaa lambarkiisa walaxa, tirada, meesha, xagasha iyo lakabka. {{key:Mod+Z}} wuxuu dib u celiyaa cusboonaysiinta.
 
-## Aqoonsii waxa aad isticmaashay
+## Ku qor waxa aad isticmaashay
 
-Guji {{ui:Kredit-ka maktabadda}}. Shay kasta waxa lagu liistaa khadka aqoonsiga iyo liisankiisa.
+Riix {{ui:Kredit-ka maktabadda}}. Walax kasta waxa lagu liistaa sadarka aqoonsigeeda iyo liisanka.
 
-- {{ui:Koobiyee aqoonsiga}} wuxuu koobiyeeyaa khadka hal shay; {{ui:Koobiyee dhammaan}} wuxuu koobiyeeyaa khad kasta.
-- {{ui:Soo deji CSV}} wuxuu keydiyaa liiska lambarrada shayga, soo saarayaasha, modeelada, liisamada iyo aqoonsiyada. Wuxuu ku furmaa barnaamij kasta oo miisaska ah.
+- {{ui:Koobiyee aqoonsiga}} wuxuu nuqul ka sameeyaa hal sadar walax; {{ui:Koobiyee dhammaan}} wuxuu nuqul ka sameeyaa dhammaan sadarrada.
+- {{ui:Soo deji CSV}} wuxuu kaydiyaa liiska lambarada walaxa, soo saarayaasha, moodeelada, liisanka iyo aqoonsiga. Waxa uu ku furmaa miis xisaab kasta.
 
-Liisamada sida CC BY waxay weydiiyaan inaad aqoonsiga qofka sameeyay markaad shaqada isticmaasho. Dhig khadadka naqshadda, specification-ka ama qoraallada mashruuca.
+Liisanka sida CC BY wuxuu kugu weydiiyaa inaad qortid qoraaga meesha aad shaqada isticmaasho. Sadarrada ku dhig naqshadda, qeexitaanka ama qoraallada mashruuca.
 
-## Walxaha: calaamadaha, noocyada iyo hantida
+## Calaamadaha iyo hantida
 
-Maktabaddu waxay leedahay saddex nooc oo shay: Calaamadaha (heshiisyada naqshadda, 2D), Noocyada (waxa element-ku ka dhisan yahay) iyo Hantida (walxaha jireed). Tab-ka {{ui:Maktabad}}, liiska {{ui:Nooca shayga}} wuxuu muujinayaa calaamadaha iyo hantida wada, calaamadaha keliya, ama hantida keliya. Noocyada waa waxa mashruuca BimCraft laga dhisto, sidaas darteed CadCraft ma liisto.
+Maktabadda waxa ku jira saddex nooc walax: Calaamado (heshiisyada naqshadda, 2D), Noocyada (waxa uu unuggu ka dhisan yahay) iyo Hanti (walxo jireed). Tab-ka {{ui:Maktabad}}, liiska {{ui:Nooca shayga}} wuxuu muujiyaa calaamadaha iyo hantida wada jir, calaamadaha kaliya, ama hantida kaliya. Noocyadu waa waxa mashruuca BimCraft laga dhisto, sidaas darteed CadCraft ma liistaa.
 
-## Gal maktabada
+## Soo gal maktabadda
 
-Guji {{ui:Soo gal maktabada}}. Daaqad yar ayaa furmaysa boggaaga; markaad halkaas gasho, CadCraft wuxuu tusi karaa shayada kooxdaada wuxuuna diiwaan gelin karaa waxa aad dhigtay, si aad u ogaato marka shay aad isticmaashay uu isbeddelo. Galitaanku wuxuu nolosha tab-ka browser-kan. Mar kasta ka saar akoonkaaga bogga amniga.
+Riix {{ui:Soo gal maktabada}}. Daaqad yar ayaa ku furmaysa websaydhka; markaad halkaas soo gashay, CadCraft wuxuu muujin karaa walaxyada kooxdaada oo wuxuu diiwaangelin karaa waxa aad dhigtay, si aad u maqasho marka walax aad isticmaashay beddelanto. Soo galku wuxuu socdaa tab-kan browser-ka. Mar kasta ka ruxo bogga amniga akoonkaaga.
+
+## Walaxyadaada ku hay Walxahayga
+
+{{ui:Walxahayga}} waa liis gaar ah oo maktabadda ku jira oo kaliya adigu aragtid. Maktabadda dadweynaha ma jirto, raadinta ma ku jirto, kooxdaadana lama muujinayo, akoonkaaga wuxuu la socdaa kumbiyuutar kasta oo aad ku soo gasho maktabadda.
+
+1. Panelka Maktabadda, riix {{ui:Fayloo…}} oo akhri fayl.
+2. Walaxa aad dib u rabto, riix {{ui:Kaydi walxahayga}}.
+3. Markii dambe, riix {{ui:Walxahayga}} oo riix {{ui:Dhig}}. Waxay u dhigtaa sida walax maktabad kasta, {{ui:Hubi cusboonaysiinta}} ayaa daboolaa.
+4. {{ui:Ka saar walxahayga}} wuxuu ka saaraa liiska. Nuqullada horay loogu dhigay naqshadaha way sii joogaan.
+
+Waa inaad ku soo gashaa maktabadda. Akhrinta fayl wax soo rari maayo; walax kaydinta oo keliya walaxdaas ayay u dirtaa akoonkaaga.
+
+:::note
+Walxahayga waa la tijaabinayaa, akoonkaaga ma furna wali. Haddii ay tiraahdo "Walxahayga akoonkan weli ma furna", weli waad dhigi kartaa walaxyada faylashaada gaarka ah {{ui:Fayloo…}}.
+:::
 
 ## Khaladaadka caadiga ah
 
-- **"Samaynta shayada noocyada IFC waxay ku jirtaa BimCraft."** Faylasha IFC iyo qoyska waxa lagu akhriyaa barnaamijka BimCraft. Shayga halkaas ka samee ama maktabadda, kadibna isticmaal `item.json` halkan.
-- **"Maktabadda lama gaari karo."** Waad ka baxsan tahay khadka, ama maktabadda ayaa hoos u dhacday. Shayada horeba naqshadda ku jirta lama saameeyo.
-- **Shay aad u weyn ama aad u yar.** Unugyada naqshaddu waa khaldan yihiin ama lama dejin. Ka noqo, dejiso {{ui:Unugyada}}, kadibna mar kale dhig.
+- **"Samaynta walaxyada noocyada IFC waxa lagu sameeyaa BimCraft."** Faylasha IFC iyo qoyska waxa lagu akhriyaa app-ka BimCraft. Halkaas ama Maktabadda ka samee walaxa, kadibna halkan isticmaal `item.json`-kiisa.
+- **"Maktabadda lama gaadhi karin."** Waxaad khadka ka baxsan tahay, ama maktabaddu way joogsatay. Walaxyada naqshadda ku jira looma beddelayo.
+- **Walaxu aad buu u weyn yahay ama aad buu u yar yahay.** Unugyada naqshaddu waa khaldan ama lama dejin. Ka noqo, deji {{ui:Unugyada}}, kadibna mar kale dhig.

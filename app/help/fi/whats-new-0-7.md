@@ -2,7 +2,7 @@
 title: Mitä uutta versiossa 0.7 (aiemmin)
 summary: PDF-pohjakuvat ja PDF-tuonti, skannatut piirustukset automaattisella jäljityksellä, todelliset splinet komennoilla SPLINE, SPLINEDIT ja PEDIT, mitoitustyylien hallinta, teksti, joka säilyttää muotoilunsa, WBLOCK ja omat mittakaavat, muiden ohjelmien 3D-kiintokappaleet, skannausten rekisteröinti, Laser-paneeli, USD-vienti, Historia ja tulostus Studio-sovelluksessa, opastettu ensimmäinen piirustus, työkalurivi mihin tahansa reunaan tai vähempiin riveihin sekä lisää tekoälyavustajille.
 keywords: mitä uutta 0.7, aiempi julkaisu, julkaisutiedot, muutosloki, muutokset, 0.7, versio, uudet ominaisuudet, pdf, pdfattach, pdfimport, pohjakuva, skannaus, scanattach, scantrace, jäljitys, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, muotoilu, wblock, scalelistedit, mittakaavaluettelo, acis, 3D-kiintokappaleet, registerscans, skannausten rekisteröinti, icp, e57, las, laser, grbl, g-code, usd, usdout, historia, versiot, vertailu, tulostus, tulostin, png, svg, plottauksen tyyli, viivatyyppi, kierros, pikaohje, komentokartta, työkalurivin sijainti, työkalurivin rivit, toolbardock, regen, regenall, kosketuslevy, pyyhkäisy, merkistökoodisivu, kyrillinen, korea, kiina, japani, sähkö, rcd, p&id, pid, acad.lsp, acaddoc.lsp, tukikansio, avustajat, mcp, yksiköt, portugali
-from: d07ca034
+from: d9a8ea79
 ---
 
 Tämä on se, mitä muuttui versiossa 0.7 verrattuna versioon 0.6. Suuri osa siitä pyydettiin Discordissa. Luettelo on ryhmitelty alueittain, tärkeimmät ensin.

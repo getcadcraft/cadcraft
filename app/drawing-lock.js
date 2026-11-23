@@ -169,6 +169,23 @@ export class DrawingLocks {
   }
   async releaseAll() { for (const p of this.held()) await this.release(p); }
 
+  /**
+   * The window is closing (ORS.27): every file call goes out in the same turn, with no read first, because the shell may destroy the window
+   * before a read's answer comes back (a script-driven close left `.cclock` behind). Only paths this window holds are touched. → a promise.
+   */
+  releaseAllNow() {
+    const out = [];
+    for (const p of this.held()) {
+      this.mine.delete(p);
+      const lp = lockPathFor(p);
+      try {
+        const r = typeof this.io.remove === 'function' ? this.io.remove(lp) : null;
+        if (r && typeof r.catch === 'function') out.push(r.catch(() => this.release(p)));
+      } catch { /* the stale rule clears it in 5 minutes */ }
+    }
+    return Promise.all(out);
+  }
+
   /** Give back the locks of drawings that are no longer open (`open` = the paths that are). → the paths released. */
   async sweep(open) {
     const keep = new Set(open), gone = this.held().filter((p) => !keep.has(p));

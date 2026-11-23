@@ -2,7 +2,7 @@
 title: በ0.7 ምን አዲስ ነገር አለ (ቀደም ብሎ)
 summary: PDF ዝቅተኛ ንብርብሮችና PDF ማስመጣት፣ በራስ-ሰር ዱካ ያላቸው የተቃኙ ስዕሎች፣ በSPLINE፣ SPLINEDIT እና PEDIT ትክክለኛ ስፕላይኖች፣ የልኬት ስታይል አስተዳዳሪ፣ ቅርጸቱን የሚይዝ ጽሑፍ፣ WBLOCK እና የራስህ ስኬሎች፣ ከሌሎች ፕሮግራሞች 3D ጠጣሮች፣ ስካኖችን መመዝገብ፣ የሌዘር ፓነል፣ USD መላክ፣ ታሪክና ማተም በCadCraft Studio፣ የመጀመሪያ ስዕል መመሪያ፣ የመሳሪያ አሞሌው በማንኛውም ጎን ወይም በጥቂት ረድፎች፣ እና ለAI ረዳቶች ተጨማሪ።
 keywords: ምን አዲስ 0.7, ቀደምት ልቀት, የልቀት ማስታወሻዎች, changelog, ለውጦች, 0.7, ስሪት, አዳዲስ ባህሪያት, pdf, pdfattach, pdfimport, underlay, ስካን, scanattach, scantrace, ዱካ, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, ቅርጸት, wblock, scalelistedit, የስኬል ዝርዝር, acis, 3d ጠጣሮች, registerscans, ስካኖችን መመዝገብ, icp, e57, las, ሌዘር, grbl, g-code, usd, usdout, ታሪክ, ስሪቶች, አወዳድር, ማተም, አታሚ, png, svg, የፕሎት ስታይል, linetype, ጉብኝት, የትዕዛዝ ካርታ, የመሳሪያ አሞሌ ቦታ, የመሳሪያ አሞሌ ረድፎች, toolbardock, regen, regenall, trackpad, ማንሸራተት, ኮድ ገጽ, ሲሪሊክ, ኮሪያኛ, ቻይንኛ, ጃፓንኛ, ኤሌክትሪክ, rcd, p&id, pid, acad.lsp, acaddoc.lsp, የድጋፍ አቃፊ, ረዳቶች, mcp, አሃዶች, ፖርቱጋልኛ
-from: d07ca034
+from: d9a8ea79
 ---
 
 ይህ በCadCraft 0.7 ከ0.6 ጋር ሲነጻጸር የተለወጠው ነው። ብዙዎቹ በDiscord ላይ ተጠይቀው ነበር። ዝርዝሩ በአካባቢ ተከፋፍሏል፣ በጣም አስፈላጊው መጀመሪያ።

@@ -1,70 +1,70 @@
 ---
-title: Imigqa yokufiphaza kanye nezindawo zokugcwalisa
-summary: Gcwalisa indawo ngombala oqinile noma ngephethini ejwayelekile ngokuchofoza ngaphakathi kuyo noma ngokukhetha izimo ezivaliwe, setha usayizi nengosi yephethini, bese ushintsha imigqa yokufiphaza kamuva.
-keywords: imigqa yokufiphaza, bhatch, gcwalisa, gcwalisa okuqinile, iphethini, ansi31, ansi37, brick, earth, net, imigqa yesigaba, poché, isiqhingi, umkhawulo, usayizi, engosi
-from: 14399174
+title: Imigqa yokufiphaza nezindawo ezigcwalisiwe
+summary: Gcwalisa indawo ngombala oqinile noma ngephethini ejwayelekile ngokuyichofoza ngaphakathi noma ngokukhetha izimo ezivaliwe, setha isikali nengosi yephethini, bese uguqula i-hatch ngemva kwalokho.
+keywords: hatch, bhatch, gcwalisa, gcwalisa okuqinile, iphethini, ansi31, ansi37, brick, earth, net, imigqa yesigaba, poché, island, umngcele, isikali, ingosi
+from: e7feb344
 ---
 
 ## Okuzokwenza
 
-Isigaba sodonga esigcwaliswe ngephethini ye-ANSI31, ikholomu eshiywe ingenalutho, nokugcwaliswa okuqinile kukholomu.
+Isigaba sodonga esigcwaliswe ngephethini ye-ANSI31, insika kuyo ishiywe ingenalutho, nokugcwaliswa okuqinile kwensika.
 
-## Imigqa yokufiphaza ngokuchofoza ngaphakathi endaweni
+## Hatch ngokuchofoza ngaphakathi endaweni
 
-1. Dweba unxantathu (`REC`, `0,0`, `@2000,1200`) nendilinga ngaphakathi kwawo (`C`, `1000,600`, `300`). Chofoza {{ui:Extents}}.
-2. Chofoza {{ui:Hatch}} eqenjini {{ui:Draw}}, noma thayipha `H` bese ucindezela {{key:Enter}}. Umlando utshela ukuthi iphethini yamanje ithini, njengesibonelo `Imigqa yokufiphaza yamanje: ANSI31, isikali 1, engosi 0°`.
-3. Thayipha `P` bese ucindezela {{key:Enter}}, thayipha `ANSI31` bese ucindezela {{key:Enter}}.
-4. Thayipha `SC` bese ucindezela {{key:Enter}}, thayipha `20` bese ucindezela {{key:Enter}}. Usayizi wephethini usephepheni, ngakho umdwebo ohlenzwe ku-1:20 udinga isikali 20.
-5. Ku-`Khetha iphoyinti langaphakathi`, chofoza ngaphakathi kunxantathu, ngaphandle kwendilinga. Imigqa yokufiphaza iyavela njengokubuka kuqala.
-6. Cindezela {{key:Enter}}. Unxantathu uyafiphazwa; indilinga ngaphakathi isala ingenalutho, ngoba iyisiqhingi (island).
+1. Dweba unxantathu (`REC`, `0,0`, `@2000,1200`) nendilinga ngaphakathi kwawo (`C`, `1000,600`, `300`). Chofoza {{ui:Konke}}.
+2. Chofoza {{ui:Imigqa yokufiphaza}} eqenjini le-{{ui:Dweba}}, noma bhala `H` bese ucindezela {{key:Enter}}. Umlando utshela ukuthi iphethini yamanje yini, isibonelo `Current hatch: ANSI31, scale 1, angle 0°`.
+3. Bhala `P` bese ucindezela {{key:Enter}}, bhala `ANSI31` bese ucindezela {{key:Enter}}.
+4. Bhala `SC` bese ucindezela {{key:Enter}}, bhala `20` bese ucindezela {{key:Enter}}. Usayizi wephethini usephepheni, ngakho umdwebo oshicilelwe ku-1:20 udinga isikali 20.
+5. Ku-`Pick internal point`, chofoza ngaphakathi kwe-unxantathu, ngaphandle kwendilinga. I-hatch ibonakala njengokubuka kuqala.
+6. Cindezela {{key:Enter}}. Unxantathu uyagcwaliswa; indilinga ngaphakathi ihlala ingenalutho, ngoba iyisiqhingi.
 
-Chofoza ngaphakathi kwezindawo eziningi ngaphambi kokucindezela {{key:Enter}} ukuze zibe yihatch eyodwa. `U` ihlehlisa indawo yokugcina.
+Chofoza ngaphakathi endaweni eziningi ngaphambi kokucindezela {{key:Enter}} ukuze zibe yi-hatch eyodwa. I-`U` ibuyisela indawo yokugcina.
 
 ## Ukugcwaliswa okuqinile
 
-1. Thayipha `H` bese ucindezela {{key:Enter}}.
-2. Thayipha `P`, cindezela {{key:Enter}}, thayipha `SOLID` bese ucindezela {{key:Enter}}.
-3. Chofoza ngaphakathi endilingeni, bese ucindezela {{key:Enter}}.
+1. Bhala `H` bese ucindezela {{key:Enter}}.
+2. Bhala `P`, cindezela {{key:Enter}}, bhala `SOLID` bese ucindezela {{key:Enter}}.
+3. Chofoza ngaphakathi kwendilinga, bese ucindezela {{key:Enter}}.
 
 ## Hatch izimo ezivaliwe ozikhethayo
 
-Esikhundleni sokuchofoza ngaphakathi, thayipha `S` (Khetha izinto) ku-`Khetha iphoyinti langaphakathi` bese ukhetha ama-polyline avaliwe, izindilinga noma ama-ellipse avaliwe, bese ucindezela {{key:Enter}}. Izimo ezingaphakathi kwezinye zishiywa zingenalutho ngokulandelana (eyangaphandle ifiphazwa, eyelandelayo ishiywa ingenalutho, njalo njalo).
+Esikhundleni sokuchofoza ngaphakathi, bhala `S` (Select objects) ku-`Pick internal point` bese ukhetha iphola-layini evaliwe, amasongo noma ama-ellipse avaliwe, bese ucindezela {{key:Enter}}. Izimo ezingaphakathi kwezinye zishiywa zingenalutho ngokulandelana (eyangaphandle iyagcwaliswa, eyelandelayo ishiywa ingenalutho, njalo njalo).
 
 ## Amaphethini
 
-Thayipha `?` endaweni yombuzo wephethini ukuze uthole uhlu. Amaphethini ajwayelekile ngu-ANSI31 kuya ku-ANSI38, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS, EARTH, kanye SOLID. Kumdwebo ngamayintshi (noma nobude ngamafidi namayintshi njengefomethi yobude), kusetshenziswa usayizi wamayintshi wamaphethini, njenge-AutoCAD; ngaphandle kwalokho kusetshenziswa osayizi bamamilimitha.
+Bhala `?` embuzweni wephethini ukuze uthole uhlu. Ajwayelekile ngu-ANSI31 kuya ku-ANSI38, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS ne-EARTH, nesi-SOLID. Emdwebweni wamaintshi (noma nezinyawo namaintshi njengefomethi yobude) kusetshenziswa usayizi wamaintshi wamaphethini, njengakwi-AutoCAD; kwenye imvelo kusetshenziswa ayamamilimitha.
 
-{{ui:Angle}} (`A`) iphendula yonke iphethini: ANSI31 ku-90° ihlehla ngenye indlela.
+I-{{ui:Ingosi}} (`A`) iphendula yonke iphethini: i-ANSI31 ku-90° iyathambekela ngakolunye uhlangothi.
 
-**Amafayela ephethini.** Thayipha `F` (Ifayela lephethini) ku-`Khetha iphoyinti langaphakathi` bese ukhetha ifayela le-`.pat`. Amaphethini aselo angeniswa ohlwini; uma kukhona amaningi uzobuzwa ukuthi asiphi osetshenzisiwe. Ifayela elingenaphethini eCadCraft iyayifunda liyakusho, futhi noma iyiphi iphethini eyayishiywe iyabalwa. Osayizi kumafayela e-`.pat` abanayo iyunithi yabo, ngakho ufundwa ngamayunithi omdwebo. Kuphela kumafayela abhalwe ngefomethi evamile ye-`.pat` ahlolwe; akukho ngisho eyodwa eyenziwe yolunye uhlelo.
+**Amafayela wephethini.** Bhala `F` (Pattern file) ku-`Pick internal point` bese ukhetha ifayela le-`.pat`. Amaphethini aleli lijoyina uhlu; uma kukhona amaningi kuzobuzwa ukuthi yiliphi ofuna ukulisebenzisa. Ifayela elingenaphethini i-CadCraft engayifunda liyasho lokho, nanoma yiliphi iphethini eliliphuthelwe liyabalwa. Usayizi kumafayela e-`.pat` awunayo iyunithi yawo, ngakho ufundwa ngamayunithi omdwebo. Kuzanywe kuphela amafayela abhalwe ngefomethi ejwayelekile ye-`.pat`; akekho owenziwe uhlelo lolunye.
 
-## Shintsha ihatch
+## Shintsha i-hatch
 
-Yikhethe (chofoza omunye wemigqa yayo). Ephaneli {{ui:Properties}}: {{ui:Pattern}}, {{ui:Pattern scale}} kanye {{ui:Pattern angle}}. Imigqa yokufiphaza evela emidwebweni evuliwe ibonisa iphethini yayo uma iyeyokujwayelekile; ezinye zibonakala njengethoni elikhanyayo lombala wazo.
+Yikhethe (chofoza omunye wemigqa yayo). Ku-{{ui:Izakhiwo}}: {{ui:Iphethini}}, {{ui:Isikali sephethini}} ne-{{ui:I-engeli yephethini}}. Ama-hatch avela emadwebeni avuliwe abonisa iphethini yawo uma kuyiphethini ejwayelekile; ezinye zibonakala njengethoni elikhanyayo lombala waso.
 
-## Amaphutha avamile
+## Amaphutha ajwayelekile
 
-- **"Ayikho umkhawulo ovaliwe maqondana nalelo phoyinti."** Kukhona isikhala emugqeni wesakhiwo, noma ingxenye yawo ingaphandle kwesikrini: i-CadCraft ibheka okusesikrinini kuphela. Vala isikhala (sondeza emakhoneni), noma sondeza ngaphandle.
-- **"Iphethini inogqinsi kakhulu ukuthi idwetshwe ngalolu sikali."** Imigqa izoba seduze kakhulu kunalokho umdwebo oyokwazi ukukubonisa. Sebenzisa isikali esikhulu: zama isikali sokuhlehla (20 ye-1:20).
-- **Iphethini ibukeka inkulu noma incane kakhulu.** Isikali sikalwa ngamayunithi omdwebo ngeyunithi yephethini; bheka isinyathelo 4 phezulu.
-- **Ukuhambisa umkhawulo akuhambisi ihatch.** Ihatch ayibotshelwe kumkhawulo wayo. Hambisa kokubili, noma yenza ihatch futhi.
+- **"Akukho mngcele ovaliwe kuleso siphambano."** Kukhona isikhala emigqeni yomphetho, noma ingxenye yawo ingaphandle kwesikrini: i-CadCraft ibheka okusesikrinini kuphela. Vala isikhala (sondeza emakhoneni), noma nciphisa.
+- **"Iphethini inzima kakhulu ukuze idwetshwe kulesi sikali."** Imigqa ingaba seduze kakhulu kunalokho omdwebo ongakubonisa. Sebenzisa isikali esikhudlwana: zama isikali sokushicilela (20 ye-1:20).
+- **Iphethini ibonakala inkulu noma incane kakhulu.** Isikali sisekhasini lomdwebo ngeyunithi yephethini; bheka isinyathelo 4 ngenhla.
+- **I-hatch ayiyeke ukulandela umphetho wayo.** I-hatch eyenziwe nge-{{cmd:HATCH}} ihlala nezinto eyenziwe kuzo: hambisa, phendula noma ukhulise umphetho bese i-hatch iyalandela; yenze kabusha ngesibambi bese i-hatch ibalwa kabusha. Ukuxhumana kuphela uma umphetho ungasavaleki, uma wenza kabusha i-hatch ngesandla, noma uma uyinquma, futhi umugqa womyalo uyasho lokho. Akukho okulahlekayo: gcwalisa indawo kabusha ukuze uxhumane kabusha.
 
-## Ihatch elihlala nomkhawulo wayo
+## I-hatch ehlala nomngcele wayo
 
-Ihatch oyenzayo nge-`HATCH` likhumbula ukuthi yimuphi umkhawulo eyibophayo. Hambisa, phendula noma usayize umkhawulo, bese ihatch nephethini yayo ihamba nawo. Hudula isibambisi ukuze uguqule umkhawulo, ihatch iyaphinde ibalwe. Hambisa ihatch wodwa bese umkhawulo wayo uyeza nawo, njengesimo esigcwaliswe kuhlelo lokudweba.
+I-hatch oyenza nge-`HATCH` ikhumbula okuyibophayo. Hambisa, phendula noma ukhulise umngcele bese i-hatch nephethini yayo iyalandela. Hudula isibambi ukuze wenze kabusha umngcele bese i-hatch iyabalwa kabusha. Hambisa i-hatch wedwa bese nomngcele wayo uyalandela, njengesimo esigcwaliswe kuhlelo lokudweba.
 
-Ixhumanisa liyaphela, nomugqa womyalo uyasho lokho, uma umkhawulo ungasavali noma uma uguqula ihatch ngesandla. Ihatch yona ihlala. Thayipha `AS` ngenkathi wenza ihatch ukuze wenze amahatch azimele. Kopisha ihatch nomkhawulo wayo, bese ikhophi inexhumanisa layo.
+Ukuxhumana kuyaphela, nomugqa womyalo uyasho lokho, uma umngcele ungasavaleki noma wenza i-hatch ngesandla. I-hatch ngokwayo iyahlala. Bhala `AS` ngesikhathi sokugcwalisa ukuze wenze ama-hatch azimele. Kopisha i-hatch nomngcele wayo bese ikhophi linokuxhumana lalo.
 
-`HATCHEDIT` (`HE`) ishintsha iphethini, isikali, engosi kanye nomsuka wehatch, futhi iyixhumanisa nomkhawulo noma iyiphelise lelo xhumanisa. Ixhumanisa lilondolozwa kumafayela e-DWG ne-DXF 2000. Ifayela le-DXF R12 alinayo into yehatch, nokuxhumana okwenziwe ngezinye izinhlelo akufundwa: sebenzisa `HATCHEDIT` nesenzo sokuxhuma kwalezo.
+I-`HATCHEDIT` (`HE`) iguqula iphethini, isikali, ingosi nomsuka we-hatch, ize iyixhumanise nomngcele noma iphelise ukuxhumana. Ukuxhumana kulondolozwa emafayeleni e-DWG ne-DXF 2000. Ifayela le-DXF R12 alinayo into ye-hatch, futhi ukuxhumana okwenziwe yezinye izinhlelo akufundwa: sebenzisa i-`HATCHEDIT` ne-Link kuzo.
 
-Ihatch engasenawo umkhawulo (umkhawulo usuphulwe, noma ifayela lifike ngaphandle kwawo) ingawubuyisela: `HATCHGENERATEBOUNDARY` (`HGB`) idweba i-polyline evaliwe ezungeze ngayinye yamalophu ehatch futhi, uma uphendula Yebo, ixhumanisa ihatch nazo.
+I-hatch engasenawo umngcele (umngcele usuliwe, noma ifayela lifike lingenawo) ingawubuyisela: i-`HATCHGENERATEBOUNDARY` (`HGB`) idweba iphola-layini evaliwe kuzo zonke izilupu ze-hatch, futhi uma uphendula Yes, ixhumanisa i-hatch kuzo.
 
-## Ukugcwaliswa kombala oqhubekayo
+## Ukugcwaliswa kwegradient
 
-`GRADIENT` (`GD`) igcwalisa indawo ngombala oqhubekayo esikhundleni sephethini: okukhethwa okufanayo nakwe-`HATCH`, ngemva kokubuza uhlobo (oluqondile, lwesilinda, lwesibhola, lwesigamu sesibhola, olugobile, nalolu lonke oluguqulwe), umbala owodwa nethoni noma imibala emibili, engosi, nokuthi ibekwe maphakathi noma hhayi. Kwi-`HATCH` inketho `G` yenza okufanayo. `HATCHEDIT` `G`, noma ephaneli {{ui:Properties}} ngaphansi kwe-Gradient, ishintsha i-gradient noma iguqule noma yiluphi uhlobo lwehatch lube yi-gradient.
+I-`GRADIENT` (`GD`) igcwalisa indawo ngegradient esikhundleni sephethini: okukhethwa okufanayo njenge-`HATCH`, ngemva kokubuza uhlobo (olulinganayo, olunesilinda, olunesiphetho, olunesigamu sesiphetho, olugobile, nokuhlanganisa kwalo okuphenduliwe), umbala owodwa onethoni noma imibala emibili, ingosi, nokuthi iphakathi noma cha. Ku-`HATCH` inketho `G` yenza okufanayo. I-`HATCHEDIT` `G`, noma i-{{ui:Izakhiwo}} ngaphansi kwe-Gradient, iguqula i-gradient noma iphendule noma iyiphi i-hatch ibe yi-gradient.
 
-I-gradient iyabonakala esikrinini nasemidwebweni ezidwetshiwe. Londoloza njenge-DWG 2004 noma kamuva, nezinye izinhlelo zithola ihatch yangempela ye-gradient. I-DXF 2000 ne-DWG 2000 azinayo i-gradient: lapho i-CadCraft iyigcina yona, nezinye izinhlelo zibona ukugcwaliswa okuqinile ngombala wokuqala.
+I-gradient ibonakala esikrinini nasezinhlelweni zokushicilela. Londoloza njenge-DWG 2004 noma kamuva olunye uhlelo luthola i-hatch yangempela ye-gradient. I-DXF 2000 ne-DWG 2000 azinayo i-gradient: lapho i-CadCraft iyigcina yona, nezinhlelo zolunye uhlelo zibona ukugcwaliswa okuqinile ngombala wokuqala.
 
-## Sika ihatch
+## Nquma i-hatch
 
-`TRIM` isika ihatch njenganoma iyiphi enye into. Chofoza ihatch ohlangothini lomphetho wokusika ofuna ukuwususa: imiphetho ihlukanisa indawo efiphaziwe, bese leyo ngxenye iyasuswa. Ku-Quick mode yonke into iyimiphetho yokusika; khetha imiphetho kuqala (inketho `T`) uma kunezinto eziningi. Ihatch esikiwe ayisaxhunyiwe emkhawulweni wayo, ngoba ayisagcwalisi.
+I-`TRIM` inquma i-hatch njengento nanoma yiyiphi. Chofoza i-hatch ohlangothini lomphetho wokusika ofuna ukuwususa: imiphetho ihlukanisa indawo egcwaliswe bese leyo ngxenye iyasuswa. Kwimodi ye-Quick yonke into iyimphetho yokusika; khetha imiphetho kuqala (inketho `T`) uma zimbalwa. I-hatch enqunyiwe ayisaxhunyiwe kumngcele wayo, ngoba ayisagcwalisi.

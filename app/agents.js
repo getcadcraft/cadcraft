@@ -41,6 +41,7 @@ import { cleanSketch, applySketch } from './sketch.js';   // 0.8 EG.55
 import { suggestionsFor, applySuggestion } from './autocomplete.js';   // 0.8 EG.54   // 0.8 SU.883
 import { getHost, toolResult, ToolError, stackRollback, peekUndo } from "./host.js";
 import { t } from './i18n.js';
+import { affineMul as mul } from './geom-vec.js';   // shared helpers (0.11 PERF.74)
 
 export const OBJECT_TYPES = ['line', 'circle', 'arc', 'poly', 'ellipse', 'text', 'point', 'insert', 'hatch', 'dim', 'viewport', 'mleader', 'spline', 'face3d', 'image', 'wipeout'];
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 1e9) / 1e9 : v);
@@ -558,7 +559,6 @@ export function svgContext() {
   let st = { m: [1, 0, 0, 1, 0, 0], fillStyle: '#000', strokeStyle: '#000', lineWidth: 1, globalAlpha: 1, font: '10px sans-serif', textAlign: 'left', groups: 0 };
   const stack = [];
   let path = [], clips = 0;
-  const mul = (a, b) => [a[0] * b[0] + a[2] * b[1], a[1] * b[0] + a[3] * b[1], a[0] * b[2] + a[2] * b[3], a[1] * b[2] + a[3] * b[3], a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5]];
   const P = (x, y) => { const m = st.m; return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]; };
   const scaleOf = () => Math.sqrt(Math.abs(st.m[0] * st.m[3] - st.m[1] * st.m[2]));
   const d = () => path.map((p) => p.map((v, i) => (i ? f(v) : v)).join(' ')).join('');

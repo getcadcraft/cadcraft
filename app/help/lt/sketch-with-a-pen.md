@@ -1,32 +1,36 @@
 ---
-title: Braižykite eskizą pieštuku ir gaukite tikslią geometriją
-summary: Piešinėkite laisvai pieštuku, pele ar pirštu, ir kiekvienas brūkšnys, kai pakeliate pieštuką, tampa švaria linija, apskritimu, lanku, stačiakampiu ar polilinija, prisitraukiančia prie to, kas jau nubraižyta, o jos dydis paruoštas perrašyti.
-keywords: eskizas, pieštukas, rašiklis, laisvas braižymas, pirštas, tvarkyti, tikslus, prisitraukti, SKETCHLIVE, SKETCHFIX, dydis, perrašyti
-from: cd87eb75
+title: Skicuokite rašikliu ir gaukite tikslią geometriją
+summary: Piešiama laisvai rašikliu, pele ar pirštu, ir kiekvienas brūkšnys tampa švaria linija, apskritimu, lanku, stačiakampiu ar polilinija, kai pakeliate rašiklį, prisegta prie to, kas jau nubrėžta, su dydžiu, paruoštu perrašyti.
+keywords: skicavimas, rašiklis, stilius, laisvas piešimas, pirštas, išvalyti, tikslus, prilipimas, SKETCHLIVE, SKETCHFIX, dydis, perrašyti, spaudimas, linijos storis, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Pradėkite {{cmd:SKETCHLIVE}} (arba pasirinkite **Braižymas › Daugiau › Braižyti eskizą pieštuku**) ir nubrėžkite brūkšnį spausdami ir vilkdami. Kai pakeliate pieštuką, CadCraft supranta, ką norėjote nubraižyti, ir įdeda tai į brėžinį:
+Paleiskite {{cmd:SKETCHLIVE}} (arba pasirinkite **Braižymas › Daugiau › Skicuoti rašikliu**) ir nubrėžkite brūkšnį paspausdami ir vilkdami. Kai pakeliate rašiklį, CadCraft supranta, ką norėjote, ir įdeda į brėžinį:
 
-| Jūsų brūkšnys | Ką gausite |
+| Jūsų brūkšnys | Ką gaunate |
 |---|---|
 | Beveik tiesus | Linija. Beveik horizontali ar vertikali linija tampa tiksliai horizontali ar vertikali. |
 | Uždaras ir apvalus | Apskritimas |
-| Apvalios figūros dalis | Lankas |
-| Uždaras su keturiais stačiais kampais | Stačiakampis |
+| Dalis apvalios formos | Lankas |
+| Uždaras su keturiais statiais kampais | Stačiakampis |
 | Bet kas kita | Polilinija su stačiais kraštais |
 
-Brūkšnio galai prisitraukia prie artimiausio jau nubraižyto objekto galo, todėl eskizuota siena susijungia su šalia esančia siena.
+Brūkšnio galai prisitraukia prie artimiausio jau nubrėžto dalyko galo, todėl nubrėžta siena susijungia su šalia esančia siena.
 
-## Perrašykite dydį
+## Perrašyti dydį
 
-Po kiekvieno brūkšnio komandų eilutėje kaip numatytoji reikšmė rodomas jo dydis (linijos **ilgis**, apskritimo ar lanko **spindulys**, stačiakampio **plotis**). Spauskite {{key:Enter}}, kad jį paliktumėte, arba įveskite skaičių ar ilgį, pavyzdžiui `12'6"`, kad jį pakeistumėte. Linija išlaiko pirmąjį galą, apskritimas – centrą, stačiakampis – pirmąjį kampą.
+Po kiekvieno brūkšnio komandų eilutė rodo jo dydį (linijos **ilgį**, apskritimo ar lanko **spindulį**, stačiakampio **plotį**) kaip numatytąjį. Paspauskite {{key:Enter}}, kad jį paliktumėte, arba įveskite skaičių ar ilgį, pavyzdžiui `12'6"`, kad jį pakeistumėte. Linija išlaiko pirmąjį galą, apskritimas – centrą, stačiakampis – pirmąjį kampą.
 
-Tuščioje užklausoje spauskite {{key:Enter}}, kad baigtumėte, arba įveskite [Anuliuoti (U)], kad atšauktumėte paskutinį brūkšnį. Visas seansas yra vienas anuliavimo žingsnis.
+Paspauskite {{key:Enter}} tuščiame raginime, kad baigtumėte, arba įveskite `U`, kad atšauktumėte paskutinį brūkšnį. Visa sesija yra vienas atšaukimo žingsnis.
 
-## Kelių brūkšnių tvarkymas vienu metu
+## Išvalyti kelis brūkšnius iš karto
 
-{{cmd:SKETCHFIX}} renka brūkšnius ir padaro juos visus tikslius, kai spaudžiate {{key:Enter}}. Tai tinka greitai nubraižytam grubiam išdėstymui.
+{{cmd:SKETCHFIX}} renka brūkšnius ir padaro juos visus tikslius, kai paspaudžiate {{key:Enter}}; tai tinka greitai nubrėžtam grubiam išdėstymui.
 
 :::note
-Viskas apskaičiuojama jūsų kompiuteryje pagal taisykles, be modelio, ir niekur nieko nesiunčiama.
+Viskas apskaičiuojama jūsų kompiuteryje pagal taisykles, be modelio, ir niekas niekur neišsiunčiama.
 :::
+
+## Spaudimas nustato linijos storį
+
+Kur rašiklis įjungtas programoms (Parametrai › Bendra › Įvesties įrenginiai › Rašiklis), brūkšnys, nubrėžtas rašikliu, perneša visus rašiklio duotus taškus ir jo spaudimą. Lengvas brūkšnys padaro plonesnį objektą, tvirtas – storesnį: vidutinis brūkšnio spaudimas parenka 0,18, 0,25, 0,35 arba 0,50 mm, ir komandų eilutė nurodo, kurį. Brūkšniai, nubrėžti pele ar pirštu, gauna dabartinį linijos storį kaip anksčiau. {{cmd:PENPRESSURE}} tai išjungia (arba vėl įjungia); pasirinkimas išsaugomas šioje naršyklėje.

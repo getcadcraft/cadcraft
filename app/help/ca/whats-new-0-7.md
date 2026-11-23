@@ -2,7 +2,7 @@
 title: Novetats de la 0.7 (anteriors)
 summary: Fons PDF i importació de PDF, dibuixos escanejats amb un traçat automàtic, splines reals amb SPLINE, SPLINEDIT i PEDIT, un gestor d'estils de cota, text que conserva el seu format, WBLOCK i les vostres pròpies escales, sòlids 3D d'altres programes, registre d'escanejos, un tauler Làser, exportació USD, Historial i impressió a CadCraft Studio, un primer dibuix guiat, la barra d'eines a qualsevol costat o en menys files, i més per als assistents d'IA.
 keywords: novetats 0.7, versió anterior, notes de la versió, registre de canvis, canvis, 0.7, versió, noves funcionalitats, pdf, pdfattach, pdfimport, subjacent, escaneig, scanattach, scantrace, traç, ràster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, format, wblock, scalelistedit, llista d'escales, acis, sòlids 3d, registerscans, registrar escaneigs, icp, e57, las, làser, grbl, g-code, usd, usdout, historial, versions, comparar, imprimir, impressora, png, svg, taula d'estils de traçat, tipus de línia, fulla de referència, mapa d'ordres, posició de la barra d'eines, files de la barra d'eines, toolbardock, regen, regenall, trackpad, lliscar, pàgina de codis, ciríl·lic, coreà, xinès, japonès, electricitat, rcd, p&id, pid, acad.lsp, acaddoc.lsp, carpeta de suport, assistents, mcp, unitats, portuguès
-from: d07ca034
+from: d9a8ea79
 ---
 
 Això és el que va canviar a CadCraft 0.7, comparat amb la 0.6. Gran part es va demanar a Discord. La llista està agrupada per àrees, amb les més importants primer.

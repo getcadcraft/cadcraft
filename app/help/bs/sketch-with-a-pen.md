@@ -1,32 +1,36 @@
 ---
-title: Skiciraj olovkom i dobij precizne oblike
-summary: Crtaj slobodnom rukom olovkom, mišem ili prstom, a svaki potez postaje čista linija, krug, luk, pravougaonik ili polilinija čim podigneš olovku, poravnata sa onim što je već nacrtano, sa veličinom spremnom za upis preko nje.
-keywords: skica, olovka, stilus, slobodna ruka, prst, čišćenje, precizno, poravnanje, SKETCHLIVE, SKETCHFIX, veličina, upis preko
-from: cd87eb75
+title: Skiciranje olovkom i precizna geometrija
+summary: Crtajte slobodnom rukom olovkom, mišem ili prstom i svaki potez postaje čista linija, krug, luk, pravougaonik ili polilinija čim podignete olovku, uhvaćena za ono što je već nacrtano, sa veličinom spremnom za prepisivanje.
+keywords: skica, olovka, pero, slobodna ruka, prst, očisti, precizno, hvatanje, SKETCHLIVE, SKETCHFIX, veličina, prepiši preko, pritisak, debljina linije, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Pokreni {{cmd:SKETCHLIVE}} (ili izaberi **Crtanje › Više › Skiciraj olovkom**) i nacrtaj potez pritiskom i prevlačenjem. Kad podigneš olovku, CadCraft prepoznaje šta si htio i stavlja to u crtež:
+Pokrenite {{cmd:SKETCHLIVE}} (ili izaberite **Crtanje › Više › Skiciraj olovkom**) i nacrtajte potez pritiskom i prevlačenjem. Kad podignete olovku, CadCraft čita šta ste htjeli i stavlja to u crtež:
 
-| Tvoj potez | Šta dobiješ |
+| Vaš potez | Šta dobijate |
 |---|---|
-| Skoro prav | Linija. Skoro vodoravna ili okomita linija postaje tačno vodoravna ili okomita. |
+| Skoro prav | Linija. Skoro vodoravna ili uspravna linija postaje tačno vodoravna ili uspravna. |
 | Zatvoren i okrugao | Krug |
 | Dio okrugle figure | Luk |
-| Zatvoren sa četiri pravougla ugla | Pravougaonik |
-| Sve ostalo | Polilinija sa pravouglim stranicama |
+| Zatvoren sa četiri prava ugla | Pravougaonik |
+| Sve ostalo | Polilinija sa izravnanim stranicama |
 
-Krajevi poteza privlače se na najbliži kraj onoga što je već nacrtano, pa se nacrtani zid spaja sa zidom pored njega.
+Krajevi poteza privlače se na najbliži kraj onoga što je već nacrtano, pa se skicirani zid spaja sa zidom pored njega.
 
-## Upiši veličinu
+## Prepisivanje veličine
 
-Nakon svakog poteza, komandna linija prikazuje njegovu veličinu (dužinu linije, poluprečnik kruga ili luka, širinu pravougaonika) kao zadanu vrijednost. Pritisni {{key:Enter}} da je zadržiš, ili upiši broj ili dužinu, na primjer `12'6"`, da je zamijeniš. Linija zadržava svoj prvi kraj, krug svoje središte, pravougaonik svoj prvi ugao.
+Nakon svakog poteza komandna linija prikazuje njegovu veličinu (dužinu linije, poluprečnik kruga ili luka, širinu pravougaonika) kao zadanu vrijednost. Pritisnite {{key:Enter}} da je zadržite, ili ukucajte broj ili dužinu kao `12'6"` da je zamijenite. Linija zadržava prvi kraj, krug svoj centar, pravougaonik prvi ugao.
 
-Pritisni {{key:Enter}} na praznom upitu da završiš, ili upiši `U` da poništiš posljednji potez. Cijela sesija je jedan korak poništavanja.
+Pritisnite {{key:Enter}} na praznom upitu da završite, ili ukucajte `U` da poništite posljednji potez. Cijela sesija je jedan korak poništavanja.
 
 ## Čišćenje više poteza odjednom
 
-{{cmd:SKETCHFIX}} skuplja poteze i čini ih sve preciznim kad pritisneš {{key:Enter}}, što odgovara brzo nacrtanom grubom rasporedu.
+{{cmd:SKETCHFIX}} skuplja poteze i pravi ih sve preciznim kad pritisnete {{key:Enter}}, što odgovara grubom rasporedu nacrtanom brzo.
 
 :::note
-Sve se računa na tvom računaru prema pravilima, bez modela i bez slanja bilo kuda.
+Sve se računa na vašem računaru po pravilima, bez modela, i ništa se nigdje ne šalje.
 :::
+
+## Pritisak postavlja debljinu linije
+
+Gdje je olovka uključena za aplikacije (Postavke › Opšte › Ulazni uređaji › Olovka), potez nacrtan olovkom nosi svaku tačku koju je olovka dala i njen pritisak. Lagan potez pravi tanak objekat, a jak debeo: prosječni pritisak poteza bira 0.18, 0.25, 0.35 ili 0.50 mm, a komandna linija kaže koji. Potezi nacrtani mišem ili prstom uzimaju trenutnu debljinu linije kao i prije. {{cmd:PENPRESSURE}} to isključuje (ili ponovo uključuje); izbor se čuva u ovom pregledaču.

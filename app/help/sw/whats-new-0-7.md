@@ -2,7 +2,7 @@
 title: Kilichomo kipya katika 0.7 (cha awali)
 summary: Viwekeleo vya PDF na uingizaji wa PDF, michoro iliyoskaniwa yenye ufuatiliaji wa kiotomatiki, splines halisi kwa SPLINE, SPLINEDIT na PEDIT, kidhibiti cha mitindo ya vipimo, maandishi yanayobaki na uumbizaji wake, WBLOCK na mizani zako, solidi za 3D kutoka programu nyingine, kusajili skani, paneli ya Laser, usafirishaji wa USD, Historia na uchapishaji katika CadCraft Studio, mchoro wa kwanza unaoongozwa, upau wa zana upande wowote au katika safu chache, na zaidi kwa wasaidizi wa AI.
 keywords: mpya 0.7, toleo la awali, maelezo ya toleo, historia ya mabadiliko, mabadiliko, 0.7, toleo, vipengele vipya, pdf, pdfattach, pdfimport, kiwekeleo, skani, scanattach, scantrace, ufuatiliaji, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, uumbizaji, wblock, scalelistedit, orodha ya mizani, acis, solidi za 3D, registerscans, kusajili skani, icp, e57, las, laser, grbl, g-code, usd, usdout, historia, matoleo, linganisha, chapisha, kichapishi, png, svg, jedwali la mtindo wa chapisho, aina ya mstari, ziara, karatasi ya mkato, ramani ya amri, nafasi ya upau wa zana, safu za upau wa zana, toolbardock, regen, regenall, trackpad, telezesha, ukurasa wa msimbo, cyrillic, kikorea, kichina, kijapani, umeme, rcd, p&id, pid, acad.lsp, acaddoc.lsp, folda ya usaidizi, wasaidizi, mcp, vitengo, kireno
-from: d07ca034
+from: d9a8ea79
 ---
 
 Hiki ndicho kilichobadilika katika CadCraft 0.7, ikilinganishwa na 0.6. Mengi yaliombwa kwenye Discord. Orodha imepangwa kwa eneo, na muhimu zaidi kwanza.

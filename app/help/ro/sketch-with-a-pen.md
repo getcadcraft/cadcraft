@@ -1,32 +1,36 @@
 ---
 title: Schițați cu un creion și obțineți geometrie precisă
-summary: Desenați de mână cu un creion, mouse sau deget, iar fiecare traseu devine o linie, un cerc, un arc, un dreptunghi sau o polilinie curată când ridicați creionul, prinsă de ce este deja desenat, cu dimensiunea gata de suprascris.
-keywords: schiță, creion, stylus, mână liberă, deget, curățare, precis, agățare, SKETCHLIVE, SKETCHFIX, dimensiune, suprascriere
-from: cd87eb75
+summary: Desenați liber cu un creion, mouse sau deget, iar fiecare traseu devine o linie, un cerc, un arc, un dreptunghi sau o polilinie curată la ridicarea creionului, lipită de ce este deja desenat, cu dimensiunea gata de suprascris.
+keywords: schiță, creion, stilus, mână liberă, deget, curățare, precis, agățare, SKETCHLIVE, SKETCHFIX, dimensiune, suprascriere, presiune, grosime de linie, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Pornește {{cmd:SKETCHLIVE}} (sau alege **Desen › Mai multe › Schițare cu un creion**) și desenați un traseu apăsând și trăgând. Când ridicați creionul, CadCraft interpretează ce ați vrut și îl pune în desen:
+Porniți {{cmd:SKETCHLIVE}} (sau alegeți **Desen › Mai multe › Schițare cu creionul**) și desenați un traseu apăsând și trăgând. La ridicarea creionului, CadCraft înțelege ce ați vrut și îl pune în desen:
 
 | Traseul desenat | Ce se obține |
 |---|---|
 | Aproape drept | O linie. O linie aproape orizontală sau verticală devine exact orizontală sau verticală. |
 | Închis și rotund | Un cerc |
 | Parte dintr-o formă rotundă | Un arc |
-| Închis, cu patru colțuri drepte | Un dreptunghi |
+| Închis cu patru colțuri drepte | Un dreptunghi |
 | Orice altceva | O polilinie cu laturi drepte |
 
-Capetele unui traseu sunt trase spre cel mai apropiat capăt din ce este deja desenat, astfel încât un perete schițat se întâlnește cu peretele de alături.
+Capetele unui traseu sunt trase spre cel mai apropiat capăt al celor deja desenate, astfel încât un perete schițat se întâlnește cu peretele de alături.
 
-## Suprascrieți dimensiunea
+## Suprascrierea dimensiunii
 
-După fiecare traseu, linia de comandă afișează dimensiunea sa (**lungimea** unei linii, **raza** unui cerc sau arc, **lățimea** unui dreptunghi) ca valoare implicită. Apăsați {{key:Enter}} ca s-o păstrați sau tastați un număr ori o lungime, de exemplu `12'6"`, ca s-o înlocuiți. O linie își păstrează primul capăt, un cerc centrul, un dreptunghi primul colț.
+După fiecare traseu, linia de comandă arată dimensiunea sa ca valoare implicită (**lungimea** unei linii, **raza** unui cerc sau a unui arc, **lățimea** unui dreptunghi). Apăsați {{key:Enter}} pentru a o păstra sau tastați un număr ori o lungime, cum ar fi `12'6"`, pentru a o înlocui. O linie își păstrează primul capăt, un cerc centrul, un dreptunghi primul colț.
 
-Apăsați {{key:Enter}} la un prompt gol ca să încheiați sau tastați `U` ca să anulați ultimul traseu. Întreaga sesiune este un singur pas de anulare.
+Apăsați {{key:Enter}} la un prompt gol pentru a încheia sau tastați `U` pentru a anula ultimul traseu. Întreaga sesiune este un singur pas de anulare.
 
 ## Curățarea mai multor trasee deodată
 
-{{cmd:SKETCHFIX}} adună trasee și le face pe toate precise când apăsați {{key:Enter}}, ceea ce se potrivește unei schițe grosiere desenate rapid.
+{{cmd:SKETCHFIX}} adună trasee și le face toate precise la apăsarea lui {{key:Enter}}, ceea ce se potrivește unei dispoziții aproximative desenate repede.
 
 :::note
-Totul se calculează pe calculator, după reguli, fără model și fără trimiterea a nimic nicăieri.
+Totul se calculează pe computer, după reguli, fără model și fără să se trimită nimic nicăieri.
 :::
+
+## Presiunea stabilește grosimea liniei
+
+Acolo unde creionul este activat pentru aplicații (Setări › General › Dispozitive de intrare › Creion), un traseu desenat cu creionul păstrează fiecare punct dat de creion și presiunea sa. Un traseu ușor face un obiect subțire, iar unul apăsat unul gros: presiunea medie a traseului alege 0.18, 0.25, 0.35 sau 0.50 mm, iar linia de comandă spune care. Traseele desenate cu mouse-ul sau cu degetul iau grosimea curentă a liniei, ca înainte. {{cmd:PENPRESSURE}} oprește aceasta (sau o pornește din nou); alegerea se păstrează în acest browser.

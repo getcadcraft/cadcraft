@@ -2,7 +2,7 @@
 title: Kas jauns versijā 0.7 (iepriekšējā)
 summary: PDF pamatnes un PDF imports, skenēti rasējumi ar automātisku izsekošanu, īsti splaini ar SPLINE, SPLINEDIT un PEDIT, izmēru stilu pārvaldnieks, teksts, kas saglabā savu formatējumu, WBLOCK un jūsu pašu mērogi, 3D cietie objekti no citām programmām, skenējumu reģistrēšana, Lāzera panelis, USD eksports, Vēsture un drukāšana CadCraft Studio, vadīts pirmais rasējums, rīkjosla jebkurā malā vai mazākās rindās un vēl vairāk MI asistentiem.
 keywords: kas jauns 0.7, iepriekšējais izlaidums, izlaiduma piezīmes, izmaiņu žurnāls, izmaiņas, 0.7, versija, jaunas funkcijas, pdf, pdfattach, pdfimport, pamatne, skenēšana, scan, scanattach, scantrace, izsekošana, rastrs, rastersnap, splaini, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatējums, wblock, scalelistedit, mērogu saraksts, acis, 3D cietvielas, registerscans, skenējumu reģistrēšana, icp, e57, las, lāzers, grbl, g-code, usd, usdout, vēsture, versijas, salīdzināt, drukāt, printeris, png, svg, drukāšanas stils, līnijtips, ekskursija, īsā rokasgrāmata, komandu karte, rīkjoslas novietojums, rīkjoslas rindas, toolbardock, regen, regenall, skārienpaliktnis, vilkt, koda lapa, kirilica, korejiešu, ķīniešu, japāņu, elektroinstalācija, rcd, p&id, pid, acad.lsp, acaddoc.lsp, atbalsta mape, asistenti, mcp, vienības, portugāļu
-from: d07ca034
+from: d9a8ea79
 ---
 
 Tas ir, kas mainījās CadCraft 0.7 salīdzinājumā ar 0.6. Liela daļa no tā tika pieprasīta Discord. Saraksts sagrupēts pēc jomām, ar svarīgākajām pirmajām.

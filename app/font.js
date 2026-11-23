@@ -69,8 +69,11 @@ export function advance(s) {
 // ---- other typefaces (0.9 FX.92: TEXTSTYLE + the MTEXT editor's font list) ----
 /** The faces of the font list, by CSS generic: what a name falls back to when the computer has none of that name. */
 export const FONT_LIST = Object.freeze([
+  // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
   ['Arial', 'sans-serif'], ['Calibri', 'sans-serif'], ['Verdana', 'sans-serif'], ['Tahoma', 'sans-serif'], ['Segoe UI', 'sans-serif'],
+  // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
   ['Times New Roman', 'serif'], ['Georgia', 'serif'], ['Cambria', 'serif'], ['Courier New', 'monospace'], ['Consolas', 'monospace'],
+  // i18n-ignore: font family name (words-11)
   ['Comic Sans MS', 'cursive'], ['Impact', 'sans-serif'],
 ]);
 const GENERIC = new Map(FONT_LIST);

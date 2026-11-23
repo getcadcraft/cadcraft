@@ -2,7 +2,7 @@
 title: Τι νέο υπάρχει στην έκδοση 0.7 (παλαιότερη)
 summary: Υποστρώματα PDF και εισαγωγή PDF, σαρωμένα σχέδια με αυτόματη ανίχνευση, πραγματικά splines με SPLINE, SPLINEDIT και PEDIT, διαχειριστής στυλ διαστάσεων, κείμενο που κρατά τη μορφοποίησή του, WBLOCK και δικές σας κλίμακες, στερεά 3D από άλλα προγράμματα, καταχώριση σαρώσεων, πάνελ Laser, εξαγωγή USD, Ιστορικό και εκτύπωση στο CadCraft Studio, καθοδηγούμενο πρώτο σχέδιο, γραμμή εργαλείων σε οποιαδήποτε πλευρά ή σε λιγότερες γραμμές, και περισσότερα για βοηθούς AI.
 keywords: τι νέο υπάρχει 0.7, παλαιότερη έκδοση, σημειώσεις έκδοσης, αλλαγές, changelog, 0.7, έκδοση, νέα χαρακτηριστικά, pdf, pdfattach, pdfimport, υπόστρωμα, σάρωση, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, μορφοποίηση, wblock, scalelistedit, λίστα κλιμάκων, acis, στερεά 3D, registerscans, καταχώριση σαρώσεων, icp, e57, las, laser, grbl, g-code, usd, usdout, ιστορικό, εκδόσεις, σύγκριση, εκτύπωση, εκτυπωτής, png, svg, στυλ σχεδίασης, τύπος γραμμής, περιήγηση, cheat sheet, χάρτης εντολών, θέση γραμμής εργαλείων, γραμμές γραμμής εργαλείων, toolbardock, regen, regenall, trackpad, swipe, σελίδα κωδικών, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, φάκελος υποστήριξης, βοηθοί, mcp, μονάδες, πορτογαλικά
-from: d07ca034
+from: d9a8ea79
 ---
 
 Αυτό άλλαξε στο CadCraft 0.7, σε σύγκριση με την 0.6. Μεγάλο μέρος του ζητήθηκε στο Discord. Η λίστα είναι ομαδοποιημένη ανά περιοχή, με το πιο σημαντικό πρώτο.

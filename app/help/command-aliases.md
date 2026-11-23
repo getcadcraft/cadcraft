@@ -47,6 +47,10 @@ Lines that start a program on your computer, like `NOTEPAD, START, 1, *File to e
 
 Type {{cmd:REINIT}} and press {{key:Enter}} to apply your aliases file again. It is kept in this browser; the desktop app will keep it in its own folder, and the cloud service will sync it.
 
+## Letters for a command's options
+
+An alias names a command. To change the letters that answer a command's options (`P` for Polar in {{cmd:ARRAY}}), see [Give command options your own letters](topic:option-letters).
+
 ## Keyboard shortcuts for any command
 
 An alias is typed; a shortcut is a key. To give a command a key of your own:

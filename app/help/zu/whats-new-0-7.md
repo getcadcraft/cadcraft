@@ -2,7 +2,7 @@
 title: Okusha ku-0.7 (kwangaphambili)
 summary: Ama-underlay e-PDF nokungenisa kwe-PDF, imidwebo eskenwe nokulandelwa okuzenzakalelayo, ama-spline angempela nge-SPLINE, SPLINEDIT ne-PEDIT, isiphathi sezitayela zezilinganiso, umbhalo ogcina ukwakheka kwawo, WBLOCK nezikali zakho, izinto ze-3D ezivela kwezinye izinhlelo, ukubhalisa izikena, iphaneli ye-Laser, ukuthumela ngaphandle kwe-USD, Umlando nokushicilela ku-CadCraft Studio, umdwebo wokuqala oqondisiwe, ithuluzi ngakunoma iyiphi uhlangothi noma ngemigqa embalwa, nokunye okuningi kubasizi be-AI.
 keywords: okusha 0.7, ukukhishwa kwangaphambili, amanothi okukhishwa, izinguquko, inguqulo, izici ezintsha, pdf, pdfattach, pdfimport, underlay, iskena, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, ukwakheka, wblock, scalelistedit, uhlu lwezikali, acis, izinhlobo ze-3d, registerscans, bhalisa izikena, icp, e57, las, laser, grbl, g-code, usd, usdout, umlando, izinguqulo, qhathanisa, imphrinta, png, svg, isitayela sokushicilela, linetype, uhambo, ishidi lesiqondiso, imephu yemiyalo, indawo yethuluzi, imigqa yethuluzi, toolbardock, regen, regenall, trackpad, swipe, ikhodi yekhasi, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, ifolda yokusekela, abasizi, mcp, izinyunithi, isiPhuthugezi
-from: d07ca034
+from: d9a8ea79
 ---
 
 Lokhu yiyo yonke into eshintshile ku-CadCraft 0.7, uma kuqhathaniswa no-0.6. Kuningi kwakho kwacelwa ku-Discord. Uhlu luhlelwe ngezindawo, okubaluleke kakhulu kuqala.

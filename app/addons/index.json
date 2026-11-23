@@ -15,5 +15,17 @@
     "cabinetcraft",
     "chip",
     "carving",
-    "lightdesign", "pointcloud", "circuit", "chain","default-policies", "mepdraft"]
+    "lightdesign",
+    "pointcloud",
+    "circuit",
+    "chain",
+    "default-policies",
+    "mepdraft",
+    "pool",
+    "pool-spec-eu",
+    "pool-spec-us",
+    "dome",
+    "dome-spec-us",
+    "dome-spec-eu"
+  ]
 }

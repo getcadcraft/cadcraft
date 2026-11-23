@@ -11,7 +11,7 @@
  *                                                   top-level group/component (+ "Loose geometry")
  *   importOBJ(model, text, name)     → {def, report}
  *   importGLTF(model, bytes, name)   → {def, report}         .glb, or .gltf with data: URIs only
- *   exportDAE(model, {name, date})   → string       Collada 1.4.1, Z up, meters (groups as nodes, components
+ *   exportDAE(model, {name, date})   → string (a Blob past 300 M characters, PERF.26)       Collada 1.4.1, Z up, meters (groups as nodes, components
  *                                                   in library_nodes + instance_node, colours as materials)
  *   importDAE(model, text, name)     → {def, report}         nodes → groups / components (see below)
  *   importDXF(model, text, name, {unit}) → {def, report, units}  edges on the ground (+ faces from hatches, 3D faces, solids)
@@ -35,8 +35,9 @@ import { faceTris, faceNormal, edgeFaces, solidInfo, meshDef, edgesDef, smoothNo
 const xp = (c) => (isImagePaint(c) ? paintHex(c) : c);
 import { parseXML, child, kids, walkXML } from './xml.js';
 import { textStrokes, cleanDxfText, cleanMtext } from './strokefont.js';
-import { xmlText, fx, ncName, nameExtra, geometryXml, instanceGeometryXml, nodeXml, documentXml } from './collada-write.js';   // cc-collada (lib/collada, 0.9 SU.1125)
+import { xmlText, fx, ncName, nameExtra, geometryXml, instanceGeometryXml, nodeXml, documentParts } from './collada-write.js';   // cc-collada (lib/collada, 0.9 SU.1125)
 import { t } from "./i18n.js";
+import { TextChunks } from './chunks.js';   // 0.11 PERF.26 (lib/textout)
 
 const MAX_VERTS = 2000000;
 const enc = new TextEncoder();
@@ -1461,7 +1462,8 @@ export function exportDAE(model, { name = 'ModelCraft model', date = new Date() 
   const colors = [...colorIdx.keys()];
   const effects = colors.map((c, i) => { const h = paintHex(c); return { id: 'eff-' + i, rgb: [1, 3, 5].map((o) => parseInt(h.slice(o, o + 2), 16) / 255) }; });
   const materials = colors.map((c, i) => ({ id: 'mat-' + i, name: isMaterialPaint(c) ? 'Material_' + c.slice(4) : 'Colour_' + c.slice(1), effect: 'eff-' + i }));
-  return documentXml({ tool: 'ModelCraft', date, effects, materials, geometries: geoms, libraryNodes: libNodes, scene });
+  // 0.11 PERF.26: the pieces into a TextChunks (lib/textout): the same string as before up to 300 M characters, a Blob past it
+  return new TextChunks('\n').addAll(documentParts({ tool: 'ModelCraft', date, effects, materials, geometries: geoms, libraryNodes: libNodes, scene })).finish().output('model/vnd.collada+xml');
 }
 
 export function importDAE(model, text, name = 'Collada import') {

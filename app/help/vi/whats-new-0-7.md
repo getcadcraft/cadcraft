@@ -2,7 +2,7 @@
 title: Có gì mới trong 0.7 (trước đó)
 summary: Lớp nền PDF và nhập PDF, bản vẽ quét có vết dò tự động, spline thực với SPLINE, SPLINEDIT và PEDIT, trình quản lý kiểu kích thước, văn bản giữ định dạng, WBLOCK và tỷ lệ riêng của bạn, khối 3D từ chương trình khác, đăng ký bản quét, bảng Laser, xuất USD, Lịch sử và in trong CadCraft Studio, hướng dẫn bản vẽ đầu tiên, thanh công cụ ở bất kỳ cạnh nào hoặc trong ít dòng hơn, và nhiều hơn nữa cho trợ lý AI.
 keywords: có gì mới 0.7, phiên bản trước, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.7, phiên bản, tính năng mới, pdf, pdfattach, pdfimport, lớp nền, quét, scanattach, scantrace, vết dò, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, định dạng, wblock, scalelistedit, danh sách tỷ lệ, acis, khối 3D, registerscans, đăng ký bản quét, icp, e57, las, laser, grbl, g-code, usd, usdout, lịch sử, các phiên bản, so sánh, in, máy in, png, svg, kiểu in, kiểu đường, hướng dẫn, bảng tra cứu nhanh, bản đồ lệnh, vị trí thanh công cụ, số dòng thanh công cụ, toolbardock, regen, regenall, bàn di chuột, vuốt, bảng mã, chữ Kirin, tiếng Hàn, tiếng Trung, tiếng Nhật, điện, rcd, p&id, pid, acad.lsp, acaddoc.lsp, thư mục hỗ trợ, trợ lý, mcp, đơn vị, tiếng Bồ Đào Nha
-from: d07ca034
+from: d9a8ea79
 ---
 
 Đây là những gì đã thay đổi trong CadCraft 0.7, so với 0.6. Phần lớn được yêu cầu trên Discord. Danh sách được nhóm theo khu vực, với những điều quan trọng nhất đứng đầu.

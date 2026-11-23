@@ -1,84 +1,103 @@
 ---
-title: Faka kusukela efayeleni noma emtapweni
-summary: Letha ibhulokhi, noma umdwebo wonke, ngaphakathi kwe-DWG noma i-DXF enye, bese ubeka izinto ezivela emtapweni, efayeleni noma komunye umtapo, nezikweletu zazo nezibuyekezo.
-keywords: faka, ifayela, umtapo, librarycraft, into, ibhulokhi emdwebweni omunye, wblock, design center, izikweletu, ukubonga, ilayisensi, isibuyekezo, ifidi, item.json
-from: 316188d2
+title: Faka kusuka kufayela noma kumtapo
+summary: Letha ibhulokhi, noma umdwebo wonke, usuke kwelinye i-DWG noma i-DXF, bese ubeka izinto ezivela emtapweni, kufayela noma kwelinye umtapo, nezikweletu nezibuyekezo zazo.
+keywords: faka, ifayela, umtapo, librarycraft, into, impahla, ibhulokhi kusuka kolunye umdwebo, wblock, design center, izikweletu, ukubonga, ilayisense, buyekeza, feed, item.json
+from: f6e4e452
 ---
 
-## Faka ibhulokhi kumdwebo omunye
+## Faka ibhulokhi kolunye umdwebo
 
-1. Thayipha `I` bese ucindezela {{key:Enter}}, noma chofoza {{ui:Insert}} eqenjini {{ui:Blocks}}.
-2. Ku-`Thayipha igama lebhulokhi noma [Ifayela (F)/Umtapo (L)]`, thayipha `F` bese ucindezela {{key:Enter}}.
-3. Khetha i-DWG noma i-DXF kulo kompyutha. Ifundwa lapha; ayivulwa, futhi akukho okulayishwa.
-4. Kwidayalogi {{ui:Insert from}}, khetha ibhulokhi ohlwini (thayipha ephaneli {{ui:Filter blocks}} ukuze uyithole), noma gcina {{ui:The whole drawing}}. Chofoza {{ui:Insert}}.
-5. Chofoza lapho kuya khona, bese ufaka noma yiziphi izici (attributes) ezicelwa.
+1. Bhala `I` bese ucindezela {{key:Enter}}, noma chofoza {{ui:Faka}} eqenjini le-{{ui:Amabhulokhi}}.
+2. Umugqa womyalo ongezansi kwewindi ubuza `Enter block name or [File/Library]`. Bhala `F` lapho bese ucindezela {{key:Enter}}.
+3. Khetha i-DWG noma i-DXF kule komputha. Ifundwa lapha; ayivulwa, futhi akukho okulayishwa.
+4. Kuwindi le-{{ui:Faka kusuka}}, khetha ibhulokhi kuhlu (bhala ku-{{ui:Hlunga amabhulokhi}} ukuze ulithole), noma gcina {{ui:Umdwebo wonke}}. Chofoza {{ui:Faka}}.
+5. Chofoza lapho ifika khona, bese ugcwalisa noma yiziphi izici ezicelayo.
 
-Umdwebo wonke ufika njengebhulokhi eyodwa egama ngegama lefayela. Namabhulokhi angaphakathi kwebhulokhi oyikhethile ayeza. Ongqimba ababasebenzisayo bayengezwa kulo mdwebo.
+Ungaqala nophaneli ye-{{ui:Amabhulokhi}}: bhala `F` ebhokisini layo le-{{ui:Hlunga amabhulokhi}} bese ucindezela {{key:Enter}}, noma bhala okuthile okungafani neblokhi bese uchofoza {{ui:Kusuka kufayela…}}. I-`L` ne-{{ui:Umtapo…}} zivula umtapo ngendlela efanayo. Ngaphambi kweguqulo 0.10.1 uhlamvu olubhalwe ku-{{ui:Hlunga amabhulokhi}} lwalusesha amabhulokhi alo mdwebo kuphela futhi lwaphendula ngokuthi "No block matches the filter."
 
-Uma omunye umdwebo unamayunithi ahlukile (amayintshi namamilimitha, ngitsho), i-CadCraft iyishintsha ireferensi ifane nawo futhi isho lokho emlandweni.
+Ukuze ugcine umdwebo wamabhulokhi akho useduze, chofoza {{ui:Engeza umdwebo}} ngaphansi kwe-{{ui:Imitapo}} ephaneli ye-{{ui:Amabhulokhi}} bese ukhetha i-DWG noma i-DXF. Amabhulokhi aso ahlelwe ngezithombe; chofoza elilodwa ukuze ulibeke.
+
+Umdwebo wonke ufika njengebhulokhi elilodwa elithathe igama lefayela. Namabhulokhi aphakathi kwebhulokhi okhethile ayeza. Izingqimba azisebenzisayo ziyengezwa kulo mdwebo.
+
+Uma omunye umdwebo unamayunithi ahlukile (amaintshi namamilimitha, isibonelo), i-CadCraft iyalinganisa isinkomba ukuze lihambisane futhi iyasho lokho emlandweni.
 
 ### Uma igama selisetshenzisiwe
 
-Uma kulo mdwebo kunebhulokhi enegama elifanayo, i-CadCraft iyabuza:
+Uma lo mdwebo sele unebhulokhi elinegama elifanayo, i-CadCraft iyabuza:
 
-- {{ui:Keep existing}} isebenzisa ibhulokhi yalo mdwebo ngalelo gama.
-- {{ui:Rename}} ilethe elisha njenge `Igama (2)`.
+- {{ui:Gcina okukhona}} isebenzisa ibhulokhi lalo mdwebo elinegama elifanayo.
+- {{ui:Qamba kabusha}} ilethe elisha njengo `Name (2)`.
 
-Konke ukufakwa kuyisinyathelo esisodwa: {{key:Mod+Z}} ususa ireferensi nezincazelo ezikopishiwe.
+Konke ukufaka kungesinyathelo esisodwa: {{key:Mod+Z}} isusa isinkomba nezincazelo ezikopishiwe.
 
 ## Vula umtapo
 
-Chofoza {{ui:Library…}} ephaneli ye-{{ui:Blocks}}, noma {{ui:Library}} eqenjini {{ui:Blocks}}, noma thayipha `LIB`. Ku-prompt ye-`INSERT`, `L` nayo iwuvula.
+Chofoza {{ui:Umtapo…}} ephaneli ye-{{ui:Amabhulokhi}}, noma {{ui:Umtapo}} eqenjini le-Blocks, noma bhala `LIB`. Ku-`INSERT` prompt, i-`L` nayo iyawuvula.
 
 Umtapo unemithombo emine, njengamathebhu:
 
-- {{ui:Library}}: umtapo we-CadCraft. Sesha ngegama, umenzi noma imodeli, bese uhlunga ngesigaba.
-- {{ui:Files…}}: ifayela lento (`item.json`) kunoma yimuphi umtapo, noma umdwebo, isipredishithi noma imodeli ye-3D okwenza ngayo izinto: i-DWG noma i-DXF (ibhulokhi ngayinye iba yinto), i-CSV enamakholomu egama nosayizi, noma imodeli ye-glTF noma OBJ. Akukho okulayishwa.
-- {{ui:Standard}}: izigaba zensimbi (njengezigaba, izinkombandlela noma izitho ze-3D) nezingxenye ezijwayelekile ezifana namabholthi, amanathi namabheringi, eyenziwe lapha ngokususelwe emathebhuleni ashicilelwe. Bheka [Beka izigaba zensimbi nezingxenye ezijwayelekile](topic:steel-and-standard-parts).
-- {{ui:Other feeds}}: eminye imitapo ephendula ngendlela efanayo nomtapo Library. Yengeza ikheli labo kanye; lesi siphequluli siyalikhumbula.
+- {{ui:Umtapo}}: umtapo we-CadCraft. Sesha ngegama, umkhiqizi noma imodeli, bese uhlunga ngesigaba.
+- {{ui:Amafayela…}}: ifayela lento (`item.json`) elivela kunoma yiliphi umtapo, noma umdwebo, ishidi lezibalo noma imodeli ye-3D okwenza kuyo izinto: i-DWG noma i-DXF (ibhulokhi ngalinye liba yinto), i-CSV enamakholomu egama nobukhulu, noma imodeli ye-glTF noma ye-OBJ. Akukho okulayishwa.
+- {{ui:Standard}}: izigaba zensimbi (njengezigaba, ukubukeka noma izitho ze-3D) nezingxenye ezijwayelekile ezifana nama-bolt, ama-nut nezinsimbi zokuzungeza, ezenziwe lapha kusuka etafuleni elishicilelwe. Bheka [Beka izigaba zensimbi nezingxenye ezijwayelekile](topic:steel-and-standard-parts).
+- {{ui:Okunye okuthunyelwayo}}: eminye imitapo ephendula ngendlela efanayo nomtapo. Yengeza ikheli lawo kanye; le browser iyalikhumbula.
 
-Ikhadi ngalinye libonisa isibonelo, igama, umenzi nemodeli, ilayisensi nenguqulo. Into eyayiphelelwe yisikhathi imakwe ngokuthi {{ui:Withdrawn}} nesizathu; i-CadCraft iyabuza ngaphambi kokuyibeka.
+Ikhadi ngalinye libonisa ukubukwa kuqala, igama, umkhiqizi nemodeli, ilayisense nenguqulo. Into ehoxisiwe imakwa ngokuthi {{ui:Ihoxisiwe}} nesizathu; i-CadCraft iyabuza ngaphambi kokuyibeka.
 
 ## Beka into
 
-1. Chofoza {{ui:Place}} ekhadini.
-2. Chofoza lapho into iya khona. Thayipha [Zungeza (R)] kuqala ukuze uyiphendule, noma [Usayizi (S)] ukuze uyishintshe usayizi.
-3. Ku-`Faka inombolo yento (CC-ITEM)`, cindezela {{key:Enter}} ukuze uthole inombolo elandelayo engakasetshenziswa, noma uthayiphe eyakho.
+1. Chofoza {{ui:Beka}} kukhadi.
+2. Chofoza lapho into ifika khona. Bhala `R` kuqala ukuze uyiphendule, noma `S` ukuze uyilinganise.
+3. Ku-`Enter Item number (CC-ITEM)`, cindezela {{key:Enter}} ukuze uthole inombolo elandelayo etholakalayo, noma bhala eyakho.
 
-Into iba yibhulokhi egama lalo lingu `LIB_<igama>_v<inguqulo>`, idwetshwe ngamayunithi alo mdwebo. Uma umdwebo ungenayo amayunithi, into ingena ngamamilimitha futhi umlando uyasho lokho; setha {{ui:Units}} ephaneli yesokudla kuqala.
+Into iba ibhulokhi elinegama elithi `LIB_<name>_v<version>`, eladwetshwe ngamayunithi alo mdwebo. Uma umdwebo ungenawo amayunithi, into ingena ngamamilimitha futhi umlando uyasho lokho; setha {{ui:Amayunithi}} esiphaneli sokudla kuqala.
 
-Idatha yayo ihamba nayo njengezici ezingabonakali: inombolo nenguqulo yento, ilayisensi nokubonga, umenzi, imodeli, isigaba nosayizi. Bheka [Izici zebhulokhi](topic:attributes).
+Idatha yayo ihamba njengezici ezingabonakali: i-id nenguqulo yento, ilayisense nokubonga, umkhiqizi, imodeli, isigaba nobukhulu. Bheka [Izici zebhulokhi](topic:attributes).
 
-## Izinto zolimi lwakho
+## Izinto ngolimi lwakho
 
-Into ingaba negama nencazelo ngezinye izilimi. Uma inazo ngolimi i-CadCraft ibekwe kulo (Izilungiselelo › Okuvamile › Ulimi), ikhadi negama lento ebekiwe kusebenzisa lezo. Ibhulokhi ngokwayo ligcina igama elakhiwe ngegama lento lingokwayo, ngakho umdwebo unebhulokhi eyodwa ngento, noma yiliphi ulimi elibekwe ngalo.
+Into ingaba negama nencazelo ngezinye izilimi. Uma inazo ngolimi i-CadCraft ibekwe kulo (Izilungiselelo › Okuvamile › Ulimi), ikhadi negama lento yebhulokhi elibekiwe kuyazisebenzisa. Ibhulokhi ngokwaloligcina igama elenziwe kusuka egameni lento, ngakho umdwebo unebhulokhi elilodwa ngento ngalunye nanoma ngubani olibekile ngolimi oluthile.
 
 ## Hlola izibuyekezo
 
 1. Vula umtapo.
-2. Chofoza {{ui:Check for updates}}.
+2. Chofoza {{ui:Hlola izibuyekezo}}.
 
-Yonke into yomtapo emdwebweni idwetshwe ngezinombolo zayo nokuthi isesimweni esisha yini, inenguqulo entsha (nokuthi yini eshintshile), noma ihoxisiwe. Chofoza {{ui:Update}} emugqeni, noma {{ui:Update all}}. Yonke ireferensi ihamba ibhulokhi yenguqulo entsha ihlale nenombolo yayo yento, inani, indawo, i-engeli nongqimba. {{key:Mod+Z}} ihlehlisa isibuyekezo.
+Yonke into yomtapo emdwebeni ibhalwa ngezinombolo zayo nokuthi isebusha yini, inenguqulo entsha (nokuthi yini eshintshile), noma ihoxisiwe. Chofoza {{ui:Buyekeza}} ohlwini, noma {{ui:Buyekeza konke}}. Yonke isinkomba ihamba ibhulokhi lenguqulo entsha futhi igcina inombolo yento, inani, indawo, ingosi nengqimba. {{key:Mod+Z}} ihlehlisa ukubuyekeza.
 
-## Bonga lokho osebenzise
+## Bonga okusetshenzisiwe
 
-Chofoza {{ui:Library credits}}. Yonke into idwetshwa ngomugqa wayo wokubonga nelayisensi.
+Chofoza {{ui:Izikweletu zomtapo}}. Into ngayinye ibhalwa ngomugqa wayo wokubonga nelayisense.
 
-- {{ui:Copy attribution}} ikopisha umugqa wento eyodwa; {{ui:Copy all}} ikopisha yonke imigqa.
-- {{ui:Download CSV}} igcina uhlu lwezinombolo zezinto, abenzi, amamodeli, amalayisensi nokubonga. Livulwa kunoma yisiphi isipredishithi.
+- {{ui:Kopisha ukubonga}} ikopisha umugqa wento eyodwa; {{ui:Kopisha konke}} ikopisha yonke imigqa.
+- {{ui:Landa i-CSV}} ilondoloza uhlu nezinombolo zento, abakhiqizi, amamodeli, amalayisense nokubonga. Ivulwa kunoma iyiphi ishidi lezibalo.
 
-Ilayisensi ezifana ne-CC BY zikucela ukuthi ubonge umbhali lapho usebenzisa umsebenzi. Faka lo mugqa emdwebweni, ku-specification noma kumanothi wephrojekthi.
+Amalayisense afana ne-CC BY akucela ukuthi ubonge umbhali lapho usebenzisa umsebenzi. Faka lo mugqa emdwebeni, encazelweni noma emanothini wephrojekthi.
 
 ## Izimpawu nezimpahla
 
-Umtapo unezinhlobo ezintathu zezinto: Izimpawu (izivumelwano zomdwebo, 2D), Izinhlobo (okwakhiwe kukho into) kanye Nezimpahla (izinto eziphathekayo). Ku-tab ye-{{ui:Library}}, uhlu lwe-{{ui:Kind of item}} lubonisa Izimpawu nezimpahla ndawonye, Izimpawu kuphela, noma Izimpahla kuphela. Izinhlobo yilokho okwakhiwa kuso iphrojekthi ye-BimCraft, ngakho i-CadCraft ayizidweshi.
+Umtapo unezinhlobo ezintathu zezinto: Izimpawu (izivumelwano zokudweba, 2D), Izinhlobo (okwakhiwa kuzo into) nezimpahla (izinto ezibonakalayo). Kuthebhu le-{{ui:Umtapo}}, uhlu lwe-{{ui:Uhlobo lwento}} lubonisa izimpawu nezimpahla ndawonye, izimpawu kuphela, noma izimpahla kuphela. Izinhlobo yilokho okwakhiwa ngakho iphrojekthi ye-BimCraft, ngakho i-CadCraft ayizibhali.
 
 ## Ngena emtapweni
 
-Chofoza {{ui:Sign in to the library}}. Kuvela iwindi elincane ku-sayithi; uma sewungene lapho, i-CadCraft ingakhombisa izinto zethimba lakho futhi irekhode lokho obekayo, ukuze uzwe uma into osetshenzise ishintsha. Ukungena kuhlala lapho kuleli thebhu lesiphequluli. Yihoxisa noma nini kusuka ekhasini lokuphepha le-I-akhawunti yakho.
+Chofoza {{ui:Ngena emtapweni}}. Kuvula iwindi elincane kuwebhusayithi; uma sewungenile lapho, i-CadCraft ingakhombisa izinto zethimba lakho futhi irekhoda lokho obekayo, ukuze uzwe uma into osetshenziswe iguqukile. Ukungena kuhlala kuleli thebhu le-browser. Ungayihoxisa noma nini kusayithi yokuphepha ye-akhawunti yakho.
 
-## Amaphutha avamile
+## Gcina izinto zakho ezintweni zami
 
-- **"Ukwenza izinto kusuka ezinhlobeni ze-IFC kwenziwa ku-BimCraft."** Amafayela e-IFC nomndeni afundwa ku-app ye-BimCraft. Yenza into lapho noma emtapweni, bese usebenzisa i-`item.json` yayo lapha.
-- **"Umtapo awukwazanga ukufinyelelwa."** Awukho ku-inthanethi, noma umtapo awusebenzi. Izinto ezisemdwebeni azithintekile.
-- **Into inkulu kakhulu noma incane kakhulu.** Amayunithi omdwebo awalungile noma awasethiwe. Hlehlisa, setha {{ui:Units}}, bese uyibeka futhi.
+I-{{ui:Izinto zami}} uhlu lwangasese emtapweni olubonwa nguwe kuphela. Alikho emtapweni woluntu, alisesakeni, futhi alibonakali ethimbeni lakho, futhi lilandela i-akhawunti yakho kunoma iyiphi ikhompiyutha lapho ungena khona emtapweni.
+
+1. Ephaneli yoMtapo, chofoza {{ui:Amafayela…}} bese ufunda ifayela.
+2. Kulento ofuna ukuyibona futhi, chofoza {{ui:Gcina ezintweni zami}}.
+3. Kamuva, chofoza {{ui:Izinto zami}} bese uchofoza {{ui:Beka}}. Ibekwa njengento yanoma yimuphi umtapo, futhi {{ui:Hlola izibuyekezo}} iyayifaka.
+4. {{ui:Susa ezintweni zami}} ikususa ohlwini. Amakhophi asevele abekwe emidwebeni ayahlala.
+
+Udinga ukungene emtapweni. Ukufunda ifayela akulayishi lutho; ukugcina into kuthumela leyo nto kuphela ku-akhawunti yakho.
+
+:::note
+Izinto zami sezisahlolwa futhi zingase zingavulwa ku-akhawunti yakho okwamanje. Uma kuthi "My objects is not open for this account yet", usazokwazi ukubeka izinto kumafayela akho nge-{{ui:Amafayela…}}.
+:::
+
+## Amaphutha ajwayelekile
+
+- **"Ukwenza izinto kusuka ezinhlobeni ze-IFC kusemBimCraft."** Amafayela e-IFC nomndeni afundwa kuhlelo lwe-BimCraft. Yenza into lapho noma emtapweni, bese usebenzisa i-`item.json` yayo lapha.
+- **"Umtapo awukwazanga ukufinyelelwa."** Awuxhunyiwe, noma umtapo uhlehlile. Izinto ezisendwebeni azithintwa.
+- Into inkulu kakhulu noma incane kakhulu. Amayunithi omdwebo awalungile noma awazange asethwe. Hlehlisa, setha {{ui:Amayunithi}}, bese uyibeka kabusha.

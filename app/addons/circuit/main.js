@@ -46,7 +46,9 @@ export async function activate(api) {
   const words = (r) => t(r.key, r.vars || {});
 
   // ---------------------------------------------------------------- the sheet (kept in this browser)
+  // i18n-ignore: log text for the developer console, never shown (words-11)
   const load = () => { try { const j = api.storage.get('sheet'); if (j) { const r = S.fromFile(j); if (r.sheet) return r.sheet; } } catch (e) { api.log('stored sheet unreadable', e); } return S.newSheet(''); };
+  // i18n-ignore: log text for the developer console, never shown (words-11)
   const saveLocal = (sch) => { try { api.storage.set('sheet', S.toFile(sch)); } catch (e) { api.log('could not keep the sheet', e); } };
 
   // ---------------------------------------------------------------- Problems: one source, the rule check

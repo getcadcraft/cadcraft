@@ -1,419 +1,423 @@
 ---
 title: Mapa komandi: šta ukucati
-summary: Svaka komanda koju CadCraft ima, sa njenim skraćenim nazivima, od A do Z, napravljena iz samog programa, i navike iz drugih programa za crtanje koje se razlikuju.
-keywords: mapa komandi, komande, alijasi, skraćeni nazivi, dolazak iz, spisak komandi, šta ukucati, izbriši, obreži, ekvivalent, razlike
-from: 3bdfd3e6
+summary: Svaka komanda CadCraft-a sa svojim kratkim nazivima, od A do Z, napravljena iz samog programa, i navike iz drugih programa za crtanje koje se razlikuju.
+keywords: mapa komandi, komande, skraćenice, kratki nazivi, dolazak iz, spisak komandi, šta ukucati, obriši, skrati, ekvivalent, razlike
+from: 9426856f
 ---
 
-CadCraft preuzima nazive komandi i skraćene nazive koje ljudi znaju iz drugih programa za crtanje: ukucajte `L` za liniju, `TR` za obrezivanje, `E` za brisanje. Zato za većinu komandi ne postoji tabela prevoda koju treba učiti: naziv koji poznajete je ovde isti. Spisak ispod sadrži svaku komandu koju CadCraft ima, napravljen iz samog programa. {{key:Enter}} ponavlja poslednju komandu; `HELP` u komandnoj liniji ispisuje isti spisak.
+CadCraft preuzima nazive komandi i kratke nazive koje ljudi znaju iz drugih programa za crtanje: ukucajte `L` za liniju, `TR` za skraćivanje, `E` za brisanje. Zato za većinu njih nema tabele prevoda koju treba naučiti: naziv koji znate je naziv ovde. Spisak ispod je svaka komanda koju CadCraft ima, napravljen iz samog programa. {{key:Enter}} ponavlja poslednju, a `HELP` u komandnoj liniji štampa isti spisak.
 
-Nekoliko njih koji nisu isti ili nisu napravljeni:
+Nekoliko koje nisu iste, ili nisu napravljene:
 
-- **Sačuvaj** preuzima kopiju u pregledaču ({{cmd:SAVE}}, {{cmd:SAVEAS}}); u CadCraft Studiju upisuje datoteku. Pogledajte [Prelazak sa drugog softvera za crtanje](topic:coming-from).
-- **PLOT** pravi PDF (takođe PNG i SVG), sa tabelom stilova štampanja; nema menadžera podešavanja stranice.
-- **DIMSTYLE** i **PEDIT** su napravljeni; **PEDIT** nema opciju Izmena temena (to rade hvatišta).
-- **TABLE** nije napravljena; {{cmd:XREF}}, {{cmd:SPLINE}} i {{cmd:WBLOCK}} jesu.
-- Sopstvene komande rutine (AutoLISP `C:NAME`) pojavljuju se nakon što je učitate sa {{cmd:APPLOAD}}; ovde nisu navedene.
+- **Sačuvaj** (**Save**) preuzima kopiju u pregledaču ({{cmd:SAVE}}, {{cmd:SAVEAS}}); u CadCraft Studio-u upisuje datoteku. Vidi [Dolazak iz drugog softvera za crtanje](topic:coming-from).
+- **PLOT** pravi PDF (takođe PNG i SVG), uz tabelu stilova štampanja; nema upravljača podešavanjem stranice.
+- **DIMSTYLE** i **PEDIT** su napravljeni; **PEDIT** nema opciju Izmeni tačku (to rade hvatači).
+- **TABLE** nije napravljen; {{cmd:XREF}}, {{cmd:SPLINE}} i {{cmd:WBLOCK}} jesu.
+- Sopstvene komande rutine (AutoLISP `C:NAME`) pojavljuju se posle učitavanja sa {{cmd:APPLOAD}}; ovde nisu navedene.
 
-## Sve komande (398)
+## Sve komande (402)
 
-| Komanda | Skraćeni nazivi | Šta radi |
+| Komanda | Kratki nazivi | Šta radi |
 |---|---|---|
-| `3DORBIT` | `3DO`, `ORBIT` | Orbitira 3D prikaz levim tasterom miša |
-| `ACCESS` | `AX` | Uključuje ili isključuje crtanje bez vida: rezultate izgovara čitač ekrana, tastaturni kursor je na crtežu, zvuci hvatanja i komande izgovorene glasom. |
-| `ALIASEDIT` |  | Menja alijase komandi u jednoj tekstualnoj datoteci (poznati format L, *LINE) |
-| `ALIGN` | `AL` | Pomera i okreće objekte tako da izvorne tačke padnu na odredišne tačke (jedan, dva ili tri para), i po želji ih razmerava |
-| `ALIGNPANEL` | `ALP` | Otvara panel Poravnaj i rasporedi |
-| `ALIGNTO` |  | Poravnava leve, srednje, desne, gornje, središnje ili donje ivice izabranih objekata, prema izboru, prvom ili poslednjem izabranom objektu, ili tački |
-| `ANNOALLVISIBLE` | `ANNOALL` | Prikazuje objekte napomena na svakoj razmeri, ili samo tamo gde je razmera prozora pogleda (ili crteža) na njihovom spisku |
-| `ANNOSCALE` | `CANNOSCALE` | Postavlja razmeru napomena crteža: tekst i kote napomena menjaju veličinu da bi se štampali u istoj veličini |
-| `APPLOAD` | `AP` | Učitava aplikacije: LISP rutine (.lsp) i njihove datoteke dijaloga (.dcl); Startup Suite (AP) |
+| `3DORBIT` | `3DO`, `ORBIT` | Orbitira 3D prikaz levim dugmetom |
+| `ACCESS` | `AX` | Uključuje ili isključuje crtanje bez vida: rezultati izgovoreni preko čitača ekrana, tastaturni kursor na crtežu, zvuci hvatanja i izgovorene komande. |
+| `ALIASEDIT` | | Uređuje skraćenice komandi u jednoj tekstualnoj datoteci (poznati format L, *LINE) |
+| `ALIGN` | `AL` | Pomera i okreće objekte tako da izvorne tačke padnu na odredišne tačke (jedan, dva ili tri para), i po potrebi ih razmerava |
+| `ALIGNPANEL` | `ALP` | Otvara panel Poravnaj i raspodeli |
+| `ALIGNTO` | | Poravnava leve, središnje, desne, gornje, srednje ili donje ivice izabranih objekata, na izboru, na prvom ili poslednjem izabranom objektu, ili na tački |
+| `ANNOALLVISIBLE` | `ANNOALL` | Prikazuje anotativne objekte na svakoj razmeri, ili samo tamo gde je razmera prozora pogleda (ili crteža) na njihovom spisku |
+| `ANNOSCALE` | `CANNOSCALE` | Postavlja razmeru anotacija crteža: anotativni tekst i kote se razmeravaju da se štampaju u istoj veličini |
+| `APPLOAD` | `AP` | Učitava aplikacije: LISP rutine (.lsp) i njihove datoteke dijaloga (.dcl); Startni paket (AP) |
 | `ARC` | `A` | Luk: 3 tačke, Početak/Centar/Kraj, Početak/Centar/Ugao, Početak/Centar/Dužina, Početak/Kraj/Ugao, Početak/Kraj/Pravac, Početak/Kraj/Poluprečnik, Centar/Početak/Kraj, Centar/Početak/Ugao, Centar/Početak/Dužina, Nastavi |
-| `AREA` | `AA` | Površina i obim po tačkama ili objektu; Dodaj i Oduzmi čuvaju tekući zbir (AA) |
-| `ARRAY` | `AR` | Kopije u redovima i kolonama, ili u krug oko centra (AR) |
-| `ARRAYASSOCIATIVITY` |  | Postavlja da li komande ARRAY prave nizove koji ostaju izmenljivi (1) ili obične kopije (0) |
-| `ARRAYCLOSE` |  | Završava izmenu izvornih objekata niza |
-| `ARRAYEDIT` |  | Menja niz napravljen opcijom Pridruženo: brojeve, razmak, izvorne objekte, jednu stavku |
-| `ARRAYPATH` |  | Kopije objekata duž linije, luka, polilinije ili druge krive |
-| `ARRAYPOLAR` |  | Kopije oko tačke centra |
-| `ARRAYRECT` |  | Kopije u redovima i kolonama |
-| `ASBUILT` | `ASB` | ASBUILT čita tačke izvedenog stanja koje je ekipa izmerila (CSV / TXT, kako ih upisuje EXPORTPOINTS) i poredi ih sa tačkama crteža: unutar ili van tolerancije, nije izmereno, višak. Označava ih na sloju AS-BUILT i preuzima CSV izveštaj. |
-| `ATTDEF` | `ATT`, `DDATTDEF`, `-ATTDEF` | Definiše atribut (oznaku za koju blok traži vrednost) za ubacivanje u blok (ATT) |
-| `ATTEDIT` | `ATE`, `-ATTEDIT` | Menja vrednosti atributa referenci bloka u komandnoj liniji, jednu za drugom (Enter zadržava vrednost) |
-| `ATTSYNC` |  | Usklađuje reference bloka sa definicijama atributa: nove se dodaju sa podrazumevanim vrednostima, uklonjene se brišu, položaji i tekst se vraćaju; vrednosti se čuvaju |
-| `AUDIT` |  | Proverava otvoreni crtež zbog oštećenja: brojevi koji nisu konačni, objekti bez veličine, nedostajući slojevi, blokovi, stilovi i tipovi linija, blokovi koji sadrže sami sebe, zajednički identifikatori, neispravne kote i šrafure. Navodi šta je našla po vrsti i pita pre ispravke; ispravka je jedan korak opoziva. |
+| `AREA` | `AA` | Površina i obim po tačkama ili nekog objekta; Dodaj i Oduzmi čuvaju tekući zbir (AA) |
+| `ARRAY` | `AR` | Kopije u redovima i kolonama, ili u krugu oko centra (AR) |
+| `ARRAYASSOCIATIVITY` | | Određuje da li komande ARRAY prave nizove koji ostaju izmenljivi (1) ili obične kopije (0) |
+| `ARRAYCLOSE` | | Završava uređivanje izvornih objekata niza |
+| `ARRAYEDIT` | | Menja niz napravljen opcijom Pridruženo: brojevi, razmak, izvorni objekti, jedna stavka |
+| `ARRAYPATH` | | Kopije objekata duž linije, luka, polilinije ili druge krive |
+| `ARRAYPOLAR` | | Kopije u krugu oko središnje tačke |
+| `ARRAYRECT` | | Kopije u redovima i kolonama |
+| `ASBUILT` | `ASB` | ASBUILT čita izmerene tačke izvedenog stanja koje je izmerila ekipa (CSV / TXT, kako ih piše EXPORTPOINTS) i poredi ih sa tačkama crteža: unutar ili van tolerancije, nije izmereno, višak. Obeležava ih na sloju AS-BUILT i preuzima CSV izveštaj. |
+| `ATTDEF` | `ATT`, `DDATTDEF`, `-ATTDEF` | Definiše atribut (oznaku za koju blok traži vrednost) za stavljanje u blok (ATT) |
+| `ATTEDIT` | `ATE`, `-ATTEDIT` | Menja vrednosti atributa reference bloka u komandnoj liniji, jednu za drugom (Enter zadržava vrednost) |
+| `ATTSYNC` | | Usklađuje reference bloka sa njegovim definicijama atributa: nove dodaje sa podrazumevanim vrednostima, uklonjene izbacuje, pozicije i tekst se resetuju; vrednosti se čuvaju |
+| `AUDIT` | | Proverava otvoreni crtež za oštećenja: brojevi koji nisu konačni, objekti bez veličine, nedostajući slojevi, blokovi, stilovi i tipovi linija, blokovi koji sadrže sami sebe, zajednički identifikatori, neispravne kote i šrafure. Navodi šta nalazi po vrsti i pita pre popravke; popravka je jedan korak opozivanja. |
 | `AUNITS` | `ANGUNITS` | Kako se uglovi prikazuju i unose: decimalni stepeni, stepeni-minuti-sekunde ili pravci kao N45°23'30"E (ANGUNITS) |
-| `AUTOCOMPLETE` | `AUTOC` | Automatsko dovršavanje crteža uključeno ili isključeno, ili navodi šta obrasci crteža sada predlažu. |
-| `AUTOCONSTRAIN` |  | Dodaje podudarnost, horizontalna i vertikalna ograničenja tamo gde je geometrija već blizu |
-| `AUTODIM` | `ADIM` | Kotira prema pravilima: ukupne dimenzije, lanci duž strana, otvori, prečnici rupa i razmak mreže, bez ponavljanja onoga što je već kotirano. |
-| `AUTOSHEET` | `ASH` | Sama raspoređuje listove: bira papir i standardne razmere i smešta svaki pogled sa natpisom i blokom naslova. |
-| `BATTMAN` |  | Menadžer atributa blokova: redosled, oznake, upiti, podrazumevane vrednosti i režimi atributa bloka, zatim ažuriranje njegovih referenci |
-| `BCLOSE` |  | Zatvara editor blokova: čuva blok ili odbacuje izmene |
-| `BCONVERT` |  | BCONVERT pronalazi geometriju koja se ponavlja i pretvara je u reference blokova. Izaberite objekte koji se ponavljaju: nalazi se svaki drugi skup objekata u otvorenom prostoru koji je ista geometrija, pomeren i okrenut pod bilo kojim uglom; uz uključene opcije Ogledalo ili Razmera nalaze se i ogledalske slike i kopije drugačije veličine. Dajte novom bloku naziv i osnovnu tačku; izbor i svaka kopija postaju reference na njega, svaka sa sopstvenom rotacijom i razmerom. Ili izaberite Blok i imenujte postojeći blok da biste našli rasute kopije njegovih objekata. Kopija mora imati isti sloj, boju, tip i debljinu linije, osim ako je Svojstva postavljeno na Zanemari. Objekti na zaključanim slojevima ostaju netaknuti. Jedan korak opoziva. |
-| `BEDIT` | `BE` | Editor blokova: menja objekte i atribute bloka; BCLOSE čuva (BE) |
-| `BLEND` |  | BLEND: spline između krajeva dve otvorene krive, izabran blizu krajeva da bi se spojile. CONtinuity: Tangenta prati oba smera, Glatko prati i to kako se savijaju. |
+| `AUTOCOMPLETE` | `AUTOC` | Automatsko dovršavanje crteža uključeno ili isključeno, ili navodi šta uzorci crteža sada predlažu. |
+| `AUTOCONSTRAIN` | | Dodaje podudarnost, vodoravna i uspravna ograničenja tamo gde je geometrija već blizu |
+| `AUTODIM` | `ADIM` | Kotiranje po pravilima: ukupna veličina, lanci duž strana, otvori, prečnici rupa i razmak mreže, bez ponavljanja onoga što je već kotirano. |
+| `AUTOSHEET` | `ASH` | Sam slaže listove: bira papir i standardne razmere i postavlja svaki prikaz sa natpisom i naslovnim blokom. |
+| `BATTMAN` | | Upravljač atributima bloka: redosled, oznake, upiti, podrazumevane vrednosti i režimi atributa bloka, zatim ažuriranje njegovih referenci |
+| `BCLOSE` | | Zatvara urednik bloka: čuva blok ili odbacuje izmene |
+| `BCONVERT` | | BCONVERT nalazi geometriju koja se ponavlja i pretvara je u reference bloka. Izaberite objekte koji se ponavljaju: svaki drugi skup objekata u otvorenom prostoru koji je ista geometrija, pomeren i okrenut za bilo koji ugao, biće nađen, a sa uključenim Ogledalski ili Razmera nalaze se i ogledalske slike i kopije drugačije veličine. Novom bloku dajte naziv i osnovnu tačku; izbor i svaka kopija postaju reference na njega, svaka sa sopstvenom rotacijom i razmerom. Ili izaberite Blok i imenujte postojeći blok da nađete slobodne kopije njegovih objekata. Kopija mora imati isti sloj, boju, tip i debljinu linije, osim ako Svojstva nisu postavljena na Ignoriši. Objekti na zaključanim slojevima se ne diraju. Jedan korak opozivanja. |
+| `BEDIT` | `BE` | Urednik bloka: uređuje objekte i atribute bloka; BCLOSE čuva (BE) |
+| `BLEND` | | BLEND: spline između krajeva dve otvorene krive, izabranih blizu krajeva da se spoje. CONtinuity: Tangent prati oba pravca, Smooth prati i kako se savijaju. |
 | `BLOCK` | `B`, `BMAKE` | Pravi blok od objekata (postaju jedna referenca) |
-| `BLOCKREPLACE` |  | BLOCKREPLACE: svaka referenca na jedan blok postaje referenca na drugi, na istom mestu, sa istom razmerom i rotacijom. Vrednosti atributa koje oba bloka imaju se čuvaju. |
-| `BLOCKSPALETTE` | `BLOCKSPAL` | BLOCKSPALETTE prikazuje panel Blokovi sa kursorom u njegovom filteru. Panel prikazuje sliku svakog bloka (najskoriji postavljeni prvi), kao spisak ili mrežu; kliknite sliku ili je prevucite na crtež da postavite blok sa INSERT. Pod Biblioteke dodajte sopstvenu DWG ili DXF datoteku: njeni blokovi se navode sa slikama i kopiraju se u ovaj crtež kad postavite jedan. U CadCraft Studiju može se dodati i fascikla crteža, a datoteke i fascikle se pamte. |
+| `BLOCKREPLACE` | | BLOCKREPLACE: svaka referenca jednog bloka postaje referenca drugog, na istom mestu, sa istom razmerom i rotacijom. Vrednosti atributa koje oba bloka imaju se čuvaju. |
+| `BLOCKSPALETTE` | `BLOCKSPAL` | BLOCKSPALETTE prikazuje panel Blokovi sa kursorom u njegovom filteru. Panel prikazuje sliku svakog bloka (najskorije postavljeni prvi), kao spisak ili mrežu; kliknite sliku ili je prevucite na crtež da postavite blok sa INSERT. Pod Bibliotekama dodajte sopstvenu DWG ili DXF datoteku: njeni blokovi se navode sa slikama i kopiraju se u ovaj crtež kada postavite jedan. U CadCraft Studio-u se može dodati i fascikla crteža, a datoteke i fascikle se pamte. |
 | `BOMEDIT` | `BOMCOLUMNS` | Kolone tabele specifikacije materijala, grupisanje, sortiranje, naslov, zbirovi i napomene |
-| `BOMEXPORT` |  | Čuva tabelu specifikacije materijala kao datoteku .csv |
-| `BOMTABLE` | `BOM` | Tabela specifikacije materijala uživo jedne zone ili celog crteža |
-| `BOMUPDATE` |  | Ažurira sve tabele specifikacije materijala odmah, i zamrznute |
-| `BOMZONE` | `BZONE` | Imenovana oblast crteža za specifikaciju materijala: dva ugla, poligon ili kontura zatvorenog objekta |
-| `BOUNDARY` | `BO`, `BPOLY` | BOUNDARY (BO): izaberite tačku unutar zatvorene oblasti i dobijate zatvorenu poliliniju oko nje. Lukovi ostaju lukovi. Ostrva obrisuje i oblasti unutar nje. |
-| `BOX` |  | Kutija: dva ugla i visina (3D) |
+| `BOMEXPORT` | | Čuva tabelu specifikacije materijala kao .csv datoteku |
+| `BOMTABLE` | `BOM` | Živa tabela specifikacije materijala jedne zone ili celog crteža |
+| `BOMUPDATE` | | Ažurira svaku tabelu specifikacije materijala sada, i zamrznute |
+| `BOMZONE` | `BZONE` | Imenovana oblast crteža za specifikaciju materijala: dva ugla, poligon ili obris zatvorenog objekta |
+| `BOUNDARY` | `BO`, `BPOLY` | BOUNDARY (BO): izaberite tačku unutar zatvorene površine i dobijate zatvorenu polilinju oko nje. Lukovi ostaju lukovi. Ostrva obuhvataju i unutrašnje površine. |
+| `BOX` | | Kutija: dva ugla i visina (3D) |
 | `BPARAMETER` | `BPARAM` | Još nije napravljeno: dodavanje parametra (kao što je Vidljivost) bloku. |
-| `BPARAMS` | `BPM`, `BLOCKPARAMS` | Parametri bloka: imenovani parametri sa formulama i više parametara vidljivosti u jednom bloku. Radi u editoru blokova (dodeljuje izabrane objekte stanju) i na izabranoj referenci (sopstvene vrednosti i stanja). |
-| `BREAK` | `BR` | Prelama liniju, luk, krug ili poliliniju između dve tačke (BR) |
-| `BREAKATPOINT` |  | Deli liniju, luk ili poliliniju na dva dela u tački |
-| `BREAKLINE` |  | Crta liniju sa simbolom preloma; njena veličina i produžetak preko krajeva se pamte. |
-| `BREPLACE` |  | BREPLACE menja jedan blok drugim. Izabrano: izaberite reference blokova i imenujte blok koji treba koristiti umesto njih. Sve: imenujte blok i njegovu zamenu, i svaka referenca u svakom prostoru i unutar drugih blokova se menja. Referenca zadržava mesto, razmeru, rotaciju i sloj, i vrednosti atributa koje oba bloka imaju; vrednosti za koje novi blok nema mesta se odbacuju i imenuju. |
-| `BSEARCH` |  | BSEARCH traži blokove. Naziv: deo naziva bloka, ili obrazac sa * i ?. Atribut: vrednost (ili TAG=vrednost) koju imaju atributi reference. Geometrija: izaberite objekte ili jednu referencu bloka, pa se navode blokovi čiji je oblik najmanje 85% sličan, najbolji prvi; veličina, rotacija i ogledalo se ne računaju. Reference nađene u otvorenom prostoru se biraju, spremne za sledeću komandu. |
-| `BURST` |  | Raspada reference blokova i zadržava šta kažu njihovi atributi: svaka vrednost postaje tekst na sloju atributa. |
-| `BVHIDE` | `BVH` | U editoru blokova: sakriva objekte u tekućem stanju vidljivosti. |
-| `BVSHOW` | `BVSH` | U editoru blokova: prikazuje objekte koje tekuće stanje vidljivosti krije (prikazuju se izbledelo da bi se izabrali). |
-| `BVSTATE` | `BVS` | U editoru blokova, na bloku sa stanjima vidljivosti: prebacuje na stanje, ili dodaje, preimenuje ili briše jedno. |
-| `CAL` |  | Izračunava dužinu ili broj: + − * / i zagrade, kako ih ukucate bilo gde |
-| `CENTERLINE` | `CL` | Osna linija između dve linije: na sredini između njih, ili duž simetrale kad se sastaju (CL) |
-| `CENTERMARK` | `CM`, `DIMCENTER`, `DCE` | Oznaka centra: krst u centru kruga ili luka, sa osnim linijama do malo preko njega (CM) |
-| `CHAMFER` | `CHA` | Skosi ugao između dve linije (D dve udaljenosti, A dužina i ugao, P svaki ugao polilinije) |
-| `CHSPACE` |  | CHSPACE: premešta objekte između lista i modela kroz prozor pogleda. Razmeravaju se i okreću da izgledaju isto sa druge strane. Na listu idu u model; dok radite kroz prozor pogleda (MSPACE), dolaze na list. |
+| `BPARAMS` | `BPM`, `BLOCKPARAMS` | Parametri bloka: imenovani parametri sa formulama, i više parametara vidljivosti u jednom bloku. Radi u uredniku blokova (dodeljuje izabrane objekte stanju) i nad izabranom referencom (sopstvene vrednosti i stanja). |
+| `BREAK` | `BR` | Prelomi liniju, luk, krug ili polilinju između dve tačke (BR) |
+| `BREAKATPOINT` | | Deli liniju, luk ili polilinju na dva dela u tački |
+| `BREAKLINE` | | Crta liniju sa simbolom preloma; njena veličina i produženje preko krajeva se pamte. |
+| `BREPLACE` | | BREPLACE menja jedan blok drugim: izabrane reference blokova i ime bloka koji ide umesto njih. Sve: imenujte blok i njegovu zamenu, i svaka referenca u svakom prostoru i unutar drugih blokova se menja. Referenca zadržava svoje mesto, razmeru, rotaciju i sloj, i vrednosti atributa koje oba bloka imaju; vrednosti za koje novi blok nema mesto se odbacuju i navode. |
+| `BSEARCH` | | BSEARCH nalazi blokove. Ime: deo naziva bloka, ili šablon sa * i ?. Atribut: vrednost (ili TAG=vrednost) koju drže atributi reference. Geometrija: izaberite objekte ili jednu referencu bloka, i navode se blokovi čiji je oblik najmanje 85% sličan, najbolji prvi; veličina, rotacija i ogledalo se ne računaju. Reference nađene u otvorenom prostoru se biraju, spremne za sledeću komandu. |
+| `BURST` | | Razbija reference blokova i zadržava ono što kažu njihovi atributi: svaka vrednost postaje tekst na sloju tog atributa. |
+| `BVHIDE` | `BVH` | U uredniku blokova: sakriva objekte u trenutnom stanju vidljivosti. |
+| `BVSHOW` | `BVSH` | U uredniku blokova: prikazuje objekte koje trenutno stanje vidljivosti krije (prikazani su zatamnjeni da se mogu izabrati). |
+| `BVSTATE` | `BVS` | U uredniku blokova, na bloku sa stanjima vidljivosti: prelazi na stanje, ili dodaje, preimenuje ili briše stanje. |
+| `CAL` | | Računa dužinu ili broj: + − * / i zagrade, kako ih ukucate bilo gde |
+| `CENTERLINE` | `CL` | Središnja linija između dve linije: na pola puta između njih, ili duž simetrale kada se sretnu (CL) |
+| `CENTERMARK` | `CM`, `DIMCENTER`, `DCE` | Oznaka centra: krst u centru kruga ili luka, sa središnjim linijama do malo iza njega (CM) |
+| `CHAMFER` | `CHA` | Skida ivicu ugla između dve linije (D dva rastojanja, A dužina i ugao, P svaki ugao polilinije) |
+| `CHSPACE` | | CHSPACE: pomera objekte između lista i modela kroz prozor pogleda. Razmeravaju se i okreću da izgledaju isto sa druge strane. Na listu idu u model; dok radite kroz prozor pogleda (MSPACE), dolaze na list. |
 | `CIRCLE` | `C` | Centar i poluprečnik, prečnik, 2 ili 3 tačke |
-| `CLASS` |  | Stavlja izabrane objekte u klasu, ili kad ništa nije izabrano postavlja aktivnu klasu (? ih navodi) |
-| `CLASSES` | `CLS` | Panel Klase: klase razvrstavaju objekte preko slojeva; prikaži, sakrij i stiluj ih, i nadjačaj ih po prozoru pogleda (CLS) |
-| `COMMANDLINE` | `CMDLINE` | Zakači ili otkači komandnu liniju, načini je jednim redom, podesi redove istorije ili otvori istoriju (F2) |
-| `COMPARESETTINGS` | `CMPSET` | Upoređuje stilove kota, stilove teksta, slojeve, listove ili jedinice: dva u ovom crtežu, ili ovaj crtež sa drugim otvorenim, i kopira vrednost preko. |
-| `CONSTRAINTBAR` | `CBAR` | Prikaži ili sakrij trake ograničenja (Showall / Hideall, ili po objektu) |
-| `COPY` | `CO`, `CP` | Kopira objekte, koliko puta kliknete |
-| `COPYBASE` |  | Kopira objekte u privremenu memoriju sa osnovnom tačkom koju izaberete |
-| `COPYCLIP` |  | Kopira objekte u privremenu memoriju (Ctrl+C); PASTECLIP ih nalepljuje |
+| `CLASS` | | Stavlja izabrane objekte u klasu, ili, bez izbora, postavlja aktivnu klasu (? ih navodi) |
+| `CLASSES` | `CLS` | Panel Klase: klase razvrstavaju objekte kroz slojeve; prikazuje, sakriva i stilizuje ih, i poništava ih po prozoru pogleda (CLS) |
+| `COMMANDLINE` | `CMDLINE` | Zakači ili učini lebdećom komandnu liniju, načini je jednim redom, postavi redove istorije ili otvori istoriju (F2) |
+| `COMPARESETTINGS` | `CMPSET` | Poredi stilove kota, stilove teksta, slojeve, listove ili jedinice: dva u ovom crtežu, ili ovaj crtež protiv drugog otvorenog, i kopira vrednost preko. |
+| `CONSTRAINTBAR` | `CBAR` | Prikazuje ili sakriva trake ograničenja (Showall / Hideall, ili po objektu) |
+| `COPY` | `CO`, `CP` | Kopira objekte, onoliko puta koliko kliknete |
+| `COPYBASE` | | Kopira objekte u klipbord sa osnovnom tačkom koju izaberete |
+| `COPYCLIP` | | Kopira objekte u klipbord (Ctrl+C); PASTECLIP ih postavlja |
 | `COUNT` | `BCOUNT` | Broji reference blokova: izaberite jednu da izaberete i prebrojite svaku referencu njenog bloka |
-| `COUNTTABLE` |  | Postavlja tabelu brojeva blokova |
-| `CREDITS` |  | Stavlja zasluge biblioteke u crtež kao tabelu. Pokrenite ponovo da osvežite tabelu prema stavkama koje su sada u crtežu. |
-| `CURSORSIZE` |  | Veličina ukrštenog kursora: 100 ga pruža od ivice do ivice crteža (Podešavanja › Kursor › Ceo ekran) |
-| `CUTCLIP` |  | Seče objekte u privremenu memoriju (Ctrl+X): kopira, pa briše |
+| `COUNTTABLE` | | Postavlja tabelu brojeva blokova |
+| `CREDITS` | | Stavlja zasluge biblioteke u crtež kao tabelu. Pokrenite ponovo da osvežite tabelu iz stavki crteža sada. |
+| `CURSORSIZE` | | Veličina ukrštenog kursora: 100 ga pokreće od ivice do ivice crteža (Podešavanja › Kursor › Ceo ekran) |
+| `CUTCLIP` | | Seče objekte u klipbord (Ctrl+X): kopira, pa briše |
 | `CYLINDER` | `CYL` | Cilindar: centar, poluprečnik i visina (3D) |
 | `DATAEXTRACTION` | `EATTEXT`, `DX` | Navodi blokove, njihove atribute i svojstva objekata kao tabelu u crtežu ili CSV datoteku |
-| `DATALINK` | `DL` | Tabela iz CSV datoteke koja pamti datoteku, pa može ponovo da se čita |
+| `DATALINK` | `DL` | Tabela iz CSV datoteke koja pamti datoteku, pa može ponovo da se pročita |
 | `DATALINKUPDATE` | `DLU` | Ponovo čita datoteku veze podataka i ponovo puni njene tabele |
-| `DCALIGNED` | `DCALI` | Dimenzionalno ograničenje: prava udaljenost između tačaka, tačke i linije, ili dve linije |
-| `DCANGULAR` | `DCANG` | Dimenzionalno ograničenje: ugao između dve linije, ili luka |
-| `DCCONVERT` |  | Pretvara kote nacrtane na geometriji koja se može ograničiti u dimenzionalna ograničenja |
-| `DCDIAMETER` | `DCDIA` | Dimenzionalno ograničenje: prečnik kruga ili luka |
-| `DCDISPLAY` |  | Prikazuje ili sakriva dimenzionalna ograničenja na crtežu |
-| `DCHORIZONTAL` | `DCHOR` | Dimenzionalno ograničenje: horizontalna udaljenost |
-| `DCLINEAR` | `DCLIN` | Dimenzionalno ograničenje: horizontalna ili vertikalna udaljenost, od mesta gde je postavljate |
-| `DCRADIUS` | `DCRAD` | Dimenzionalno ograničenje: poluprečnik kruga ili luka |
-| `DCVERTICAL` | `DCVER` | Dimenzionalno ograničenje: vertikalna udaljenost |
-| `DELBLOCKS` |  | Briše blokove: svaka referenca (i ugnježdene, na svakom listu) i definicije |
-| `DELCONSTRAINT` | `DELCON` | Uklanja svako ograničenje (geometrijsko i dimenzionalno) sa objekata koje izaberete |
-| `DELOPENING` |  | Vadi vrata ili prozor iz zida. |
-| `DESCRIBE` | `DESC` | Kaže šta crtež sadrži: koliko objekata, koje vrste, kako velikih, šta je izabrano. |
-| `DESELECT` | `AI_DESELECT`, `SELECTNONE` | Poništava izbor (Esc) |
-| `DETAILS` | `DET` | Detalji vaše firme, pronađeni za ono što crtate: pronađi, dodaj blok, navedi, ukloni, uključi ili isključi ponude. |
-| `DIAGRAM` | `TEXTDIAGRAM`, `T2D` | Crta dijagram iz teksta: Mermaid dijagram toka, PlantUML dijagram komponenti, D2, spisak od-do ili draw.io XML, kao blokove i veze koje možete menjati |
+| `DCALIGNED` | `DCALI` | Dimenziono ograničenje: prava udaljenost između tačaka, tačke i linije, ili dve linije |
+| `DCANGULAR` | `DCANG` | Dimenziono ograničenje: ugao između dve linije, ili luka |
+| `DCCONVERT` | | Pretvara kote nacrtane na geometriji koja se može ograničiti u dimenziona ograničenja |
+| `DCDIAMETER` | `DCDIA` | Dimenziono ograničenje: prečnik kruga ili luka |
+| `DCDISPLAY` | | Prikazuje ili sakriva dimenziona ograničenja na crtežu |
+| `DCHORIZONTAL` | `DCHOR` | Dimenziono ograničenje: vodoravna udaljenost |
+| `DCLINEAR` | `DCLIN` | Dimenziono ograničenje: vodoravna ili uspravna udaljenost, od mesta gde je postavite |
+| `DCRADIUS` | `DCRAD` | Dimenziono ograničenje: poluprečnik kruga ili luka |
+| `DCVERTICAL` | `DCVER` | Dimenziono ograničenje: uspravna udaljenost |
+| `DELBLOCKS` | | Briše blokove: svaku referencu (i ugnježdene, na svakom listu) i definicije |
+| `DELCONSTRAINT` | `DELCON` | Uklanja svako ograničenje (geometrijsko i dimenziono) sa objekata koje izaberete |
+| `DELOPENING` | | Vadi vrata ili prozor iz zida. |
+| `DESCRIBE` | `DESC` | Kaže šta crtež sadrži: koliko objekata, koje vrste, koliko su veliki, šta je izabrano. |
+| `DESELECT` | `AI_DESELECT`, `SELECTNONE` | Briše izbor (Esc) |
+| `DETAILS` | `DET` | Detalji vaše firme, nađeni za ono što crtate: nađi, dodaj blok, navedi, ukloni, uključi ili isključi ponude. |
+| `DIAGRAM` | `TEXTDIAGRAM`, `T2D` | Crta dijagram iz teksta: Mermaid dijagram toka, PlantUML dijagram komponenti, D2, spisak od-do ili draw.io XML, kao blokovi i veze koje možete menjati |
 | `DIMALIGNED` | `DAL`, `DIMALI` | Prava udaljenost između dve tačke |
 | `DIMANGULAR` | `DAN`, `DIMANG` | Ugao između dve linije, luka, ili po tri tačke |
 | `DIMARC` | `DAR` | Kota dužine luka: udaljenost duž luka, sa simbolom luka (DAR) |
-| `DIMASZ` |  | Podešavanje kote: veličina strelice |
-| `DIMBASELINE` | `DBA`, `DIMBASE` | Kote poređane od jedne osnovne linije |
-| `DIMBREAK` | `DBREAK` | Prelama linije kote i produžne linije gde seku druge objekte (Auto), između dve tačke (Ručno), ili uklanja prelome |
-| `DIMCONSTRAINT` | `DCON` | Dimenzionalna ograničenja: linearna, poravnata, ugaona, poluprečnik, prečnik, pretvori |
+| `DIMASZ` | | Podešavanje kote: veličina strelice |
+| `DIMBASELINE` | `DBA`, `DIMBASE` | Kote složene iz jedne osnovne linije |
+| `DIMBREAK` | `DBREAK` | Prekida linije kote i linije produženja tamo gde seku druge objekte (Auto), između dve tačke (Manual), ili uklanja prekide |
+| `DIMCONSTRAINT` | `DCON` | Dimenziona ograničenja: linearna, poravnata, uglovna, poluprečnik, prečnik, pretvori |
 | `DIMCONTINUE` | `DCO`, `DIMCONT` | Lanac kota, svaka od kraja poslednje |
-| `DIMDEC` |  | Podešavanje kote: decimalna mesta |
+| `DIMDEC` | | Podešavanje kote: decimalna mesta |
 | `DIMDIAMETER` | `DDI`, `DIMDIA` | Prečnik luka ili kruga |
 | `DIMDISASSOCIATE` | `DDA`, `DIMDISASSOC` | Oslobađa kote od objekata za koje su vezane (DDA) |
-| `DIMEDIT` | `DED`, `DIMED` | Menja tekst kote (Početak, Novi tekst, Rotiraj) ili kosi produžne linije (Kosi) |
-| `DIMEXE` |  | Podešavanje kote: produženje preko linije kote |
-| `DIMEXO` |  | Podešavanje kote: pomeraj od početne tačke |
-| `DIMGAP` |  | Podešavanje kote: razmak oko teksta |
-| `DIMINSPECT` |  | Kota kontrole: okvir oko vrednosti sa oznakom i učestalošću provere dela |
-| `DIMJOGGED` | `DJO`, `JOG` | Kota prelomljenog poluprečnika: poluprečnik nacrtan od bliže tačke kad je centar daleko (DJO) |
-| `DIMJOGLINE` | `DJL` | Dodaje simbol preloma na liniju linearne ili poravnate kote, da pokaže da udaljenost nije nacrtana u razmeri (DJL) |
-| `DIMLINEAR` | `DLI`, `DIMLIN` | Horizontalna ili vertikalna udaljenost (R za bilo koji ugao) |
-| `DIMLUNIT` |  | Podešavanje kote: format dužine (1 naučni, 2 decimalni, 3 inženjerski, 4 arhitektonski, 5 razlomački) |
-| `DIMORDINATE` | `DOR`, `DIMORD` | Kota koordinate: X ili Y udaljenost tačke od početka UCS, na vodilici (DOR) |
-| `DIMOVERRIDE` | `DOV`, `DIMOVER` | Nadjačava promenljive kote na izabranim kotama bez promene njihovog stila; Obriši vraća stil (DOV) |
+| `DIMEDIT` | `DED`, `DIMED` | Menja tekst kote (Početna, Novi tekst, Okreni) ili kosi linije produženja (Kosi) |
+| `DIMEXE` | | Podešavanje kote: produženje preko linije kote |
+| `DIMEXO` | | Podešavanje kote: pomak od početka |
+| `DIMGAP` | | Podešavanje kote: razmak oko teksta |
+| `DIMINSPECT` | | Kota inspekcije: okvir oko vrednosti sa oznakom i učestalošću provere dela |
+| `DIMJOGGED` | `DJO`, `JOG` | Kota poluprečnika sa prelomom: poluprečnik nacrtan od bliže tačke kada je centar daleko (DJO) |
+| `DIMJOGLINE` | `DJL` | Dodaje simbol preloma na liniju linearne ili poravnate kote, da pokaže da rastojanje nije nacrtano u razmeri (DJL) |
+| `DIMLINEAR` | `DLI`, `DIMLIN` | Vodoravna ili uspravna udaljenost (R za bilo koji ugao) |
+| `DIMLUNIT` | | Podešavanje kote: format dužine (1 naučni, 2 decimalni, 3 inženjerski, 4 arhitektonski, 5 razlomak) |
+| `DIMORDINATE` | `DOR`, `DIMORD` | Kota koordinate: X ili Y udaljenost tačke od početka UCS-a, na vodilici (DOR) |
+| `DIMOVERRIDE` | `DOV`, `DIMOVER` | Poništava promenljive kote na izabranim kotama bez menjanja njihovog stila; Clear vraća stil (DOV) |
 | `DIMRADIUS` | `DRA`, `DIMRAD` | Poluprečnik luka ili kruga |
-| `DIMREASSOCIATE` | `DRE`, `DIMREASSOC` | Veže tačke kote za objekte, pa prati i ponovo meri kad se oni pomere (DRE) |
-| `DIMSCALE` |  | Podešavanje kote: ukupna razmera (veličine × ovo) |
-| `DIMSPACE` |  | Ravnomeran razmak između paralelnih kota, meren od osnovne kote (0 ih poravnava, Auto je dvostruka visina teksta) |
-| `DIMSTYLE` | `DST`, `DDIM`, `D` | Pravi, menja, postavlja tekući, briše, primenjuje i upoređuje imenovane stilove kota (dijalog; -DIMSTYLE u komandnoj liniji) |
-| `DIMTEDIT` | `DIMTED` | Pomera tekst kote levo, desno ili na sredinu linije kote, ili ga okreće |
+| `DIMREASSOCIATE` | `DRE`, `DIMREASSOC` | Vezuje tačke kote za objekte, pa prati i ponovo meri kada se oni pomere (DRE) |
+| `DIMSCALE` | | Podešavanje kote: opšta razmera (veličine × ovo) |
+| `DIMSPACE` | | Ravnomeran razmak između paralelnih kota, meren od osnovne kote (0 ih poravnava, Auto je dvostruka visina teksta) |
+| `DIMSTYLE` | `DST`, `DDIM`, `D` | Pravi, menja, postavlja tekući, briše, primenjuje i poredi imenovane stilove kota (dijalog; -DIMSTYLE u komandnoj liniji) |
+| `DIMTEDIT` | `DIMTED` | Pomera tekst kote levo, desno ili u centar linije kote, ili ga okreće |
 | `DIMTEXTUNIT` | `DTU` | Tekst kote u mm, cm, m ili km, ili u sopstvenim jedinicama crteža: izabrane kote, inače nove (DTU) |
-| `DIMTXT` |  | Podešavanje kote: visina teksta |
-| `DIST` | `DI` | Udaljenost i ugao između dve tačke (DI) |
-| `DISTRIBUTE` |  | Ravnomerno raspoređuje izabrane objekte, levo-desno ili gore-dole: jednaki koraci između centara, ili jednaki razmaci; dva spoljašnja ostaju |
-| `DIVIDE` | `DIV` | DIVIDE (DIV): oznake koje seku liniju, luk, krug, poliliniju, spline ili elipsu na jednake delove. Tačke, ili sa Blokom blok na svakoj oznaci. |
-| `DOCUMENTS` | `DOCS` | Otvara panel Dokumenti: odjavljuje i prijavljuje crteže, revizije, stanja izdanja i odobrenje za fasciklu projekta |
-| `DOOR` | `DR` | Postavlja vrata u zid. Strana na koju kliknete je strana na koju se otvaraju. |
-| `DRAWORDER` |  | Menja redosled crtanja: dovodi objekte napred, šalje ih nazad, ili ih stavlja iznad ili ispod drugih objekata. |
+| `DIMTXT` | | Podešavanje kote: visina teksta |
+| `DIST` | `DI` | Udaljenost i ugao između dve tačke |
+| `DISTRIBUTE` | | Ravnomerno raspoređuje izabrane objekte, u stranu ili gore-dole: jednaki koraci između centara, ili jednaki razmaci; dve spoljne ostaju |
+| `DIVIDE` | `DIV` | DIVIDE (DIV): oznake koje seku liniju, luk, krug, polilinju, spline ili elipsu na jednake delove. Tačke, ili sa Blok, blok na svakoj oznaci. |
+| `DOCUMENTS` | `DOCS` | Otvara panel Dokumenti: provera crteža pozajmljenih i vraćenih, revizije, stanja izdanja i odobrenje za projektnu fasciklu |
+| `DOOR` | `DR` | Stavlja vrata u zid. Strana na koju kliknete je strana na koju se otvaraju. |
+| `DRAWORDER` | | Menja redosled crtanja: dovodi objekte napred, šalje ih nazad, ili ih stavlja iznad ili ispod drugih objekata. |
 | `DUPLICATE` | `DUP` | Kopija koja se pomera sa pokazivačem: kliknite da je spustite (Ctrl+D) |
-| `DWGPROPS` | `DRAWINGPROPS` | Svojstva crteža: naslov, autor i ostalo, i vaši sopstveni parovi imena i vrednosti |
-| `DXFOUT` |  | Preuzima crtež kao DXF R12 (Sačuvaj zadržava sopstveni format) |
+| `DWGPROPS` | `DRAWINGPROPS` | Svojstva crteža: naslov, autor i ostalo, i vaši sopstveni parovi naziva i vrednosti |
+| `DXFOUT` | | Preuzima crtež kao DXF R12 (Sačuvaj zadržava svoj format) |
 | `EATTEDIT` | `DDATTE` | Menja atribute reference bloka: vrednosti, tekst i svojstva, jedan atribut po jedan |
 | `ELLIPSE` | `EL` | Krajnje tačke ose i druga polu-osa |
 | `ERASE` | `E`, `DELETE` | Uklanja objekte |
-| `EXPLODE` | `X` | Razlaže polilinije, blokove i kote na njihove delove |
-| `EXPORT` | `EXP` | Čuva kopiju crteža u vrsti datoteke koju dodatak piše |
+| `EXPLODE` | `X` | Razbija polilinije, blokove i kote na njihove delove |
+| `EXPORT` | `EXP` | Čuva kopiju crteža u vrsti datoteke koju piše dodatak |
 | `EXPORT3D` | `3DEXPORT` | Izvozi 3D model: GLB, OBJ ili STL |
-| `EXPORTPOINTS` | `EXPPTS` | Upisuje tačke, i tačke umetanja blokova sa jednim atributom kao opisom, u CSV ili TXT datoteku (PNEZD, PENZD ili XYZ) za programe za BIM i geodetska merenja |
-| `EXTEND` | `EX` | Produžava objekte da se sretnu sa drugima: kliknite blizu kraja, prevucite kroz nekoliko, ili Shift+klik za skraćivanje |
-| `EXTRIM` |  | EXTRIM: izaberite jednu ivicu za sečenje, pa stranu. Sve što seče ivicu biva skraćeno na toj strani. Delovi koji bi nestali prikazuju se dok pomerate pokazivač. |
+| `EXPORTPOINTS` | `EXPPTS` | Piše tačke, i tačke umetanja blokova sa jednim atributom kao opisom, u CSV ili TXT datoteku (PNEZD, PENZD ili XYZ) za programe za BIM i geodeziju |
+| `EXTEND` | `EX` | Produžava objekte do drugih: kliknite blizu kraja, prevucite kroz više, ili Shift+klik za skraćivanje |
+| `EXTRIM` | | EXTRIM: izaberite jednu reznu ivicu, zatim stranu. Sve što prelazi preko ivice skraćuje se na toj strani. Delovi koji bi otišli se prikazuju dok pomerate pokazivač. |
 | `EXTRUDE` | `EXT` | Izvlači zatvorene 2D objekte u tela (3D) |
-| `FIELD` |  | Stavlja polje u tekst, ćeliju tabele ili atribut: datum, naziv datoteke, broj lista, svojstvo crteža, površinu ili dužinu objekta, ili formulu |
-| `FILLET` | `F` | Zaobljava ili uglačava ugao između dva objekta (R poluprečnik, P svaki ugao polilinije, M više) |
-| `FIND` |  | Pronalazi i menja reči u tekstu, vrednostima atributa i tekstu kote |
-| `FLATTEN` |  | Postavlja visinu (Z) i debljinu izabranih objekata na 0, i u blokovima koje koriste. |
-| `FLOOR` |  | Bira sprat na kom crtate, dodaje jedan, ili pomera ili kopira izbor na njega. |
-| `FLOORLAYERS` |  | Pretvara spratove u slojeve nazvane Floor-Layer, za datoteku koja ide nekome bez spratova. |
+| `FIELD` | | Stavlja polje u tekst, ćeliju tabele ili atribut: datum, naziv datoteke, broj lista, svojstvo crteža, površinu ili dužinu objekta, ili formulu |
+| `FILLET` | `F` | Zaobljava ili kvadrira ugao između dva objekta (R poluprečnik, P svaki ugao polilinije, M više) |
+| `FIND` | | Traži i menja reči u tekstu, vrednostima atributa i tekstu kota |
+| `FLATTEN` | | Postavlja visinu (Z) i debljinu izabranih objekata na 0, i u blokovima koje koriste. |
+| `FLOOR` | | Bira sprat na kome crtate, dodaje jedan, ili pomera ili kopira izbor na njega. |
+| `FLOORLAYERS` | | Pretvara spratove u slojeve nazvane Floor-Layer, za datoteku koja ide nekome bez spratova. |
 | `FLOORS` | `FLR` | Otvara panel Spratovi: slaže spratove u jednom modelskom prostoru. |
-| `GCCOINCIDENT` |  | Ograničenje: dve tačke se spajaju, ili tačka ostaje na objektu |
-| `GCCOLLINEAR` |  | Ograničenje: dve linije ostaju na jednoj liniji |
-| `GCCONCENTRIC` |  | Ograničenje: dva kruga ili luka dele centar |
-| `GCEQUAL` |  | Ograničenje: dve linije ostaju iste dužine, ili dva kruga/luka istog poluprečnika |
-| `GCFIX` |  | Ograničenje: tačka ili ceo objekat ostaje gde jeste |
-| `GCHORIZONTAL` |  | Ograničenje: linija (ili dve tačke) ostaje horizontalna |
-| `GCPARALLEL` |  | Ograničenje: dve linije ostaju paralelne |
-| `GCPERPENDICULAR` |  | Ograničenje: dve linije ostaju pod pravim uglom |
-| `GCSYMMETRIC` |  | Ograničenje: dve tačke, linije ili krugovi se ogledaju preko linije |
-| `GCTANGENT` |  | Ograničenje: linija i krug ili luk (ili dva od njih) ostaju tangentni |
-| `GCVERTICAL` |  | Ograničenje: linija (ili dve tačke) ostaje vertikalna |
-| `GDSIN` | `GDS` | Pregled IC rasporeda (datoteka GDSII toka): svaki sloj i tip podataka kao sloj crteža, ravno, u korisničkim jedinicama; samo za pregled i merenje (laboratorijska proba) |
-| `GEOMCONSTRAINT` | `GCON` | Geometrijska ograničenja: horizontalna, vertikalna, paralelna, tangentna, podudarna… |
-| `GLBOUT` |  | Izvozi 3D model kao GLB (glTF) |
-| `GRADIENT` | `GD` | Popunjava oblast gradijentom jedne ili dve boje |
-| `GRIDMOVE` | `GM` | Pomera liniju mreže i nosi ono što na njoj visi: zidovi se razvlače, stubovi, mehurići i oznake se pomeraju, kote prate. |
-| `GROUP` | `G` | GROUP (G): daje izabranim objektima zajedničko ime. Klik na jedan od njih tada bira sve. Enter kod imena pravi grupu bez imena. |
-| `GROUPEDIT` |  | GROUPEDIT: menja grupu. Izaberite jedan njen objekat ili unesite njeno Ime, pa Dodaj ili Ukloni objekte, PREIMENUJ je, menja njen Opis, ili kaže da li klik bira celu grupu. |
-| `HATCH` | `H`, `BH`, `BHATCH`, `-HATCH` | Popunjava oblast punom ispunom ili obrascem: kliknite unutra, ili izaberite zatvorene objekte (H) |
-| `HATCHEDIT` | `HE` | Menja šrafuru: obrazac, razmeru, ugao, početnu tačku i njenu vezu sa granicom. |
+| `GCCOINCIDENT` | | Ograničenje: dve tačke se sastaju, ili tačka ostaje na objektu |
+| `GCCOLLINEAR` | | Ograničenje: dve linije ostaju na jednoj liniji |
+| `GCCONCENTRIC` | | Ograničenje: dva kruga ili luka dele centar |
+| `GCEQUAL` | | Ograničenje: dve linije ostaju iste dužine, ili dva kruga/luka isti poluprečnik |
+| `GCFIX` | | Ograničenje: tačka ili ceo objekat ostaje gde je |
+| `GCHORIZONTAL` | | Ograničenje: linija (ili dve tačke) ostaje vodoravna |
+| `GCPARALLEL` | | Ograničenje: dve linije ostaju paralelne |
+| `GCPERPENDICULAR` | | Ograničenje: dve linije ostaju pod pravim uglom |
+| `GCSYMMETRIC` | | Ograničenje: dve tačke, linije ili krugovi se ogledaju preko linije |
+| `GCTANGENT` | | Ograničenje: linija i krug ili luk (ili dva od njih) ostaju tangentni |
+| `GCVERTICAL` | | Ograničenje: linija (ili dve tačke) ostaje uspravna |
+| `GDSIN` | `GDS` | Pregled IC rasporeda (GDSII datoteka toka): svaki sloj i tip podataka kao sloj crteža, ravno, u korisničkim jedinicama; samo za pregled i merenje (laboratorijski test) |
+| `GEOMCONSTRAINT` | `GCON` | Geometrijska ograničenja: vodoravno, uspravno, paralelno, tangentno, podudarno… |
+| `GLBOUT` | | Izvozi 3D model kao GLB (glTF) |
+| `GRADIENT` | `GD` | Ispunjava površinu gradijentom jedne ili dve boje |
+| `GRID` | | Postavlja mrežu: rastojanje između linija, svaka N-ta linija kao glavna, ON ili OFF, ili Auto da ponovo prati zum |
+| `GRIDMOVE` | `GM` | Pomera liniju mreže i ono što visi na njoj: zidovi se rastežu, stubovi, mehurići i oznake se pomeraju, kote prate. |
+| `GROUP` | `G` | GROUP (G): daje izabranim objektima naziv koji dele. Klik na jedan od njih tada bira sve. Enter na nazivu pravi neimenovanu grupu. |
+| `GROUPEDIT` | | GROUPEDIT: menja grupu. Izaberite jedan od njenih objekata ili dajte njen naziv, zatim Dodaj ili Ukloni objekte, REName preimenuje, menja njen opis, ili kaže da li klik bira celu grupu. |
+| `HATCH` | `H`, `BH`, `BHATCH`, `-HATCH` | Ispunjava površinu punom ispunom ili šablonom: kliknite unutra, ili izaberite zatvorene objekte (H) |
+| `HATCHEDIT` | `HE` | Menja šrafuru: šablon, razmera, ugao, početna tačka i njena veza sa granicom. |
 | `HATCHGENERATEBOUNDARY` | `HGB` | Ponovo pravi granične polilinije iz šrafure, povezane sa njom ili ne |
-| `HATCHTOBACK` |  | Šalje svaku šrafuru iza svega ostalog. |
+| `HATCHTOBACK` | | Šalje svaku šrafuru iza svega ostalog. |
 | `HELP` | `?` | Ovaj spisak |
-| `HIDEOBJECTS` |  | Sakriva izabrane objekte do UNISOLATEOBJECTS. Ne čuva se sa crtežom. |
-| `HISTORY` | `HIST` | HISTORY (HIST): verzije ovog crteža — kopije sačuvane na ovom računaru kad ih Studio čuva, i verzije u oblaku — da otvorite, vratite i uporedite sa onim što se promenilo, prikazano bojom. |
-| `ID` |  | Koordinate tačke |
-| `IMAGE` | `IM` | Daje CadCraft datoteke slika koje crtež koristi (DWG čuva samo gde su bile). |
+| `HIDEOBJECTS` | | Sakriva izabrane objekte dok ne pokrenete UNISOLATEOBJECTS. Ne čuva se sa crtežom. |
+| `HISTORY` | `HIST` | HISTORY (HIST): verzije ovog crteža — kopije koje se čuvaju na ovom računaru kada ih Studio sačuva, i verzije u oblaku — za otvaranje, vraćanje i poređenje sa onim što je promenjeno, prikazano bojom. |
+| `ID` | | Koordinate tačke |
+| `IMAGE` | `IM` | Daje CadCraft-u datoteke slika koje crtež koristi (DWG čuva samo gde su bile). |
 | `IMAGEATTACH` | `IAT`, `IMAGEATT` | Postavlja sliku (PNG ili JPEG) iz datoteke. |
-| `IMAGECLIP` | `ICL` | Iseca sliku na pravougaonik ili poligon, ili uklanja njen isečak. |
-| `IMPORT` | `IMP` | Uvozi datoteku vrste koju dodatak čita, u ovaj crtež |
-| `INSERT` | `I`, `DDINSERT` | Postavlja blok (S razmera, R rotiraj); F iz DWG/DXF datoteke, L iz biblioteke |
-| `INTERSECT` | `IN` | Zadržava samo ono što tela imaju zajedničko (3D), ili površinu koju dele 2D oblasti |
-| `ISODRAFT` |  | ISODRAFT: izometrijsko crtanje uključeno ili isključeno, ili direktno na ravan Levo, Gore ili Desno. Dok je uključeno, Orto i polarno praćenje prate dve ose ravni, mreža se crta izometrijski, a ELLIPSE ima Izokrug. |
-| `ISOLATEOBJECTS` | `ISOLATE` | Prikazuje samo izabrane objekte; sve ostalo u ovom prostoru je skriveno do UNISOLATEOBJECTS. Ne čuva se sa crtežom. |
-| `ISOPLANE` |  | ISOPLANE: bira izometrijsku ravan za crtanje: Levo, Gore ili Desno. Enter ide na sledeću, kao što F5 radi dok je izometrijsko crtanje uključeno. |
-| `JOIN` | `J` | Spaja linije, lukove i polilinije koji se spajaju kraj do kraja u jednu poliliniju; linije na jednoj liniji u jednu liniju (J) |
+| `IMAGECLIP` | `ICL` | Seče sliku na pravougaonik ili poligon, ili uklanja njen isečak. |
+| `IMPORT` | `IMP` | Uvozi datoteku vrste koju čita dodatak, u ovaj crtež |
+| `INSERT` | `I`, `DDINSERT` | Postavlja blok (S razmera, R okreće); F iz DWG/DXF datoteke, L iz biblioteke |
+| `INTERSECT` | `IN` | Zadržava samo ono što tela imaju zajedničko (3D), ili površinu koju dele 2D regije |
+| `ISODRAFT` | | ISODRAFT: izometrijsko crtanje uključeno ili isključeno, ili pravo na ravan Levo, Gore ili Desno. Dok je uključeno, Ortogonalno i polarno praćenje prate dve ose ravni, mreža je izometrijska, a ELLIPSE ima Isocircle. |
+| `ISOLATEOBJECTS` | `ISOLATE` | Prikazuje samo izabrane objekte; sve drugo u ovom prostoru je sakriveno dok ne pokrenete UNISOLATEOBJECTS. Ne čuva se sa crtežom. |
+| `ISOPLANE` | | ISOPLANE: birate izometrijsku ravan na kojoj crtate: Levo, Gore ili Desno. Enter prelazi na sledeću, kao što F5 radi dok je izometrijsko crtanje uključeno. |
+| `JOIN` | `J` | Spaja linije, lukove i polilinije koji se sreću kraj uz kraj u jednu polilinju; linije na jednoj liniji u jednu liniju (J) |
 | `LASER` | `LASERCUT` | Otvara panel Laser: šalje slojeve laserskom rezaču ili graveru (GRBL G-kod) |
-| `LASSOMODE` |  | Pritisnite i prevucite crta lasso (1) ili pravougaonik (0) |
-| `LAYDEL` |  | Briše sloj i svaki objekat na njemu (u modelu, na listovima i u blokovima) |
-| `LAYER` | `LA`, `DDLMODES`, `LAYERPALETTE`, `CLASSICLAYER` | Otvara menadžer slojeva: svaki sloj u jednoj tabeli |
-| `LAYERPANEL` |  | Prikazuje panel slojeva |
-| `LAYFRZ` |  | Zamrzava sloj svakog objekta koji izaberete |
+| `LASSOMODE` | | Pritisak i prevlačenje crtaju omču (1) ili pravougaonik (0) |
+| `LAYDEL` | | Briše sloj i svaki objekat na njemu (u modelu, na listovima i u blokovima) |
+| `LAYER` | `LA`, `DDLMODES`, `LAYERPALETTE`, `CLASSICLAYER` | Otvara upravljač slojevima: svaki sloj u jednoj tabeli |
+| `LAYERPANEL` | | Prikazuje panel slojeva. |
+| `LAYFRZ` | | Zamrzava sloj svakog objekta koji izaberete |
 | `LAYGROUP` | `LG` | Grupiše slojeve u fascikle u panelu Slojevi. |
-| `LAYISO` |  | Izoluje slojeve izabranih objekata (svi ostali slojevi isključeni) |
-| `LAYLOCKFADE` |  | Podešava koliko objekti na zaključanim slojevima blede, i da li klik može da ih izabere. |
-| `LAYMCUR` |  | Postavlja kao tekući sloj objekta koji izaberete |
-| `LAYMRG` |  | Spaja slojeve: njihovi objekti se premeštaju na ciljni sloj, a spojeni slojevi nestaju |
-| `LAYOFF` |  | Isključuje sloj svakog objekta koji izaberete |
-| `LAYON` |  | Uključuje svaki sloj |
-| `LAYOUT` | `LO`, `NEWLAYOUT` | Novi list sa blokom naslova i prozorom pogleda |
-| `LAYTHW` |  | Odmrzava svaki sloj |
-| `LAYUNISO` |  | Ponovo uključuje slojeve koje je LAYISO isključio |
-| `LEGACYTEXT` | `TEXTTOUNICODE`, `VNTEXT` | Pretvara tekst ukucan starim vijetnamskim fontovima (TCVN3 / ABC fontovi kao .VnTime, i VNI fontovi kao VNI-Times) u Unicode. Takav tekst se već prikazuje kako glasi; ovo ga prepisuje zauvek, uz broj i jedan korak opoziva. |
-| `LENGTHEN` | `LEN` | Produžava ili skraćuje linije, lukove i polilinije: za iznos, procenat, na ukupno, ili prevlačenjem (LEN) |
-| `LIBRARY` | `LIB` | Panel biblioteke: postavlja stavke, proverava ažuriranja, zasluge |
-| `LIMITS` |  | Postavlja granice crteža: ON, OFF, ili donji levi i gornji desni ugao. Sa uključenim granicama, tačke van njih se odbijaju |
-| `LINE` | `L` | Prave duži, svaka kao svoj objekat |
-| `LINETYPE` | `LT`, `CELTYPE` | Tip linije koji novi objekti dobijaju (po sloju, po bloku, ili imenovan) |
+| `LAYISO` | | Izoluje slojeve izabranih objekata (svi ostali slojevi isključeni) |
+| `LAYLOCKFADE` | | Postavlja koliko objekti na zaključanim slojevima blede i da li klik može da ih izabere. |
+| `LAYMCUR` | | Postavlja sloj objekta koji izaberete kao tekući |
+| `LAYMRG` | | Spaja slojeve: njihovi objekti prelaze na ciljni sloj, a spojeni slojevi nestaju |
+| `LAYOFF` | | Isključuje sloj svakog objekta koji izaberete |
+| `LAYON` | | Uključuje svaki sloj. |
+| `LAYOUT` | `LO`, `NEWLAYOUT` | Novi list sa naslovnim blokom i prozorom pogleda |
+| `LAYTHW` | | Odmrzava svaki sloj. |
+| `LAYUNISO` | | Ponovo uključuje slojeve koje je LAYISO isključio |
+| `LEGACYTEXT` | `TEXTTOUNICODE`, `VNTEXT` | Pretvara tekst ukucan starim vijetnamskim fontovima (TCVN3 / ABC fontovi kao .VnTime, i VNI fontovi kao VNI-Times) u Unicode. Takav tekst se već prikazuje kako se čita; ovo ga trajno prepisuje, uz brojanje i jedan korak opozivanja. |
+| `LENGTHEN` | `LEN` | Produžava ili skraćuje linije, lukove i polilinije: za iznos, procenat, do ukupne dužine, ili prevlačenjem (LEN) |
+| `LIBRARY` | `LIB` | Panel biblioteke: postavite stavke, proverite ažuriranja, zasluge |
+| `LIMITS` | | Postavlja granice crteža: ON, OFF, ili donji levi i gornji desni ugao. Kada su granice ON, tačke van njih se odbijaju |
+| `LINE` | `L` | Prave duži, svaka je sopstveni objekat |
+| `LINETYPE` | `LT`, `CELTYPE` | Tip linije koji nove objekte dobijaju (po sloju, po bloku, ili imenovan) |
 | `LINKVIEWS` | `SYNCVIEWS` | Pomera i zumira sva okna zajedno (podeljen ekran), da uporedite dva crteža ili revizije |
-| `LISPEDIT` | `VLIDE` | LISPEDIT (ili VLIDE) otvara LISP editor: prozor za pisanje, učitavanje i isprobavanje rutine. Učitavanje u crtež čita svaki oblik, kao što učitavanje datoteke sa APPLOAD radi, i pravi njene komande. Pokreni izbor izvršava izabrane oblike, ili oblik u kome je kursor. Konzola pokazuje šta je rutina ispisala i svaku grešku sa njenim redom. Odgovarajuća zagrada se obeležava dok kucate, a Enter uvlači novi red. Novo, Otvori i Sačuvaj rade sa .lsp datotekom. Spiskovi pored teksta pokazuju funkcije koje rutina definiše, one koje poziva a ovaj LISP još nema, i sve koje ima. Prozor ne blokira crtež, pa rutina može da traži tačke; Stop ili Esc prekida rutinu koja radi. |
+| `LISPEDIT` | `VLIDE` | LISPEDIT (ili VLIDE) otvara LISP uređivač: prozor za pisanje, učitavanje i probu rutine. Učitaj u crtež čita svaki oblik, kao što APPLOAD čita datoteku, i pravi njene komande. Pokreni izbor izvršava izabrane oblike, ili oblik u kome je kursor. Konzola prikazuje šta je rutina štampala i svaku grešku sa njenim redom. Zagrada u paru se obeležava dok kucate, a Enter uvlači novi red. Novo, Otvori i Sačuvaj rade nad .lsp datotekom. Spiskovi pored teksta prikazuju funkcije koje rutina definiše, one koje poziva a ovaj LISP još nema, i sve što ima. Prozor ne blokira crtež, pa rutina može tražiti tačke; Zaustavi ili Esc završava rutinu koja radi. |
 | `LIST` | `LI`, `LS` | Opisuje objekte u istoriji |
-| `LTSCALE` | `LTS` | Razmera tipa linije crteža (svaka crtica i praznina se njome množi) |
+| `LTSCALE` | `LTS` | Razmera tipa linije crteža (svaka crtica i razmak se množi njome) |
 | `LWDISPLAY` | `LWT` | Prikazuje ili sakriva debljine linija na ekranu (dugme LWT u statusnoj traci) |
-| `LWEIGHT` | `LW`, `LINEWEIGHT` | Debljina linije koju novi objekti dobijaju (po sloju, po bloku, podrazumevano, ili mm) |
+| `LWEIGHT` | `LW`, `LINEWEIGHT` | Debljina koju nove objekte dobijaju (po sloju, po bloku, podrazumevano, ili mm) |
 | `MAPLAYERS` | `ML`, `GEOMAP` | Slojevi karte ispod modelskog prostora: koordinatni sistem crteža, pločice, WMS, WMTS, ArcGIS, slike |
-| `MASSPROP` |  | MASSPROP: svojstva preseka oblasti i zatvorenih objekata: površina, obim, težište, momenti i proizvod inercije, radijusi inercije i glavne ose. Tačno za linije i lukove. Može upisati izveštaj u tekstualnu datoteku. |
-| `MATCHPROP` | `MA`, `PAINTER` | Usklađuje svojstva: kopira sloj, boju i još toga jednog objekta na druge (MA) |
-| `MEASURE` | `ME` | MEASURE (ME): oznaka na svakoj zadatoj dužini duž linije, luka, kruga, polilinije, splajna ili elipse, od kraja najbližeg vašem izboru. Tačke, ili sa Blokom blok na svakoj oznaci. |
+| `MASSPROP` | | MASSPROP: svojstva preseka regija i zatvorenih objekata: površina, obim, težište, momenti i proizvod inercije, poluprečnici inercije i glavne ose. Tačno za linije i lukove. Izveštaj može da se upiše u tekstualnu datoteku. |
+| `MATCHPROP` | `MA`, `PAINTER` | Usklađuje svojstva: kopira sloj, boju i više sa jednog objekta na druge (MA) |
+| `MEASURE` | `ME` | MEASURE (ME): oznaka na svakoj zadatoj dužini duž linije, luka, kruga, polilinije, splajna ili elipse, od kraja najbližeg vašem izboru. Tačke, ili sa Blok, blok na svakoj oznaci. |
 | `MEASUREGEOM` | `MEA` | Meri udaljenost, poluprečnik, ugao ili površinu (MEA) |
-| `MINSERT` |  | MINSERT: postavlja blok u redovima i kolonama odjednom. Svaki je sopstvena referenca, pa možete pomeriti ili obrisati bilo koju. |
-| `MIRROR` | `MI` | Ogledala objekte preko linije |
+| `MINSERT` | | MINSERT: postavlja blok u redove i kolone odjednom. Svaki je sopstvena referenca, pa možete pomeriti ili obrisati bilo koji. |
+| `MIRROR` | `MI` | Ogledalski preslikava objekte preko linije |
 | `MLEADER` | `MLD`, `MLEAD` | Višestruka vodilica: strelica, vodilica i beleška, kao jedan objekat (MLD) |
-| `MLEADERALIGN` | `MLA` | Poravnava višestruke vodilice sa jednom od njih duž pravca, na jednakom razmaku, ili raspoređuje između dve tačke (MLA) |
+| `MLEADERALIGN` | `MLA` | Poravnava višestruke vodilice sa jednom od njih duž pravca, na jednakom razmaku, ili raspoređene između dve tačke (MLA) |
 | `MLEADERCOLLECT` | `MLC` | Skuplja nekoliko višestrukih vodilica u jednu: njihovi blokovi u redu ili koloni, ili njihove beleške jedna ispod druge (MLC) |
-| `MLEADEREDIT` | `MLE` | Dodaje linije vodilice višestrukoj vodilici ili ih uklanja; prebacuje njen sadržaj između teksta i bloka (MLE) |
-| `MLINE` |  | Crta paralelne linije zajedno, spojene u uglovima. |
-| `MOVE` | `M` | Pomera objekte osnovnom tačkom i drugom tačkom |
-| `MSPACE` | `MS` | Radi na modelu kroz prozor pogleda otvorenog lista (ili dvaput kliknite unutar prozora pogleda). |
-| `MTEXT` | `MT`, `T` | Tekst pasusa: prevucite mu širinu, pa kucajte na mestu; Enter počinje novi pasus (T) |
-| `MVIEW` | `MV` | Prozor pogleda na model, na listu |
-| `NAMEDVIEW` | `NV`, `VIEWS` | Imenovani pogledi: sačuvajte pogled na ekranu (ili prozor) pod imenom i vratite se na njega (NV) |
-| `NCOPY` |  | Kopira objekte iz reference bloka ili povezanog crteža u crtež, bez raspadanja. |
-| `NEARBY` |  | Kaže šta leži blizu kursora, najbliže prvo, sa rastojanjem i stranom. |
-| `NEW` |  | Počinje novi crtež |
-| `OBJECTSCALE` | `OBJSCALE` | Razmere napomena tekstova i kota sa napomenama: dodaje razmeru, briše jednu, dodaje tekuću razmeru, ili ih navodi (svaki prozor pogleda ih prikazuje u veličini za svoju razmeru) |
-| `OBJOUT` |  | Izvozi 3D model kao OBJ |
-| `OFFSET` | `O` | Paralelne kopije na udaljenosti |
-| `OFFSETGAPTYPE` |  | OFFSETGAPTYPE: kako OFFSET zatvara praznine na spoljašnjim uglovima polilinije. 0 produžava segmente, 1 dodaje luk, 2 dodaje ravan rez. Čuva se za ovu sesiju. |
+| `MLEADEREDIT` | `MLE` | Dodaje linije vodilica višestrukoj vodilici ili ih uklanja; prebacuje njen sadržaj između teksta i bloka (MLE) |
+| `MLINE` | | Crta paralelne linije zajedno, spojene na uglovima. |
+| `MOVE` | `M` | Pomera objekte za osnovnu tačku i drugu tačku |
+| `MSPACE` | `MS` | Radi na modelu kroz prozor pogleda otvorenog lista (ili dvostruki klik unutar prozora pogleda). |
+| `MTEXT` | `MT`, `T` | Pasusni tekst: prevucite njegovu širinu, zatim kucajte na mestu; Enter počinje novi pasus (T) |
+| `MVIEW` | `MV` | Prozor pogleda na model, na rasporedu |
+| `NAMEDVIEW` | `NV`, `VIEWS` | Imenovani prikazi: sačuvajte prikaz na ekranu (ili prozor) pod nazivom i vratite se na njega (NV) |
+| `NCOPY` | | Kopira objekte iz reference bloka ili povezanog crteža u crtež, bez razbijanja. |
+| `NEARBY` | | Kaže šta leži blizu kursora, najbliže prvo, sa rastojanjem i stranom. |
+| `NEW` | | Počinje novi crtež |
+| `OBJECTSCALE` | `OBJSCALE` | Anotativne razmere anotativnog teksta i kota: dodaje razmeru, briše jednu, dodaje tekuću razmeru, ili ih navodi (svaki prozor pogleda ih prikazuje u veličini za svoju razmeru) |
+| `OBJOUT` | | Izvozi 3D model kao OBJ |
+| `OFFICESTANDARD` | `OFFSTD` | Kancelarijski standard: visine teksta na papiru, slojevi, polja naslovnog bloka i šabloni u jednom zapisu. Prikazuje onaj koji važi i odakle dolazi; Uvezi .json zapis u ovaj crtež, dodaje kancelarijske slojeve koji crtežu nedostaju, navodi polja naslovnog bloka. |
+| `OFFSET` | `O` | Paralelne kopije na rastojanju |
+| `OFFSETGAPTYPE` | | OFFSETGAPTYPE: kako OFFSET zatvara razmake na spoljnim uglovima polilinije. 0 produžava segmente, 1 dodaje luk, 2 dodaje pravi rez. Zadržava se za ovu sesiju. |
 | `OLELIST` | `OLES` | Navodi OLE objekte koje crtež nosi i stavlja kopiju slike jednog gde izaberete |
-| `OPEN` |  | Otvara DWG ili DXF sa ovog računara |
-| `OPENIN3D` |  | Otvara ovaj crtež u aplikaciji za 3D modelovanje, u novoj kartici (ništa se ne otprema) |
-| `OSNAP` | `DDOSNAP`, `OSNAPSETTINGS`, `SHORTCUTMENU` | Otvara meni hvatanja objekata: izaberite koja hvatanja su uključena. Takođe desni klik na Hvatanje u statusnoj traci. |
-| `OVERKILL` |  | Briše duplirane objekte i spaja preklopljene ili linije i lukove kraj do kraja, u okviru tolerancije. |
-| `PARAMETERS` | `PAR`, `PARAMETERSMANAGER`, `PARAM` | Panel Parametri: korisnički parametri i dimenzionalna ograničenja u jednoj tabeli |
-| `PARTSLIST` | `PLIST` | Tabela spiska delova svakog standardnog dela i čeličnog profila postavljenog iz Biblioteke |
-| `PASTEAREA` | `PAREA` | Nalepljuje oblast kopiranu u MarkupCraft (Kopiraj oblast) u njenoj pravoj veličini, kao sliku. |
-| `PASTEBLOCK` |  | PASTEBLOCK: nalepljuje ono što ste kopirali kao jedan blok. Blok dobija sopstveni naziv; RENAME daje vaš. |
-| `PASTECLIP` |  | Nalepljuje iz privremene memorije: prati kursor, kliknite gde ide (Ctrl+V) |
-| `PASTEORIG` |  | Nalepljuje iz privremene memorije na koordinate sa kojih je kopirano (Ctrl+Shift+V) |
-| `PDF` |  | Dajte CadCraft PDF datoteke koje podloge crteža koriste |
-| `PDFADJUST` |  | Zbleđuje, menja kontrast, monohromno ili isključuje PDF podlogu |
-| `PDFATTACH` | `PDFATT` | Prikačuje PDF stranicu kao podlogu (PDFATTACH) |
-| `PDFCLIP` |  | Iseca PDF podlogu na pravougaonik ili poligon |
-| `PDFIMPORT` | `PDFIM` | Pretvara linije, ispune i tekst PDF stranice u objekte crteža (PDFIMPORT) |
-| `PDFLAYERS` |  | Uključuje ili isključuje slojeve PDF podloge |
-| `PEDIT` | `PE` | Menja poliliniju: zatvara, otvara, spaja, širina, prilagođena kriva, spline kriva, uklanja krivinu, generisanje tipa linije, obrće; linije, lukovi i splajnovi mogu se pretvoriti u polilinije |
+| `OPEN` | | Otvara DWG ili DXF sa ovog računara |
+| `OPENIN3D` | | Otvara ovaj crtež u aplikaciji za 3D modelovanje, u novoj kartici (ništa se ne šalje) |
+| `OPTIONKEYS` | `OPTKEYS` | Daje opcijama komandi sopstvena slova (ARRAY.PO, P), u jednoj tekstualnoj datoteci |
+| `OSNAP` | `DDOSNAP`, `OSNAPSETTINGS`, `SHORTCUTMENU` | Otvara meni hvatanja objekata: birate koja hvatanja su uključena. Takođe desni klik na Hvatanje u statusnoj traci. |
+| `OVERKILL` | | Briše duple objekte i spaja preklapajuće ili kraj-do-kraja linije i lukove, unutar tolerancije. |
+| `PARAMETERS` | `PAR`, `PARAMETERSMANAGER`, `PARAM` | Panel Parametri: korisnički parametri i dimenziona ograničenja u jednoj tabeli |
+| `PARTSLIST` | `PLIST` | Tabela spiska delova: svaki standardni deo i čelični profil postavljen iz Biblioteke |
+| `PASTEAREA` | `PAREA` | Lepi područje kopirano u MarkupCraft (Copy area) u njegovoj pravoj veličini, kao slika. |
+| `PASTEBLOCK` | | PASTEBLOCK: lepi ono što ste kopirali kao jedan blok. Blok dobija sopstveni naziv; RENAME mu daje vaš. |
+| `PASTECLIP` | | Lepi klipbord: prati kursor, kliknite gde ide (Ctrl+V) |
+| `PASTEORIG` | | Lepi klipbord na koordinatama sa kojih je kopiran (Ctrl+Shift+V) |
+| `PDF` | | Daje CadCraft-u PDF datoteke koje podloge crteža koriste |
+| `PDFADJUST` | | Zamagljuje, menja kontrast, pretvara u monohromatsko ili isključuje PDF podlogu |
+| `PDFATTACH` | `PDFATT` | Priključuje PDF stranu kao podlogu (PDFATTACH) |
+| `PDFCLIP` | | Seče PDF podlogu na pravougaonik ili poligon |
+| `PDFIMPORT` | `PDFIM` | Pretvara linije, ispune i tekst PDF strane u objekte crteža (PDFIMPORT) |
+| `PDFLAYERS` | | Uključuje ili isključuje slojeve PDF podloge |
+| `PEDIT` | `PE` | Menja polilinju: zatvara, otvara, spaja, širina, uklapanje krive, splajn kriva, ispravljanje, generisanje tipa linije, obrtanje; linije, lukovi i splajnovi mogu se pretvoriti u polilinje |
+| `PENPRESSURE` | | Da li pritisak poteza olovke postavlja debljinu linije onoga što SKETCHFIX i SKETCHLIVE prave (uključeno kao početna postavka). Čuva se u ovom pregledaču. |
 | `PHOTOSKETCH` | `PSK` | Pretvara fotografiju ručne skice na papiru u linije i lukove u razmeri, ispravljajući perspektivu i dajući svakoj boji olovke sopstveni sloj. |
-| `PICKSTYLE` |  | PICKSTYLE: da li izbor jednog objekta iz grupe bira celu grupu (1, početna postavka) ili samo taj objekat (0). Čuva se za ovu sesiju. |
-| `PLAN` |  | Okreće pogled tako da X osa UCS (Tekući ucs, sačuvan Ucs, ili Svet) bude horizontalna na ekranu. Ništa u crtežu se ne pomera. |
-| `PLINE` | `PL` | Polilinija od segmenata linija i lukova |
+| `PICKSTYLE` | | PICKSTYLE: da li izbor jednog objekta grupe bira celu grupu (1, početna postavka) ili samo taj objekat (0). Zadržava se za ovu sesiju. |
+| `PLAN` | | Okreće prikaz tako da je X osa UCS-a (Tekući ucs, sačuvan Ucs, ili Svet) vodoravna na ekranu. Ništa u crtežu se ne pomera. |
+| `PLINE` | `PL` | Polilinija segmenata linija i lukova |
 | `PLOT` | `PRINT`, `PUBLISH`, `EXPORTPDF` | Štampa u PDF: list, ili model u razmeri |
-| `PLOTSTYLES` | `STYLESMANAGER`, `PSTABLES` | Tabele stilova štampanja: podešava kako se svaka boja štampa (boja, crna, siva, mastilo, debljina linije); čuva se uz crtež (STYLESMANAGER) |
-| `POINT` | `PO` | Objekti tačaka |
-| `POINTCLOUD` | `PC` | Priloženi oblak tačaka: isečak, visina, debljina, boja, veličina, vidljivost, zumiranje, odvajanje |
-| `POINTCLOUDATTACH` | `PCATTACH`, `POINTCLOUDATT` | Prikačuje oblak tačaka (LAS, LAZ, XYZ, PTS) ispod crteža |
-| `POLARANG` |  | Korak polarnog praćenja u stepenima (90, 45, 30, 22.5, 15 …) |
+| `PLOTSTYLES` | `STYLESMANAGER`, `PSTABLES` | Tabele stilova štampanja: podešava kako svaka boja štampa (boja, crna, siva, mastilo, debljina linije); čuva se uz crtež (STYLESMANAGER) |
+| `POINT` | `PO` | Objekti tačke |
+| `POINTCLOUD` | `PC` | priloženi oblak tačaka: presek, visina, debljina, boja, veličina, vidljivo, zum, otkači |
+| `POINTCLOUDATTACH` | `PCATTACH`, `POINTCLOUDATT` | priloži oblak tačaka (LAS, LAZ, XYZ, PTS) ispod crteža |
+| `POLARANG` | | Korak polarnog praćenja u stepenima (90, 45, 30, 22.5, 15 …) |
 | `POLYGON` | `POL` | Pravilan poligon |
-| `PRESSPULL` |  | Gura ili vuče stranu tela (3D) |
-| `PROPERTIES` | `PR`, `PROPS`, `CH`, `MO`, `DDMODIFY` | Otvara panel Svojstva (takođe Ctrl+1, ili dvaput kliknite objekat) |
+| `PRESSPULL` | | Gura ili vuče stranu tela (3D) |
+| `PROPERTIES` | `PR`, `PROPS`, `CH`, `MO`, `DDMODIFY` | Otvara panel Svojstva (takođe Ctrl+1, ili dvostruki klik na objekat) |
 | `PROPERTIESCLOSE` | `PRCLOSE` | Sklapa panel Svojstva do ivice prozora |
-| `PSPACE` | `PS` | Napušta prozor pogleda u kom radite i vraća se na list (ili dvaput kliknite van njega). |
-| `PUBLISH` | `-PUBLISH` | Štampa nekoliko ili sve listove u jedan PDF (stranica i oznaka za svaki list) |
+| `PSPACE` | `PS` | Napušta prozor pogleda u kome radite i vraća se na list (ili dvostruki klik van njega). |
+| `PUBLISH` | `-PUBLISH` | Štampa nekoliko ili sve listove u jedan PDF (stranica i obeleživač po listu) |
 | `PURGE` | `PU` | Uklanja definicije blokova koje ništa ne koristi |
-| `QDIM` |  | Brza kota: kotira nekoliko objekata odjednom (neprekidno, osnovno, naizmenično, koordinatno, poluprečnik ili prečnik) |
-| `QPMODE` | `QP` | Brza svojstva uz kursor uključena ili isključena |
-| `QSELECT` | `QS` | Brz izbor: svaki objekat vrste čiji se sloj, boja, veličina ili naziv poklapa (QS) |
-| `RASTERSNAP` |  | Uključuje ili isključuje hvatanje za linije skeniranih listova. |
-| `RAY` |  | Zrak: konstrukciona linija iz tačke, beskonačna u jednom smeru. |
-| `RECOVER` |  | Otvara oštećenu DXF ili DWG: preskače ono što ne može da se pročita umesto da odbije datoteku, kaže šta je preskočeno, pa proverava i popravlja crtež kao AUDIT. |
-| `RECTANG` | `REC`, `RECTANGLE` | Zatvorena polilinija od dva ugla |
-| `REDLINE` | `RDL` | Crveno do revizije: čita paket crvenih ispravki MarkupCraft, prihvata ili odbija svaku promenu, oblači prihvaćene u oblak sa dnevnikom revizija, i čuva datoteku odgovora (RDL) |
-| `REDO` |  | Ponavlja ono što je opozvano |
-| `REFCLOSE` |  | Završava izmenu bloka na mestu: čuva ga ili odbacuje izmene |
-| `REFEDIT` |  | Menja blok na mestu, gde se nalazi njegova referenca, a ostatak crteža je zbledeo; REFCLOSE ga čuva |
+| `QDIM` | | Brza kota: kotira više objekata odjednom (neprekidno, osnovno, naizmenično, koordinatno, poluprečnik ili prečnik) |
+| `QPMODE` | `QP` | Brza svojstva uz kursor, uključena ili isključena |
+| `QSELECT` | `QS` | Brzi izbor: svaki objekat vrste čiji se sloj, boja, veličina ili naziv poklapa (QS) |
+| `RASTERSNAP` | | Uključuje ili isključuje hvatanje za linije skeniranih listova. |
+| `RAY` | | Zraka: pomoćna linija iz tačke, bez kraja u jednom smeru. |
+| `RECOVER` | | Otvara oštećen DXF ili DWG: preskače ono što ne može da se pročita umesto da odbije datoteku, kaže šta je preskočeno, zatim proverava i popravlja crtež kao AUDIT. |
+| `RECTANG` | `REC`, `RECTANGLE` | Zatvorena polilinija iz dva ugla |
+| `REDLINE` | `RDL` | Crvena izmena u reviziju: čita paket crvenih izmena MarkupCraft, prihvata ili odbacuje svaku promenu, oblakom obeležava prihvaćene sa dnevnikom revizije, i čuva datoteku odgovora (RDL) |
+| `REDO` | | Ponovo radi ono što je opozvano |
+| `REFCLOSE` | | Završava uređivanje bloka na mestu: sačuvaj ga, ili odbaci izmene |
+| `REFEDIT` | | Uređuje blok na mestu, gde se nalazi njegova referenca, sa ostatkom crteža zatamnjenim; REFCLOSE čuva |
 | `REGEN` | `RE` | Ponovo gradi ono što je nacrtano na ovoj kartici iz crteža |
 | `REGENALL` | `REA` | Ponovo gradi ono što je nacrtano na svakoj kartici, oknu i otvorenom crtežu |
-| `REGION` | `REG` | REGION (REG): pravi ravne oblasti (regione) od zatvorenih objekata, ili od linija, lukova i polilinija koje se zatvaraju u petlju kraj do kraja. UNION, SUBTRACT i INTERSECT zatim spajaju regione, a MASSPROP daje njihova svojstva preseka. |
-| `REGISTERSCANS` | `REGSCAN`, `SCANREG` | Registruje nekoliko skenova: postavlja ih u jedan okvir po izabranim parovima tačaka ili ciljevima, dotera ICP, izvozi jedan LAS ili E57 |
-| `REINIT` |  | Ponovo učitava datoteku alijasa |
+| `REGION` | `REG` | REGION (REG): pravi ravne oblasti (regije) od zatvorenih objekata, ili od linija, lukova i polilinija koje se zatvaraju petljom kraj-do-kraja. UNION, SUBTRACT i INTERSECT zatim kombinuju regije, a MASSPROP daje njihova svojstva preseka. |
+| `REGISTERSCANS` | `REGSCAN`, `SCANREG` | Registruje nekoliko skeniranja: postavlja ih u jedan okvir po izabranim parovima tačaka ili metama, doteruje sa ICP, izvozi jedan LAS ili E57 |
+| `REINIT` | | Ponovo učitava datoteku skraćenica |
 | `RENAME` | `-RENAME`, `REN` | Preimenuje sloj ili blok (svaki objekat ili referenca prati) |
 | `REVCLOUD` | `RC` | Oblak revizije: zaokružuje pravougaonik, poligon, slobodnu putanju ili objekat (RC) |
 | `REVOLVE` | `REV` | Okreće zatvorene 2D objekte oko ose u tela (3D) |
-| `ROTATE` | `RO` | Rotira objekte oko osnovne tačke |
-| `SAMPLES` | `SAMPLE` | Otvara jedan od CadCraft-ovih primera crteža (set arhitekture, izvedeno stanje) da učite iz njega |
+| `ROTATE` | `RO` | Okreće objekte oko osnovne tačke |
+| `SAMPLES` | `SAMPLE` | Otvara jedan od uzoračkih crteža CadCraft-a (arhitektonski skup, izvedeno stanje) da učite iz njih |
 | `SAVE` | `QSAVE` | Preuzima crtež u njegovom formatu (DWG ili DXF) |
-| `SAVEAS` |  | Preuzima crtež kao DWG ili DXF: birate koji |
-| `SAYSEL` |  | Kaže šta je izabrano, po jednu rečenicu za svaki objekat. |
+| `SAVEAS` | | Preuzima crtež kao DWG ili DXF: birate koji |
+| `SAYSEL` | | Kaže šta je izabrano, jedna rečenica za svaki objekat. |
 | `SCALE` | `SC` | Razmerava objekte oko osnovne tačke |
-| `SCALELISTEDIT` | `SCALELIST` | Dodaje, menja i briše sopstvene razmere crteža; pojavljuju se u spiskovima razmera prozora pogleda i štampanja i čuvaju se u datoteci (SCALELIST) |
-| `SCANALIGN` | `SCL` | Poravnava skenirani list sa dve tačke: pomera, okreće i, ako želite, razmerava. |
-| `SCANATTACH` | `SCA`, `SCANIMAGE` | Ubacuje skenirani crtež: PNG, JPEG ili TIFF (jedna stranica ili sve stranice datoteke sa više stranica) ili PDF stranicu koja je slika. |
+| `SCALELISTEDIT` | `SCALELIST` | Dodaje, menja i briše sopstvene razmere crteža; pojavljuju se u spisku razmera prozora pogleda i štampe i čuvaju se u datoteci (SCALELIST) |
+| `SCANALIGN` | `SCL` | Poravnava skenirani list na dve tačke: pomera, okreće i, ako izaberete, razmerava ga. |
+| `SCANATTACH` | `SCA`, `SCANIMAGE` | Umeće skenirani crtež: PNG, JPEG ili TIFF (jedna strana ili sve strane višestrane datoteke) ili PDF strana koja je slika. |
 | `SCANCLEAN` | `SCC` | Pravi skenirani list crno-belim i uklanja mrlje. |
 | `SCANCROP` | `SCR` | Seče skenirani list na prozor. |
-| `SCANDESKEW` | `SCD` | Pronalazi ugao pod kojim leže duge linije skeniranog lista i okreće list da bude ravan kad prihvatite ugao. |
-| `SCANERASE` | `SCE` | Briše oblast skeniranog lista: pravougaonik, poligon ili lasso. |
-| `SCANINFO` | `SCI` | Prikazuje originalnu datoteku skeniranog lista i korake preduzete od tada. |
-| `SCANSCALE` | `SCS` | Razmerava skenirani list: izaberite dve tačke na njemu i ukucajte stvarnu udaljenost između njih. |
-| `SCANTRACE` | `SCT` | Pretvara skenirani list u linije i lukove na novom sloju, do tolerancije koju postavite. Tekst i šrafura ostaju kao rasterska slika. |
-| `SELECT` |  | Bira objekte sada (za P, Prethodni, u sledećoj komandi) |
+| `SCANDESKEW` | `SCD` | Nalazi ugao pod kojim leže duge linije skeniranog lista i okreće list da bude pravilan kada prihvatite ugao. |
+| `SCANERASE` | `SCE` | Briše oblast skeniranog lista: pravougaonik, poligon ili omču. |
+| `SCANINFO` | `SCI` | Prikazuje originalnu datoteku skeniranog lista i korake od tada. |
+| `SCANSCALE` | `SCS` | Razmerava skenirani list: izaberite dve tačke na njemu i ukucajte pravo rastojanje između njih. |
+| `SCANTRACE` | `SCT` | Pretvara skenirani list u linije i lukove na novom sloju, do tolerancije koju postavite. Tekst i šrafura ostaju kao raster. |
+| `SELECT` | | Bira objekte odmah (za P, Prethodni, u sledećoj komandi) |
 | `SELECTALL` | `AI_SELALL` | Bira svaki objekat koji možete menjati na ovoj kartici (Ctrl+A) |
-| `SELECTSIMILAR` | `SIM` | Bira svaki objekat sličan onima koje izaberete: ista vrsta, sloj i boja (SIM) |
-| `SHEETSET` | `SSM`, `SHEETSETMANAGER` | Prikazuje panel Skup listova: listovi iz mnogo crteža, numerisani, objavljeni kao jedan PDF. |
-| `SHORTCUTS` | `KEYS` | Dodeljuje bilo kojoj komandi sopstveni taster (Ctrl ili Alt sa slovom, ili slobodan funkcijski taster), sačuvano u ovom pregledaču ili desktop aplikaciji. |
-| `SHXFONTS` | `SHX` | Daje CadCraft SHX fontove iz fascikle ili datoteka, pa stilovi teksta koji ih navode crtaju njima (navedi, ukloni, obrni) |
-| `SKETCHFIX` | `SKF` | Crtajte slobodne poteze; svaki postaje čista linija, krug, luk, pravougaonik ili polilinija, poravnata i spojena sa ostalima. |
-| `SKETCHLIVE` | `SKL` | Skicira olovkom: svaki potez postaje precizna linija, krug, luk ili pravougaonik čim podignete olovku, hvata se za crtež, sa veličinom koju ukucate preko. |
-| `SPLINE` | `SPL` | Crta splajn kroz tačke (ili sa kontrolnim poligonom), ili pretvara poliliniju u njega |
-| `SPLINEDIT` | `SPE` | Menja splajn: prilagođava tačke, kontrolne tačke i težine, otvara ili zatvara, obrće, ili pretvara u poliliniju |
-| `SPLIT` |  | Deli površinu crtanja na okna (kao VPORTS na modelu; i sa lista) |
-| `STEELMEMBER` | `SMEMBER` | Čelični element u 3D iz standardnog profila: dve tačke (greda) ili osnovna tačka i visina (Stub) |
-| `STLOUT` |  | Izvozi 3D model kao STL (milimetri) |
-| `STRETCH` | `S` | Razvlači: prevucite prozor preko krajeva da pomerite; šta je unutra se pomera, ostatak ostaje (S) |
-| `STYLE` | `ST`, `TEXTSTYLE`, `DDSTYLE` | Stilovi teksta: font, visina, širina i nagib koje novi tekst uzima (dijalog; -STYLE u komandnoj liniji) |
-| `SUBTRACT` | `SU` | Oduzima tela od drugih (3D), ili 2D regione od regiona |
+| `SELECTSIMILAR` | `SIM` | Bira svaki objekat kao one koje izaberete: isti tip, sloj i boja (SIM) |
+| `SHEETSET` | `SSM`, `SHEETSETMANAGER` | Prikazuje panel Skup listova: listovi iz mnogih crteža, numerisani, objavljeni kao jedan PDF. |
+| `SHORTCUTS` | `KEYS` | Daje bilo kojoj komandi sopstveni taster (Ctrl ili Alt uz slovo, ili slobodan funkcijski taster), čuvan u ovom pregledaču ili desktop aplikaciji. |
+| `SHXFONTS` | `SHX` | Daje CadCraft-u SHX fontove iz fascikle ili datoteka, pa stilovi teksta koji ih navode crtaju se njima (spisak, uklanjanje, obrtanje) |
+| `SKETCHFIX` | `SKF` | Crta slobodnom rukom poteze; svaki postaje čista linija, krug, luk, pravougaonik ili polilinija, poravnata i spojena sa ostalima. |
+| `SKETCHLIVE` | `SKL` | Skicira olovkom: svaki potez postaje precizna linija, krug, luk ili pravougaonik čim podignete olovku, pritegnut uz crtež, sa veličinom koju možete prepisati. |
+| `SPLINE` | `SPL` | Crta splajn kroz tačke (ili sa kontrolnim poligonom), ili pretvara polilinju u njega |
+| `SPLINEDIT` | `SPE` | Menja splajn: tačke uklapanja, kontrolne tačke i težine, otvara ili zatvara, obrće ili pretvara u polilinju |
+| `SPLIT` | | Deli područje crteža na okna (kao VPORTS na modelu; i sa lista) |
+| `STEELMEMBER` | `SMEMBER` | Čelični element u 3D iz standardnog preseka: dve tačke (greda) ili osnovna tačka i visina (stub) |
+| `STLOUT` | | Izvozi 3D model kao STL (milimetri) |
+| `STRETCH` | `S` | Istezanje: prevucite prozor preko krajeva da pomerite; šta je unutra se pomera, ostalo ostaje (S) |
+| `STYLE` | `ST`, `TEXTSTYLE`, `DDSTYLE` | Stilovi teksta: font, visina, širina i nagib koje novi tekst dobija (dijalog; -STYLE u komandnoj liniji) |
+| `SUBTRACT` | `SU` | Oduzima tela od drugih (3D), ili 2D regije od regija |
 | `SWBOUT` | `SWMACRO` | Preuzima makro za SolidWorks (.swb) koji ponovo gradi model kao jednu ograničenu skicu |
-| `SWEEP` |  | Prevlači zatvorene 2D objekte duž putanje (linija, polilinija, luk, krug) u tela (3D) |
-| `TABLE` | `TB` | Pravi tabelu: redovi i kolone, ili iz ćelija tabele na privremenoj memoriji ili CSV datoteci (TB) |
-| `TABLEDIT` | `TABLEEDIT`, `TABEDIT` | Menja tabelu: kucajte u ćeliju, umeće i briše redove i kolone, veličine, spojene ćelije, poravnanje |
-| `TABLEEXPORT` |  | Čuva ono što tabela prikazuje kao CSV datoteku |
-| `TABLEPASTE` | `PASTETABLE` | Pravi tabelu iz ćelija tabele na privremenoj memoriji |
-| `TABLESTYLE` | `TS` | Stilovi tabele: visine teksta, poravnanje, margine i ivice za naslov, zaglavlje i redove podataka |
-| `TAGS` |  | Oznake na referencama blokova: definiše oznaku (vrsta, dozvoljene vrednosti, blokovi na koje se odnosi), postavlja je na izabrane reference, i navodi ih kao spisak koji možete sačuvati kao CSV |
-| `TEXT` | `DT`, `DTEXT` | Jednoredni tekst; Enter počinje sledeći red |
-| `TEXTEDIT` | `ED`, `DDEDIT` | Menja tekst na mestu: izaberite tekst (ili dvaput kliknite jedan) (ED) |
-| `TEXTMASK` | `TMASK` | Stavlja maskiranu pozadinu iza teksta (pozadina crteža ili boja), ili je uklanja. |
-| `TEXTTOFRONT` |  | Dovodi sav tekst, kote i vodilice ispred svega ostalog. |
-| `TOOLBAR` |  | Bira šta dugmad trake prikazuju: ikone i tekst, samo ikone, ili samo tekst (Ctrl+F1) |
-| `TOOLBARDOCK` | `TBDOCK` | Postavlja traku pri vrhu, dnu, levoj ili desnoj strani prozora |
-| `TOOLBARROWS` |  | Bira koliko redova traka koristi: prelamanje da stane, 2, ili 1 (Shift+Ctrl+F1) |
-| `TOPAREA` |  | Pravi trake iznad crteža standardne ili kompaktne |
-| `TOUCHCROSSHAIR` | `TCX` | Ukršteni kursor sa pomakom za crtanje prstom: jedan prst pomera ukršteni kursor koji je iznad i sa strane, pa prst ne prekriva tačku izbora. Podizanje prsta ništa ne bira; dugme Klik ili dodir drugim prstom bira na ukrštenom kursoru, a držanje Klika dok se krećete prevlači. Dugo pritiskanje ili dugme Enter je Enter. Dva prsta pomeraju i zumiraju. Opcije: ON, OFF, Auto (uključeno samo tamo gde je prst jedini pokazivač), Distance (Rastojanje), Side (Strana). |
-| `TOUR` | `TUTORIAL` | Ponovo pređite šestokoračni prvi obilazak crtanja |
-| `TRIM` | `TR` | Skraćuje objekte do mesta gde ih seku drugi: kliknite deo, prevucite kroz nekoliko, ili Shift+klik da produžite |
-| `TRIMEXTENDMODE` |  | Kako TRIM i EXTEND počinju: 1 Brzo (svaki objekat je ivica za sečenje ili granica), 0 Standardno (prvo izaberite ivice) |
-| `TTR` |  | Krug tangentan na dva objekta, sa poluprečnikom koji zadajete (isto kao CIRCLE T). |
-| `TURNLEFT` |  | Okreće pogled 90° ulevo (suprotno kazaljci na satu): UCS Z -90, i pogled prati. Ništa u crtežu se ne pomera. |
-| `TURNRIGHT` |  | Okreće pogled 90° udesno (u smeru kazaljki na satu): UCS Z 90, i pogled prati. Ništa u crtežu se ne pomera. |
-| `TURNWORLD` |  | Nazad na svet: UCS Svet, i pogled je ponovo ravan. |
-| `TXT2MTXT` | `T2M` | Spaja jednoredne tekstove u jedan tekst pasusa, odozgo nadole. |
-| `UCS` |  | Vaš sopstveni koordinatni sistem: početna tačka i X osa (origin, Z ugao, 3point, OBject, Previous, World, NAmed). Tačke koje ukucate, orto, polarno praćenje, mreža i novi tekst ga prate; pogled se okreće tako da njegova X osa bude horizontalna. Ništa u crtežu se ne pomera. |
+| `SWEEP` | | Provlači zatvorene 2D objekte duž putanje (linija, polilinija, luk, krug) u tela (3D) |
+| `TABLE` | `TB` | Pravi tabelu: redove i kolone, ili iz ćelija tabele na klipbordu ili CSV datoteci |
+| `TABLEDIT` | `TABLEEDIT`, `TABEDIT` | Menja tabelu: kucanje u ćeliju, umetanje i brisanje redova i kolona, veličine, spojene ćelije, poravnanje |
+| `TABLEEXPORT` | | Čuva ono što tabela prikazuje kao CSV datoteku |
+| `TABLEPASTE` | `PASTETABLE` | Pravi tabelu iz ćelija tabele na klipbordu |
+| `TABLESTYLE` | `TS` | Stilovi tabela: visine teksta, poravnanje, margina i ivice za naslov, zaglavlje i redove podataka |
+| `TAGS` | | Oznake na referencama blokova: definiše oznaku (vrsta, dozvoljene vrednosti, blokovi na koje se odnosi), postavlja je na izabrane reference i navodi ih kao raspored koji možete sačuvati kao CSV |
+| `TEXT` | `DT`, `DTEXT` | Tekst u jednom redu; Enter počinje sledeći red |
+| `TEXTEDIT` | `ED`, `DDEDIT` | Menja tekst na mestu: izaberite tekst (ili dvostruki klik na njega) (ED) |
+| `TEXTMASK` | `TMASK` | Stavlja pozadinsku masku iza teksta (pozadina crteža ili boja), ili je uklanja. |
+| `TEXTTOFRONT` | | Dovodi sav tekst, kote i vodilice ispred svega ostalog. |
+| `TOOLBAR` | | Bira šta dugmad na alatnoj traci prikazuju: ikone i tekst, samo ikone ili samo tekst (Ctrl+F1) |
+| `TOOLBARDOCK` | `TBDOCK` | Stavlja alatnu traku na vrh, dno, levo ili desno prozora |
+| `TOOLBARROWS` | | Bira koliko redova alatna traka koristi: prelamaj da stane, 2 ili 1 (Shift+Ctrl+F1) |
+| `TOPAREA` | | Čini trake iznad crteža standardnim ili kompaktnim |
+| `TOUCHCROSSHAIR` | `TCX` | Ukršteni kursor sa pomakom za crtanje prstom: jedan prst pomera ukršteni kursor koji stoji iznad i sa strane, pa prst ne prekriva tačku izbora. Podizanje prsta ništa ne bira; dugme Klik ili dodir drugim prstom bira na ukrštenom kursoru, a držanje Klika dok pomerate prevlači. Dugi pritisak ili dugme Enter je Enter. Dva prsta pomeraju i zumiraju. Opcije: ON, OFF, Auto (uključeno samo tamo gde je prst jedini pokazivač), Distance, Side. |
+| `TOUR` | `TUTORIAL` | Ponovo pokreće šestorazredni obilazak prvog crteža |
+| `TRIM` | `TR` | Seče objekte nazad do mesta gde ih drugi seku: kliknite deo, prevucite kroz više, ili Shift+klik za produženje |
+| `TRIMEXTENDMODE` | | Kako TRIM i EXTEND počinju: 1 Brzo (svaki objekat je rezna ivica ili granica), 0 Standardno (prvo birate ivice) |
+| `TTR` | | Krug tangentan na dva objekta, sa poluprečnikom koji date (isto kao CIRCLE T). |
+| `TURNLEFT` | | Okreće prikaz 90° ulevo (suprotno kazaljci na satu): UCS Z -90, a prikaz prati. Ništa u crtežu se ne pomera. |
+| `TURNRIGHT` | | Okreće prikaz 90° udesno (u smeru kazaljki): UCS Z 90, a prikaz prati. Ništa u crtežu se ne pomera. |
+| `TURNWORLD` | | Nazad na svet: UCS Svet, a prikaz je ponovo vodoravan. |
+| `TXT2MTXT` | `T2M` | Spaja tekstove u jednom redu u jedan pasusni tekst, odozgo nadole. |
+| `UCS` | | Vaš sopstveni koordinatni sistem: početak i X osa (početak, ugao Z, 3tačke, OBjekat, Prethodni, Svet, NAzvan). Tačke koje ukucate, ortogonalno, polarno praćenje, mreža i novi tekst ga prate; prikaz se okreće tako da je njegova X osa vodoravna. Ništa u crtežu se ne pomera. |
 | `UNDO` | `U` | Opoziva poslednju komandu |
-| `UNGROUP` |  | UNGROUP: rastavlja grupe. Izaberite objekte grupa, ili zadajte Ime. Objekti ostaju u crtežu. |
-| `UNION` | `UNI` | Spaja tela u jedno (3D), ili 2D regione u jedan region |
-| `UNISOLATEOBJECTS` | `UNISOLATE`, `UNHIDE` | Ponovo prikazuje svaki objekat skriven sa ISOLATEOBJECTS ili HIDEOBJECTS. |
+| `UNGROUP` | | UNGROUP: rastavlja grupe. Izaberite objekte grupa, ili dajte Naziv. Objekti ostaju u crtežu. |
+| `UNION` | `UNI` | Spaja tela u jedno (3D), ili 2D regije u jednu regiju |
+| `UNISOLATEOBJECTS` | `UNISOLATE`, `UNHIDE` | Ponovo prikazuje svaki objekat sakriven sa ISOLATEOBJECTS ili HIDEOBJECTS. |
 | `UNITS` | `UN`, `DDUNITS` | Kako se dužine prikazuju i unose: decimalno, stope i inči, razlomci (UN) |
-| `UPDATEFIELD` | `UPDATEFIELDS` | Ponovo izračunava polja i bira kada se sama ažuriraju |
-| `USDOUT` |  | Izvozi 3D model kao USD (.usda tekst, .usdc binarno ili .usdz paket) |
-| `VIEW` | `-VIEW`, `V` | Standardni 3D pogledi, perspektivni ili paralelni (3D) |
-| `VIEWBASE` | `FLATSHOT` | Postavlja ravan 2D pogled 3D tela (sprednji, gornji, bočni ili izometrijski, skrivene linije isprekidane) na list ili u model |
-| `VIEWLABEL` | `VL` | Naslov pogleda na listu koji prikazuje naziv pogleda njegovog prozora i menja se s njim. |
-| `VOICE` |  | Uključuje ili isključuje izgovorene komande. Prepoznaju se na ovom računaru. |
-| `VPCLIP` |  | Iseče prozor pogleda lista na zatvoreni objekat ili nacrtani poligon; Delete ga ponovo pravi pravougaonikom |
-| `VPLAYER` |  | Zamrzava ili odmrzava slojeve samo u nekim prozorima pogleda (Freeze, Thaw, Reset), i bira koji slojevi novi prozori pogleda počinju zamrznuti (Vpvisdflt). |
-| `VPORTS` | `VIEWPORTS` | Deli površinu crtanja na okna, svako sa sopstvenim pogledom (na listu: prozor pogleda, kao MVIEW) |
-| `VPVIEW` |  | Postavlja šta prozor pogleda prikazuje: izaberite prozor na modelu |
-| `VSCURRENT` | `VS`, `SHADEMODE` | Vizuelni stil 3D pogleda: senčeno, ivice, skrivena linija, žičani model, rendgen |
-| `WALL` | `WA` | Crta 2D zidove kao polilinija. Spajaju se i nose vrata i prozore. |
+| `UPDATEFIELD` | `UPDATEFIELDS` | Ponovo računa polja i bira kada se sama ažuriraju |
+| `USDOUT` | | Izvozi 3D model kao USD (.usda tekst, .usdc binarno ili .usdz paket) |
+| `VIEW` | `-VIEW`, `V` | Standardni 3D prikazi, perspektivni ili paralelni (3D) |
+| `VIEWBASE` | `FLATSHOT` | Postavlja ravan 2D prikaz 3D tela (sprijeda, odozgo, sa strane ili izometrijski, skrivene linije isprekidane) na list ili u model |
+| `VIEWLABEL` | `VL` | Naslov prikaza na listu koji prikazuje naziv pogleda svog prozora pogleda i menja se s njim. |
+| `VOICE` | | Uključuje ili isključuje izgovorene komande. Prepoznaju se na ovom računaru. |
+| `VPCLIP` | | Seče prozor pogleda lista na zatvoren objekat ili nacrtani poligon; Delete ga ponovo pravi pravougaonikom |
+| `VPLAYER` | | Zamrzava ili odmrzava slojeve samo u nekim prozorima pogleda (Freeze, Thaw, Reset), i bira koji slojevi novi prozori pogleda počinju zamrznuti (Vpvisdflt). |
+| `VPORTS` | `VIEWPORTS` | Deli područje crteža na okna, svako sa sopstvenim prikazom (na listu: prozor pogleda, kao MVIEW) |
+| `VPVIEW` | | Postavlja šta prozor pogleda prikazuje: birate prozor na modelu |
+| `VSCURRENT` | `VS`, `SHADEMODE` | Vizuelni stil 3D prikaza: senčeno, ivice, skrivena linija, žičani model, rendgen |
+| `WALL` | `WA` | Crta 2D zidove kao polilinju. Spajaju se i nose vrata i prozore. |
 | `WALLARC` | `WARC` | Crta luk zidova. Zidovi u planu su pravi, pa se luk crta kao kratki pravi zidovi (po 15 stepeni) koji se spajaju. |
-| `WALLDELSEG` |  | Briše deo zida između dve tačke. Ostatak ostaje kao jedan ili dva zida. |
-| `WALLDIM` |  | Ukucajte novu vrednost za kotu: zid na njenom dalekom kraju se pomera normalno na sebe, zid na prvom kraju ostaje, a zidovi spojeni za njega prate. |
-| `WALLDISJOIN` |  | Izaberite zid blizu jednog kraja da zabranite spajanje na tom kraju: kraj se crta pod pravim uglom i ništa ga ne prati. Izaberite ponovo da dozvolite. |
-| `WALLGRID` |  | Zaključava zid za liniju mreže: duž nje, ili jedan kraj na njoj. Pomerite liniju sa GRIDMOVE i zid prati. |
-| `WALLHOLD` |  | Poravnaj i zaključaj: zid zadržava svoje mesto prema drugom zidu (na njegovoj liniji, ili na rastojanju koje ima). Ako se jedan pomeri, drugi prati. |
-| `WALLHOLDDIM` |  | Zaključava rastojanje između dva paralelna zida. Ako se jedan pomeri, drugi prati da ga održi. |
-| `WALLHOLDS` |  | Navodi zaključavanja na zidovima. |
-| `WALLJOINS` |  | Daje svakom zidu starijeg crteža njegov identifikator i čuva spojeve između njih. Ovo se dešava i pri prvoj promeni koju napravite. |
-| `WALLJOINSTYLE` |  | Kliknite ugao gde se dva zida sastaju kraj do kraja da promenite kako se crta: kosa linija, sučeljavanje, pravo odsecanje. T menja koji zid prolazi kroz. |
-| `WALLOFFSET` | `WO` | Pomera zid normalno na sebe za rastojanje (zidovi spojeni za njega prate), ili pravi kopiju na tom rastojanju. |
-| `WALLPICK` |  | Pravi zidove na liniji ili poliliniji u crtežu, sa linijama spojenim za nju ako kažete Da. |
-| `WALLPOLY` | `WP` | Crta zidove oko pravilnog poligona sa 3 do 64 strane, kao POLYGON. |
-| `WALLRECT` | `WR` | Crta četiri spojena zida od dva suprotna ugla, kao RECTANG. |
-| `WALLREJOIN` |  | Pretvara dva dela zida opet u jedan zid. Prvi zadržava svoje mesto u crtežu. |
-| `WALLROT` |  | Crta četiri spojena zida kao pravougaonik okrenut pod bilo kojim uglom: prva strana, pa koliko daleko napolje. |
-| `WALLSPLIT` | `WS` | Deli zid na dva na tački ili gde ga seče drugi zid. Delovi ostaju spojeni osim ako ne tražite razmak ili slobodne krajeve. Vrata i prozori idu sa svojim delom. |
-| `WALLSPLITGAP` |  | Deli zid ostavljajući razmak: ukucajte razmak, izaberite zid, pa tačku. Delovi zadržavaju slobodne krajeve i mogu se opet spojiti. |
-| `WALLSTRETCH` |  | Razvlači sa prozorom: krajevi zidova unutar njega se pomeraju, zidovi potpuno unutra se pomeraju celi, a zidovi koji se naslanjaju na njihove strane kližu s njima. |
-| `WALLTAN` |  | Nastavlja zid lukom koji iz njega izlazi duž zida (crta se kao kratki pravi zidovi). |
-| `WALLTRACE` |  | Pravi zidove oko najmanje zatvorene oblasti linija i zidova oko tačke na koju kliknete. |
-| `WALLUNHOLD` |  | Skida zaključavanja sa zida (i zaključavanja drugih zidova za njega). |
-| `WBLOCK` | `W`, `-WBLOCK` | Upisuje blok, neke objekte ili ceo crtež u novu DWG ili DXF datoteku (W) |
-| `WEDGE` | `WE` | Klin: dva ugla i visina; kosi se od prvog ugla (3D) |
+| `WALLDELSEG` | | Briše deo zida između dve tačke. Ono što ostane ostaje kao jedan ili dva zida. |
+| `WALLDIM` | | Ukucajte novu vrednost za kotu: zid na njegovom dalekom kraju se pomera pravo u odnosu na sebe, zid na prvom kraju ostaje, a zidovi spojeni uz njega prate. |
+| `WALLDISJOIN` | | Izaberite zid blizu jednog kraja da zabranite spajanje na tom kraju: kraj se crta pravo i ništa ga ne prati. Ponovo ga izaberite da ih dozvolite. |
+| `WALLGRID` | | Zaključava zid za liniju mreže: duž nje, ili jedan kraj na njoj. Pomerite liniju sa GRIDMOVE i zid prati. |
+| `WALLHOLD` | | Poravnava i zaključava: zid zadržava mesto u odnosu na drugi zid (na njegovoj liniji, ili na rastojanju koje ima). Ako se jedan pomeri, drugi prati. |
+| `WALLHOLDDIM` | | Zaključava rastojanje između dva paralelna zida. Ako se jedan pomeri, drugi prati da ga zadrži. |
+| `WALLHOLDS` | | Navodi zaključavanja na zidovima. |
+| `WALLJOINS` | | Daje svakom zidu starijeg crteža njegov identifikator i čuva spojeve između njih. Ovo se dešava i pri prvoj promeni koju napravite. |
+| `WALLJOINSTYLE` | | Kliknite ugao gde se dva zida sreću kraj uz kraj da promenite kako se crta: pokošen, ravan, pravo odsečen. T menja koji zid prolazi. |
+| `WALLOFFSET` | `WO` | Pomera zid pravo u odnosu na sebe za rastojanje (zidovi spojeni uz njega prate), ili pravi kopiju na tom rastojanju. |
+| `WALLPICK` | | Pravi zidove na liniji ili polilinji u crtežu, sa linijama spojenim uz nju ako kažete Da. |
+| `WALLPOLY` | `WP` | Crta zidove oko pravilnog poligona od 3 do 64 strane, kao POLYGON. |
+| `WALLRECT` | `WR` | Crta četiri spojena zida iz dva suprotna ugla, kao RECTANG. |
+| `WALLREJOIN` | | Pravi dva dela zida opet jednim zidom. Prvi zadržava svoje mesto u crtežu. |
+| `WALLROT` | | Crta četiri spojena zida kao pravougaonik okrenut pod bilo kojim uglom: prva strana, zatim koliko daleko ide druga. |
+| `WALLSPLIT` | `WS` | Deli zid na dva na tački ili tamo gde drugi zid prelazi. Delovi ostaju spojeni osim ako ne tražite razmak ili slobodne krajeve. Vrata i prozori idu sa svojim delom. |
+| `WALLSPLITGAP` | | Deli zid ostavljajući razmak: ukucajte razmak, izaberite zid, zatim tačku. Delovi zadržavaju slobodne krajeve i mogu se opet spojiti. |
+| `WALLSTRETCH` | | Istezanje prozorom: krajevi zidova unutar njega se pomeraju, zidovi potpuno unutra se pomeraju celi, a zidovi koji se naslanjaju na njihove strane kližu s njima. |
+| `WALLTAN` | | Nastavlja zid lukom koji polazi od njega duž zida (crta se kao kratki pravi zidovi). |
+| `WALLTRACE` | | Pravi zidove oko najmanje zatvorene oblasti linija i zidova oko tačke na koju kliknete. |
+| `WALLUNHOLD` | | Skida zaključavanja sa zida (i zaključavanja drugih zidova uz njega). |
+| `WBLOCK` | `W`, `-WBLOCK` | Zapisuje blok, neke objekte ili ceo crtež u novu DWG ili DXF datoteku (W) |
+| `WEDGE` | `WE` | Klin: dva ugla i visina; nagnut je od prvog ugla (3D) |
 | `WHEREAMI` | `WHERE` | Kaže gde je kursor. |
-| `WHOHAS` |  | Kaže ko ima crtež otvoren. CadCraft Studio čuva mali fajl za zaključavanje pored svakog otvorenog crteža (Plan.dwg.cclock: ko, od kad, koja verzija) i uklanja ga pri zatvaranju. Opcije: Current (otvoreni crtež), File (izaberi jedan), FOlder (svaki crtež u fascikli koji je negde otvoren; ovo takođe omogućava Studiju da čuva datoteke zaključavanja u toj fascikli), Path (ukucaj jednu), Name (ime koje drugi vide). Zaključavanje koje nije osveženo pet minuta naziva se zastarelim. Nije dostupno u pregledaču. |
-| `WINDOW` | `WN` | Postavlja prozor u zid. |
-| `XATTACH` | `XA` | Povezuje drugi DWG ili DXF u ovaj crtež, prikazan samo za čitanje (XREF ih navodi i ponovo učitava) |
-| `XCLIP` | `XC` | Iseca reference blokova i povezane crteže na pravougaonik ili poligon, ili uklanja isečak. |
-| `XLINE` | `XL` | Konstrukciona linija, beskonačna u oba smera: kroz dve tačke, horizontalna, vertikalna, pod uglom, koja deli ugao, ili pomerena od linije. |
-| `XREF` | `XR`, `-XREF` | Povezani crteži (spoljne reference): navedi, prikači, ponovo učitaj, veži, odveži |
-| `ZOOM` | `Z` | Obuhvati sve, ili prozor |
+| `WHOHAS` | | Kaže ko ima crtež otvoren. CadCraft Studio čuva malu datoteku zaključavanja uz svaki otvoreni crtež (Plan.dwg.cclock: ko, od kada, koja verzija) i uklanja je pri zatvaranju. Opcije: Current (otvoreni crtež), File (izaberite jedan), FOlder (svaki crtež u fascikli koji je negde otvoren; ovo takođe dozvoljava Studiju da čuva datoteke zaključavanja u toj fascikli), Path (ukucajte), Name (ime koje drugi vide). Zaključavanje osvežavano pet minuta ili više smatra se zastarelim. Nije dostupno u pregledaču. |
+| `WINDOW` | `WN` | Stavlja prozor u zid. |
+| `XATTACH` | `XA` | Povezuje još jedan DWG ili DXF u ovaj crtež, prikazan samo za čitanje (XREF ih navodi i ponovo učitava) |
+| `XCLIP` | `XC` | Seče reference blokova i povezane crteže na pravougaonik ili poligon, ili uklanja isečak. |
+| `XLINE` | `XL` | Pomoćna linija, bez kraja u oba smera: kroz dve tačke, vodoravna, uspravna, pod uglom, simetrala ugla, ili pomaknuta od linije. |
+| `XREF` | `XR`, `-XREF` | Povezani crteži (spoljne reference): navodi, priključuje, ponovo učitava, veže, odvaja |
+| `ZOOM` | `Z` | Granice, ili prozor |

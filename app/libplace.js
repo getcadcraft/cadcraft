@@ -26,6 +26,7 @@ import { attdef, defaultAttrs } from './attrs.js';
 import { mmPerUnit } from './blockcopy.js';
 
 import { t } from './i18n.js';
+import { csvCell as cell } from './util.js';   // shared helpers (0.11 PERF.74)
 export const LIB_TAGS = { item: 'CC-ITEM', qty: 'CC-QTY', uuid: 'CC-ITEM-UUID', ver: 'CC-ITEM-VER', name: 'CC-ITEM-NAME', library: 'CC-LIBRARY', sha: 'CC-SHA256', license: 'CC-LICENSE', attrib: 'CC-ATTRIB', licenseUrl: 'CC-LICENSE-URL', maker: 'CC-MAKER', model: 'CC-MODEL', category: 'CC-CATEGORY', kind: 'CC-KIND', source: 'CC-SOURCE-FILE', stretch: 'CC-STRETCH' };
 const MAX_ENTITIES = 50000, LIM = 1e7;
 const fin = (v) => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= LIM;
@@ -284,7 +285,6 @@ export function creditsText(uses) {
 
 /** CSV (BOM + CRLF; cells starting = + - @ get a leading '), the schedule with each item's credit. */
 export function creditsCsv(uses) {
-  const cell = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const rows = [[t('lib.place.item_numbers'), ...['name', 'maker', 'model', 'category', 'placed', 'quantity'].map((k) => t('lib.place.col.' + k)), t('lib.place.item_id'), ...['version', 'license', 'attribution'].map((k) => t('lib.place.col.' + k)), t('lib.place.license_link'), t('lib.place.col.library')]];
   for (const u of uses) rows.push([u.numbers.join(' '), u.name, u.maker, u.model, u.category, u.count, u.quantity, u.uuid, u.version, u.license, u.attribution, u.licenseUrl, u.library]);
   return '﻿' + rows.map((r) => r.map(cell).join(',')).join('\r\n') + '\r\n';

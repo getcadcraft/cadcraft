@@ -14,11 +14,9 @@
 import { keep, followGrid } from './walls/hold.js';
 import { gridLines } from './gridmove.js';
 import { squareRows, squareMove } from './walls-joins.js';
+import { dot2 as dot, sub2 as sub, unit2 as unit } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
-const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
-const unit = (v) => { const L = Math.hypot(v[0], v[1]); return L > 0 ? [v[0] / L, v[1] / L] : [1, 0]; };
 const left = (u) => [-u[1], u[0]];
-const dot = (a, b) => a[0] * b[0] + a[1] * b[1];
 
 export const holdsIn = (cur) => [...cur.values()].filter((w) => w.g).flatMap((w) => (w.h || []).map((h) => ({ ...h, wall: w.g })));
 export const hasHolds = (cur) => [...cur.values()].some((w) => w.h?.length);

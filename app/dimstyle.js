@@ -53,7 +53,7 @@ import { textCorners } from './geom.js';
 
 export const DIM_EXTRA = Object.freeze({
   blk1: '', blk2: '', tsz: 0, clrd: 0, clre: 0, lwd: -2, lwe: -2, sd1: false, sd2: false, se1: false, se2: false,
-  txsty: 'Standard', clrt: 0, tfill: 0, tfillclr: 0, just: 0, tih: false,
+  txsty: 'Standard', clrt: 0, tfill: 0, tfillclr: 0, just: 0, tih: false, atxt: 0,
   atfit: 3, tmove: 0, tix: false, tofl: false,
   rnd: 0, pre: '', suf: '', lfac: 1, dsep: '.', aunit: 0, azin: 0,
   alt: false, altu: 2, altd: 2, altf: 25.4, altrnd: 0, apre: '', asuf: '', altz: 0,

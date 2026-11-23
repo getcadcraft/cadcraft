@@ -18,6 +18,7 @@ import { dimstylePairs, stFromVars } from './dwg-props.js';
 import { pictureRefs } from './pictures.js';
 import { geodataFields, writeDxfGeodata } from './geodwg.js';   // 0.6 GEO-DWG
 import { groupObjects } from './groups.js';   // ORS.8: named object groups as real GROUP objects
+import { TextChunks } from './chunks.js';   // 0.11 PERF.30: the output kept as parts (lib/textout/chunks.js)
 
 const deg = (r) => (r * 180) / Math.PI;
 const f = (n) => (Number.isFinite(n) ? (Math.abs(n) < 1e-12 ? '0.0' : Number(n.toPrecision(15)).toString()) : '0.0');
@@ -27,8 +28,11 @@ const RESERVED = new Set(['*MODEL_SPACE', '*PAPER_SPACE']);
 
 export function writeDxf2000(doc) {
   const { model, counts } = saveDwg(doc, { modelOnly: true, explodeLeaders: true });
-  const lines = [];
-  const w = (code, v) => { lines.push(String(code).padStart(3, ' ')); lines.push(String(v)); };
+  // 0.11 PERF.30 (perf-finish-11): the HEADER (its $HANDSEED is set at the end) is kept as lines, everything after it goes into a TextChunks
+  // (chunks.js), so a drawing of 1,000,000 objects no longer stops at "Invalid string length"; the text is the same as the old join
+  const lines = [], body = new TextChunks('\r\n');
+  let sink = lines;
+  const w = (code, v) => { sink.push(String(code).padStart(3, ' ')); sink.push(String(v)); };
   // FX.240: an object opened from a DXF keeps the handle that file gave it (`handle`, dxf.js), so a program that names objects by handle (the SuperCad
   // project's object list) still finds it after a save; a new object is told the handle it got here. No other handle is ever one of the kept ones.
   const HKEY = /^[0-9A-F]{1,12}$/, hnum = (s) => parseInt(s, 16);
@@ -96,6 +100,7 @@ export function writeDxf2000(doc) {
   w(9, '$CLAYER'); w(8, '0');
   w(9, '$TILEMODE'); w(70, 1);
   w(0, 'ENDSEC');
+  sink = body;
   w(0, 'SECTION'); w(2, 'CLASSES');
   if ((model.objects || []).some((o) => o.type === 'PDFDEFINITION')) {   // PDF underlays (0.7 D7.24): the classes a reader needs to take them
     w(0, 'CLASS'); w(1, 'PDFDEFINITION'); w(2, 'AcDbPdfDefinition'); w(3, 'ObjectDBX Classes'); w(90, 1153); w(91, 0); w(280, 0); w(281, 0);
@@ -452,5 +457,9 @@ export function writeDxf2000(doc) {
   if (report.counts.xrefBound) report.notes.push(t('dwg.save.xref.bound', { n: report.counts.xrefBound }));
   if (report.counts.xrefLink) report.notes.push(t('dwg.save.xref.link', { n: report.counts.xrefLink }));
   if (report.counts.skipped || report.counts.other) report.notes.push(t('dwg.save.other', { n: (report.counts.skipped || 0) + (report.counts.other || 0) }));
-  return { text: lines.join('\r\n') + '\r\n', report };
+  const out = new TextChunks('\r\n');   // the header as the first part, then the body's parts (each part ends with the separator)
+  body.finish(true);
+  out.parts.push(lines.join('\r\n') + '\r\n', ...body.parts.filter((p) => p.length));
+  out.length = out.parts.reduce((n, p) => n + p.length, 0); out.lines = lines.length + body.lines; out.done = true;
+  return { get text() { return out.string(); }, chunks: out, report };   // `text` as before (a string, while it fits); `chunks.blob()` / `.pipe()` for any size
 }

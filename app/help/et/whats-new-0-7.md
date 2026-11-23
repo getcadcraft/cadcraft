@@ -2,7 +2,7 @@
 title: Mis on uut versioonis 0.7 (varasem)
 summary: PDF-aluseid ja PDF-importi, skannitud jooniseid automaatse jälgimisega, päriseid splaine käskudega SPLINE, SPLINEDIT ja PEDIT, mõõtestiilide haldurit, teksti, mis säilitab oma vormingu, WBLOCK-i ja oma mõõtkavasid, 3D-tahkiseid teistest programmidest, skannide registreerimist, Laser-paneeli, USD-eksporti, ajalugu ja printimist CadCraft Studios, juhendatud esimest joonist, tööriistariba mis tahes küljel või vähemates ridades ning veel tehisintellekti assistentide jaoks.
 keywords: mis on uut 0.7, varasem versioon, versioonimärkmed, muudatuste logi, muudatused, 0.7, versioon, uued funktsioonid, pdf, pdfattach, pdfimport, alus, skannimine, scanattach, scantrace, jälgimine, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, vormindus, wblock, scalelistedit, mõõtkavade loend, acis, 3D-tahkised, registerscans, skannide registreerimine, icp, e57, las, laser, grbl, g-kood, usd, usdout, ajalugu, versioonid, võrdlus, print, printer, png, svg, plotistiil, joonetüüp, ekskursioon, petuleht, käskude kaart, tööriistariba asukoht, tööriistariba read, toolbardock, regen, regenall, puuteplaat, pühkimine, koodileht, kirillitsa, korea, hiina, jaapani, elektri, rcd, p&id, pid, acad.lsp, acaddoc.lsp, toetuskaust, assistendid, mcp, ühikud, portugali
-from: d07ca034
+from: d9a8ea79
 ---
 
 See on see, mis muutus versioonis CadCraft 0.7 võrreldes versiooniga 0.6. Suur osa sellest tuli Discordi kaudu kasutajate soovidena. Loend on rühmitatud valdkondade kaupa, kõige olulisem enne.

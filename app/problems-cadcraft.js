@@ -15,6 +15,7 @@
  *   Fixes are data ({ action: 'erase', args: { ids } }); cadcraft.js's fix handler makes the change in one doc.change (one undo step).
  *   t(key, vars) = CadCraft's t. Keys not in the language file yet fall back to the English words here (the keys are in the log's inbox).
  */
+import { runNow, runSliced, ticker } from './slices.js';   // 0.11 PERF.30: the shape pass in slices (auditReady)
 const EN = {
   'problems.cad.import.skipped': 'Not shown yet: {n} {type}.',
   'problems.cad.xref.missing': 'The linked drawing "{name}" could not be opened ({path}). Its objects are not in this drawing.',
@@ -54,12 +55,21 @@ export function shapeKey(e) {
 
 const auditMemo = new WeakMap();   // doc → { version, empty, dup }
 /** Both findings in one pass, kept while the drawing's version does not move (the panel asks for each of them). */
-function auditBoth(doc) {
+function auditBoth(doc) { return runNow(auditBothSteps(doc)); }
+/** 0.11 PERF.30 (perf-finish-11): the same pass in slices, before cadProblems asks (it then reads the kept result). 100,000 objects: one
+ *  task of 370 ms on first run. If the drawing changes meanwhile, the result is not kept and cadProblems runs it again at once. */
+export async function auditReady(doc) {
+  const r = await runSliced(auditBothSteps(doc, false));
+  if (r && doc && r.version === doc.version) auditMemo.set(doc, r);
+}
+function* auditBothSteps(doc, keep = true) {
   const ver = doc && typeof doc.version === 'number' ? doc.version : null;
   const m = auditMemo.get(doc);
   if (m && ver !== null && m.version === ver) return m;
+  const tick = ticker(256);
   const empty = [], dup = [], seen = new Map();
   for (const e of doc && typeof doc.everyEntity === 'function' ? doc.everyEntity() : []) {
+    if (tick()) yield;
     if (e.id === undefined) continue;
     if (isEmpty(e)) { empty.push(e.id); continue; }
     const k = shapeKey(e);
@@ -67,7 +77,7 @@ function auditBoth(doc) {
     if (seen.has(k)) dup.push(e.id); else seen.set(k, e.id);
   }
   const r = { version: ver, empty, dup };
-  if (doc && typeof doc === 'object') auditMemo.set(doc, r);
+  if (keep && doc && typeof doc === 'object') auditMemo.set(doc, r);
   return r;
 }
 

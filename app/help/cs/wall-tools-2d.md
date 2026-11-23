@@ -1,82 +1,93 @@
 ---
-title: Tvary, řezy, odsazení a zámky 2D stěn
-summary: Kreslete stěny jako obdélníky, mnohoúhelníky a oblouky, rozdělujte je a spojujte zpět, posouvejte je o rozměr a zamkněte jednu stěnu k jiné nebo k ose. Stejné nástroje jako u stěn v BimCraft.
-keywords: stěna, panel nástrojů stěn, tlačítka stěn, WALLRECT, WALLROT, WALLPOLY, WALLARC, WALLTAN, WALLPICK, WALLTRACE, WALLSPLIT, WALLSPLITGAP, WALLDISJOIN, WALLJOINSTYLE, styl spojení, zkosení, tupý, kolmo ukončit, visací zámek, úchyt, tažení konce, otočit, WALLDELSEG, WALLREJOIN, WALLDIM, WALLOFFSET, WALLSTRETCH, WALLHOLD, WALLHOLDDIM, WALLGRID, WALLUNHOLD, WALLHOLDS, WALLJOINS, spojit, zakázat spojení, zámek, osa, rozdělit, mezera, odsazení, čára polohy
-from: f41e7433
+title: Tvary stěn, řezy, odsazení a zámky pro 2D stěny
+summary: Kreslete stěny jako obdélníky, mnohoúhelníky a oblouky, dělte je a znovu spojujte, posouvejte je podle kóty a zamykejte jednu stěnu k jiné nebo k mřížkové čáře. Stejné nástroje jako stěny v BimCraftu.
+keywords: stěna, panel stěn, tlačítka stěn, WALLRECT, WALLROT, WALLPOLY, WALLARC, WALLTAN, WALLPICK, WALLTRACE, WALLSPLIT, WALLSPLITGAP, WALLDISJOIN, WALLJOINSTYLE, styl spojení, zkosení, tupý, kolmo ukončit, visací zámek, úchyt, přetažení konce, otočit, WALLDELSEG, WALLREJOIN, WALLDIM, WALLOFFSET, WALLSTRETCH, WALLHOLD, WALLHOLDDIM, WALLGRID, WALLUNHOLD, WALLHOLDS, WALLJOINS, spojení, zakázat spojení, zámek, mřížková čára, dělit, mezera, odsazení, čára umístění
+from: 49044181
 ---
 
-Tyto nástroje pracují s 2D stěnami z `WALL` (viz „Kreslení chytrých stěn, dveří a oken ve 2D“). Používají stejná pravidla jako nástroje stěn v BimCraft, takže se stěna chová v obou stejně.
+Tyto nástroje pracují s 2D stěnami z příkazu `WALL` (viz „Kreslení chytrých 2D stěn, dveří a oken“). Používají stejná pravidla jako nástroje pro stěny v BimCraftu, takže se stěna chová stejně v obou.
 
 ## Kde jsou nástroje
 
-- Na panelu nástrojů má skupina {{ui:Stěny}} položky {{ui:Zeď}}, {{ui:Obdélník}}, {{ui:Rozdělit}} a {{ui:Odsadit}}. Její nabídka {{ui:Více}} obsahuje všechny ostatní nástroje stěn, každý se svou ikonou.
-- V stylech nabídky pásu karet má karta {{ui:Stěny}} panely {{ui:Kreslit stěny}}, {{ui:Vyjmout}}, {{ui:Nastavit a upravit}}, {{ui:Podržet}} a {{ui:Spojit}}.
-- V rozvržení ukazují řádky nástrojů a panel nástrojů stejnou skupinu {{ui:Stěny}}.
-- Můžete také napsat kterýkoli příkaz uvedený níže.
+- Na panelu nástrojů má skupina {{ui:Stěny}} tlačítka {{ui:Zeď}}, {{ui:Obdélník}}, {{ui:Dělit}} a {{ui:Odsadit}}. Její nabídka {{ui:Více}} obsahuje všechny ostatní nástroje pro stěny, každý s ikonou.
+- V nabídkových stylech s pásem karet má karta {{ui:Stěny}} panely {{ui:Kreslit stěny}}, {{ui:Řez}}, {{ui:Nastavit a upravit}}, {{ui:Podržet}} a {{ui:Spojit}}.
+- V rozvržení zobrazují řádky nástrojů a panel nástrojů stejnou skupinu {{ui:Stěny}}.
+- Můžete také napsat kterýkoli níže uvedený příkaz.
 
 ## Spojení se ukládají
 
-Když konec stěny dosedne na jinou stěnu, CadCraft uloží to spojení s oběma stěnami. Spojení již znovu nepočítá podle toho, kde zrovna konce leží. Proto:
+Když konec stěny dopadne na jinou stěnu, CadCraft to spojení uloží u obou stěn. Už nepočítá spojení znovu z toho, kde konce náhodou leží. Takže:
 
-- Stěny spojené s přesouvanou stěnou ji sledují a zůstávají spojené. Jejich konce klouzají po vlastních čarách, takže se nic neotáčí.
-- Když táhnete jeden konec stěny za jeho úchyt, stěna spojená v tomto místě si také zachová svůj směr. Její konec klouže po vlastní čáře, aby se setkal s tažnou stěnou, takže tažený konec přistane na této čáře, ne vždy pod kurzorem. Náhled ukazuje, kde. Stěna, která do tažené stěny naráží tupě, sleduje podle vlastní čáry. Tažení konce přímo podél stěny mění její délku a stěna spojená v tomto místě se s ní posune.
-- `ROTATE` na spojené stěně funguje stejně: konce jejích sousedů klouzají po vlastních čarách k otočené stěně.
-- Chcete-li přesunout roh, vyberte obě stěny, které se tam stýkají, a táhněte úchytem na rohu. Obě stěny zůstanou v rohu a obě se otočí. Stěny dál zůstanou, jaké byly.
-- Podržte {{key:Alt}}, když klepnete na nové místo úchytu, a spojení záměrně přerušíte: stěna jde tam, kam ji dáte, a nic ji nesleduje.
-- Pokud by tažení otočilo spojenou stěnu zpět skrz její vzdálený konec, bude odmítnuto a nic se nezmění.
-- Stěna, kterou kreslíte s {{ui:Nepovolit spojení}} (`D` v `WALL`), nebo kterou vypnete ve Vlastnostech ({{ui:Nepovolit spojení na začátku}}, {{ui:Nepovolit spojení na konci}}), zůstane na tom konci volná, i když se dotýká jiné stěny, dokud ji znovu nepovolíte.
-- `WALLDISJOIN` ({{ui:Zakázat spojení}} ve skupině {{ui:Stěny}}) dělá totéž jedním klepnutím: klepněte na stěnu blízko jednoho konce, aby se na tom konci spojení zakázala, a klepněte znovu, aby se povolila.
-- Starší výkres zatím žádná uložená spojení nemá. První změna je jednou najde podle toho, jak stěny stály před změnou, a uloží. `WALLJOINS` to udělá hned.
-- Soubory DWG a DXF nesou spojení uvnitř každé stěny. CadCraft je čte zpět tak, jak byla uložena. Program, který nevede rozšířená data, zobrazí stěny jako prosté bloky a spojení zahodí; spojení, jehož stěny byly přesunuty v jiném programu, se zahodí při příští změně kterékoli z těchto stěn.
+- Stěny spojené se stěnou, kterou posunete, ji následují a zůstávají spojené. Jejich konce kloužou po vlastních čarách, takže se nic nezlomí.
+- Přetáhnete-li jeden konec stěny za úchyt, stěna spojená na tom místě si také zachová svůj směr. Její konec klouže po vlastní čáře, dokud se nesetká s přetahovanou stěnou, takže přetažený konec přistane na té čáře, ne vždy pod kurzorem. Náhled ukáže, kde. Stěna, která naráží do přetahované stěny, následuje podél své vlastní čáry. Přetažení konce přímo podél stěny změní její délku a stěna spojená na tom místě se pohne s ní.
+- {{cmd:ROTATE}} na spojené stěně funguje stejně: konce jejích sousedů kloužou po vlastních čarách k otočené stěně.
+- Chcete-li posunout roh, vyberte obě stěny, které se tam stýkají, a přetáhněte úchyt na rohu. Obě stěny zůstanou v rohu a obě se otočí. Stěny dál po trase zůstanou, jak byly.
+- Podržte {{key:Alt}}, když kliknete na nové místo úchytu, abyste spojení záměrně přerušili: stěna jde tam, kam ji dáte, a nic ji nenásleduje.
+- Pokud by tažení otočilo spojenou stěnu přes její vlastní vzdálený konec, odmítne se a nic se nezmění.
+- Stěna nakreslená s {{ui:Zakázat spojení}} (`D` v `WALL`), nebo vypnutá ve Vlastnostech ({{ui:Nepovolit spojení na začátku}}, {{ui:Nepovolit spojení na konci}}), zůstane na tom konci volná, i když se dotýká jiné stěny, dokud ji znovu nepovolíte.
+- `WALLDISJOIN` (tlačítko {{ui:Zakázat spojení}} ve skupině {{ui:Stěny}}) dělá totéž klikem: klikněte na stěnu blízko jednoho konce, abyste na tom konci zakázali spojení, a klikněte znovu, abyste je povolili.
+- Starší výkres nemá zatím uložená spojení. První změna, kterou provedete, je jednou najde podle toho, jak stěny stály před změnou, a uloží. `WALLJOINS` to provede hned.
+- Soubory DWG a DXF nesou spojení uvnitř každé stěny. CadCraft je čte zpět tak, jak byla uložena. Program, který nemá rozšířená data, zobrazí stěny jako prosté bloky a spojení zahodí; a spojení, jehož stěny byly posunuty v jiném programu, se zahodí při nejbližší změně kterékoli z nich.
 
 ## Styl spojení rohu
 
 Roh, kde se dvě stěny stýkají konec na konec, se kreslí jako zkosení, pokud nezvolíte jiný styl.
 
-- `WALLJOINSTYLE` ({{ui:Styl spojení}} ve skupině {{ui:Stěny}}): klepněte na roh. Každé klepnutí přejde na další styl: {{ui:Zkosení}}, {{ui:Tupý}}, {{ui:Kolmo ukončit}}, pak znovu {{ui:Zkosení}}. Napište `T`, aby se přepnulo, která ze dvou stěn prochází rohem, na který jste naposledy klepli. Dokončete stiskem {{key:Enter}}. Jedno spuštění příkazu je jeden krok zpět.
-- {{ui:Tupý}}: jedna stěna prochází až k vzdálené líci druhé a druhá se zastaví u jejího boku. {{ui:Kolmo ukončit}}: totéž, ale procházející stěna končí kolmo k sobě. Pod pravým úhlem vypadají oba stejně.
+- `WALLJOINSTYLE` ({{ui:Styl spojení}} ve skupině {{ui:Stěny}}): klikněte na roh. Každý klik přejde na další styl: {{ui:Zkosení}}, {{ui:Tupý}}, {{ui:Kolmo ukončit}}, pak znovu {{ui:Zkosení}}. Napište `T`, abyste přepnuli, která ze dvou stěn prochází rohem, na němž jste kliknuli naposledy. Stiskněte {{key:Enter}}, chcete-li skončit. Jedno spuštění příkazu je jeden krok zpět.
+- {{ui:Tupý}}: jedna stěna pokračuje až k vnější straně druhé a druhá končí o její bok. {{ui:Kolmo ukončit}}: totéž, ale stěna, která prochází, končí kolmo ke svému vlastnímu směru. Při pravém úhlu vypadají obě stejně.
 - Ve Vlastnostech stěny: {{ui:Styl spojení na začátku}}, {{ui:Styl spojení na konci}} a {{ui:Prochází na začátku}}, {{ui:Prochází na konci}}.
-- Styl se ukládá s oběma stěnami a přenáší se v souborech DWG a DXF. Kopie stěny začíná bez něj.
-- Spoj typu T nemá styl k volbě: prochází stěna, do jejíhož boku se naráží. Roh, kde se stýkají tři nebo více stěn, zůstává zkosením. Zkosením zůstává i velmi ostrý roh (pod zhruba 30 stupňů) a dvě stěny v jedné přímce.
+- Styl se ukládá se oběma stěnami a přechází do souborů DWG a DXF. Kopie stěny začíná bez něj.
+- Spoj T nemá styl k volbě: prochází ta stěna, do jejíž strany se naráží. Roh, v němž se stýká tři a více stěn, zůstává zkosením. Zkosením zůstává i velmi ostrý roh (pod zhruba 30 stupňů) a dvě stěny v jedné přímce.
 
 ## Kreslení tvarů stěn
 
-Každý vytvoří stěny v jednom kroku zpět se spojenými rohy. V `WALL` `O` nastaví posun umístění (jak daleko vlevo od vašich klepnutí stěna půjde) a `D` vypne spojování pro stěny, které nakreslíte příště.
+Každý z nich vytvoří stěny v jednom kroku zpět, s rohy spojenými. V `WALL` `O` nastaví odsazení umístění (jak daleko vlevo od vašich kliknutí stěna jde) a `D` vypne spojování pro stěny, které nakreslíte příště.
 
 - `WALLRECT` (`WR`): dva protilehlé rohy, jako `RECTANG`.
-- `WALLROT`: první strana, pak jak daleko jde druhá strana, pro obdélník v libovolném úhlu.
-- `WALLPOLY` (`WP`): počet stran (3 až 64), střed, `I` pro vepsaný nebo `C` pro opsaný, pak poloměr, jako `POLYGON`.
-- `WALLARC` (`WARC`): střed, začátek, konec. `D` otočí oblouk na opačnou stranu.
-- `WALLTAN`: klepněte blízko konce stěny, pak na konec oblouku, který vychází podél této stěny.
-- `WALLPICK`: klepněte na úsečku nebo mnohočáru a řekněte, zda vzít i čáry, které jsou k ní připojené.
-- `WALLTRACE`: klepněte dovnitř uzavřené oblasti čar a stěn, aby kolem nejmenší z nich vznikly stěny.
+- `WALLROT`: první strana, potom jak daleko jde druhá strana, pro obdélník pod libovolným úhlem.
+- `WALLPOLY` (`WP`): počet stran (3 až 64), střed, `I` pro vepsaný nebo `C` pro opsaný, potom poloměr, jako `POLYGON`: klikněte na něj, nebo jej napište (napsaný poloměr míří ke kurzoru, nebo podél X, zůstane-li kurzor na středu).
+- `WALLARC` (`WARC`): střed, začátek, konec. `D` otočí oblouk opačným směrem.
+- `WALLTAN`: klikněte blízko konce stěny, potom na konec oblouku, který vychází podél té stěny.
+- `WALLPICK`: klikněte na čáru nebo mnohočáru a řekněte, zda vzít i čáry na ni navazující.
+- `WALLTRACE`: klikněte dovnitř uzavřené plochy čar a stěn, aby se kolem nejmenší z nich vytvořily stěny.
 
-Stěny půdorysu jsou přímé, proto se oblouk kreslí jako krátké přímé stěny po 15 stupních. Spojují se jako jakýkoli roh.
+Půdorysné stěny jsou rovné, takže oblouk se kreslí jako krátké rovné stěny po 15 stupních. Spojí se jako každý roh.
 
-## Řezání stěn
+## Dělení stěn
 
-- `WALLSPLIT` (`WS`): klepněte na stěnu, pak na bod. `C` řeže tam, kde ji protíná jiná stěna, `G` nechá mezeru mezi částmi, `F` udělá z konců řezu volné místo spojených. První část si ponechá místo stěny ve výkresu a dveře a okna jdou se svou částí. Řez skrz dveře nebo okno bude odmítnut.
-- `WALLSPLITGAP` ({{ui:Rozdělit s mezerou}}): stejné rozdělení, ale nejprve se zeptá na mezeru.
-- `WALLDELSEG`: klepněte na stěnu, pak na oba konce úseku, který chcete smazat.
-- `WALLREJOIN`: klepněte na dvě části jedné stěny, aby se znovu staly jednou.
+- `WALLSPLIT` (`WS`): klikněte na stěnu, potom na bod. `C` řeže tam, kde ji protíná jiná stěna, `G` nechá mezeru mezi částmi, `F` udělá řezné konce volné místo spojených. První část si zachová místo stěny ve výkresu a dveře a okna jdou s svou částí. Řez skrz dveře nebo okno se odmítne.
+- `WALLSPLITGAP` ({{ui:Rozdělit s mezerou}}): totéž rozdělení, ale nejprve se zeptá na mezeru.
+- `WALLDELSEG`: klikněte na stěnu, potom na oba konce kusu, který se smaže.
+- `WALLREJOIN`: klikněte na dvě části jedné stěny, abyste z nich znovu udělali jednu.
 
-## Posun stěn o vzdálenost
+## Posouvání stěn o vzdálenost
 
-- `WALLDIM`: klepněte na délkovou nebo zarovnanou kótu, která vede od jedné stěny ke druhé, a pak napište novou hodnotu. Stěna na vzdáleném konci se posune kolmo k sobě, stěna na prvním konci zůstane na místě a stěny spojené s ní ji sledují.
-- `WALLOFFSET` (`WO`): klepněte na stěnu, pak na stranu, na kterou ji posunout (`D` zadá vzdálenost, `C` místo toho vytvoří kopii).
-- `WALLSTRETCH`: okno kolem konců stěn, pak základní bod a druhý bod.
-- Ve Vlastnostech zadaná {{ui:Délka}} zachová začátek a vezme s sebou stěnu spojenou na vzdáleném konci a nová {{ui:Tloušťka}} roste od {{ui:Čára polohy}}, kterou zvolíte (levá líc, pravá líc nebo střed).
+- `WALLDIM` ({{ui:Upravit podle kóty}}): klikněte na lineární nebo zarovnanou kótu, která vede od jedné stěny ke druhé, potom napište novou hodnotu. Stěna na vzdáleném konci se posune kolmo sama k sobě, stěna na prvním konci zůstane, a stěny na ni navazující následují. Vzdálený bod kóty se pohybuje se svou stěnou, takže kóta ukazuje hodnotu, kterou jste napsali.
+- `WALLOFFSET` (`WO`): klikněte na stěnu, potom na stranu, na kterou ji přesunout (`D` napíše vzdálenost, `C` místo toho vytvoří kopii).
+- `WALLSTRETCH`: rámeček kolem konců stěn, potom základní bod a druhý bod.
+- Ve Vlastnostech napsaná {{ui:Délka}} si zachová začátek a vezme s sebou stěnu připojenou na vzdáleném konci, a nová {{ui:Tloušťka}} roste od {{ui:Čára umístění}}, kterou jste zvolili (levá plocha, pravá plocha nebo střed).
+
+## Kóta mezi středovými čarami stěn
+
+Středová čára stěny se nekreslí, ale přichycení k objektu ji najde. Je-li přichytávání k objektům zapnuto ({{key:F3}}), najeďte kurzorem na střed tloušťky stěny: značka hlásí `Wall center: endpoint` nebo `Wall center: midpoint` a středová čára se ukáže jako čárkovaná, dokud je na ní značka. Zapnete-li v seznamu přichytávání k objektům {{ui:Kolmá}} nebo {{ui:Nejbližší}}, fungují i na středové čáře.
+
+1. Spusťte `DIMLINEAR` (nebo `DIMALIGNED`).
+2. Klikněte na první stěnu tam, kde značka hlásí `Wall center: midpoint` nebo `Wall center: endpoint`.
+3. Klikněte na druhou stěnu stejným způsobem, potom klikněte, kam půjde kótovací čára.
+4. Chcete-li změnit vzdálenost, spusťte `WALLDIM`, klikněte na kótu a napište novou hodnotu. Druhá stěna se posune.
+
+Přichycení na středovou čáru funguje v každém příkazu, který žádá bod.
 
 ## Zamykání stěn
 
-Zámek zůstává se stěnou v souboru. Když přesunete jednu zamčenou stěnu, druhá ji sleduje. Pokud by jedna změna pohnula oběma stěnami různě, bude odmítnuta a nic se nezmění.
+Zámek zůstává se stěnou v souboru. Posunete-li jednu zamčenou stěnu, druhá ji následuje. Jestliže jedna změna pohne oběma stěnami různě, odmítne se a nic se nezmění.
 
-- `WALLHOLD`: zamkne stěnu k jiné stěně. `A` ji nejprve přesune na čáru druhé stěny, `K` zachová vzdálenost, kterou má.
+- `WALLHOLD`: zamkne stěnu k jiné stěně. `A` ji nejprve přesune na čáru druhé stěny, `K` si ponechá vzdálenost, kterou má.
 - `WALLHOLDDIM`: zamkne vzdálenost mezi dvěma rovnoběžnými stěnami.
-- `WALLGRID`: zamkne stěnu k ose (čára na vrstvě mřížky s jejím označením textem na jednom konci), buď podél ní, nebo jedním koncem na ní. Stěna zamčená podél čáry si zachová vzdálenost, kterou od ní má. Přesunete-li osu příkazem `GRIDMOVE`, stěna ji sleduje celá i se spojenými stěnami. Stěna ležící podél osy se s ní posune celá i bez zámku a stěna, která na čáře jen končí, se natáhne svým koncem.
-- `WALLHOLDS` vypíše zámky. `WALLUNHOLD` zruší zámky na stěně.
-- Každý zámek ukazuje na půdorysu malý visací zámek: vedle středu zamčené stěny, nebo vedle konce, který je zamčen k ose. Klepnutím na visací zámek tento zámek zrušíte.
+- `WALLGRID`: zamkne stěnu k mřížkové čáře (čára na vrstvě mřížky s jejím štítkem v textu na jednom konci), buď podél ní, nebo jedním koncem na ní. Stěna zamčená podél čáry si zachová svou vzdálenost od ní. Posunete-li mřížkovou čáru pomocí `GRIDMOVE`, stěna ji následuje celá, se svými spojenými stěnami. Stěna, která leží podél mřížkové čáry, se pohne celá i bez zámku, a stěna, která na čáře jen končí, se natáhne tím koncem.
+- `WALLHOLDS` vypíše zámky. `WALLUNHOLD` zámky ze stěny sejme.
+- Každý zámek ukazuje na plánu malý visací zámek: vedle středu zamčené stěny, nebo vedle konce, který je zamčen k mřížkové čáře. Kliknutím na visací zámek ten zámek zrušíte.
 
-## Co zde ještě není
+## Co zatím není
 
-Zámky používají středové čáry stěn. Stěny zde nemají vrstvy, takže na styku není žádná priorita vrstev a stěny se neohýbají (viz oblouky výše). Tyto nástroje ještě nikdo nevyzkoušel na velkém výkresu a nebyly ověřeny v jiném CAD programu.
+Zámky používají středové čáry stěn. Stěny zde nemají vrstvy, takže na spoji není žádná priorita vrstev, a stěny se neohýbají (viz oblouky výše). Nikdo tyto nástroje ještě nezkoušel na velkém výkresu a nebyly ověřeny v jiném CAD programu.

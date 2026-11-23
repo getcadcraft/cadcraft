@@ -29,6 +29,7 @@
  *   residualOk(constraints, get) → bool (every equation met at the current geometry)
  */
 
+import { cross2 as cross, dot2 as dot, len2 as len, sub2 as sub } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 const TAU = Math.PI * 2;
 export const FIELDS = { line: ['x1', 'y1', 'x2', 'y2'], circle: ['cx', 'cy', 'r'], arc: ['cx', 'cy', 'r', 'a0', 'a1'], point: ['x', 'y'] };
 export const SOLVABLE = new Set(['line', 'circle', 'arc', 'point', 'poly']);
@@ -141,10 +142,6 @@ export function refCircle(e, k) { const c = geo(e, (f) => getField(e, f)).circle
 
 // ---------------------------------------------------------------- the system
 
-const cross = (u, v) => u[0] * v[1] - u[1] * v[0];
-const dot = (u, v) => u[0] * v[0] + u[1] * v[1];
-const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
-const len = (u) => Math.hypot(u[0], u[1]);
 /** Signed distance of p from the infinite line a→b (left positive). */
 const sd = (p, [a, b]) => { const u = sub(b, a); return cross(u, sub(p, a)) / (len(u) || 1e-300); };
 

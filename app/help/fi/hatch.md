@@ -1,24 +1,24 @@
 ---
-title: Viivoitus ja alueiden täyttö
-summary: Täytä alue yhtenäisellä värillä tai vakiokuviolla napsauttamalla sen sisällä tai valitsemalla suljettuja muotoja, aseta kuvion mittakaava ja kulma ja muuta viivoitusta myöhemmin.
-keywords: viivoitus, bhatch, täyttö, yhtenäinen täyttö, kuvio, ansi31, ansi37, tiili, maa, verkko, leikkausviivat, poché, saareke, reuna, mittakaava, kulma
-from: 14399174
+title: Viivoitus ja täyttöalueet
+summary: Täytä alue yhtenäisellä värillä tai vakiokuviolla napsauttamalla sen sisällä tai valitsemalla suljettuja muotoja, aseta kuvion mittakaava ja kulma sekä muuta viivoitusta jälkeenpäin.
+keywords: viivoitus, bhatch, täyttö, yhtenäinen täyttö, kuvio, ansi31, ansi37, tiili, maa, verkko, leikkausviivat, poché, saareke, raja, mittakaava, kulma
+from: e7feb344
 ---
 
 ## Mitä teet
 
-Seinän leikkaus, joka on täytetty ANSI31-kuviolla, pilari, joka on jätetty tyhjäksi, ja yhtenäinen täyttö pilarissa.
+Seinäleikkaus, jonka täyttö on ANSI31-kuvio, pilari siinä tyhjänä ja yhtenäinen täyttö pilarissa.
 
 ## Viivoitus napsauttamalla alueen sisällä
 
 1. Piirrä suorakulmio (`REC`, `0,0`, `@2000,1200`) ja ympyrä sen sisään (`C`, `1000,600`, `300`). Napsauta {{ui:Laajuus}}.
-2. Napsauta {{ui:Viivoitus}}-painiketta ryhmässä {{ui:Piirrä}} tai kirjoita `H` ja paina {{key:Enter}}. Historia kertoo nykyisen kuvion, esimerkiksi `Current hatch: ANSI31, scale 1, angle 0°`.
+2. Napsauta {{ui:Viivoitus}}-painiketta {{ui:Piirrä}}-ryhmässä, tai kirjoita `H` ja paina {{key:Enter}}. Historia kertoo nykyisen kuvion, esimerkiksi `Nykyinen viivoitus: ANSI31, mittakaava 1, kulma 0°`.
 3. Kirjoita `P` ja paina {{key:Enter}}, kirjoita `ANSI31` ja paina {{key:Enter}}.
-4. Kirjoita `SC` ja paina {{key:Enter}}, kirjoita `20` ja paina {{key:Enter}}. Kuvioiden koot ovat paperilla, joten 1:20-mittakaavassa tulostettava piirustus tarvitsee mittakaavan 20.
-5. Kohdassa `Pick internal point` napsauta suorakulmion sisällä, ympyrän ulkopuolella. Viivoitus näkyy esikatseluna.
-6. Paina {{key:Enter}}. Suorakulmio on viivoitettu; ympyrä sen sisällä jää tyhjäksi, koska se on saareke.
+4. Kirjoita `SC` ja paina {{key:Enter}}, kirjoita `20` ja paina {{key:Enter}}. Kuvion koot ovat paperilla, joten 1:20 tulostettu piirustus tarvitsee mittakaavan 20.
+5. Kohdassa `Määritä sisäpiste` napsauta suorakulmion sisällä, ympyrän ulkopuolella. Viivoitus näkyy esikatseluna.
+6. Paina {{key:Enter}}. Suorakulmio viivoitetaan; ympyrä sen sisällä jää tyhjäksi, koska se on saareke.
 
-Napsauta useiden alueiden sisällä ennen kuin painat {{key:Enter}}, jolloin niistä tulee yksi viivoitus. `U` peruuttaa viimeisimmän alueen.
+Napsauta useita alueita ennen {{key:Enter}}-painallusta, jolloin ne muodostavat yhden viivoituksen. `U` kumoaa viimeisen alueen.
 
 ## Yhtenäinen täyttö
 
@@ -26,45 +26,45 @@ Napsauta useiden alueiden sisällä ennen kuin painat {{key:Enter}}, jolloin nii
 2. Kirjoita `P`, paina {{key:Enter}}, kirjoita `SOLID` ja paina {{key:Enter}}.
 3. Napsauta ympyrän sisällä ja paina {{key:Enter}}.
 
-## Valitse suljettuja muotoja viivoitettaviksi
+## Viivoita valitsemasi suljetut muodot
 
-Sen sijaan että napsautat sisältä, kirjoita `S` (Valitse kohteet) kohdassa `Pick internal point` ja valitse suljettuja murtoviivoja, ympyröitä tai suljettuja ellipsejä ja paina {{key:Enter}}. Muotojen sisällä olevat muodot jäävät vuorollaan tyhjiksi (ulompi viivoitetaan, seuraava jää tyhjäksi ja niin edelleen).
+Sen sijaan että napsauttaisit sisälle, kirjoita `S` (Valitse kohteet) kohdassa `Määritä sisäpiste`, valitse suljettuja murtoviivoja, ympyröitä tai suljettuja ellipsejä ja paina sitten {{key:Enter}}. Muodot toisten sisällä jäävät vuorollaan tyhjiksi (ulompi viivoitetaan, seuraava sisempi jää tyhjäksi ja niin edelleen).
 
 ## Kuviot
 
-Kirjoita `?` kuvion kysymyksen kohdalla nähdäksesi luettelon. Vakiokuviot ovat ANSI31–ANSI38, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS ja EARTH sekä SOLID. Piirustuksessa, jonka yksiköt ovat tuumia (tai jonka pituusmuotona ovat jalat ja tuumat), käytetään kuvioiden tuumakokoja, kuten AutoCADissa; muuten käytetään millimetrikokoja.
+Kirjoita `?` kuvion kysymykseen nähdäksesi luettelon. Vakiokuviot ovat ANSI31–ANSI38, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS ja EARTH sekä SOLID. Piirustuksessa, jonka yksikkö on tuuma (tai jonka pituuden muoto on jalat ja tuumat), käytetään kuvioiden tuumakokoja kuten AutoCADissa; muuten millimetrikokoja.
 
-{{ui:Kulma}} (`A`) kääntää koko kuvion: ANSI31 90 asteen kulmassa kallistuu toiseen suuntaan.
+{{ui:Kulma}} (`A`) kääntää koko kuvion: ANSI31 90 asteen kulmassa viettää toiseen suuntaan.
 
-**Kuviotiedostot.** Kirjoita `F` (Kuviotiedosto) kohdassa `Pick internal point` ja valitse `.pat`-tiedosto. Sen kuviot liittyvät luetteloon; jos kuvioita on useampia, kysytään, mitä niistä käytetään. Tiedostosta, jossa ei ole CadCraftin lukemia kuvioita, ilmoitetaan, ja kaikki ohitetut kuviot lasketaan. Koot `.pat`-tiedostossa eivät ole omassa yksikössään, joten ne luetaan piirustuksen yksiköissä. Kokeiltu on vain tavallisessa `.pat`-muodossa kirjoitettuja tiedostoja; muilla ohjelmilla tehtyjä tiedostoja ei ole kokeiltu.
+**Kuviotiedostot.** Kirjoita `F` (Kuviotiedosto) kohdassa `Määritä sisäpiste` ja valitse `.pat`-tiedosto. Sen kuviot liittyvät luetteloon; jos niitä on useita, sinulta kysytään, mikä niistä otetaan käyttöön. Tiedosto, jota CadCraft ei osaa lukea, kertoo tästä, ja ohitetut kuviot lasketaan. `.pat`-tiedoston kokojen yksikköä ei ole, joten ne luetaan piirustuksen yksiköissä. Vain tavallisessa `.pat`-muodossa kirjoitettuja tiedostoja on kokeiltu; toisen ohjelman tekemiä ei.
 
 ## Muuta viivoitusta
 
-Valitse viivoitus napsauttamalla yhtä sen viivaa. {{ui:Ominaisuudet}}-kohdassa: {{ui:Kuvio}}, {{ui:Kuvion mittakaava}} ja {{ui:Kuvion kulma}}. Avattujen piirustusten viivoitukset näyttävät kuvionsa, kun se on yksi vakiokuvioista; muut näkyvät värinsä vaaleana sävynä.
+Valitse se (napsauta yhtä sen viivaa). {{ui:Ominaisuudet}}-paneelissa: {{ui:Kuvio}}, {{ui:Kuvion mittakaava}} ja {{ui:Kuvion kulma}}. Avatuissa piirustuksissa olevat viivoitukset näyttävät kuvionsa, kun se on yksi vakiokuvioista; muut näkyvät kevyenä sävynä niiden väristä.
 
 ## Yleisiä virheitä
 
-- **"Tämän pisteen ympärillä ei ole suljettua reunaa."** Reunassa on aukko tai osa siitä on näytön ulkopuolella, sillä CadCraft tarkastelee vain sitä, mikä on näytöllä. Sulje aukko (zoomaa lähemmäs kulmia) tai zoomaa kauemmas.
-- **"Kuvio on liian tiheä piirrettäväksi tässä mittakaavassa."** Viivat olisivat lähempänä toisiaan kuin piirustus voi näyttää. Käytä suurempaa mittakaavaa: kokeile tulostusmittakaavaa (20, jos mittakaava on 1:20).
-- **Kuvio näyttää valtavalta tai pieneltä.** Mittakaava ilmoittaa piirustusyksiköitä kuvion yksikköä kohden; katso vaihe 4 yllä.
-- **Reunan siirtäminen ei siirrä viivoitusta.** Viivoitus ei ole sidottu reunaansa. Siirrä molemmat tai viivoita uudelleen.
+- **”Tämän pisteen ympärillä ei ole suljettua rajaa.”** Ääriviivassa on aukko, tai osa siitä on näytön ulkopuolella: CadCraft tarkastelee vain sitä, mikä on näytöllä. Sulje aukko (zoomaa kulmiin) tai loitonna.
+- **”Kuvio on liian tiheä piirrettäväksi tässä mittakaavassa.”** Viivat olisivat lähempänä toisiaan kuin piirustus voi näyttää. Käytä suurempaa mittakaavaa: kokeile tulostusmittakaavaa (20 mittakaavalle 1:20).
+- **Kuvio näyttää valtavalta tai pieneltä.** Mittakaava on piirustusyksikköinä kuvion yksikköä kohti; katso yllä vaihe 4.
+- **Viivoitus lakkasi seuraamasta ääriviivaansa.** {{cmd:HATCH}}-komennolla tehty viivoitus pysyy kohteiden kanssa, joista se tehtiin: siirrä, käännä tai skaalaa ääriviivaa, ja viivoitus lähtee mukaan; muotoile se kahvalla uudelleen, ja viivoitus lasketaan uudelleen. Linkki päättyy, kun ääriviiva ei enää sulkeudu, kun muokkaat itse viivoitusta käsin tai kun typistät sitä, ja komentorivi kertoo siitä. Mitään ei menetetä: viivoita alue uudelleen, niin saat uuden linkin.
 
-## Viivoitus, joka pysyy reunansa mukana
+## Viivoitus, joka pysyy rajansa kanssa
 
-Viivoitus, jonka teet `HATCH`-komennolla, muistaa, mikä sen rajaa. Kun siirrät, kierrät tai skaalaat reunaa, viivoitus ja sen kuvio seuraavat mukana. Vedä ote muokataksesi reunan muotoa, jolloin viivoitus lasketaan uudelleen. Kun siirrät viivoitusta yksinään, sen reuna tulee mukaan kuten täytetty muoto piirto-ohjelmassa.
+Viivoitus, jonka teet komennolla `HATCH`, muistaa, mikä sitä rajaa. Siirrä, käännä tai skaalaa rajaa, ja viivoitus ja sen kuvio lähtevät mukaan. Vedä kahvaa muotoillaksesi rajaa uudelleen, ja viivoitus lasketaan uudelleen. Siirrä viivoitusta yksin, ja sen raja tulee mukaan kuten täytetty muoto piirto-ohjelmassa.
 
-Linkki katkeaa, ja komentorivi kertoo siitä, jos reuna ei enää sulkeudu tai viivoitusta muokataan käsin. Viivoitus itse jää paikoilleen. Kirjoita `AS` viivoittaessa, jotta saat itsenäisiä viivoituksia. Kopioitaessa viivoitus reunoineen kopiolla on oma linkki.
+Linkki päättyy, ja komentorivi kertoo siitä, jos raja ei enää sulkeudu tai muotoilet viivoituksen käsin. Itse viivoitus jää. Kirjoita `AS` viivoittaessasi, jos haluat itsenäisiä viivoituksia. Kopioi viivoitus rajoineen, ja kopiolla on oma linkkinsä.
 
-`HATCHEDIT` (`HE`) muuttaa viivoituksen kuvion, mittakaavan, kulman ja lähtöpisteen sekä liittää viivoituksen reunaan tai katkaisee linkin. Linkki tallennetaan DWG- ja DXF 2000 -tiedostoihin. DXF R12 -tiedostossa ei ole viivoitusobjektia, eikä muilla ohjelmilla tehtyjä linkkejä lueta: käytä niihin `HATCHEDIT`-komentoa ja Linkki-vaihtoehtoa.
+`HATCHEDIT` (`HE`) muuttaa viivoituksen kuviota, mittakaavaa, kulmaa ja lähtöpistettä sekä linkittää sen rajaan tai lopettaa linkin. Linkki tallennetaan DWG- ja DXF 2000 -tiedostoihin. DXF R12 -tiedostossa ei ole viivoitusobjektia, eikä muiden ohjelmien linkkejä lueta: käytä `HATCHEDIT`-komentoa ja Linkki-vaihtoehtoa niille.
 
-Viivoitus, jolla ei enää ole reunaa (reuna poistettiin tai tiedosto tuli ilman sitä), voi saada reunan takaisin: `HATCHGENERATEBOUNDARY` (`HGB`) piirtää suljetun murtoviivan jokaisen viivoituksen silmukan ympärille ja jos vastaat Kyllä, liittää viivoituksen niihin.
+Viivoitus, jolla ei ole enää rajaa (raja poistettiin tai tiedosto tuli ilman sitä), voi saada sen takaisin: `HATCHGENERATEBOUNDARY` (`HGB`) piirtää suljetun murtoviivan jokaisen viivoituksen silmukan ympärille ja, jos vastaat Kyllä, linkittää viivoituksen niihin.
 
-## Liukuväritäyttö
+## Liukuvärin täyttö
 
-`GRADIENT` (`GD`) täyttää alueen liukuvärillä kuvion sijaan: samat valinnat kuin `HATCH`, minkä jälkeen kysytään tyyppi (lineaarinen, sylinterimäinen, pallomainen, puolipallomainen, kaareva ja jokainen näistä käänteisenä), yksi väri sävyllä tai kaksi väriä, kulma sekä se, onko keskitetty. `HATCH`-komennon vaihtoehto `G` tekee saman. `HATCHEDIT` `G`, tai {{ui:Ominaisuudet}} kohdassa Liukuväri, muuttaa liukuvärin tai tekee mistä tahansa viivoituksesta liukuvärin.
+`GRADIENT` (`GD`) täyttää alueen liukuvärillä kuvion sijaan: samat valinnat kuin `HATCH`, ja sen jälkeen se kysyy tyypin (lineaarinen, sylinterimäinen, pallomainen, puolipallomainen, kaareva, ja jokainen näistä käänteisenä), yhden värin sävyllä tai kaksi väriä, kulman sekä keskitetyn tai ei. `HATCH`-komennon vaihtoehto `G` tekee saman. `HATCHEDIT` `G` tai {{ui:Ominaisuudet}}-paneelin {{ui:Liukuväri}}-kohta muuttaa liukuväriä tai tekee mistä tahansa viivoituksesta liukuvärin.
 
-Liukuväri näkyy näytöllä ja tulosteissa. Tallenna DWG 2004 tai uudempana, niin muut ohjelmat saavat todellisen liukuväriviivoituksen. DXF 2000 ja DWG 2000 eivät tunne liukuväriä: CadCraft säilyttää sen vain itselleen, ja muut ohjelmat näkevät yhtenäisen täytön ensimmäisellä värillä.
+Liukuväri näkyy näytöllä ja tulosteissa. Tallenna DWG 2004 tai uudempana, ja muut ohjelmat saavat todellisen liukuvärin. DXF 2000 ja DWG 2000 eivät tue liukuväriä: CadCraft säilyttää sen itselleen, ja muut ohjelmat näkevät yhtenäisen täytön ensimmäisellä värillä.
 
-## Typistä viivoitus
+## Typistä viivoitusta
 
-`TRIM` leikkaa viivoituksen kuten minkä tahansa muun kohteen. Napsauta viivoitusta leikkausreunan sille puolelle, jonka haluat poistaa: reunat jakavat viivoitetun alueen, ja se osa poistetaan. Pikatilassa jokainen kohde on leikkausreuna; valitse reunat ensin (vaihtoehto `T`), jos niitä on paljon. Typistetty viivoitus ei ole enää linkitetty reunaansa, koska se ei enää täytä sitä.
+`TRIM` leikkaa viivoituksen kuten minkä tahansa muun kohteen. Napsauta viivoitusta leikkausreunan sille puolelle, jonka haluat poistettavan: reunat jakavat viivoitetun alueen ja napsauttamasi pala poistetaan. Pikatilassa jokainen kohde on leikkausreuna; valitse reunat ensin (vaihtoehto `T`), kun niitä on paljon. Typistetty viivoitus ei ole enää linkitetty rajaansa, koska se ei enää täytä sitä.

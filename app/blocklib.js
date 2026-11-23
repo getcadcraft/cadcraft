@@ -7,6 +7,8 @@
  *
  *   libraryOf(drawing, fileName)         → { file, names (named blocks, sorted), blocks (Map for the pictures), whole, units }
  *   filterNames(names, 'do')             → names holding the text (any case); several words must all be there
+ *   filterAction(names, 'f')             → what Enter in the filter box stands for: { kind: 'block', name } | { kind: 'file' } |
+ *                                          { kind: 'library' } | null (INSERT's own words; 0.10.1, #1974)
  *   recentFirst(names, recent)           → the recent ones that still exist first (newest first), then the rest as they were
  *   pushRecent(list, name, max)          → a new list with name at the front
  *   placedBlocks(step)                   → block names of the references an undo step added (what "recent" follows)
@@ -35,6 +37,23 @@ export function filterNames(names, q) {
   const words = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);
   if (!words.length) return names.slice();
   return names.filter((n) => { const lc = n.toLowerCase(); return words.every((w) => lc.includes(w)); });
+}
+
+/**
+ * What Enter in the Blocks panel's filter box stands for (0.10.1, suggestion #1974: F typed there was only ever search text):
+ * the same words INSERT takes at "Enter block name or [File/Library]". A block of exactly that name wins, as it does in INSERT;
+ * then F / FILE and L / LIB / LIBRARY are INSERT's options; else the one block the filter leaves. → { kind: 'block', name } |
+ * { kind: 'file' } | { kind: 'library' } | null (nothing typed, or several blocks still match).
+ */
+export function filterAction(names, q) {
+  const s = String(q || '').trim();
+  if (!s) return null;
+  const exact = names.find((n) => n === s) || names.find((n) => n.toLowerCase() === s.toLowerCase());
+  if (exact) return { kind: 'block', name: exact };
+  if (/^(f|file)$/i.test(s)) return { kind: 'file' };
+  if (/^(l|lib|library)$/i.test(s)) return { kind: 'library' };
+  const hits = filterNames(names, s);
+  return hits.length === 1 ? { kind: 'block', name: hits[0] } : null;
 }
 
 export function recentFirst(names, recent) {

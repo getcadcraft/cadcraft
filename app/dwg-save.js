@@ -46,6 +46,7 @@ import { trWord, propsXdata, varsOf, dstyleItems, ccDimItems } from './dwg-props
 import { payloadStrings, STYLE_BLOCK, styleSheetName } from './plotstyle.js';
 import { addonsPayload, ADDONS_BLOCK } from './addons-file.js';   // 0.8 AL.6
 import { laserPayload, laserFromPayload, isLaserBlock, LASER_BLOCK } from './laser-file.js';   // 0.7 SU.772: the Laser panel's settings, block CADCRAFT_LASER
+import { bparamsPayload, BPARAMS_BLOCK } from './blockparams-file.js';   // 0.11 SU.1804 (cad-11): block parameters, block CADCRAFT_BPARAMS
 import { classesPayload, CLASSES_BLOCK } from './classes-file.js';   // 0.8 SU.912: classes, design layers, viewport class overrides, block CADCRAFT_CLASSES
 import { tablesPayload, TABLES_BLOCK } from './tables-file.js';   // ORS.1 / ORS.22: block CADCRAFT_TABLES
 import { dwgTableEntity } from './tables-cad.js';   // ORS.1: a table → a real table object
@@ -56,6 +57,7 @@ import { pdfPlacement, underlayFields } from './pdfmodel.js';   // PDF underlays
 import { clipPoly, filterOf } from './xclip.js';
 import { keptEntity, linkMleaderLabels } from './dwg-keep.js';   // 0.6.1 FIX-061-SPLINE-MLEADER
 import { dimModelFields, dimxItems } from './dims-file.js';   // ORS.6: ordinate, arc length and jogged dimensions; a dimension's extras
+import { ticker, yieldToPage } from './slices.js';   // 0.11 PERF.30: saveDwgAsync
 
 /** The versions Save as offers (newest first). The writer does all six; 2000 opens in every program. */
 export const DWG_VERSIONS = Object.freeze([
@@ -84,7 +86,43 @@ const P = (x, y, z = 0) => ({ x, y, z });
  * modelOnly: return the cc-dwg model instead of writing it ({ model, counts }) — dxf2000.js writes it as an R2000 DXF;
  * explodeLeaders: multileaders as their parts (R2000 DXF has no MULTILEADER).
  */
-export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly = false, explodeLeaders = false } = {}) {
+export function saveDwg(doc, opts = {}) {
+  const g = saveSteps(doc, opts);
+  for (let r = g.next(); ; ) {
+    if (r.done) return r.value;
+    r = g.next(r.value && r.value.write ? writeDwg(r.value.write, r.value.opts) : undefined);
+  }
+}
+/**
+ * 0.11 PERF.30 (perf-finish-11): saveDwg without holding the page: the cc-dwg model is built here in slices (slices.js), then written by
+ * writeDwg in a module Worker (dwg-write-async.js; on this thread when there is no worker). Same bytes and report as saveDwg.
+ * Not for modelOnly (dxf2000.js keeps calling saveDwg).
+ */
+let lastSaveTiming = null;
+/** The phases of the last saveDwgAsync (ms): buildCpuMs / buildWallMs (the model, in slices), writeWallMs (the worker), tailCpuMs (the report). */
+export function saveDwgTiming() { return lastSaveTiming; }
+export async function saveDwgAsync(doc, opts = {}, { budget = 40, ...wopts } = {}) {   // wopts: writeDwgAsync's own (tests: test, writeMs, silentMs)
+  const { writeDwgAsync } = await import('./dwg-write-async.js');
+  const g = saveSteps(doc, opts);
+  const tm = { t0: performance.now(), buildCpuMs: 0, slices: 0 };
+  lastSaveTiming = tm;
+  let t = performance.now();
+  await yieldToPage();
+  t = performance.now();
+  for (let r = g.next(); ; ) {
+    if (r.done) { tm.tailCpuMs = performance.now() - t; tm.wallMs = performance.now() - tm.t0; return r.value; }
+    if (r.value && r.value.write) {
+      tm.buildCpuMs += performance.now() - t; tm.buildWallMs = performance.now() - tm.t0;
+      const w0 = performance.now(); const res = await writeDwgAsync(r.value.write, r.value.opts, { consume: true, ...wopts }); tm.writeWallMs = performance.now() - w0;
+      t = performance.now(); r = g.next(res); continue;
+    }
+    if (performance.now() - t > budget) { tm.buildCpuMs += performance.now() - t; tm.slices++; await yieldToPage(); t = performance.now(); }
+    r = g.next();
+  }
+}
+
+function* saveSteps(doc, { version = '2000', created = new Date(), modelOnly = false, explodeLeaders = false } = {}) {
+  const tick = ticker(64);
   const vkey = dwgVersionKey(version) || '2000';
   const code = DWG_VERSIONS.find((x) => x.key === vkey).code;
   const counts = {};
@@ -407,6 +445,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   }
 
   for (const b of doc.blocks.values()) {
+    yield;
     if (b.name.startsWith('*') && !insertUsed.has(b.name)) continue;
     if (modelOnly && oleFrame(b)) continue;   // an OLE object's frame block: its references are written as OLE2FRAME (DXF 2000)
     // linked drawings (xref.js): one CadCraft could not load stays a link (block flag 4 + its file); a loaded one is bound
@@ -436,12 +475,14 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   // constraints + parameters (gcons.js): CADCRAFT xdata "CCREF:<key>" on each constrained entity, block CADCRAFT_PARAMETRIC
   const pf = forFile(doc);
   const strings = (strs) => ({ CADCRAFT: strs.map((s) => [1000, s]) });
-  const entities = [...doc.model.values()].flatMap((e) => {
+  const entities = [];
+  for (const e of doc.model.values()) {   // 0.11 PERF.30: a loop that pauses (was a flatMap); the same list
     const out = conv(e);
     const key = pf?.refs.get(e.id);
     if (key && out[0]) out[0].xdata = { ...(out[0].xdata || {}), ...strings(['CCREF:' + key]) };
-    return out;
-  });
+    for (let i = 0; i < out.length; i++) entities.push(out[i]);
+    if (tick()) yield;
+  }
   if (pf) blocks.push({ name: PARAM_BLOCK, base: P(0, 0), entities: pf.points.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   // plot style tables and which one each sheet and the model plot with (0.6 DC.14, plotstyle.js): block CADCRAFT_PLOTSTYLES
   const psPts = payloadStrings(doc);
@@ -453,6 +494,8 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   if (adPts) blocks.push({ name: ADDONS_BLOCK, base: P(0, 0), entities: adPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   const clPts = classesPayload(doc);   // 0.8 SU.912 (classes-file.js): block CADCRAFT_CLASSES, the same way
   if (clPts) blocks.push({ name: CLASSES_BLOCK, base: P(0, 0), entities: clPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
+  const bqPts = bparamsPayload(doc);   // 0.11 SU.1804 (blockparams-file.js): block CADCRAFT_BPARAMS, the same way
+  if (bqPts) blocks.push({ name: BPARAMS_BLOCK, base: P(0, 0), entities: bqPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   const tbPts = tablesPayload(doc);   // ORS.1 / ORS.22 (tables-file.js): block CADCRAFT_TABLES, the same way
   if (tbPts) blocks.push({ name: TABLES_BLOCK, base: P(0, 0), entities: tbPts.map((strs) => ({ type: 'POINT', layer: '0', position: P(0, 0), xdata: strings(strs) })) });
   // the coordinate system and map layers (0.6 GEO-DWG, geodwg.js): CadCraft's copy in block CADCRAFT_GEO; GEODATA below
@@ -491,6 +534,7 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   for (const e of doc.model.values()) {
     const b = entityBounds(e, doc.blocks);
     if (validBounds(b)) { ext.minX = Math.min(ext.minX, b.minX); ext.minY = Math.min(ext.minY, b.minY); ext.maxX = Math.max(ext.maxX, b.maxX); ext.maxY = Math.max(ext.maxY, b.maxY); }
+    if (tick()) yield;
   }
 
   const units = doc.meta.units || '';
@@ -574,11 +618,11 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   }
   if (modelOnly) return { model, counts, m3 };
   linkMleaderLabels(model);   // kept multileaders' block attributes → the ATTDEFs written here (dwg-keep.js)
-  const { bytes, report } = writeDwg(model, { version: code, created });
-
-  // what the file holds at the top of model space, by kind (bin/test-cadcraft.mjs checks other programs' readers see it)
+  // what the file holds at the top of model space, by kind (bin/test-cadcraft.mjs checks other programs' readers see it); counted before the
+  // write, which may give the model away (saveDwgAsync)
   const top = {};
   for (const e of entities) { const k = e.type === 'DIMENSION' ? 'DIMENSION' : e.type; top[k] = (top[k] || 0) + 1; }
+  const { bytes, report } = yield { write: model, opts: { version: code, created } };   // saveDwg writes it here, saveDwgAsync in a worker
 
   const notes = [];
   const n = (k) => counts[k] || 0;
@@ -602,7 +646,15 @@ export function saveDwg(doc, { version = '2000', created = new Date(), modelOnly
   if (dynRecords.length && ds.version && ds.version !== code) notes.push(t('dwg.save.dyn.version', { n: dynRecords.filter((r) => ds.blocks.get(r.name)?.def).length, v: t('dwg.version', { v: vkey }) }));
   // the writer's own notes, minus the true-colour one (said above, in CadCraft's words)
   const own = report.notes.filter((t) => !/true colour/.test(t));
-  return { bytes, report: { ...report, version: vkey, notes: [...notes, ...own], counts: { ...report.counts, ...counts }, top } };
+  // the same report as { ...report, version, notes, counts, top }, except that `handles` (source handle → written handle: a million keys at
+  // 1 M objects) is read from the writer's report only when someone reads it (0.11 PERF.30: the spread built it on every save)
+  const out = {};
+  for (const k of Object.keys(report)) {
+    if (k === 'handles') Object.defineProperty(out, 'handles', { enumerable: true, configurable: true, get() { const v = report.handles; Object.defineProperty(out, 'handles', { value: v, enumerable: true, writable: true, configurable: true }); return v; }, set(v) { Object.defineProperty(out, 'handles', { value: v, enumerable: true, writable: true, configurable: true }); } });
+    else out[k] = report[k];
+  }
+  Object.assign(out, { version: vkey, notes: [...notes, ...own], counts: { ...report.counts, ...counts }, top });
+  return { bytes, report: out };
 }
 
 /** A closed ring's distinct corners (the repeated closing point dropped). */

@@ -27,6 +27,7 @@ import { meshDef, solidInfo } from './m3d/model.js';
 import { translation } from './m3d/vec.js';
 import { formatLength } from './units.js';
 import { t } from './i18n.js';
+import { csvCell as cell } from './util.js';   // shared helpers (0.11 PERF.74)
 
 export { PART_TAGS };
 
@@ -166,7 +167,6 @@ const cellsOf = (r) => [r.numbers.join(', '), String(r.qty), r.type, r.std, r.si
 
 /** CSV (BOM + CRLF; cells starting = + - @ get a leading '). */
 export function partsCsv(rows) {
-  const cell = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const out = [COLS.map((k) => t('std.parts.col.' + k)), ...rows.map(cellsOf)];
   return '﻿' + out.map((r) => r.map(cell).join(',')).join('\r\n') + '\r\n';
 }

@@ -1,70 +1,70 @@
 ---
-title: Ştrixləmə və sahələrin doldurulması
-summary: Sahəni ona klikləməklə və ya qapalı formaları seçməklə bərk rəng və ya standart naxışla doldurun, naxışın miqyasını və bucağını təyin edin və sonradan ştrixləməni dəyişdirin.
-keywords: ştrixləmə, bhatch, doldurma, bərk doldurma, naxış, ansi31, ansi37, kərpic, torpaq, tor, kəsik xətləri, poşe, ada, sərhəd, miqyas, bucaq
-from: 14399174
+title: Ştrixlama və doldurma sahələri
+summary: Sahənin içinə klik etməklə və ya qapalı fiqurları seçməklə bərk rəng və ya standart naxışla doldurun, naxışın miqyasını və bucağını təyin edin və sonradan ştrixlamanı dəyişin.
+keywords: ştrixlama, bhatch, doldurma, bərk doldurma, naxış, ansi31, ansi37, kərpic, torpaq, tor, kəsik xətləri, poşe, ada, sərhəd, miqyas, bucaq
+from: e7feb344
 ---
 
 ## Nə yaradacaqsınız
 
-ANSI31 naxışı ilə doldurulmuş divar kəsiyi, içərisində boş qalmış sütun və sütunda bərk doldurma.
+ANSI31 naxışı ilə doldurulmuş divar kəsiyi, içərisində boş saxlanılmış sütun və sütunda bərk doldurma.
 
-## Sahənin içinə klikləməklə ştrixləmə
+## Sahənin içinə klik etməklə ştrixləyin
 
-1. Düzbucaqlı (`REC`, `0,0`, `@2000,1200`) və onun içərisində çevrə (`C`, `1000,600`, `300`) çəkin. {{ui:Extents}} düyməsinə klikləyin.
-2. {{ui:Draw}} qrupunda {{ui:Hatch}} düyməsinə klikləyin və ya `H` yazıb {{key:Enter}} basın. Tarixçədə hansı naxışın cari olduğu göstərilir, məsələn `Cari ştrixlama: ANSI31, miqyas 1, bucaq 0°`.
-3. `P` yazıb {{key:Enter}} basın, `ANSI31` yazıb {{key:Enter}} basın.
-4. `SC` yazıb {{key:Enter}} basın, `20` yazıb {{key:Enter}} basın. Naxış ölçüləri kağız üzərindədir, buna görə 1:20 miqyasda çap olunan çertyoj üçün miqyas 20 tələb edir.
-5. `Daxili nöqtəni göstərin` mərhələsində düzbucaqlının içinə, çevrənin xaricinə klikləyin. Ştrixləmə önizləmə kimi görünür.
-6. {{key:Enter}} basın. Düzbucaqlı ştrixlanır; içəridəki çevrə boş qalır, çünki o ada hesab olunur.
+1. Düzbucaqlı çəkin (`REC`, `0,0`, `@2000,1200`) və onun içində dairə (`C`, `1000,600`, `300`). {{ui:Hüdudlar}} klikləyin.
+2. {{ui:Çəkmə}} qrupunda {{ui:Ştrixlama}} klikləyin və ya `H` yazıb {{key:Enter}} basın. Tarixçə cari naxışı deyir, məsələn `Cari ştrixlama: ANSI31, miqyas 1, bucaq 0°`.
+3. `P` yazın və {{key:Enter}} basın, `ANSI31` yazın və {{key:Enter}} basın.
+4. `SC` yazın və {{key:Enter}} basın, `20` yazın və {{key:Enter}} basın. Naxış ölçüləri kağız üzərindədir, buna görə 1:20 miqyasında çap olunan çertyoj miqyas 20 tələb edir.
+5. `Daxili nöqtəni göstərin` mərhələsində düzbucaqlının içində, dairənin xaricində klikləyin. Ştrixlama önizləmə kimi göstərilir.
+6. {{key:Enter}} basın. Düzbucaqlı ştrixlanır; içindəki dairə boş qalır, çünki o ada hesab olunur.
 
-Bir ştrixləmə etmək üçün {{key:Enter}} basmazdan əvvəl bir neçə sahənin içinə klikləyin. `U` son sahəni geri götürür.
+{{key:Enter}} basmazdan əvvəl bir neçə sahənin içində klikləyin ki, bir ştrixlama olsun. `U` son sahəni geri götürür.
 
 ## Bərk doldurma
 
-1. `H` yazıb {{key:Enter}} basın.
-2. `P` yazıb {{key:Enter}} basın, `SOLID` yazıb {{key:Enter}} basın.
-3. Çevrənin içinə klikləyin, sonra {{key:Enter}} basın.
+1. `H` yazın və {{key:Enter}} basın.
+2. `P` yazın, {{key:Enter}} basın, `SOLID` yazın və {{key:Enter}} basın.
+3. Dairənin içində klikləyin, sonra {{key:Enter}} basın.
 
-## Seçdiyiniz qapalı formaları ştrixləmək
+## Seçdiyiniz qapalı fiqurları ştrixləyin
 
-İçəri klikləmək əvəzinə `Daxili nöqtəni göstərin` mərhələsində `S` (Obyektləri seçin) yazın və qapalı polixətləri, çevrələri və ya qapalı ellipsləri seçin, sonra {{key:Enter}} basın. Digər formaların içində olan formalar da növbə ilə boş qalır (xarici biri ştrixlanır, növbəti içəridəki boş qalır və s.).
+Daxili klikləmək əvəzinə `Daxili nöqtəni göstərin` mərhələsində `S` (Obyektləri seçin) yazın, qapalı polixətləri, dairələri və ya qapalı ellipsləri seçin və sonra {{key:Enter}} basın. Digərlərinin içindəki fiqurlar növbə ilə boş qalır (xaricisi ştrixlanır, növbəti içəridəki boş qalır və s.).
 
 ## Naxışlar
 
-Siyahı üçün naxış sualında `?` yazın. Standart naxışlar bunlardır: ANSI31-dən ANSI38-ə qədər, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS, EARTH və SOLID. Düymlə ölçülmüş çertyojda (və ya uzunluq formatı fut və düym olduqda) naxışların düym ölçüləri istifadə olunur, AutoCAD-da olduğu kimi; əks halda millimetr ölçüləri.
+Siyahı üçün naxış sualında `?` yazın. Standart naxışlar ANSI31-dən ANSI38-ə qədər, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS və EARTH, və SOLID-dir. Düymlə ölçülü çertyojda (və ya uzunluq formatı fut və düym olduqda) naxışların düym ölçüləri AutoCAD-də olduğu kimi istifadə olunur; əks halda millimetr ölçüləri.
 
-{{ui:Angle}} (`A`) bütün naxışı döndərir: 90°-də ANSI31 əks istiqamətə meyllənir.
+{{ui:Bucaq}} (`A`) bütün naxışı fırladır: 90° bucaqda ANSI31 digər istiqamətə meyl edir.
 
-**Naxış faylları.** `Daxili nöqtəni göstərin` mərhələsində `Naxış faylı (F)` yazın və `.pat` faylını seçin. Həmin fayldakı naxışlar siyahıya əlavə olunur; birdən çox olduqda hansının istifadə olunacağı soruşulur. CadCraft-ın oxuya bilmədiyi naxışı olan fayl bu barədə məlumat verir, ötürülmüş naxışlar isə sayılır. `.pat` faylındakı ölçülərin öz vahidi yoxdur, buna görə çertyojun vahidləri ilə oxunur. Yalnız adi `.pat` formatında yazılmış fayllar sınaqdan keçirilib; başqa proqram tərəfindən yaradılmış heç bir fayl sınanmayıb.
+**Naxış faylları.** `Daxili nöqtəni göstərin` mərhələsində `F` (Naxış faylı) yazın və `.pat` faylı seçin. Onun naxışları siyahıya əlavə olunur; bir neçə olduqda hansının istifadə olunacağı soruşulur. CadCraft-ın oxuya bilmədiyi naxış olmayan fayl bunu deyir və ötürülən naxışlar sayılır. `.pat` faylındakı ölçülərin öz vahidi yoxdur, buna görə çertyojun vahidlərində oxunurlar. Yalnız adi `.pat` formatında yazılmış fayllar sınaqdan keçirilib; başqa proqram tərəfindən yaradılan heç biri yox.
 
-## Ştrixləməni dəyişdirmək
+## Ştrixlamanı dəyişin
 
-Onu seçin (xətlərindən birinə klikləyin). {{ui:Properties}} panelində: {{ui:Pattern}}, {{ui:Pattern scale}} və {{ui:Pattern angle}}. Açılmış çertyojlardakı ştrixləmələr standart naxışlardan biri olduqda naxışını göstərir; digərləri rənginin açıq tonu kimi görünür.
+Onu seçin (xətlərindən birini klikləyin). {{ui:Xassələr}}-də: {{ui:Naxış}}, {{ui:Naxış miqyası}} və {{ui:Naxış bucağı}}. Açılmış çertyojlardan olan ştrixlamalar standart naxışlardan biri olduqda onu göstərir; başqaları rənginin açıq tonu kimi görünür.
 
-## Tez-tez edilən səhvlər
+## Ümumi səhvlər
 
-- **"Bu nöqtə ətrafında qapalı sərhəd yoxdur."** Konturda boşluq var və ya onun bir hissəsi ekranın xaricindədir: CadCraft yalnız ekranda olanlara baxır. Boşluğu bağlayın (künclərə yaxınlaşaraq) və ya uzaqlaşın.
-- **"Bu miqyasda naxış çəkmək üçün çox sıxdır."** Xətlər çertyojun göstərə biləcəyindən daha yaxın olardı. Daha böyük miqyas istifadə edin: çap miqyasını sınayın (1:20 üçün 20).
-- Naxış çox böyük və ya çox kiçik görünür. Miqyas naxış vahidinə düşən çertyoj vahidi ilə verilir; yuxarıdakı 4-cü addıma baxın.
-- **Konturu köçürmək ştrixləməni köçürmür.** Ştrixləmə öz sərhədinə bağlı deyil. Hər ikisini köçürün və ya yenidən ştrixləyin.
+- **"Həmin nöqtənin ətrafında qapalı sərhəd yoxdur."** Konturda boşluq var, ya da onun bir hissəsi ekrandan kənardadır: CadCraft yalnız ekranda olanlara baxır. Boşluğu bağlayın (künclərə yaxınlaşın) və ya uzaqlaşın.
+- **"Naxış bu miqyasda çəkmək üçün çox sıxdır."** Xətlər çertyojun göstərə biləcəyindən daha yaxın olardı. Daha böyük miqyas istifadə edin: çap miqyasını sınayın (1:20 üçün 20).
+- **Naxış çox böyük və ya çox kiçik görünür.** Miqyas naxış vahidi başına çertyoj vahidlərindədir; yuxarıda 4-cü addıma baxın.
+- **Ştrixlama konturunu izləməyi dayandırdı.** {{cmd:HATCH}} ilə yaradılan ştrixlama onu yaradan obyektlərlə qalır: konturu köçürün, fırladın və ya miqyaslayın, ştrixlama da onunla gedir; tutacaqla yenidən formalaşdırsanız, ştrixlama yenidən hesablanır. Kontur artıq bağlanmadıqda, ştrixlamanı əllə yenidən formalaşdırdıqda və ya kəsdikdə bağlantı bitir və komanda sətri bunu deyir. Heç nə itmir: sahəni yenidən ştrixləyin ki, yenidən bağlansın.
 
-## Sərhədi ilə birlikdə qalan ştrixləmə
+## Sərhədi ilə qalan ştrixlama
 
-`HATCH` ilə yaratdığınız ştrixləmə onu məhdudlaşdıran sərhədi yadda saxlayır. Sərhədi köçürdükdə, döndərdikdə və ya miqyaslandırdıqda ştrixləmə və onun naxışı onunla birlikdə hərəkət edir. Sərhədi yenidən formalaşdırmaq üçün tutacağı sürükləyin; ştrixləmə yenidən hesablanır. Ştrixləməni təkbaşına köçürdükdə sərhədi də onunla gəlir, çertyoj proqramında doldurulmuş forma kimi.
+`HATCH` ilə yaratdığınız ştrixlama onu əhatə edənləri yadda saxlayır. Sərhədi köçürün, fırladın və ya miqyaslayın, ştrixlama və onun naxışı onunla gedir. Sərhədi formalaşdırmaq üçün tutacağı çəkin, ştrixlama yenidən hesablanır. Ştrixlamanı təkbaşına köçürsəniz, onun sərhədi də gəlir, proqram çertyojunda doldurulmuş fiqur kimi.
 
-Sərhəd artıq bağlanmadıqda və ya ştrixləməni əl ilə yenidən formalaşdırdıqda əlaqə bitir və komanda sətri bunu bildirir. Ştrixləmənin özü qalır. Ştrixləyərkən müstəqil ştrixləmələr yaratmaq üçün `AS` yazın. Ştrixləməni sərhədi ilə birlikdə kopyaladıqda, surətin öz əlaqəsi olur.
+Sərhəd artıq bağlanmırsa və ya ştrixlamanı əllə formalaşdırırsınızsa, bağlantı bitir və komanda sətri bunu deyir. Ştrixlamanın özü qalır. Ştrixləyərkən `AS` yazın ki, müstəqil dayanan ştrixlamalar yaranır. Ştrixlamanı sərhədi ilə birlikdə kopyalayın və surətin öz bağlantısı olur.
 
-`HATCHEDIT` (`HE`) ştrixləmənin naxışını, miqyasını, bucağını və başlanğıc nöqtəsini dəyişir, onu sərhədə bağlayır və ya əlaqəni bitirir. Əlaqə DWG və DXF 2000 fayllarında saxlanılır. DXF R12 faylında ştrixləmə obyekti yoxdur və başqa proqramlarda yaradılmış əlaqələr oxunmur: bunlar üçün `HATCHEDIT` və Link istifadə edin.
+`HATCHEDIT` (`HE`) ştrixlamanın naxışını, miqyasını, bucağını və başlanğıcını dəyişir və onu sərhədə bağlayır və ya bağlantını bitirir. Bağlantı DWG və DXF 2000 fayllarında saxlanılır. DXF R12 faylında ştrixlama obyekti yoxdur, başqa proqramların yaratdığı bağlantılar oxunmur: onlar üçün `HATCHEDIT` və {{ui:Bağla}} istifadə edin.
 
-Sərhədi artıq olmayan ştrixləmə (sərhəd silinib və ya fayl onsuz gəlib) onu bərpa edə bilər: `HATCHGENERATEBOUNDARY` (`HGB`) ştrixləmənin hər halqasının ətrafına qapalı polixətt çəkir və "Bəli" cavabı versəniz, ştrixləməni onlara bağlayır.
+Sərhədi olmayan ştrixlama (sərhəd silinib və ya fayl onsuz gəlib) onu geri ala bilər: `HATCHGENERATEBOUNDARY` (`HGB`) ştrixlamanın hər döngəsi ətrafında bağlı polixətt çəkir və Bəli cavab versəniz, ştrixlamanı onlara bağlayır.
 
 ## Qradiyent doldurma
 
-`GRADIENT` (`GD`) sahəni naxış əvəzinə qradiyentlə doldurur: `HATCH` ilə eyni seçimlər edilir, əvvəlcə növü soruşulur (xətti, silindrik, sferik, yarımsferik, əyri və bunların hər biri tərs), bir rəng tonu ilə və ya iki rəng, bucaq və mərkəzləşdirilmiş olub-olmaması. `HATCH`-da `G` seçimi eyni işi görür. `HATCHEDIT` `G` və ya Qradiyent altında {{ui:Properties}} qradiyenti dəyişir və ya istənilən ştrixləməni qradiyentə çevirir.
+`GRADIENT` (`GD`) sahəni naxış əvəzinə qradiyentlə doldurur: `HATCH` ilə eyni seçimlər, sonra növü soruşur (xətti, silindrik, sferik, yarımsferik, əyri və bunların hər biri tərsinə), bir rəng tonu ilə və ya iki rəngi, bucağı və mərkəzləşib-mərkəzləşmədiyini. `HATCH`-də `G` seçimi eyni işi görür. `HATCHEDIT` `G`, və ya {{ui:Xassələr}}-də Qradiyent altında, qradiyenti dəyişir və ya istənilən ştrixlamanı ona çevirir.
 
-Qradiyent ekranda və çaplarda görünür. DWG 2004 və ya daha yeni formatda saxlasanız, digər proqramlar həqiqi qradiyent ştrixləmə alır. DXF 2000 və DWG 2000-də qradiyent yoxdur: orada CadCraft onu yalnız öz üçün saxlayır, digər proqramlar isə birinci rəngdə bərk doldurma görür.
+Qradiyent ekranda və çapda göstərilir. DWG 2004 və sonrakı versiyada saxlasanız, digər proqramlar həqiqi qradiyent ştrixlaması alır. DXF 2000 və DWG 2000-də qradiyent yoxdur: orada CadCraft onu özü üçün saxlayır və digər proqramlar birinci rəngdə bərk doldurma görür.
 
-## Ştrixləməni kəsmək
+## Ştrixlamanı kəsin
 
-`TRIM` ştrixləməni digər obyekt kimi kəsir. İstədiyiniz kəsmə kənarının tərəfindəki ştrixləməyə klikləyin: kənarlar ştrixlənmiş sahəni bölür və həmin hissə silinir. Sürətli rejimdə hər obyekt kəsmə kənarıdır; çox olduqda əvvəlcə kənarları seçin (`T` seçimi). Kəsilmiş ştrixləmə artıq sərhədinə bağlı deyil, çünki onu artıq doldurmur.
+`TRIM` ştrixlamanı hər digər obyekt kimi kəsir. Istəmədiyiniz tərəfdə, kəsici kənarın tərəfində ştrixlamaya klikləyin: kənarlar ştrixlanmış sahəni bölür və o hissə silinir. Sürətli rejimdə hər obyekt kəsici kənardır; çox olduqda əvvəlcə kənarları seçin (`T` seçimi). Kəsilmiş ştrixlama artıq sərhədinə bağlı deyil, çünki onu artıq doldurmur.

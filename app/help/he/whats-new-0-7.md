@@ -2,7 +2,7 @@
 title: מה חדש בגרסה 0.7 (קודם)
 summary: מצעי PDF וייבוא PDF, סריקות עם מעקב אוטומטי, ספליינים אמיתיים עם SPLINE, SPLINEDIT ו-PEDIT, מנהל סגנונות מידות, טקסט ששומר על העיצוב שלו, WBLOCK וקני מידה משלכם, מוצקים תלת-ממדיים מתוכנות אחרות, רישום סריקות, חלונית לייזר, ייצוא USD, היסטוריה והדפסה ב-CadCraft Studio, שרטוט ראשון מודרך, סרגל כלים בכל צד או בפחות שורות, ועוד לעוזרי AI.
 keywords: מה חדש 0.7, גרסה קודמת, הערות שחרור, יומן שינויים, שינויים, 0.7, גרסה, תכונות חדשות, pdf, pdfattach, pdfimport, מצע, סריקה, scanattach, scantrace, מעקב, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, עיצוב, wblock, scalelistedit, רשימת קני מידה, acis, מוצקים תלת-ממדיים, registerscans, רישום סריקות, icp, e57, las, לייזר, grbl, g-code, usd, usdout, היסטוריה, גרסאות, השוואה, הדפסה, מדפסת, png, svg, סגנון הדפסה, סוג קו, סיור, דף עזר, מפת פקודות, מיקום סרגל הכלים, שורות סרגל הכלים, toolbardock, regen, regenall, משטח מגע, החלקה, דף קודים, קירילית, קוריאנית, סינית, יפנית, חשמל, rcd, p&id, pid, acad.lsp, acaddoc.lsp, תיקיית תמיכה, עוזרים, mcp, יחידות, פורטוגזית
-from: d07ca034
+from: d9a8ea79
 ---
 
 אלה השינויים ב-CadCraft 0.7 לעומת 0.6. חלק גדול מהם התבקש ב-Discord. הרשימה מקובצת לפי תחום, והחשוב ביותר בראש.

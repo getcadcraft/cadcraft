@@ -5,7 +5,7 @@
  * DOM-free. The one door for opening a DXF: cadcraft.js (Open, Insert, the library's block adapter), sheetset-io.js,
  * sheetset-panel.js and report/credits.js call it instead of dxf-decode.js's decodeDxfBytes.
  *
- *   dxfTextOf(bytes, opts?) → { text, encoding, binary: false | 'wide' | 'narrow', notes[] }
+ *   dxfTextOf(bytes, opts?) → { text, encoding, binary: false | 'wide' | 'narrow', cbor?: true, notes[] }
  *        opts.tolerant: a binary file cut short gives what was read plus a note (RECOVER, ORS.14)
  *
  * dxf-decode.js is copied byte for byte into another app (tools/takeoffcraft-test/cad-sync.mjs), so it is left alone; its
@@ -14,6 +14,7 @@
 import { decodeDxfBytes, dxfHeaderInfo } from './dxf-decode.js';
 import { decodeParts, TextParts } from './textin.js';
 import { isBinaryDxf, binaryDxfToText } from './dxf-binary.js';
+import { isCbor, isCborDxf, cborDxfToText } from './dxf-cbor.js';   // FX.391: the same groups saved as CBOR
 import { t } from './i18n.js';
 
 const labels = new Map();
@@ -32,6 +33,12 @@ export function labelOf(codepage) {
 }
 
 export function dxfTextOf(bytes, opts = {}) {
+  if (isCborDxf(bytes) || isCbor(bytes)) {   // FX.391: a drawing saved as CBOR (dxf-cbor.js); any other CBOR file is said to be that
+    let r;
+    try { r = cborDxfToText(bytes); }
+    catch (err) { if (err && err.dxfCbor) throw Object.assign(new Error(t(err.dxfCbor.key, err.dxfCbor.vars)), { expected: true, dxfCbor: err.dxfCbor }); throw err; }
+    return { text: r.text, encoding: 'cbor', binary: false, cbor: true, notes: [] };
+  }
   if (isBinaryDxf(bytes)) {
     let r;
     try { r = binaryDxfToText(bytes, { labelOf, tolerant: !!opts.tolerant }); }
@@ -52,7 +59,7 @@ const WESTERN = new Set(['', 'ANSI_1252', 'ASCII', 'ISO8859-1', 'UNDEFINED']);
  * about 4 MB at a time, so no string is the size of the file. readDxf takes the result as it takes a string.
  */
 export function dxfPartsOf(bytes, opts = {}) {
-  if (bytes.length <= (opts.wholeBytes ?? WHOLE_STRING_BYTES) || isBinaryDxf(bytes)) {
+  if (bytes.length <= (opts.wholeBytes ?? WHOLE_STRING_BYTES) || isBinaryDxf(bytes) || isCbor(bytes) || isCborDxf(bytes)) {
     const r = dxfTextOf(bytes, opts);
     return { ...r, text: new TextParts([r.text], r.encoding) };
   }

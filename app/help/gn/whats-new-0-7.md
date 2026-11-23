@@ -2,7 +2,7 @@
 title: Mba'e pyahu 0.7 (ymaguare)
 summary: PDF subyacente ha PDF importación, escaneo ha trazado automático, spline real SPLINE, SPLINEDIT ha PEDIT ndive, dimstyle administrador, formato oñemboguerova texto, WBLOCK ha escala propia, sólido 3D ambue programa-kuéragui, escaneo registro, Laser panel, USD exportación, Historial ha imprimir CadCraft Studio-pe, guiado primer plano, toolbar ojoaplo ambue tape-pe térã heta fila-pe, ha asistente de IA heta mba'e.
 keywords: novedades 0.7, versión anterior, notas de lanzamiento, registro de cambios, cambios, 0.7, versión, nuevas funciones, pdf, pdfattach, pdfimport, subyacente, escaneo, scanattach, scantrace, trazado, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formato, wblock, scalelistedit, lista de escalas, acis, sólidos 3D, registerscans, registrar escaneos, icp, e57, las, láser, grbl, g-code, usd, usdout, historial, versiones, comparar, imprimir, impresora, png, svg, estilo de trazado, tipo de línea, recorrido, hoja de referencia, mapa de comandos, posición de la barra de herramientas, filas de la barra de herramientas, toolbardock, regen, regenall, trackpad, deslizar, página de códigos, cirílico, coreano, chino, japonés, eléctrico, rcd, p&id, pid, acad.lsp, acaddoc.lsp, carpeta de soporte, asistentes, mcp, unidades, portugués
-from: d07ca034
+from: d9a8ea79
 ---
 
 Ko'ẽrõ CadCraft 0.7-pe ojejuhu, 0.6 ndive ojoavy. Heta ojerurévo Discord-pe. Lista ojoaplo área rupi, ohechakuaáva primero.

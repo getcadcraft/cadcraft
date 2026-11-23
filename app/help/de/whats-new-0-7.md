@@ -2,7 +2,7 @@
 title: Neuigkeiten in 0.7 (früher)
 summary: PDF-Unterlagen und PDF-Import, gescannte Zeichnungen mit automatischer Nachzeichnung, echte Splines mit SPLINE, SPLINEDIT und PEDIT, ein Bemaßungsstil-Manager, Text, der seine Formatierung behält, WBLOCK und eigene Maßstäbe, 3D-Volumenkörper aus anderen Programmen, Scans registrieren, ein Laser-Bereich, USD-Export, Verlauf und Drucken in CadCraft Studio, eine geführte erste Zeichnung, die Symbolleiste an jeder Seite oder in weniger Zeilen und mehr für KI-Assistenten.
 keywords: neuigkeiten 0.7, frühere version, versionshinweise, änderungsprotokoll, änderungen, 0.7, version, neue funktionen, pdf, pdfattach, pdfimport, unterlage, scan, scanattach, scantrace, nachzeichnung, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatierung, wblock, scalelistedit, maßstabsliste, acis, 3d-volumenkörper, registerscans, scans registrieren, icp, e57, las, laser, grbl, g-code, usd, usdout, verlauf, versionen, vergleichen, drucken, drucker, png, svg, plotstil, linientyp, tour, spickzettel, befehlsübersicht, position der symbolleiste, symbolleistenzeilen, toolbardock, regen, regenall, trackpad, wischen, codepage, kyrillisch, koreanisch, chinesisch, japanisch, elektro, rcd, p&id, pid, acad.lsp, acaddoc.lsp, unterstützungsordner, assistenten, mcp, einheiten, portugiesisch
-from: d07ca034
+from: d9a8ea79
 ---
 
 Dies hat sich in CadCraft 0.7 gegenüber 0.6 geändert. Vieles davon wurde auf Discord gewünscht. Die Liste ist nach Bereichen gruppiert, mit dem Wichtigsten zuerst.

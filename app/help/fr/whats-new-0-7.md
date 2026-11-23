@@ -2,7 +2,7 @@
 title: Nouveautés de la version 0.7 (précédente)
 summary: Fonds PDF et importation de PDF, dessins numérisés avec un tracé automatique, vraies splines avec SPLINE, SPLINEDIT et PEDIT, un gestionnaire de styles de cote, un texte qui conserve sa mise en forme, WBLOCK et vos propres échelles, solides 3D venant d'autres logiciels, recalage des numérisations, un panneau Laser, export USD, Historique et impression dans CadCraft Studio, un premier dessin guidé, la barre d'outils sur n'importe quel côté ou en moins de lignes, et plus encore pour les assistants IA.
 keywords: nouveautés 0.7, version précédente, notes de version, journal des modifications, modifications, 0.7, version, nouvelles fonctionnalités, pdf, pdfattach, pdfimport, fond, numérisation, scanattach, scantrace, tracé, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, mise en forme, wblock, scalelistedit, liste d'échelles, acis, solides 3D, registerscans, recalage des numérisations, icp, e57, las, laser, grbl, g-code, usd, usdout, historique, versions, comparer, imprimer, imprimante, png, svg, style de tracé, type de ligne, visite, aide-mémoire, carte des commandes, position de la barre d'outils, lignes de la barre d'outils, toolbardock, regen, regenall, pavé tactile, glissement, page de codes, cyrillique, coréen, chinois, japonais, électrique, rcd, p&id, pid, acad.lsp, acaddoc.lsp, dossier de support, assistants, mcp, unités, portugais
-from: d07ca034
+from: d9a8ea79
 ---
 
 Voici ce qui a changé dans CadCraft 0.7 par rapport à la 0.6. Une grande partie a été demandée sur Discord. La liste est regroupée par domaine, les points les plus importants en premier.

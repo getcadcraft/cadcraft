@@ -2,7 +2,7 @@
 title: 0.7 හි නව දේ (ඊට පෙර)
 summary: PDF යටි තට්ටු සහ PDF ආයාතය, ස්වයංක්‍රීය ලුහුබැඳීම සහිත ස්කෑන් කළ රූප සටහන්, SPLINE, SPLINEDIT සහ PEDIT සමඟ සැබෑ splines, මාන ශෛලි කළමනාකරු, තම ආකෘතිය තබන පෙළ, WBLOCK සහ ඔබේම පරිමාණයන්, වෙනත් වැඩසටහන්වල 3D solids, ස්කෑන් ලියාපදිංචිය, Laser පැනලය, USD අපනයනය, CadCraft Studio හි History සහ මුද්‍රණය, මඟ පෙන්වන පළමු රූප සටහන, ඕනෑම පැත්තක හෝ පේළි අඩුවෙන් මෙවලම් තීරුව, සහ AI සහායකයින් සඳහා තවත්.
 keywords: 0.7 හි නව දේ, පෙර නිකුත්ව, නිකුත් සටහන්, වෙනස්කම්, 0.7, අනුවාදය, නව විශේෂාංග, pdf, pdfattach, pdfimport, යටි තට්ටුව, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, ආකෘතිය, wblock, scalelistedit, පරිමාණ ලැයිස්තුව, acis, 3d solids, registerscans, ස්කෑන් ලියාපදිංචි කිරීම, icp, e57, las, laser, grbl, g-code, usd, usdout, history, versions, compare, print, printer, png, svg, plot style, linetype, tour, cheat sheet, command map, toolbar position, toolbar rows, toolbardock, regen, regenall, trackpad, swipe, code page, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, support folder, assistants, mcp, units, portuguese
-from: d07ca034
+from: d9a8ea79
 ---
 
 මෙය CadCraft 0.6 ට සාපේක්ෂව 0.7 හි වෙනස් වූ දේයි. බොහෝමයක් Discord හි ඉල්ලා තිබුණි. ලැයිස්තුව ප්‍රදේශ අනුව කාණ්ඩ කර ඇති අතර වඩාත් වැදගත් ඒවා මුලින් ඇත.

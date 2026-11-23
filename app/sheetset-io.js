@@ -7,7 +7,7 @@
  *   folder = { name, read(path) → Promise<Uint8Array>, write?(path, bytes | string) → Promise, list?() → Promise<[path]> }
  *   (paths relative to the set's folder, "/" between folders — sheetset.js cleanPath)
  *
- *   openDrawing(folder, path, opts) → { doc, format: 'dwg' | 'dxf' | 'dxf2000', version }   (DWG through the worker reader)
+ *   openDrawing(folder, path, opts) → { doc, format: 'dwg' | 'dxf' | 'dxf2000' | 'dxf2000b' (binary DXF), version }   (DWG through the worker reader)
  *   layoutsIn(folder, path, opts) → [layout name]                                           (to add a file's sheets)
  *   publishSet(set, folder, { subset, ids, pen, mono, fields }) → { bytes, report: { pages, names, missing, notes } }
  *     Z.4: one PDF in set order, a page and a bookmark ("A-101 — Floor plan") per sheet, title blocks filled from the set
@@ -27,6 +27,7 @@ import { dxfTextOf } from './dxf-open.js';   // ORS.18: text or binary DXF
 import { importDwg } from './dwg-import.js';
 import { saveDwg, dwgVersionKey } from './dwg-save.js';
 import { writeDxf2000 } from './dxf2000.js';
+import { textToBinaryDxf } from './dxf-binary.js';   // FIX-0101-DXFBIN-REAL: a binary DXF member of a set is written back as binary
 import { layoutSheet, displayList, toPdfPages } from './plot.js';
 import { findTable, styleNameFor, builtinTable } from './plotstyle.js';
 import { allSheets, fieldValues, fillTitleBlocks, layoutNameFor, sheetLabel, updateSheet, refreshSheetList, placeSheetList } from './sheetset.js';
@@ -38,16 +39,24 @@ const defaultRead = async (bytes) => {
   return asyncReader(bytes);
 };
 
+/** A drawing of the set as the bytes (or text) to write back, in the format it was read in. */
+function encodeDrawing(doc, got) {
+  if (got.format === 'dwg') return saveDwg(doc, { version: got.version }).bytes;
+  if (got.format === 'dxf2000b') return textToBinaryDxf(writeDxf2000(doc).text);
+  return got.format === 'dxf2000' ? writeDxf2000(doc).text : writeDxf(doc).text;
+}
+
 /** Read one drawing of the set into a Doc of its own. */
 export async function openDrawing(folder, path, { readDwg = defaultRead } = {}) {
   const bytes = await folder.read(path);
   const doc = new Doc();
   const name = path.split('/').pop().replace(/\.[^.]+$/, '');
   if (/\.dxf$/i.test(path)) {
-    const d = readDxf(dxfTextOf(bytes).text);
+    const dx = dxfTextOf(bytes);
+    const d = readDxf(dx.text);
     doc.load({ ...d, meta: { ...d.meta, name, source: path.split('/').pop() } });
     doc.markSaved();
-    return { doc, format: d.meta.version === 'AC1009' || !d.meta.version ? 'dxf' : 'dxf2000', version: d.meta.version || '' };
+    return { doc, format: dx.binary ? 'dxf2000b' : d.meta.version === 'AC1009' || !d.meta.version ? 'dxf' : 'dxf2000', version: d.meta.version || '' };
   }
   const tag = new TextDecoder().decode(bytes.subarray(0, 6));
   const model = await readDwg(bytes);
@@ -127,7 +136,7 @@ export async function updateDrawings(set, folder, { fields = true, names = true,
     }
     const list = refreshSheetList(doc, out) ? 1 : 0;   // a sheet list table in this drawing follows the set (Z.6)
     if (!nFields && !renamed && !list) continue;
-    const data = got.format === 'dwg' ? saveDwg(doc, { version: got.version }).bytes : got.format === 'dxf2000' ? writeDxf2000(doc).text : writeDxf(doc).text;
+    const data = encodeDrawing(doc, got);
     await folder.write(path, data);
     files.push({ path, fields: nFields, renamed, list });
   }
@@ -139,7 +148,7 @@ export async function addSheetList(set, folder, sheet, { readDwg = defaultRead }
   if (!folder.write) throw new Error(t('sheetset.io.readonly'));
   const got = await openDrawing(folder, sheet.file, { readDwg });
   if (!placeSheetList(got.doc, sheet.layout, set)) throw new Error(t('sheetset.io.nolayout', { sheet: sheetLabel(sheet), layout: sheet.layout, file: sheet.file }));
-  const data = got.format === 'dwg' ? saveDwg(got.doc, { version: got.version }).bytes : got.format === 'dxf2000' ? writeDxf2000(got.doc).text : writeDxf(got.doc).text;
+  const data = encodeDrawing(got.doc, got);
   await folder.write(sheet.file, data);
   return { ok: true, path: sheet.file };
 }

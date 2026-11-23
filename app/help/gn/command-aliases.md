@@ -1,58 +1,62 @@
 ---
 title: Editar alias de comandos
-summary: Guardá tus propios alias de comandos en un archivo de texto con el formato conocido, importá y exportá un archivo .pgp, y volvelo a cargar con REINIT.
+summary: Guardá tus propios alias de comandos en un solo archivo de texto con el formato conocido, importá y exportá un archivo .pgp y volvé a cargarlo con REINIT.
 keywords: alias, aliases, aliasedit, pgp, atajo, nombre corto, reinit, teclado, personalizar, editar alias
-from: 6ab6fa0e
+from: 2282d36f
 ---
 
-## Lo que va a aprender
+## Mba'épa reikuaáta
 
-Cómo agregar nombres cortos propios para comandos, por ejemplo `LL` para {{cmd:LINE}}, todo en un solo archivo de texto.
+Mba'éichapa rejapo nde alias ko'ã comando-kuéra, ehemplo `LL` {{cmd:LINE}}-pe, opavave peteĩ archivo de texto-pe.
 
-## Agregar un alias
+## Alias ojapo
 
-1. Abrí {{ui:Vista}} › {{ui:Más}} › {{ui:Editar alias…}}, o escribí {{cmd:ALIASEDIT}} y apretá {{key:Enter}}.
-2. Agregá una línea con el alias, una coma y el comando después de una estrella:
+1. Ejecutá {{ui:Vista}} › {{ui:Más}} › {{ui:Editar alias…}}, térã ehai {{cmd:ALIASEDIT}} ha omoĩ {{key:Enter}}.
+2. Emoĩ peteĩ línea ndive alias, coma ha asterisco rire comando:
 
 ```
 LL,     *LINE
 ```
 
-3. Hacé clic en {{ui:Guardar}}. La línea de comandos dice cuántos de tus alias están en uso.
-4. Escribí `LL` y apretá {{key:Enter}}: LINE se inicia.
+3. Ejecutá {{ui:Guardar}}. Línea de comandos-pe oñeinforma cuántos nde alias ojeporu.
+4. Ehai `LL` ha omoĩ {{key:Enter}}: LINE oñepyrũ.
 
-Tus alias van encima de los propios de CadCraft. Una línea tuya gana sobre un alias integrado con el mismo nombre; si quitás tu línea, vuelve el integrado.
+Nde alias-kuéra oĩ CadCraft-pe ijyvateve. Nde línea oganaha ojehechaukáva alias ojehérava peteĩ, ha nde línea mboguejy ramo, ojevolve alias ofíciale.
 
-## Líneas que CadCraft rechaza
+## Línea CadCraft ndoguerekói
 
-El editor lista cada problema con su número de línea mientras escribís:
+Editor-pe oñeinforma cada problema ha umi línea número-ndive, rehaípe:
 
-- el comando no existe;
-- el alias es en sí el nombre de un comando (`LINE, *CIRCLE` ocultaría LINE);
-- la línea no es `ALIAS, *COMANDO`;
-- el mismo alias está en dos líneas (gana la posterior).
+- comando ndoiméi;
+- alias oĩ peteĩ comando-pe (`LINE, *CIRCLE` oñemboykéta LINE);
+- línea ndaha'éi `ALIAS, *COMANDO`;
+- mismo alias oĩ mokõi línea-pe (última ojeporúta).
 
-Las líneas que inician un programa en tu computadora, como `NOTEPAD, START, 1, *File to edit: ,`, se omiten con un aviso: una aplicación en el navegador no puede iniciar programas.
+Umi línea oñepyrũva peteĩ programa nde compu-pe, ehemplo `NOTEPAD, START, 1, *File to edit: ,`, oñemboykéta ha oñeinforma: navegador-pe ndaikatúi oñepyrũ programa.
 
-## Traer tus alias de otro programa
+## Ambue programa-gui alias-kuéra ojapo
 
-1. En el editor de alias, hacé clic en {{ui:Importar .pgp…}} y elegí el archivo. También podés arrastrar un archivo `.pgp` sobre el plano.
-2. Revisá los problemas listados (los comandos que CadCraft no tiene se rechazan, lo demás funciona).
-3. Hacé clic en {{ui:Guardar}}.
+1. Alias editor-pe ejecutá {{ui:Importar .pgp…}} ha ejeséka archivo. Ikatu avei omoĩ peteĩ archivo `.pgp` plano-pe.
+2. Ehecha umi problema oñeinforma (comando CadCraft ndoguerekóiva oñemboykéta, umi ambue oñeikuaa).
+3. Ejecutá {{ui:Guardar}}.
 
-{{ui:Exportar .pgp}} guarda los alias de CadCraft y los tuyos como un solo archivo en el mismo formato.
+{{ui:Exportar .pgp}} oñeguarda CadCraft-pe alias ha nde alias peteĩ archivo-pe, formato mbojojaha.
 
-## Volver a cargar el archivo
+## Archivo mboguejy
 
-Escribí {{cmd:REINIT}} y apretá {{key:Enter}} para aplicar de nuevo tu archivo de alias. Se guarda en este navegador; la aplicación de escritorio lo guardará en su propia carpeta, y el servicio en la nube lo sincronizará.
+Emoĩ {{cmd:REINIT}} ha omoĩ {{key:Enter}} nde alias archivo mboguejy ojeporu jey. Ojeguarda kóva navegador-pe; escritorio app-pe ojeguarda iñeteĩ carpeta-pe, ha servicio nube-pe ojesinkroniza.
 
-## Atajos de teclado para cualquier comando
+## Comando opción-kuéra letra
 
-Un alias se escribe; un atajo es una tecla. Para darle a un comando una tecla propia:
+Alias ojehai comando. Opción-kuéra letra ojecambia (`P` Polar {{cmd:ARRAY}}-pe), eheka [Oñeme'ẽ opciones de comando letra propia](topic:option-letters).
 
-1. Hacé clic en {{ui:Vista}} › {{ui:Más}} › {{ui:Atajos de teclado…}}, o escribí `KEYS` y apretá {{key:Enter}}.
-2. Hacé clic en el cuadro {{ui:Tecla}} y apretá las teclas, por ejemplo {{key:Alt+Shift+C}}.
-3. En {{ui:Ejecuta}}, escribí el comando, y si querés, lo que se escribe después: `CIRCLE`, o `ZOOM E`.
-4. Hacé clic en {{ui:Agregar}}.
+## Atajo teclado opavavépe comando
 
-Una tecla necesita {{key:Mod}} o {{key:Alt}} con una letra o un número, o una tecla de función libre ({{key:F2}}, {{key:F4}}, {{key:F5}}, {{key:F6}}, {{key:F9}}). Las teclas que ya usan CadCraft, la aplicación o el navegador, y las que tiene un botón Mis herramientas (ver [Botones propios](topic:my-tools)), se rechazan, y el cuadro dice por qué. Los atajos se guardan en este navegador (o en la aplicación de escritorio); {{ui:Quitar}} elimina uno.
+Alias ojehai; atajo ojehai tecla. Peteĩ comando-pe nde tecla ome'ẽ:
+
+1. Ejecutá {{ui:Vista}} › {{ui:Más}} › {{ui:Atajos de teclado…}}, térã ehai `KEYS` ha omoĩ {{key:Enter}}.
+2. Ejecutá la casilla {{ui:Tecla}} ha omoĩ tecla-kuéra, ehemplo {{key:Alt+Shift+C}}.
+3. {{ui:Ejecuta}}-pe, ehai comando, ha pe'ũ ikatu ehai mba'e oñeha'ãva rire: `CIRCLE`, térã `ZOOM E`.
+4. Ejecutá {{ui:Agregar}}.
+
+Tecla ohecha {{key:Mod}} térã {{key:Alt}} ndive letra térã número, térã función tecla ndaipóriva ({{key:F2}}, {{key:F4}}, {{key:F5}}, {{key:F6}}, {{key:F9}}). CadCraft, app térã navegador ojeporúva tecla, ha My tools botón-pe oĩva ([Botones propios](topic:my-tools)), ndoguerekóiva; casilla-pe oñeinforma mbaʼépa. Atajo-kuéra oñeguarda navegador-pe (térã escritorio app-pe); {{ui:Quitar}} oñemboguejy peteĩ.

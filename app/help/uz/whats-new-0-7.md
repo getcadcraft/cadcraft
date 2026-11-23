@@ -2,7 +2,7 @@
 title: 0.7 da nimalar yangi (oldingi)
 summary: PDF tagliklari va PDF import, avtomatik izlashli skanerlangan chizmalar, SPLINE, SPLINEDIT va PEDIT bilan haqiqiy splaynlar, oʻlcham uslublari boshqaruvchisi, formatlashni saqlaydigan matn, WBLOCK va sizning masshtablaringiz, boshqa dasturlardan 3D qattiq jismlar, skanerlarni roʻyxatdan oʻtkazish, Lazer paneli, USD eksport, CadCraft Studio da Tarix va chop etish, yoʻriqnomali birinchi chizma, asboblar panelini istalgan tomonda yoki kamroq qatorda joylashtirish va AI yordamchilar uchun yana koʻp narsalar.
 keywords: 0.7 yangiliklari, oldingi reliz, reliz eslatmalari, oʻzgarishlar jurnali, oʻzgarishlar, 0.7, versiya, yangi imkoniyatlar, pdf, pdfattach, pdfimport, tagliklar, skaner, scanattach, scantrace, izlash, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatlash, wblock, scalelistedit, masshtablar roʻyxati, acis, 3d qattiq jismlar, registerscans, skanerlarni roʻyxatdan oʻtkazish, icp, e57, las, lazer, grbl, g-code, usd, usdout, tarix, versiyalar, solishtirish, chop etish, printer, png, svg, chop etish uslubi, chiziq turi, yoʻriqnoma, buyruqlar xaritasi, asboblar paneli joylashuvi, toolbardock, regen, regenall, sensorli panel, surish, kod sahifasi, kirill, koreys, xitoy, yapon, elektr, rcd, p&id, pid, acad.lsp, acaddoc.lsp, qoʻllab-quvvatlash jildi, yordamchilar, mcp, birliklar, portugal tili
-from: d07ca034
+from: d9a8ea79
 ---
 
 Bu CadCraft 0.7 da 0.6 ga nisbatan nimalar oʻzgarganini koʻrsatadi. Koʻp narsa Discord da soʻralgan edi. Roʻyxat sohalar boʻyicha guruhlangan, eng muhimlari birinchi.

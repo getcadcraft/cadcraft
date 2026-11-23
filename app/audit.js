@@ -23,6 +23,7 @@
  */
 import { linetypeNames } from './linetypes.js';
 import { newKey } from './file-keys.js';
+import { runNow, runSliced, ticker } from './slices.js';   // 0.11 PERF.9: the audit in slices (auditDocAsync)
 
 export const AUDIT_KINDS = ['nonfinite', 'zero', 'layer', 'block', 'style', 'linetype', 'cycle', 'ids', 'dim', 'hatch'];
 const TOL = 1e-9, ABSURD = 1e15;
@@ -135,7 +136,11 @@ function cycles(doc) {
   return out;
 }
 
-export function auditDoc(doc) {
+export function auditDoc(doc) { return runNow(auditSteps(doc)); }
+/** 0.11 PERF.9 (perf-finish-11): auditDoc in slices of about `budget` ms (slices.js); the same findings. */
+export function auditDocAsync(doc, { budget = 40 } = {}) { return runSliced(auditSteps(doc), { budget }); }
+function* auditSteps(doc) {
+  const tick = ticker(256);
   const findings = [], ctx = context(doc);
   let checked = 0;
   const push = (where, ref, list) => { for (const f of list) findings.push({ ...f, where, ...ref }); };
@@ -145,6 +150,7 @@ export function auditDoc(doc) {
     for (const [id, e] of sp.map) {
       checked++;
       push(sp.where, { id }, checkEntity(doc, e, ctx));
+      if (tick()) yield;
       if (!e || typeof e !== 'object') continue;
       if (typeof id === 'number' && id > maxId) maxId = id;
       if (e.id !== id) findings.push({ kind: 'ids', fix: 'reid', where: sp.where, id, detail: 'id ' + String(e.id) + ' kept as ' + String(id) });
@@ -156,7 +162,8 @@ export function auditDoc(doc) {
   }
   if (Number.isFinite(doc.nextId) && doc.nextId <= maxId) findings.push({ kind: 'ids', fix: 'table', where: 'table', detail: 'next id ' + doc.nextId + ' is not past ' + maxId, nextId: maxId + 1 });
   for (const b of doc.blocks.values()) {
-    (b.entities || []).forEach((e, index) => { checked++; push('block:' + b.name, { index }, checkEntity(doc, e, ctx)); });
+    const list = b.entities || [];
+    for (let index = 0; index < list.length; index++) { checked++; push('block:' + b.name, { index }, checkEntity(doc, list[index], ctx)); if (tick()) yield; }
   }
   for (const c of cycles(doc)) findings.push({ kind: 'cycle', fix: 'remove', where: 'block:' + c.block, index: c.index, detail: c.block + ' → ' + c.to });
   for (const l of doc.layers.values()) {
@@ -241,9 +248,12 @@ const MAX_ABOUT = 50;
  * The findings as shared Problems: one per kind, about up to 50 objects, with the fix { action: 'audit', args: { kind } }.
  * `skip(e)`: objects another source already reports (problems-cadcraft.js lists zero-length lines and zero-radius circles itself).
  */
-export function auditProblems(doc, { t = (k) => k, skip = null, words = null } = {}) {
+export function auditProblems(doc, opts = {}) { return problemsOf(doc, auditDoc(doc), opts); }
+/** 0.11 PERF.9: the same, with the audit run in slices (the shell's Problems source awaits its run). */
+export async function auditProblemsAsync(doc, opts = {}) { return problemsOf(doc, await auditDocAsync(doc), opts); }
+function problemsOf(doc, r, { t = (k) => k, skip = null, words = null } = {}) {
   const say = words || ((key, vars) => t(key, vars));
-  const r = auditDoc(doc), out = [];
+  const out = [];
   for (const kind of AUDIT_KINDS) {
     let list = r.findings.filter((f) => f.kind === kind);
     if (skip && kind === 'zero') list = list.filter((f) => { if (f.id === undefined || f.where.startsWith('block:')) return true; const map = f.where === 'model' ? doc.model : doc.layouts.find((l) => 'layout:' + l.name === f.where)?.entities; return !skip(map?.get(f.id)); });

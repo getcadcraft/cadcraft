@@ -2,7 +2,7 @@
 title: ສິ່ງໃໝ່ໃນ 0.7 (ລຸ້ນກ່ອນໜ້າ)
 summary: ພື້ນຮອງ PDF ແລະການນຳເຂົ້າ PDF, ແບບສະແກນພ້ອມການຕິດຕາມອັດຕະໂນມັດ, ເສັ້ນໂຄ້ງ spline ແທ້ດ້ວຍ SPLINE, SPLINEDIT ແລະ PEDIT, ຕົວຈັດການຮູບແບບຂະໜາດ, ຂໍ້ຄວາມທີ່ຮັກສາການຈັດຮູບແບບ, WBLOCK ແລະມາດຕາສ່ວນຂອງທ່ານເອງ, ວັດຖຸຂອງແຂງ 3D ຈາກໂປຣແກຣມອື່ນ, ການລົງທະບຽນແບບສະແກນ, ແຜງ Laser, ການສົ່ງອອກ USD, ປະຫວັດ ແລະການພິມໃນ CadCraft Studio, ການເລີ່ມຕົ້ນດ້ວຍແບບແຕ້ມທຳອິດທີ່ມີຄູ່ແນະນຳ, ແຖບເຄື່ອງມືຢູ່ດ້ານໃດກໍໄດ້ ຫຼືໃນແຖວໜ້ອຍລົງ, ແລະອື່ນໆສຳລັບຜູ້ຊ່ວຍ AI.
 keywords: ສິ່ງໃໝ່ 0.7, ລຸ້ນກ່ອນໜ້າ, ບັນທຶກການປ່ອຍລຸ້ນ, ບັນທຶກການປ່ຽນແປງ, ການປ່ຽນແປງ, 0.7, ເວີຊັນ, ຄຸນສົມບັດໃໝ່, pdf, pdfattach, pdfimport, underlay, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, ການຈັດຮູບແບບ, wblock, scalelistedit, ລາຍການມາດຕາສ່ວນ, acis, ຂອງແຂງ 3D, registerscans, ການລົງທະບຽນສະແກນ, icp, e57, las, laser, grbl, g-code, usd, usdout, history, versions, compare, print, printer, png, svg, ຮູບແບບການພິມ, linetype, tour, ແຜ່ນສະຫຼຸບ, ແຜນທີ່ຄຳສັ່ງ, ຕຳແໜ່ງແຖບເຄື່ອງມື, ແຖວແຖບເຄື່ອງມື, toolbardock, regen, regenall, trackpad, ປັດ, ໜ້າລະຫັດ, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, ໂຟນເດີສະໜັບສະໜູນ, ຜູ້ຊ່ວຍ, mcp, ໜ່ວຍ, ໂປຣຕຸເກດ
-from: d07ca034
+from: d9a8ea79
 ---
 
 ນີ້ແມ່ນສິ່ງທີ່ປ່ຽນແປງໃນ CadCraft 0.7, ເມື່ອທຽບກັບ 0.6. ຫຼາຍຢ່າງໃນນີ້ຖືກຮ້ອງຂໍໃນ Discord. ລາຍການຖືກຈັດກຸ່ມຕາມພື້ນທີ່, ໂດຍສິ່ງທີ່ສຳຄັນທີ່ສຸດຢູ່ກ່ອນ.

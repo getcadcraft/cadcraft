@@ -75,6 +75,7 @@ export async function activate(api) {
   const bytesOf = (v) => (v instanceof Uint8Array ? v : v instanceof ArrayBuffer ? new Uint8Array(v) : enc.encode(String(v ?? '')));
   const listeners = new Set();
   let changeTimer = null;
+  // i18n-ignore: log text for the developer console, never shown (words-11)
   const changed = () => { clearTimeout(changeTimer); changeTimer = setTimeout(() => { for (const fn of [...listeners]) { try { fn(); } catch (e) { api.log('listener failed', e); } } }, 60); };
 
   // ---------------------------------------------------------------- project
@@ -145,6 +146,7 @@ export async function activate(api) {
   const focus = (id) => { for (const [k, v] of tabs) { const on = k === id; v.tab.setAttribute('aria-selected', String(on)); v.body.hidden = !on; } api.storage.set('tab', id); };
   // the shared schematic engine (lib/schematic, synced into lib/schematic/ by tools/chip/sync.mjs) for the Netlist panel
   let schematic = null;
+  // i18n-ignore: log text for the developer console, never shown (words-11)
   try { schematic = await import(new URL('./lib/schematic/index.js', import.meta.url).href); } catch (e) { api.log('schematic engine not loaded', e); }
   // the cells of the project's Liberty files (HD.3 reader): names not to report as missing, and their pin directions for the netlist
   let cells = { names: [], lib: {} }, cellsKey = '';
@@ -165,6 +167,7 @@ export async function activate(api) {
             out.names.push(c.name); out.lib[c.name] = { pins };
           }
         }
+      // i18n-ignore: log text for the developer console, never shown (words-11)
       } catch (e) { api.log('liberty read failed', e); }
     }
     cells = out;
@@ -187,9 +190,15 @@ export async function activate(api) {
     },
   };
   // a module's mount(el, ctx) may return nothing, an off function, or { refresh(), destroy() }
+  // i18n-ignore: log text for the developer console, never shown (words-11)
   const end = (hd) => { try { if (typeof hd === 'function') hd(); else if (hd && typeof hd.destroy === 'function') hd.destroy(); } catch (e) { api.log('panel cleanup failed', e); } };
   const mountTab = (entry) => {
-    try { entry.handle = entry.mount(entry.body, ctx); } catch (e) { entry.body.textContent = t('chip.mountfailed', { why: String(e.message || e) }); api.log('panel failed', entry.id, e); }
+    // i18n-ignore: log text for the developer console, never shown (words-11)
+    try {
+      entry.handle = entry.mount(entry.body, ctx);
+      // an async mount (lib/chip/fmt/ui.js) hands its { refresh } back later: keep that, so file changes reach it too
+      if (entry.handle && typeof entry.handle.then === 'function') entry.handle.then((hd) => { entry.handle = hd; }, (e) => { entry.body.textContent = t('chip.mountfailed', { why: String(e.message || e) }); api.log('panel failed', entry.id, e); });
+    } catch (e) { entry.body.textContent = t('chip.mountfailed', { why: String(e.message || e) }); api.log('panel failed', entry.id, e); }
   };
   const addTab = (id, title, mount, { module = false } = {}) => {
     if (tabs.has(id)) id = id + '-' + tabs.size;
@@ -215,6 +224,7 @@ export async function activate(api) {
     const k = files.list().join('|');
     if (k === namesKey) return;
     namesKey = k;
+    // i18n-ignore: log text for the developer console, never shown (words-11)
     for (const e of tabs.values()) if (e.module && e.handle && typeof e.handle.refresh === 'function') { try { e.handle.refresh(); } catch (err) { api.log('refresh failed', err); } }
   });
 
@@ -232,6 +242,7 @@ export async function activate(api) {
       for (const p of list || []) if (p && typeof p.mount === 'function') addTab(String(p.id || 'panel').replace(/[^a-z0-9-]/gi, '-'), String(p.title || p.id), p.mount, { module: !/\/run\//.test(m) });
       if (m.endsWith('/hdl/ui-source.js')) sourceMod = mod;
       mounted.push(m);
+    // i18n-ignore: log text for the developer console, never shown (words-11)
     } catch (e) { api.log('module failed', m, e); say.textContent = t('chip.modfailed', { mod: m }); }
   }
   root.setAttribute('data-chip-modules', mounted.join(' '));

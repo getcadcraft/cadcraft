@@ -31,6 +31,7 @@
  *   dwgGeoObjects(geo, units) → { record, blockRecord, objects } | null   (the model space record and its objects)
  */
 
+import { escXml as xmlEsc } from './util.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 export const GEO_BLOCK = 'CADCRAFT_GEO';
 export const isGeoBlock = (name) => String(name || '').toUpperCase() === GEO_BLOCK;
 const PAYLOAD = 'cadcraft-geo';
@@ -132,7 +133,6 @@ export function geoFromPayload(ents) {
 }
 
 // ---------------------------------------------------------------- the coordinate-system definition
-const xmlEsc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 /** CS-MAP's unit names (FOOT is the US survey foot, IFOOT the international one). */
 const UOM = { m: 'METER', ft: 'IFOOT', ftUS: 'FOOT' };
 /**

@@ -17,10 +17,10 @@
     "problems",
     "engine.run"
   ],
-  "description": "Chip design from Verilog to layout, kept as a project with each run's tool versions and hashes. Studio runs tools you install yourself (Icarus Verilog, Yosys; not run by us yet: Verilator, OpenROAD, KLayout, Netgen), GPL ones as separate programs; nothing is bundled. Core Apache-2.0. For learning and open-silicon flows, not a signed-off tape-out system; we ship no PDK and make no foundry claims.",
+  "description": "Chip design from Verilog to layout, kept as a project with each run's tool versions and hashes. Studio runs tools you install yourself (Icarus Verilog, Verilator, Yosys, OpenROAD, KLayout, Magic, Netgen: all run by us on the sample chip), GPL ones as separate programs; nothing is bundled. Core Apache-2.0. For learning and open-silicon flows, not tape-out sign-off; no PDK or foundry claims.",
   "author": "CadCraft",
   "lang": "./lang/",
   "help": "./help/help.js",
   "default": "off",
-  "honesty": "For learning and open-silicon flows, not a signed-off tape-out system. We ship no PDK and make no foundry claims. Run by us on the sample design: Icarus Verilog 11, Yosys 0.9. Not run by us yet: Verilator, OpenROAD, KLayout, Netgen."
+  "honesty": "For learning and open-silicon flows, not a signed-off tape-out system. We ship no PDK and make no foundry claims. Run by us on the sample design: Icarus Verilog 11 and 13, Verilator 5.054, Yosys 0.9 and 0.71, OpenSTA, OpenROAD 2.0, KLayout 0.28.16, Magic 8.3, Netgen 1.5.272 (SkyWater 130 for place and route and the checks)."
 }

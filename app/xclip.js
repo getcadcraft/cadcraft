@@ -13,19 +13,13 @@
  *   installXclip(def, opt)      XCLIP (XC): New boundary (Rectangular / Polygonal), Delete — one undo step
  */
 import { t } from './i18n.js';
+import { pointInPolygon as pip2d } from './geom2d.js';   // 0.11 PERF.74: one copy of the ray cast (lib/geom2d)
 import { insertMatrix, mApply, TAU, prims, entityBounds, validBounds } from './geom.js';
 
 const EPS = 1e-12;
 
 /** Even–odd point in polygon. */
-export function insidePoly(p, poly) {
-  let c = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const a = poly[i], b = poly[j];
-    if ((a.y > p.y) !== (b.y > p.y) && p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x) c = !c;
-  }
-  return c;
-}
+export function insidePoly(p, poly) { return pip2d(p.x, p.y, poly); }
 
 /** Where segment a→b crosses the polygon's edges: parameters t in (0, 1). */
 function segCrossings(a, b, poly) {

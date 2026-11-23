@@ -115,6 +115,7 @@ $__more = [
         ['POINT', Lang::t('toolbar.point'), 'PO'],
         ['GRADIENT', Lang::t('toolbar.gradient'), 'GD'],   // ORS.7 (hatch-extras-cmd.js)
         ['ARC 3P', Lang::t('toolbar.arc.3p'), 'A 3P'],
+        // i18n-ignore-start: command names the toolbar runs, not words (words-11)
         ['ARC SCE', Lang::t('toolbar.arc.sce'), 'A SCE'],
         ['ARC SCA', Lang::t('toolbar.arc.sca'), 'A SCA'],
         ['ARC SCL', Lang::t('toolbar.arc.scl'), 'A SCL'],
@@ -125,6 +126,7 @@ $__more = [
         ['ARC CSA', Lang::t('toolbar.arc.csa'), 'A CSA'],
         ['ARC CSL', Lang::t('toolbar.arc.csl'), 'A CSL'],
         ['ARC CON', Lang::t('toolbar.arc.con'), 'A CON'],
+        // i18n-ignore-end
         ['CIRCLE T', Lang::t('toolbar.circle.ttr'), 'C T'],   // 0.5 DR.1
         ['CIRCLE TTT', Lang::t('toolbar.circle.ttt'), 'C TTT'],   // 0.5 DR.2
         ['XLINE', Lang::t('toolbar.xline'), 'XL'],
@@ -223,6 +225,7 @@ $__more = [
         ['SPLIT SI', Lang::t('toolbar.split.1'), 'SPLIT'],
         // a turned view (0.5 DR.8): UCS Z ∓90, which turns the view with it (as UCSFOLLOW 1); nothing in the drawing moves
         ['UCS', Lang::t('toolbar.ucs'), 'UCS'],   // 0.9 D9.5: the UCS commands were only on the command line
+        // i18n-ignore: command name (words-11)
         ['UCS OB', Lang::t('toolbar.ucs.object'), 'UCS'],
         ['UCS W', Lang::t('toolbar.ucs.world'), 'UCS'],
         ['TURNLEFT', Lang::t('toolbar.turn.left'), 'TURNLEFT'],
@@ -309,6 +312,7 @@ $__l = static fn (string $path): string => '<path d="' . $path . '" stroke-width
 $__arc = '<path d="M3 17A14 14 0 0 1 17 3" stroke-width="1.8"/>';
 $__splitIcons = [
     'ARC 3P'  => $__ico($__arc . $__d(3, 17) . $__d(12.9, 12.9) . $__d(17, 3)),
+        // i18n-ignore-start: command names the toolbar runs, not words (words-11)
     'ARC SCE' => $__ico($__arc . $__l('M3 3V17M3 3H17') . $__d(3, 17, 2.2) . $__d(3, 3) . $__d(17, 3)),
     'ARC SCA' => $__ico($__arc . $__l('M3 3V17') . '<path d="M3 8A5 5 0 0 0 8 3" stroke-width="1"/>' . $__d(3, 17, 2.2) . $__d(3, 3)),
     'ARC SCL' => $__ico($__arc . $__l('M3 3V17M3 17L17 3') . $__d(3, 17, 2.2) . $__d(3, 3)),
@@ -319,13 +323,16 @@ $__splitIcons = [
     'ARC CSA' => $__ico($__arc . $__l('M3 3V17') . '<path d="M3 8A5 5 0 0 0 8 3" stroke-width="1"/>' . $__d(3, 3, 2.2) . $__d(3, 17)),
     'ARC CSL' => $__ico($__arc . $__l('M3 3V17M3 17L17 3') . $__d(3, 3, 2.2) . $__d(3, 17)),
     'ARC CON' => $__ico('<path d="M3 19.5V17" stroke-width="1.8"/>' . $__arc . $__d(3, 17, 2)),
+        // i18n-ignore-end
     'CIRCLE T'   => $__ico('<circle cx="10" cy="10" r="5" stroke-width="1.8"/><path d="M1 5H19M5 1V19" stroke-width="1"/>'),
     'CIRCLE TTT' => $__ico('<path d="M10 1.5L18.5 17H1.5Z" stroke-width="1"/><circle cx="10" cy="12" r="4.4" stroke-width="1.8"/>'),
 ];
 // 0.9.1 (FX.155): the toolbar's Arc and Circle buttons each carry a drop-down of their ways to draw (they sat only under Draw › More)
 $__splits = ['Draw' => ['ARC' => [], 'CIRCLE' => []]]; $__inSplit = ['Draw' => []];   // i18n-ignore: group id
+// i18n-ignore: array key naming the Draw group, not shown (words-11)
 foreach ($__more['Draw'] as $__m) {
     $__w = explode(' ', $__m[0], 2)[0];
+    // i18n-ignore: array key naming the Draw group, not shown (words-11)
     if (isset($__splits['Draw'][$__w]) && str_contains($__m[0], ' ')) { $__splits['Draw'][$__w][] = $__m; $__inSplit['Draw'][$__m[0]] = true; }
 }
 

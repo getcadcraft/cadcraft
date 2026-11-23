@@ -2,7 +2,7 @@
 title: What's new in 0.7 (earlier)
 summary: PDF underlays and PDF import, scanned drawings with an automatic trace, real splines with SPLINE, SPLINEDIT and PEDIT, a dimension style manager, text that keeps its formatting, WBLOCK and your own scales, 3D solids from other programs, registering scans, a Laser panel, USD export, History and printing in CadCraft Studio, a guided first drawing, the toolbar on any side or in fewer rows, and more for AI assistants.
 section: start
-order: 6
+order: 7
 keywords: whats new 0.7, earlier release, release notes, changelog, changes, 0.7, version, new features, pdf, pdfattach, pdfimport, underlay, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatting, wblock, scalelistedit, scale list, acis, 3d solids, registerscans, register scans, icp, e57, las, laser, grbl, g-code, usd, usdout, history, versions, compare, print, printer, png, svg, plot style, linetype, tour, cheat sheet, command map, toolbar position, toolbar rows, toolbardock, regen, regenall, trackpad, swipe, code page, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, support folder, assistants, mcp, units, portuguese
 ---
 

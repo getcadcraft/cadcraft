@@ -1,70 +1,70 @@
 ---
-title: Šrafura i ispuna površina
-summary: Ispuni površinu punom bojom ili standardnim uzorkom klikom unutar nje ili odabirom zatvorenih oblika, podesi razmjeru i ugao uzorka i kasnije promijeni šrafuru.
-keywords: šrafura, bhatch, ispuna, puna ispuna, uzorak, ansi31, ansi37, cigla, zemlja, mreža, linije presjeka, presjek zida, otok, granica, razmjera, ugao
-from: 14399174
+title: Šrafura i područja ispune
+summary: Ispunite područje punom bojom ili standardnim uzorkom klikom unutra ili biranjem zatvorenih oblika, podesite razmjeru i ugao uzorka i kasnije promijenite šrafuru.
+keywords: šrafura, bhatch, ispuna, puna ispuna, uzorak, ansi31, ansi37, cigla, zemlja, mreža, linije presjeka, poché, ostrvo, granica, razmjera, ugao
+from: e7feb344
 ---
 
 ## Šta ćete napraviti
 
-Presjek zida ispunjen uzorkom ANSI31, kolona u njemu ostavljena prazna i puna ispuna u koloni.
+Presjek zida ispunjen uzorkom ANSI31, kolona u njemu ostavljena prazna, i puna ispuna u koloni.
 
-## Šrafura klikom unutar površine
+## Šrafura klikom unutar područja
 
-1. Nacrtaj pravougaonik (`REC`, `0,0`, `@2000,1200`) i krug unutar njega (`C`, `1000,600`, `300`). Klikni {{ui:Granice}}.
-2. Klikni {{ui:Šrafura}} u grupi {{ui:Crtanje}} ili otkucaj `H` i pritisni {{key:Enter}}. Historija pokazuje koji je uzorak trenutni, na primjer `Trenutna šrafura: ANSI31, razmjera 1, ugao 0°`.
-3. Otkucaj `P` i pritisni {{key:Enter}}, otkucaj `ANSI31` i pritisni {{key:Enter}}.
-4. Otkucaj `SC` i pritisni {{key:Enter}}, otkucaj `20` i pritisni {{key:Enter}}. Veličine uzorka su na papiru, pa crtež ispisan u razmjeri 1:20 treba razmjeru 20.
-5. Kod `Zadaj unutrašnju tačku` klikni unutar pravougaonika, van kruga. Šrafura se prikazuje kao pregled.
-6. Pritisni {{key:Enter}}. Pravougaonik je našrafiran; krug unutar njega ostaje prazan, jer je otok.
+1. Nacrtajte pravougaonik (`REC`, `0,0`, `@2000,1200`) i krug unutar njega (`C`, `1000,600`, `300`). Kliknite {{ui:Granice}}.
+2. Kliknite {{ui:Šrafura}} u grupi {{ui:Crtanje}}, ili ukucajte `H` i pritisnite {{key:Enter}}. Historija kaže koji je uzorak tekući, na primjer `Current hatch: ANSI31, scale 1, angle 0°`.
+3. Ukucajte `P` i pritisnite {{key:Enter}}, ukucajte `ANSI31` i pritisnite {{key:Enter}}.
+4. Ukucajte `SC` i pritisnite {{key:Enter}}, ukucajte `20` i pritisnite {{key:Enter}}. Veličine uzoraka su na papiru, pa crtež odštampan u 1:20 traži razmjeru 20.
+5. Kod `Pick internal point`, kliknite unutar pravougaonika, van kruga. Šrafura se prikazuje kao pregled.
+6. Pritisnite {{key:Enter}}. Pravougaonik je našrafiran; krug unutra ostaje prazan, jer je ostrvo.
 
-Klikni unutar više površina prije pritiska na {{key:Enter}} da ih napraviš jednom šrafurom. `U` poništava posljednju površinu.
+Kliknite unutar nekoliko područja prije nego što pritisnete {{key:Enter}} da ih napravite u jednu šrafuru. `U` poništava posljednje područje.
 
 ## Puna ispuna
 
-1. Otkucaj `H` i pritisni {{key:Enter}}.
-2. Otkucaj `P`, pritisni {{key:Enter}}, otkucaj `SOLID` i pritisni {{key:Enter}}.
-3. Klikni unutar kruga, pa pritisni {{key:Enter}}.
+1. Ukucajte `H` i pritisnite {{key:Enter}}.
+2. Ukucajte `P`, pritisnite {{key:Enter}}, ukucajte `SOLID` i pritisnite {{key:Enter}}.
+3. Kliknite unutar kruga, zatim pritisnite {{key:Enter}}.
 
-## Šrafura odabranih zatvorenih oblika
+## Šrafura zatvorenih oblika koje izaberete
 
-Umjesto klikanja unutar, otkucaj `S` (Odaberi objekte) kod `Zadaj unutrašnju tačku` i odaberi zatvorene polilinije, krugove ili zatvorene elipse, pa pritisni {{key:Enter}}. Oblici unutar drugih ostaju redom prazni (vanjski se šrafira, sljedeći unutra ostaje prazan, i tako dalje).
+Umjesto klikanja unutra, ukucajte `S` (Odaberi objekte) kod `Pick internal point`, odaberite zatvorene polilinije, krugove ili zatvorene elipse, i pritisnite {{key:Enter}}. Oblici unutar drugih ostaju prazni redom (spoljašnji je našrafiran, sljedeći unutra prazan, i tako dalje).
 
 ## Uzorci
 
-Otkucaj `?` na pitanje o uzorku za spisak. Standardni su ANSI31 do ANSI38, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS i EARTH, te SOLID. U crtežu u inčima (ili sa stopama i inčima kao formatom dužine) koriste se veličine uzoraka u inčima, kao u AutoCAD-u; inače milimetarske.
+Ukucajte `?` na pitanje o uzorku za spisak. Standardni su ANSI31 do ANSI38, LINE, NET, NET3, DASH, SQUARE, BRICK, DOTS, EARTH i SOLID. U crtežu u inčima (ili sa stopama i inčima kao formatom dužine) koriste se inčne veličine uzoraka, kao u AutoCAD-u; inače milimetarske.
 
-{{ui:Ugao}} (`A`) okreće cijeli uzorak: ANSI31 pod 90° se kosi na drugu stranu.
+{{ui:Ugao}} (`A`) okreće cijeli uzorak: ANSI31 pod 90° kosi se u drugom smjeru.
 
-**Datoteke uzoraka.** Otkucaj `F` (Datoteka uzorka) kod `Zadaj unutrašnju tačku` i odaberi `.pat` datoteku. Uzorci iz nje se pridružuju spisku; ako ih ima više, pitaće te koji da koristiš. Datoteka bez uzorka koje CadCraft može pročitati to javlja, a svaki preskočeni uzorak se broji. Veličine u `.pat` datoteci nemaju vlastitu jedinicu, pa se čitaju u jedinicama crteža. Isprobane su samo datoteke napisane u uobičajenom `.pat` formatu; nijedna napravljena drugim programom.
+**Datoteke uzoraka.** Ukucajte `F` (Datoteka uzorka) kod `Pick internal point` i izaberite `.pat` datoteku. Uzorci iz nje ulaze u spisak; kad ih ima više, pita se koji da se koristi. Datoteka bez uzorka koji CadCraft može pročitati to javlja, a svaki preskočeni uzorak se broji. Veličine u `.pat` datoteci nemaju vlastitu jedinicu, pa se čitaju u jedinicama crteža. Isprobane su samo datoteke napisane u uobičajenom `.pat` formatu; nijedna napravljena drugim programom.
 
 ## Promjena šrafure
 
-Odaberi je (klikni jednu od njenih linija). U {{ui:Svojstva}}: {{ui:Uzorak}}, {{ui:Razmjera uzorka}} i {{ui:Ugao uzorka}}. Šrafure iz otvorenih crteža prikazuju svoj uzorak kada je jedan od standardnih; ostale se prikazuju kao svijetli ton njihove boje.
+Odaberite je (kliknite jednu od njenih linija). U {{ui:Svojstva}}: {{ui:Uzorak}}, {{ui:Razmjera uzorka}} i {{ui:Ugao uzorka}}. Šrafure iz otvorenih crteža pokazuju svoj uzorak kad je jedan od standardnih; ostale se prikazuju kao svijetao ton njihove boje.
 
 ## Česte greške
 
-- **"Nema zatvorene granice oko te tačke."** Postoji prekid u konturi ili je dio van ekrana: CadCraft gleda samo ono što je na ekranu. Zatvori prazninu (zumiraj na uglove) ili odzumiraj.
-- **"Uzorak je previše gust za crtanje u ovoj razmjeri."** Linije bi bile bliže nego što crtež može prikazati. Koristi veću razmjeru: pokušaj razmjeru ispisa (20 za 1:20).
-- **Uzorak izgleda ogromno ili sitno.** Razmjera je u jedinicama crteža po jedinici uzorka; vidi korak 4 iznad.
-- **Pomjeranje konture ne pomjera šrafuru.** Šrafura nije vezana za svoju granicu. Pomjeri oba ili našrafiraj ponovo.
+- **Nema zatvorene granice oko te tačke.** U obrisu postoji prekid, ili je dio van ekrana: CadCraft gleda samo ono što je na ekranu. Zatvorite prekid (uvećajte uglove), ili umanjite prikaz.
+- **Uzorak je pregust za crtanje u ovoj razmjeri.** Linije bi bile bliže nego što crtež može prikazati. Koristite veću razmjeru: pokušajte razmjeru štampe (20 za 1:20).
+- **Uzorak izgleda ogroman ili sitan.** Razmjera je u jedinicama crteža po jedinici uzorka; vidi korak 4 iznad.
+- **Šrafura je prestala da prati svoj obris.** Šrafura napravljena pomoću {{cmd:HATCH}} ostaje uz objekte od kojih je napravljena: pomjerite, okrenite ili skalirajte obris i šrafura ide s njim; preoblikujte je hvataljkom i šrafura se ponovo izračunava. Veza prestaje kad obris više nije zatvoren, kad ručno preoblikujete samu šrafuru, ili kad je skratite, a naredbena linija to kaže. Ništa se ne gubi: ponovo našrafirajte područje da ga ponovo povežete.
 
-## Šrafura koja ostaje povezana sa granicom
+## Šrafura koja ostaje uz svoju granicu
 
-Šrafura koju napraviš sa `HATCH` pamti šta je ograničava. Pomjeri, okreni ili skaliraj granicu, pa se šrafura i njen uzorak pomjeraju s njom. Povuci hvatište da preoblikuješ granicu i šrafura se ponovo izračunava. Pomjeri samo šrafuru i njena granica ide s njom, kao ispunjen oblik u programu za crtanje.
+Šrafura koju napravite sa `HATCH` pamti šta je ograničava. Pomjerite, okrenite ili skalirajte granicu i šrafura i njen uzorak idu s njom. Prevucite hvataljku da preoblikujete granicu i šrafura se ponovo izračunava. Pomjerite samo šrafuru i njena granica ide za njom, kao popunjen oblik u programu za crtanje.
 
-Veza prestaje, i komandna linija to kaže, ako granica više ne zatvara oblik ili preoblikuješ šrafuru ručno. Sama šrafura ostaje. Otkucaj `AS` dok šrafuriš da napraviš šrafure koje stoje samostalno. Kopiraj šrafuru sa granicom i kopija ima svoju vezu.
+Veza prestaje, i naredbena linija to kaže, ako granica više nije zatvorena ili preoblikujete šrafuru ručno. Sama šrafura ostaje. Ukucajte `AS` dok šrafirate da napravite šrafure koje stoje samostalno. Kopirajte šrafuru zajedno s njenom granicom i kopija ima svoju vezu.
 
-`HATCHEDIT` (`HE`) mijenja uzorak, razmjeru, ugao i početnu tačku šrafure, te je povezuje sa granicom ili prekida vezu. Veza se čuva u DWG i DXF 2000 datotekama. DXF R12 datoteka nema objekt šrafure, a veze napravljene u drugim programima se ne čitaju: za njih koristi `HATCHEDIT` i Poveži.
+`HATCHEDIT` (`HE`) mijenja uzorak, razmjeru, ugao i početak šrafure, i povezuje je s granicom ili prekida vezu. Veza se čuva u DWG i DXF 2000 datotekama. DXF R12 datoteka nema objekat šrafure, a veze napravljene u drugim programima se ne čitaju: za njih koristite `HATCHEDIT` i Poveži.
 
-Šrafura koja više nema granicu (granica je obrisana ili je datoteka stigla bez nje) može je vratiti: `HATCHGENERATEBOUNDARY` (`HGB`) crta zatvorenu poliliniju oko svake petlje šrafure i, ako odgovoriš Da, povezuje šrafuru s njima.
+Šrafura koja nema granicu (granica je obrisana, ili je datoteka došla bez nje) može je dobiti nazad: `HATCHGENERATEBOUNDARY` (`HGB`) crta zatvorenu polilinju oko svake petlje šrafure i, ako odgovorite Da, povezuje šrafuru s njima.
 
-## Ispuna gradijentom
+## Gradijentna ispuna
 
-`GRADIENT` (`GD`) ispunjava površinu gradijentom umjesto uzorkom: iste odabire kao `HATCH`, nakon čega pita vrstu (linearni, cilindrični, sferni, polusferni, zakrivljeni, i svaki od tih obrnut), jednu boju sa nijansom ili dvije boje, ugao i da li je centriran. U `HATCH`-u opcija `G` radi isto. `HATCHEDIT` `G`, ili {{ui:Svojstva}} pod Gradijent, mijenja gradijent ili pretvara bilo koju šrafuru u gradijent.
+`GRADIENT` (`GD`) ispunjava područje gradijentom umjesto uzorka: isti izbori kao `HATCH`, nakon što pita vrstu (linearni, cilindrični, sferni, hemisferni, zakrivljeni, i svaki od njih obrnut), jednu boju sa nijansom ili dvije boje, ugao i centriranje ili ne. U `HATCH` opcija `G` radi isto. `HATCHEDIT` `G`, ili {{ui:Svojstva}} pod Gradijent, mijenja gradijent ili pretvara bilo koju šrafuru u njega.
 
-Gradijent se prikazuje na ekranu i u ispisima. Sačuvaj kao DWG 2004 ili noviji i drugi programi dobiju pravu šrafuru gradijenta. DXF 2000 i DWG 2000 nemaju gradijent: tu ga CadCraft čuva samo za sebe, a drugi programi vide punu ispunu prvom bojom.
+Gradijent se prikazuje na ekranu i u štampi. Spasite kao DWG 2004 ili kasnije i drugi programi dobijaju pravu gradijent šrafuru. DXF 2000 i DWG 2000 nemaju gradijent: tu ga CadCraft čuva za sebe, a drugi programi vide punu ispunu prvom bojom.
 
-## Podrezivanje šrafure
+## Obrezivanje šrafure
 
-`TRIM` reže šrafuru kao i svaki drugi objekat. Klikni šrafuru na strani rezne ivice koju želiš ukloniti: ivice dijele našrafiranu površinu i taj dio se uklanja. U brzom režimu svaki objekat je rezna ivica; odaberi ivice prvo (opcija `T`) kada ih ima mnogo. Podrezana šrafura više nije povezana sa granicom, jer više ne ispunjava nju.
+`TRIM` seče šrafuru kao svaki drugi objekat. Kliknite šrafuru sa strane rubne linije koju želite ukloniti: rubovi dijele ispunjeno područje i taj dio se uklanja. U režimu Quick svaki objekat je rubna linija; izaberite rubove prvo (opcija `T`) kad ih ima mnogo. Obrezana šrafura više nije povezana sa svojom granicom, jer je više ne ispunjava.

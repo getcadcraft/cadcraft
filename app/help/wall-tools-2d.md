@@ -46,7 +46,7 @@ Each one makes the walls in one undo step, with the corners joined. In `WALL`, `
 
 - `WALLRECT` (`WR`): two opposite corners, like `RECTANG`.
 - `WALLROT`: the first side, then how far out the other side goes, for a rectangle at any angle.
-- `WALLPOLY` (`WP`): the number of sides (3 to 64), the centre, `I` for inscribed or `C` for circumscribed, then the radius, like `POLYGON`.
+- `WALLPOLY` (`WP`): the number of sides (3 to 64), the centre, `I` for inscribed or `C` for circumscribed, then the radius, like `POLYGON`: click it, or type it (a typed radius runs toward the pointer, or along X when the pointer is still on the centre).
 - `WALLARC` (`WARC`): centre, start, end. `D` turns the arc the other way.
 - `WALLTAN`: click near the end of a wall, then the end of the arc, which leaves along that wall.
 - `WALLPICK`: click a line or polyline and say whether to take the lines joined to it as well.
@@ -63,10 +63,21 @@ Plan walls are straight, so an arc is drawn as short straight walls of 15 degree
 
 ## Move walls by distance
 
-- `WALLDIM`: click a linear or aligned dimension that runs from one wall to another, then type the new value. The wall at the far end moves square to itself, the wall at the first end holds, and the walls joined to it follow.
+- `WALLDIM` ({{ui:Edit by dimension}}): click a linear or aligned dimension that runs from one wall to another, then type the new value. The wall at the far end moves square to itself, the wall at the first end holds, and the walls joined to it follow. The dimension's far point moves with its wall, so the dimension shows the value you typed.
 - `WALLOFFSET` (`WO`): click a wall, then the side to move it to (`D` types a distance, `C` makes a copy instead).
 - `WALLSTRETCH`: a window round the wall ends, then a base point and a second point.
 - In Properties, a typed {{ui:Length}} keeps the start and takes the wall joined at the far end with it, and a new {{ui:Thickness}} grows away from the {{ui:Location line}} you chose (the left face, the right face or the centre).
+
+## Dimension between wall centre lines
+
+A wall's centre line is not drawn, but object snap finds it. With object snap on ({{key:F3}}), move the pointer over the middle of a wall's thickness: the marker reads `Wall center: endpoint` or `Wall center: midpoint`, and the centre line shows as a dashed line while the marker is on it. With {{ui:Perpendicular}} or {{ui:Nearest}} switched on in the object snap list, those work on the centre line too.
+
+1. Start `DIMLINEAR` (or `DIMALIGNED`).
+2. Click the first wall where the marker reads `Wall center: midpoint` or `Wall center: endpoint`.
+3. Click the second wall the same way, then click where the dimension line goes.
+4. To change the distance, start `WALLDIM`, click the dimension and type the new value. The second wall moves.
+
+The centre-line snap works in every command that asks for a point.
 
 ## Lock walls
 

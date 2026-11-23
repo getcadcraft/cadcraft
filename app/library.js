@@ -95,6 +95,24 @@ export class LibraryClient {
     return Array.isArray(d.results) ? d.results : [];
   }
 
+  /** PO.3 My objects: the person's own private objects (Bearer). → { items[], page, per, total, limit } */
+  async myItems({ q = '', category = '', page = 1, per = 48 } = {}) {
+    const p = new URLSearchParams();
+    for (const [k, v] of Object.entries({ q, category })) if (v) p.set(k, v);
+    p.set('page', String(page)); p.set('per', String(per));
+    const d = await this.call('/my-items?' + p, { auth: true });
+    return { items: Array.isArray(d.items) ? d.items.filter((x) => x && isUuid(x.uuid)) : [], page: +d.page || 1, per: +d.per || per, total: +d.total || 0, limit: +d.limit || 0 };
+  }
+  /** Keep an item read from a file as a private object. → { uuid, version, message } */
+  async keepMine(item, sourceName = '') {
+    return this.call('/my-items', { method: 'POST', body: { item, source_name: String(sourceName).slice(0, 160) }, auth: true });
+  }
+  /** Take one of their private objects out of My objects. */
+  async removeMine(uuid) {
+    if (!isUuid(uuid)) throw new Error(t('lib.not_library_item_id'));
+    return this.call('/my-items?uuid=' + uuid, { method: 'DELETE', auth: true });
+  }
+
   /** §6.5 a use, when signed in (Bearer). */
   async registerUse({ uuid, version, app = 'cadcraft', file_label = '' }) {
     if (!this.token) return null;

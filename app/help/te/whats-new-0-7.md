@@ -2,7 +2,7 @@
 title: 0.7 లో కొత్తగా ఏముంది (ముందటిది)
 summary: PDF అండర్‌లేలు మరియు PDF దిగుమతి, ఆటోమేటిక్ ట్రేస్‌తో స్కాన్ చేసిన డ్రాయింగ్‌లు, SPLINE తో నిజమైన స్ప్లైన్‌లు, SPLINEDIT మరియు PEDIT, డైమెన్షన్ స్టైల్ మేనేజర్, తన ఫార్మాటింగ్‌ను ఉంచే టెక్స్ట్, WBLOCK మరియు మీ సొంత స్కేల్‌లు, ఇతర ప్రోగ్రామ్‌ల నుండి 3D సాలిడ్‌లు, స్కాన్‌లను రిజిస్టర్ చేయడం, లేజర్ ప్యానెల్, USD ఎగుమతి, CadCraft Studio లో History మరియు ప్రింటింగ్, గైడెడ్ మొదటి డ్రాయింగ్, ఏ వైపైనా లేదా తక్కువ వరుసలలో టూల్‌బార్, మరియు AI సహాయకుల కోసం మరిన్ని.
 keywords: 0.7 కు కొత్తది, ముందటి విడుదల, విడుదల నోట్స్, మార్పులు, చేంజ్‌లాగ్, 0.7, వెర్షన్, కొత్త ఫీచర్లు, pdf, pdfattach, pdfimport, underlay, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, ఫార్మాటింగ్, wblock, scalelistedit, స్కేల్ జాబితా, acis, 3d solids, registerscans, స్కాన్‌లను రిజిస్టర్ చేయి, icp, e57, las, లేజర్, grbl, g-code, usd, usdout, history, వెర్షన్లు, compare, ప్రింట్, ప్రింటర్, png, svg, ప్లాట్ స్టైల్, linetype, tour, చీట్ షీట్, కమాండ్ మ్యాప్, టూల్‌బార్ స్థానం, టూల్‌బార్ వరుసలు, toolbardock, regen, regenall, trackpad, swipe, code page, cyrillic, korean, chinese, japanese, electrical, rcd, p&id, pid, acad.lsp, acaddoc.lsp, support folder, సహాయకులు, mcp, యూనిట్లు, portuguese
-from: d07ca034
+from: d9a8ea79
 ---
 
 ఇది CadCraft 0.6 తో పోలిస్తే 0.7 లో మారినది. దీనిలో చాలా భాగం Discord లో అడిగినది. జాబితా ప్రాంతాల వారీగా అమర్చబడింది, ముఖ్యమైనది ముందు ఉంటుంది.

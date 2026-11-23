@@ -1,32 +1,36 @@
 ---
 title: Mit dem Stift skizzieren und präzise Geometrie erhalten
-summary: Zeichnen Sie mit Stift, Maus oder Finger freihand. Beim Absetzen des Stifts wird jeder Strich zu einer sauberen Linie, einem Kreis, Bogen, Rechteck oder einer Polylinie, am bereits Gezeichneten eingefangen, mit seiner Größe zum Überschreiben bereit.
-keywords: skizzieren, Stift, Eingabestift, Freihand, Finger, aufräumen, präzise, Fang, SKETCHLIVE, SKETCHFIX, Größe, überschreiben
-from: cd87eb75
+summary: Mit Stift, Maus oder Finger frei zeichnen, und jeder Strich wird beim Abheben des Stifts zu einer sauberen Linie, einem Kreis, Bogen, Rechteck oder einer Polylinie, am bereits Gezeichneten gefangen, mit seiner Größe bereit zum Überschreiben.
+keywords: skizzieren, Stift, Eingabestift, Freihand, Finger, aufräumen, präzise, fangen, SKETCHLIVE, SKETCHFIX, Größe, überschreiben, Druck, Linienstärke, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Starten Sie {{cmd:SKETCHLIVE}} (oder wählen Sie **Zeichnen › Mehr › Mit dem Stift skizzieren**) und zeichnen Sie einen Strich, indem Sie den Stift drücken und ziehen. Wenn Sie den Stift absetzen, erkennt CadCraft, was Sie gemeint haben, und fügt es in die Zeichnung ein:
+Starten Sie {{cmd:SKETCHLIVE}} (oder wählen Sie **Zeichnen › Mehr › Mit dem Stift skizzieren**) und zeichnen Sie einen Strich, indem Sie drücken und ziehen. Wenn Sie den Stift abheben, liest CadCraft, was Sie meinten, und setzt es in die Zeichnung:
 
 | Ihr Strich | Was Sie erhalten |
 |---|---|
-| Fast gerade | Eine Linie. Eine nahezu waagerechte oder senkrechte Linie wird genau waagerecht bzw. senkrecht ausgerichtet. |
+| Fast gerade | Eine Linie. Eine fast waagrechte oder senkrechte Linie wird genau waagrecht oder senkrecht gemacht. |
 | Geschlossen und rund | Ein Kreis |
 | Teil einer runden Form | Ein Bogen |
 | Geschlossen mit vier rechtwinkligen Ecken | Ein Rechteck |
 | Alles andere | Eine Polylinie mit rechtwinkligen Seiten |
 
-Die Enden eines Strichs werden an das nächstgelegene Ende des bereits Gezeichneten herangezogen, sodass eine skizzierte Wand an die daneben liegende Wand anschließt.
+Die Enden eines Strichs werden an das nächste Ende dessen gezogen, was bereits gezeichnet ist, sodass eine skizzierte Wand an die Wand daneben anschließt.
 
-## Größe überschreiben
+## Die Größe überschreiben
 
-Nach jedem Strich zeigt die Befehlszeile dessen Größe als Vorgabe an (die **Länge** einer Linie, den **Radius** eines Kreises oder Bogens, die **Breite** eines Rechtecks). Drücken Sie {{key:Enter}}, um sie beizubehalten, oder geben Sie eine Zahl oder eine Länge wie `12'6"` ein, um sie zu ersetzen. Eine Linie behält ihren ersten Endpunkt, ein Kreis seinen Mittelpunkt, ein Rechteck seine erste Ecke.
+Nach jedem Strich zeigt die Befehlszeile seine Größe (die **Länge** einer Linie, den **Radius** eines Kreises oder Bogens, die **Breite** eines Rechtecks) als Vorgabe. Drücken Sie {{key:Enter}}, um sie zu behalten, oder geben Sie eine Zahl oder eine Länge wie `12'6"` ein, um sie zu ersetzen. Eine Linie behält ihr erstes Ende, ein Kreis seinen Mittelpunkt, ein Rechteck seine erste Ecke.
 
-Drücken Sie {{key:Enter}} an einer leeren Eingabeaufforderung, um abzuschließen, oder geben Sie `U` ein, um den letzten Strich zurückzunehmen. Die gesamte Sitzung ist ein einziger Schritt für Rückgängig.
+Drücken Sie {{key:Enter}} bei einer leeren Eingabeaufforderung, um abzuschließen, oder geben Sie `U` ein, um den letzten Strich zurückzunehmen. Die ganze Sitzung ist ein Rückgängig-Schritt.
 
-## Mehrere Striche gleichzeitig bereinigen
+## Mehrere Striche auf einmal aufräumen
 
-{{cmd:SKETCHFIX}} sammelt Striche und macht sie alle präzise, sobald Sie {{key:Enter}} drücken. Das eignet sich für einen schnell gezeichneten, groben Entwurf.
+{{cmd:SKETCHFIX}} sammelt Striche und macht alle präzise, wenn Sie {{key:Enter}} drücken; das passt zu einem schnell gezeichneten, groben Entwurf.
 
 :::note
-Alles wird auf Ihrem Computer nach Regeln berechnet, ohne Modell, und nichts wird irgendwohin gesendet.
+Alles wird auf Ihrem Computer nach Regeln berechnet, ohne Modell und ohne dass etwas irgendwohin gesendet wird.
 :::
+
+## Druck legt die Linienstärke fest
+
+Wo der Stift für die Apps eingeschaltet ist (Einstellungen › Global › Eingabegeräte › Stift), trägt ein mit dem Stift gezeichneter Strich jeden Punkt, den der Stift gab, und seinen Druck. Ein leichter Strich ergibt ein dünnes Objekt, ein fester ein starkes: Der mittlere Druck des Strichs wählt 0,18, 0,25, 0,35 oder 0,50 mm, und die Befehlszeile sagt, welcher. Striche mit Maus oder Finger übernehmen die aktuelle Linienstärke wie bisher. {{cmd:PENPRESSURE}} schaltet dies aus (oder wieder ein); die Wahl wird in diesem Browser gespeichert.

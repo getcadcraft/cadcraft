@@ -2,7 +2,7 @@
 title: Újdonságok a 0.7 verzióban (korábbi)
 summary: PDF-alátétek és PDF-importálás, beolvasott rajzok automatikus nyomkövetéssel, valódi spline-ok a SPLINE, SPLINEDIT és PEDIT parancsokkal, méretstílus-kezelő, formázását megtartó szöveg, WBLOCK és saját léptékek, 3D-s testek más programokból, szkennelések regisztrálása, Lézer-panel, USD-export, Előzmények és nyomtatás a CadCraft Studio-ban, vezetett első rajz, az eszköztár bármelyik oldalon vagy kevesebb sorban, és több újdonság az AI-asszisztenseknek.
 keywords: újdonságok 0.7, korábbi kiadás, kiadási jegyzetek, változásnapló, változások, 0.7, verzió, új funkciók, pdf, pdfattach, pdfimport, alátét, szkennelés, scanattach, scantrace, nyomkövetés, raszter, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formázás, wblock, scalelistedit, léptéklista, acis, 3D-s testek, registerscans, szkennelések regisztrálása, icp, e57, las, lézer, grbl, g-code, usd, usdout, előzmények, verziók, összehasonlítás, nyomtatás, nyomtató, png, svg, plot stílus, vonaltípus, bemutató, puska, parancstérkép, parancssor, eszköztár helye, eszköztársorok, toolbardock, regen, regenall, érintőpad, csippentés, kódlap, cirill, koreai, kínai, japán, villamos, rcd, p&id, pid, acad.lsp, acaddoc.lsp, támogatási mappa, asszisztensek, mcp, mértékegységek, portugál
-from: d07ca034
+from: d9a8ea79
 ---
 
 Ez a CadCraft 0.6-hoz képest 0.7-ben változott. Sok mindent a Discordon kértek. A lista terület szerint csoportosított, a legfontosabbal az elején.

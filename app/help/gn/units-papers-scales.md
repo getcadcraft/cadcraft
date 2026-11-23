@@ -1,126 +1,130 @@
 ---
 title: Unidades, tamaños de papel y escalas
-summary: Qué significan las unidades de dibujo en CadCraft, los tamaños de papel para hojas y trazados, cada escala estándar, y cómo se relacionan el texto y los tamaños de cota con la escala de trazado.
-keywords: unidades, milímetros, pulgadas, pies, pies y pulgadas, arquitectónico, ingeniería, fraccionario, fracciones, lunits, formato de longitud, precisión, metros, tamaño de papel, a3, a1, arch d, ansi, tabloid, carta, escala, 1:100, 1/4 pulgada, escala arquitectónica, escala de ingeniería, insunits
-from: 8346236a
+summary: Qué significan las unidades de dibujo en CadCraft, los tamaños de papel para hojas y trazados, cada escala estándar, y cómo se relacionan los tamaños de texto y de cota con la escala de trazado.
+keywords: unidades, milímetros, pulgadas, pies, pies y pulgadas, arquitectónico, ingeniería, fraccionario, fracciones, lunits, formato de longitud, precisión, metros, tamaño de papel, a3, a1, arch d, ansi, tabloide, carta, escala, 1:100, 1/4 pulgada, escala arquitectónica, escala de ingeniería, insunits
+from: 7dc9b62e
 ---
 
 ## Unidades de dibujo
 
-Dibujás a tamaño real, en unidades de dibujo. Lo que vale una unidad es la configuración **Unidades** del plano:
+Dibujás tamaño real, en unidades de dibujo. Peteĩ unidad ha'e mba'e: plano **Unidades** configuración:
 
-1. Presioná {{key:Esc}} para que no quede nada seleccionado, en la pestaña {{ui:Model}}.
-2. En {{ui:Current settings}}, elegí {{ui:Units}}: {{ui:Unitless}}, {{ui:Millimeters}}, {{ui:Centimeters}}, {{ui:Meters}}, {{ui:Inches}} o {{ui:Feet}}.
+1. Presiona {{key:Esc}} para no seleccionar nada, {{ui:Modelo}} pestaña-pe.
+2. {{ui:Configuración actual}}-pe eiporavo {{ui:Unidades}}: {{ui:Sin unidades}}, {{ui:Milímetros}}, {{ui:Centímetros}}, {{ui:Metros}}, {{ui:Pulgadas}} térã {{ui:Pies}}.
 
-Las cotas pueden escribir sus longitudes en milímetros, centímetros, metros o kilómetros sin importar la unidad del plano: ver [Cotas en mm, cm, m o km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).
+Cotas longitud milímetros, centímetros, metros térã kilómetros-pe escribir ikatu, unidad plano ndaha'éi: eheka [Cotas en mm, cm, m o km](topic:dimension-settings#dimensions-in-mm-cm-m-or-km).
 
-Cambiar las unidades no cambia ningún tamaño. Cambia cómo se leen las escalas en hojas y trazados, y cuáles escalas se ofrecen. Un plano abierto desde un DWG o DXF conserva las unidades guardadas en el archivo; la sección {{ui:Drawing}} del panel izquierdo las muestra.
+Unidades ojambiáramo tamaño ndojambiáiva. Escalas hoja térã trazado-pe ojeikuaa cómo ojehechaukáva ha ofrecidos cambian. DWG térã DXF-pe abierto plano archivo-pe ojeguarda unidades oguarda; {{ui:Plano}} sección panel izquierda-pe ohechauka.
 
-Un plano {{ui:Unitless}} se trata como si estuviera en la unidad del papel: milímetros en papel ISO, pulgadas en papel US.
+{{ui:Sin unidades}} plano papel unidad ojejuhu: ISO papel-pe milímetros, EEUU papel-pe pulgadas.
 
 ## Pies y pulgadas, y fracciones
 
-Cómo se **escriben y se tipean** las longitudes es una configuración aparte, el formato de longitud. No cambia la geometría, solo cómo se ven los números y lo que podés escribir.
+Longitud **escrita ha ehai** ojeporu configuración aparte, longitud formato. Geometría ojambia ndaha'éi, número ohechauka ha ehai mba'e ojeikuaa.
 
-1. Presioná {{key:Esc}} para que no quede nada seleccionado, en la pestaña {{ui:Model}}.
-2. En {{ui:Current settings}}, elegí {{ui:Length format}}: {{ui:Decimal}} (`150.5`), {{ui:Architectural}} (`12'-6 1/2"`), {{ui:Engineering}} (`12'-6.5"`), {{ui:Fractional}} (`150 1/2`) o {{ui:Scientific}} (`1.505E+02`).
-3. Elegí {{ui:Precision}}: cantidad de decimales, o la fracción más chica (1/16 es la opción habitual para arquitectura).
+1. Presiona {{key:Esc}} para no seleccionar nada, {{ui:Modelo}} pestaña-pe.
+2. {{ui:Configuración actual}}-pe eiporavo {{ui:Formato de longitud}}: {{ui:Decimal}} (`150.5`), {{ui:Arquitectónico}} (`12'-6 1/2"`), {{ui:Ingeniería}} (`12'-6.5"`), {{ui:Fraccionario}} (`150 1/2`) térã {{ui:Científico}} (`1.505E+02`).
+3. {{ui:Precisión}} eiporavo: decimal lugar, térã fracción más michĩ (1/16 arquitectura-pe usual).
 
-O escribí {{cmd:UNITS}} (`UN`) y respondé sus dos preguntas.
+Térã {{cmd:UNITS}} (`UN`) ehai ha dos pregunta responde.
 
-Con {{ui:Architectural}} o {{ui:Engineering}}, una unidad de dibujo es una pulgada, como en AutoCAD: poné {{ui:Units}} en {{ui:Inches}} también. Después podés escribir longitudes en pies y pulgadas en cualquier lugar donde se pida una longitud, y en los cuadros de {{ui:Properties}}:
+{{ui:Arquitectónico}} térã {{ui:Ingeniería}}-pe peteĩ unidad peteĩ pulgada, AutoCAD-icha: {{ui:Unidades}} {{ui:Pulgadas}}-pe avei omoĩ. Upéi longitud pies y pulgadas ehai ikatu, longitud pregunta-pe opavavépe ha {{ui:Propiedades}} casilla-pe:
 
-| Escribís | Significa |
+| Ehai | Oñeimporta |
 |---|---|
-| `12'6"` o `12'-6"` | 12 pies 6 pulgadas (150) |
-| `12'6-1/2"` | 12 pies 6½ pulgadas. Usá un guion antes de la fracción: {{key:Space}} equivale a {{key:Enter}} en la línea de comandos. |
-| `12'` | 12 pies |
-| `6"` o `6` | 6 pulgadas: un número simple son pulgadas |
-| `1/2`, `6-1/2` | las fracciones funcionan en cualquier formato |
+| `12'6"` térã `12'-6"` | 12 pie 6 pulgada (150) |
+| `12'6-1/2"` | 12 pie 6½ pulgada. Fracción rehe guión oñemoĩ: {{key:Space}} comando línea-pe {{key:Enter}} ha'e. |
+| `12'` | 12 pie |
+| `6"` térã `6` | 6 pulgada: número pelado pulgada ha'e |
+| `1/2`, `6-1/2` | fracciones formato opavavépe |
 
-Los puntos aceptan las mismas longitudes: `@12'6",0` o `@10'<90`. Los ángulos siguen en grados.
+Punto mismo longitud: `@12'6",0` térã `@10'<90`. Ángulos grado-pe.
 
-El formato aparece en el historial ({{cmd:DIST}}, {{cmd:ID}}, {{cmd:LIST}}, {{cmd:AREA}}: las áreas en pulgadas cuadradas y pies cuadrados), en {{ui:Properties}}, en las coordenadas de la barra de estado, y en las **cotas nuevas**. Las hojas conservan sus unidades de papel (milímetros o pulgadas) como decimales.
+Formato historia-pe ohechauka ({{cmd:DIST}}, {{cmd:ID}}, {{cmd:LIST}}, {{cmd:AREA}}: áreas pulgada cuadrada ha pie cuadrado), {{ui:Propiedades}}-pe, estado barra coordenadas-pe, **cotas pyahu-pe**. Hojas papel unidad (milímetros térã pulgadas) decimal-pe oguarda.
 
 :::note
-El formato de longitud se guarda en archivos DWG y DXF, y cada cota conserva el suyo: un plano guardado se abre otra vez tal como lo dejaste.
+Longitud formato DWG ha DXF-pe oguarda, cota peteĩteĩ oguarda: plano abierto jey dejaste ojeguejy.
 :::
 
 ## Tamaños de papel
 
-Las hojas y los trazados de modelo usan estos tamaños, en cualquier orientación:
+Hojas ha modelo trazado ko tamaño-kuéra, orientación rehe:
 
-| Papel | Tamaño | Unidad en la hoja |
+| Papel | Tamaño | Unidad hoja-pe |
 |---|---|---|
 | ISO A4 | 297 × 210 mm | milímetros |
 | ISO A3 | 420 × 297 mm | milímetros |
 | ISO A2 | 594 × 420 mm | milímetros |
 | ISO A1 | 841 × 594 mm | milímetros |
 | ISO A0 | 1189 × 841 mm | milímetros |
-| Letter | 11 × 8.5 in | pulgadas |
-| Legal | 14 × 8.5 in | pulgadas |
-| Tabloid / ANSI B | 17 × 11 in | pulgadas |
-| ANSI C | 22 × 17 in | pulgadas |
-| ANSI D | 34 × 22 in | pulgadas |
-| ARCH C | 24 × 18 in | pulgadas |
-| ARCH D | 36 × 24 in | pulgadas |
-| ARCH E | 48 × 36 in | pulgadas |
+| Carta | 11 × 8,5 pulg | pulgadas |
+| Oficio | 14 × 8,5 pulg | pulgadas |
+| Tabloide / ANSI B | 17 × 11 pulg | pulgadas |
+| ANSI C | 22 × 17 pulg | pulgadas |
+| ANSI D | 34 × 22 pulg | pulgadas |
+| ARCH C | 24 × 18 pulg | pulgadas |
+| ARCH D | 36 × 24 pulg | pulgadas |
+| ARCH E | 48 × 36 pulg | pulgadas |
 
-Las hojas nuevas empiezan en ISO A3 para planos métricos y sin unidades, y en Tabloid para planos en pulgadas o pies. Los trazados de modelo empiezan en ISO A4 o Letter de la misma manera, y después recuerdan tu última elección. Las hojas de archivos abiertos conservan su propio tamaño, que se muestra como "Personalizado" cuando no es uno de estos.
+Hoja pyahu ISO A3 métrico ha sin unidades plano-pe; pulgada térã pie plano-pe Tabloide. Modelo trazado ISO A4 térã Carta, upéicha, última elección mantené. Archivo abierto hoja tamaño oguarda, "Personalizado" ohechauka ojeikuaaramo estos-pe.
 
 ## Escalas
 
-Una escala `1:n` significa que una unidad en el papel muestra n de la misma unidad en el modelo, así que 1:100 muestra 1 m de edificio como 10 mm de papel. CadCraft lo calcula a partir de las unidades del plano y de la unidad del papel.
+Escala `1:n` peteĩ unidad papel-pe n mismo unidad modelo-pe ohechauka, 1:100 1 m edificio 10 mm papel-pe. CadCraft plano unidad ha papel unidad rehe calcula.
 
-**Escalas métricas**, ofrecidas para cualquier plano: 10:1, 5:1, 2:1, 1:1, 1:2, 1:5, 1:10, 1:20, 1:25, 1:50, 1:100, 1:200, 1:250, 1:500, 1:1000, 1:1250, 1:2000, 1:2500, 1:5000, 1:10000.
+**Escalas métricas**, opavave plano-pe: 10:1, 5:1, 2:1, 1:1, 1:2, 1:5, 1:10, 1:20, 1:25, 1:50, 1:100, 1:200, 1:250, 1:500, 1:1000, 1:1250, 1:2000, 1:2500, 1:5000, 1:10000.
 
-**Escalas arquitectónicas**, ofrecidas cuando las unidades son pulgadas o pies: 3" = 1'-0", 1-1/2" = 1'-0", 1" = 1'-0", 3/4" = 1'-0", 1/2" = 1'-0", 3/8" = 1'-0", 1/4" = 1'-0", 3/16" = 1'-0", 1/8" = 1'-0", 3/32" = 1'-0", 1/16" = 1'-0".
+**Escalas arquitectónicas**, pulgada térã pie unidad-pe: 3" = 1'-0", 1-1/2" = 1'-0", 1" = 1'-0", 3/4" = 1'-0", 1/2" = 1'-0", 3/8" = 1'-0", 1/4" = 1'-0", 3/16" = 1'-0", 1/8" = 1'-0", 3/32" = 1'-0", 1/16" = 1'-0".
 
-**Escalas de ingeniería**, ofrecidas cuando las unidades son pulgadas o pies: 1" = 10', 1" = 20', 1" = 30', 1" = 40', 1" = 50', 1" = 100'.
+**Escalas de ingeniería**, pulgada térã pie unidad-pe: 1" = 10', 1" = 20', 1" = 30', 1" = 40', 1" = 50', 1" = 100'.
 
-**Tus propias escalas.** Escribí `SCALELISTEDIT` (o `SCALELIST`) para agregar una escala propia, como 1:75 o una escala de sitio de 2 de papel : 300 de dibujo. `Add` pide un nombre, después las unidades de papel y las del dibujo (un nombre como `1:75` ofrece sus propios números; presioná {{key:Enter}} para tomarlos). `Edit`, `Delete`, `List` y `Reset` funcionan sobre la misma lista; `Reset` vuelve a la lista estándar. Tus escalas aparecen después de las estándar en la lista de escalas de vista de Propiedades y en el cuadro {{ui:Plot to PDF}}; una vista a esa escala se lee con su nombre, y se guardan en el plano (DWG y DXF 2000) como la lista de escalas del plano. Un plano abierto desde otro programa trae su lista; las escalas que coinciden con una estándar no se muestran dos veces.
+**Escalas propias.** Ehai `SCALELISTEDIT` (térã `SCALELIST`) nde escala pyahu, ejemplo 1:75 térã sitio escala 2 papel : 300 dibujo. `Agregar` nombre oúva, papel unidad ha dibujo unidad (nombre `1:75` ndoikóramo número propio; {{key:Enter}} oguahẽ). `Editar`, `Eliminar`, `Listar` ha `Restablecer` mismo lista-pe. `Restablecer` estándar lista oguejy. Propias escalas Propiedades ventana escala lista-pe ha {{ui:Trazar a PDF}} diálogo-pe estándar rire ohechauka, ventana escala nombre-ndive; plano archivo DWG ha DXF 2000-pe oguarda. Otro programa-pe abierto lista ohechauka; estándar mismo escalas duplicado ndaha'éi.
 
-Cuando una vista se apunta con {{ui:Show the whole model}} o {{ui:Pick a window on the model…}}, CadCraft elige la mayor escala estándar que entra. {{ui:Fit the whole model}} fija una escala exacta en cambio, que se lee como una proporción simple.
+{{ui:Mostrar todo el modelo}} térã {{ui:Elija una ventana en el modelo…}} ndive ventana apuntado, CadCraft escala estándar más grande mbovymi ojejuhúva oñemoĩ. {{ui:Ajustar todo el modelo}} escala exacta oñemoĩ, razón simple oñeha'ã.
 
-## Tamaños en el papel y en el modelo
+## Tamaños en papel y modelo
 
-El tamaño del texto y de las cotas está en las unidades del espacio donde dibujás.
+Texto y cota tamaño dibujá espacio unidad-pe.
 
-| Querés en el papel | Dibujado en la hoja | Dibujado en el modelo a 1:50 (plano en mm) | Dibujado en el modelo a 1/4" = 1'-0" (plano en pulgadas) |
+| Papel-pe nde ojeikotevẽ | Hoja-pe dibujado | Modelo 1:50 (mm plano) | Modelo 1/4" = 1'-0" (pulgada plano) |
 |---|---|---|---|
-| texto de 2.5 mm | 2.5 | 125 | — |
-| texto de 3/32" | 0.09375 | — | 4.5 |
+| texto 2,5 mm | 2,5 | 125 | — |
+| texto 3/32" | 0,09375 | — | 4,5 |
 
-Para las cotas, mantené los tamaños como tamaños de papel y poné la escala general ({{cmd:DIMSCALE}}) en la escala de trazado: 50 para 1:50, 48 para 1/4" = 1'-0". Ver [Configurar tamaños de cota](topic:dimension-settings).
+Cotas, tamaño papel-pe mantené ha escala general ({{cmd:DIMSCALE}}) trazado escala-pe omoĩ: 50 para 1:50, 48 para 1/4" = 1'-0". Eheka [Configurar tamaños de cota](topic:dimension-settings).
 
 ## Anotar por escala
 
-Dibujá el modelo a tamaño real y dejá que CadCraft haga las cuentas de arriba por vos.
+Modelo tamaño real-pe dibujá ha CadCraft suma ohecha.
 
-1. Seleccioná el texto o las cotas que deben mantener su tamaño en el papel. En Propiedades marcá {{ui:Annotative}}. {{ui:Size on paper}} entonces muestra, por ejemplo, `2.5 mm a 1:50`.
-2. Escribí {{cmd:ANNOSCALE}} y la escala con la que se va a imprimir el plano, como `1:100`.
+1. Texto térã cota eiporavo papel-pe tamaño mantené. Propiedades-pe marcá {{ui:Anotativo}}. {{ui:Tamaño en papel}} ohechauka, ehemplo `2.5 mm at 1:50`.
+2. {{cmd:ANNOSCALE}} ehai ha escala ohecha trazado-pe, ehemplo `1:100`.
 
-Cada texto y cota anotativa se redimensiona para que se imprima con el mismo tamaño en la nueva escala: el texto de 2.5 mm mide 125 de alto en un plano en milímetros a 1:50 y 250 de alto a 1:100. El ancho de un párrafo cambia con él; el texto de una cota, sus flechas y sus espacios cambian juntos (su escala general). Es un solo paso de deshacer, y los objetos que no son anotativos nunca se cambian.
+Anotativo texto ha cota opavave tamaño oñemoĩ, papel mismo tamaño trazado escala pyahu-pe: 2,5 mm texto milímetro plano 1:50-pe 125 alto, 1:100-pe 250 alto. Párrafo ancho avei cambia; cota texto, flecha ha espacio juntos cambian (escala general). Peteĩ paso deshacer; anotativo ndaha'éi objetos ndojambiáiva.
 
-La configuración se guarda en DWG y DXF: otros programas leen la marca anotativa, y CadCraft además conserva la escala para la que está dimensionado cada objeto.
+Configuración DWG ha DXF-pe oguarda: ambue programa anotativo bandera leé, CadCraft escala objeto oikuaa oguarda.
 
-Si tu oficina fija alturas en papel en el complemento Default Policies (Configuración › Global › Default Policies › Tamaños de anotación en papel), {{cmd:ANNOSCALE}} también pone la altura con la que empieza el texto nuevo en la altura de la oficina para notas a esa escala. Ver [Default Policies](topic:default-policies).
+Oficina papel altura Default Policies add-on-pe ojapo (Configuración › Global › Default Policies › Annotation sizes on paper), {{cmd:ANNOSCALE}} avei texto nuevo altura oficina escala-pe. Eheka [Default Policies](topic:default-policies).
 
-### Un objeto en varias escalas
+### Peteĩ objeto varias escala-pe
 
-Una hoja suele mostrar la misma planta a 1:100 y una parte de ella a 1:50. Dale a las notas y cotas las dos escalas y cada vista las muestra en su tamaño de papel:
+Hoja-pe mismo plano 1:100 ha parte 1:50 ohechauka. Notas ha cotas dos escala ome'ẽ, ventana opavave papel tamaño-pe ohechauka:
 
-1. Seleccioná el texto y las cotas anotativas y escribí `OBJECTSCALE`.
-2. Elegí `Add` y escribí la escala, por ejemplo `1:50`. (`Current scale` agrega la escala de anotación del plano; `List` muestra lo que conserva cada objeto; `Delete` quita una.)
+1. Anotativo texto ha cotas eiporavo ha ehai `OBJECTSCALE`.
+2. Ehai `Agregar` ha escala ehai, ehemplo `1:50`. (`Escala actual` plano anotación escala agrega; `Listar` objeto escala ohechauka; `Eliminar` peteĩ quita.)
 
-Una vista cuya escala está en la lista de un objeto lo muestra en el tamaño de esa escala: el texto de 2.5 mm se dibuja de 250 de alto en una vista 1:100 y de 125 de alto en una 1:50, en pantalla y en el trazado. El objeto se queda donde está; solo cambia su tamaño. En una vista a una escala que no está en la lista, el objeto se muestra con el tamaño que ya tiene, hasta que escribas `ANNOALLVISIBLE` y elijas `OFF`: entonces se omite allí. {{cmd:ANNOSCALE}} redimensiona los objetos que listan la nueva escala y deja los demás como están.
+Ventana escala lista-pe ohechauka objeto tamaño escala-pe: 2,5 mm texto 1:100 ventana-pe 250 alto, 1:50-pe 125 alto, pantalla y trazado-pe. Objeto lugar mantené; tamaño solo cambia. Lista-pe ndoikóiva escala ventana-pe, tamaño ojeikuaaiva oĩ, `ANNOALLVISIBLE` ehai `OFF` ojapo tenguetere: ahí ndohechaukái. {{cmd:ANNOSCALE}} escala pyahu lista objeto-kuéra ojambia, ambue mantené.
 
-Las listas se guardan en DWG y DXF como datos propios de CadCraft. Otro programa ve cada objeto como anotativo, en la única escala para la que está dimensionado. El interruptor ANNOALLVISIBLE no se guarda en el archivo.
+Listas DWG ha DXF-pe CadCraft dato propio oguarda. Ambue programa objeto anotativo oikuaa, peteĩ escala. ANNOALLVISIBLE conmutador archivo-pe ndoguardái.
 
-## Grosores y tipos de línea
+## Línea grosor y tipo de línea
 
-Una capa, o un objeto, puede tener un **grosor de línea** (de 0.05 a 2.11 mm) y un **tipo de línea** (discontinua, oculta, de centro, fantasma, de puntos…). Configuralos en el panel derecho: sin nada seleccionado, {{ui:Linetype}} y {{ui:Lineweight}} bajo {{ui:Current settings}} son los que reciben los objetos nuevos ({{ui:By layer}} para seguir su capa), y los dos bajo {{ui:Layer …}} son los de la capa actual. Con objetos seleccionados, esas mismas dos filas y {{ui:Linetype scale}} cambian esos objetos. Los comandos son {{cmd:LINETYPE}} (`LT`), {{cmd:LWEIGHT}} (`LW`) y {{cmd:LTSCALE}} (`LTS`).
+Capa térã objeto **grosor de línea** (0,05 a 2,11 mm) ha **tipo de línea** (guionado, oculto, centro, fantasma, punto…) oguereko ikatu. Derecha panel-pe omoĩ: nada seleccionado-pe, {{ui:Configuración actual}} rehe {{ui:Tipo de línea}} ha {{ui:Grosor de línea}} objeto nuevo ojeporu ({{ui:Por capa}} capa seguí); {{ui:Capa …}} rehe dos capa actual propios. Objeto seleccionado-pe mismo dos fila ha {{ui:Escala de tipo de línea}} objeto-kuéra ojambia. Comando: {{cmd:LINETYPE}} (`LT`), {{cmd:LWEIGHT}} (`LW`), {{cmd:LTSCALE}} (`LTS`).
 
-Los tipos de línea se muestran en pantalla y en los trazados. Sus guiones están en unidades de dibujo: un plano métrico usa los tamaños ISO (DASHED: guiones de 12.7 mm), un plano en pulgadas usa los de pulgadas (0.5"). Si los guiones se ven demasiado chicos o demasiado grandes, cambiá la {{ui:Linetype scale}} del plano (LTSCALE): cada guion y cada espacio se multiplica por ella; la escala propia de un objeto la multiplica otra vez. Un patrón demasiado fino para verse se dibuja como línea continua.
+Tipo de línea pantalla ha trazado-pe ohechauka. Guión plano unidad-pe: métrico ISO tamaño (DASHED: 12,7 mm guión), pulgada plano pulgada (0,5"). Guión michĩ térã hu'ã ohechauka, plano {{ui:Escala de tipo de línea}} (LTSCALE) ojambia: opavave guión ha espacio multiplica; objeto propio escala ojeporúva. Fino ojehechaukáva ndaikatúi, línea sólida oĩ.
 
-Los grosores se imprimen en los trazados, en mm sobre el papel sin importar la escala. Las líneas con el grosor {{ui:Default}} usan el ancho de pluma elegido en el cuadro {{ui:Plot to PDF}} (de 0.13 a 0.70 mm; 0.25 mm para empezar); un grosor de 0 se imprime como la línea más fina. En pantalla cada línea tiene un píxel de ancho hasta que presionás {{ui:LWT}} en la barra de estado (o escribís {{cmd:LWDISPLAY}}): entonces un grosor mayor a 0.25 mm se dibuja más ancho (0.5 mm = 2 píxeles) en el modelo, y en su ancho real sobre el papel en una hoja. La elección se guarda en este navegador.
+Grosor de línea trazado-pe impreso, mm papel-pe escala ndive. {{ui:Predeterminado}} grosor ha Trazar a PDF diálogo-pe pluma ancho (0,13 a 0,70 mm; inicio 0,25 mm). Grosor 0 más fino impreso. Pantalla-pe línea pixel peteĩ, {{ui:LWT}} barra-pe presiona ojevolve ({{cmd:LWDISPLAY}} ojapo): 0,25 mm arriba ancho ohechauka (0,5 mm = 2 pixel) modelo-pe, hoja-pe papel ancho verdadero. Elección navegador-pe oguarda.
+
+## Oficina estándar
+
+Oficina papel texto altura, capa, título bloque campo ha plantilla peteĩ registro-pe oguarda: oficina estándar. CadCraft orden-pe lee: plano registro propio (`OFFICESTANDARD` › `Importar`-pe oguarda archivo-pe), equipo estándar compartido, Default Policies. Anotativo texto ha cota papel altura anotación escala-pe estándar-gui. Estándar vacío nada ojambia. {{cmd:OFFICESTANDARD}} › `Capas` plano ndoguerekói oficina capa agrega.

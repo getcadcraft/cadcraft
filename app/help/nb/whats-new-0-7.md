@@ -2,7 +2,7 @@
 title: Nytt i 0.7 (tidligere)
 summary: PDF-underlag og PDF-import, skannede tegninger med automatisk sporing, ekte splines med SPLINE, SPLINEDIT og PEDIT, en håndtering av måltilsettingsstiler, tekst som beholder formateringen sin, WBLOCK og egne målestokker, 3D-solids fra andre programmer, registrering av skanninger, et Laser-panel, USD-eksport, Historikk og utskrift i CadCraft Studio, en veiledet første tegning, verktøylinjen på hvilken som helst side eller i færre rader, og mer for KI-assistenter.
 keywords: nytt i 0.7, tidligere utgivelse, utgivelsesnotater, endringslogg, endringer, 0.7, versjon, nye funksjoner, pdf, pdfattach, pdfimport, underlag, scan, scanattach, scantrace, trace, raster, rastersnap, spline, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, formatering, wblock, scalelistedit, skalaliste, acis, 3d solids, registerscans, registrer skanninger, icp, e57, las, laser, grbl, g-code, usd, usdout, historikk, versjoner, sammenlign, utskrift, skriver, png, svg, plottstil, linjetype, omvisning, jukseark, kommandooversikt, verktøylinjeplassering, verktøylinjerader, toolbardock, regen, regenall, trackpad, sveip, kodeside, kyrillisk, koreansk, kinesisk, japansk, elektro, rcd, p&id, pid, acad.lsp, acaddoc.lsp, støttemappe, assistenter, mcp, enheter, portugisisk
-from: d07ca034
+from: d9a8ea79
 ---
 
 Dette er hva som endret seg i CadCraft 0.7, sammenlignet med 0.6. Mye av det var etterspurt på Discord. Listen er gruppert etter område, med det viktigste først.

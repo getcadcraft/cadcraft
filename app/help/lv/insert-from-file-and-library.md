@@ -1,84 +1,103 @@
 ---
 title: Ievietošana no faila vai bibliotēkas
-summary: Ievietojiet bloku vai veselu rasējumu no cita DWG vai DXF un novietojiet vienumus no bibliotēkas, faila vai citas bibliotēkas, ar to autorību un atjauninājumiem.
-keywords: ievietot, fails, bibliotēka, librarycraft, vienums, aprīkojums, bloks no cita rasējuma, wblock, design center, autorība, licence, atjauninājums, avots, item.json
-from: 316188d2
+summary: Ievietojiet bloku vai veselu rasējumu no cita DWG vai DXF faila un novietojiet vienumus no bibliotēkas, faila vai citas bibliotēkas, kopā ar to autoriem un atjauninājumiem.
+keywords: ievietot, fails, bibliotēka, librarycraft, vienums, aprīkojums, bloks no cita rasējuma, wblock, dizaina centrs, autori, autorība, licence, atjauninājums, plūsma, item.json
+from: f6e4e452
 ---
 
-## Bloka ievietošana no cita rasējuma
+## Ievietot bloku no cita rasējuma
 
-1. Ierakstiet `I` un nospiediet {{key:Enter}}, vai noklikšķiniet uz {{ui:Ievietot}} grupā {{ui:Bloki}}.
-2. Pie `Enter block name or [File/Library]` ierakstiet `F` un nospiediet {{key:Enter}}.
-3. Izvēlieties DWG vai DXF šajā datorā. Tas tiek nolasīts šeit; to neatver, un nekas netiek augšupielādēts.
-4. Dialogā {{ui:Ievietot no}} izvēlieties bloku no saraksta (ierakstiet laukā {{ui:Filtrēt blokus}}, lai to atrastu), vai paturiet {{ui:Viss rasējums}}. Noklikšķiniet uz {{ui:Ievietot}}.
-5. Noklikšķiniet, kur tas jānovieto, un aizpildiet visus atribūtus, ko tas prasa.
+1. Ierakstiet `I` un nospiediet {{key:Enter}}, vai noklikšķiniet uz {{ui:Ievietot}} grupā Bloki.
+2. Komandrindā loga apakšā tiek jautāts `Ievadiet bloka nosaukumu vai [Fails/Bibliotēka]`. Ierakstiet tur `F` un nospiediet {{key:Enter}}.
+3. Izvēlieties DWG vai DXF šajā datorā. Tas tiek nolasīts šeit; tas netiek atvērts, un nekas netiek augšupielādēts.
+4. Dialogā {{ui:Ievietot no}} izvēlieties bloku no saraksta (ierakstiet {{ui:Filtrēt blokus}}, lai to atrastu), vai paturiet {{ui:Viss rasējums}}. Noklikšķiniet uz {{ui:Ievietot}}.
+5. Noklikšķiniet, kur tas jāieliek, un aizpildiet visus atribūtus, ko tas pieprasa.
 
-Viss rasējums tiek ievietots kā viens bloks ar faila nosaukumu. Arī bloki izvēlētā bloka iekšienē tiek ievietoti. Slāņi, ko tie izmanto, tiek pievienoti šim rasējumam.
+Varat sākt arī no paneļa {{ui:Bloki}}: ierakstiet `F` tā lodziņā {{ui:Filtrēt blokus}} un nospiediet {{key:Enter}}, vai ierakstiet kaut ko, ko neviens bloks neatbilst, un noklikšķiniet uz {{ui:No faila…}}. `L` un {{ui:Bibliotēka…}} atver bibliotēku tāpat. Pirms versijas 0.10.1 burts, kas ierakstīts lodziņā {{ui:Filtrēt blokus}}, meklēja tikai šī rasējuma blokus un atbildēja "Nevienam blokam neatbilst filtrs."
 
-Ja citam rasējumam ir citas vienības (piemēram, collas un milimetri), CadCraft mērogo atsauci atbilstoši un par to paziņo vēsturē.
+Lai savus bloku rasējumu turētu pie rokas, noklikšķiniet uz {{ui:Pievienot rasējumu}} zem {{ui:Bibliotēkas}} panelī {{ui:Bloki}} un izvēlieties DWG vai DXF. Tā bloki tiek uzskaitīti ar attēliem; noklikšķiniet uz viena, lai to novietotu.
 
-### Kad nosaukums jau ir lietots
+Viss rasējums ieiet kā viens bloks, kas nosaukts pēc faila. Iekšā izvēlētajā blokā esošie bloki ieiet arī. Slāņi, ko tie izmanto, tiek pievienoti šim rasējumam.
+
+Ja citam rasējumam ir citas vienības (piemēram, collas un milimetri), CadCraft mērogo atsauci, lai tā atbilstu, un to pasaka vēsturē.
+
+### Ja nosaukums jau ir izmantots
 
 Ja šim rasējumam jau ir bloks ar tādu pašu nosaukumu, CadCraft jautā:
 
-- {{ui:Paturēt esošos}} izmanto šī rasējuma bloku ar šādu nosaukumu.
-- {{ui:Pārdēvēt}} ievieto jauno kā `Name (2)`.
+- {{ui:Paturēt esošos}} izmanto šī rasējuma bloku ar šo nosaukumu.
+- {{ui:Pārdēvēt}} ieved jauno kā `Nosaukums (2)`.
 
 Visa ievietošana ir viens solis: {{key:Mod+Z}} noņem atsauci un nokopētās definīcijas.
 
-## Bibliotēkas atvēršana
+## Atveriet bibliotēku
 
-Noklikšķiniet uz {{ui:Bibliotēka…}} panelī {{ui:Bloki}}, vai uz {{ui:Bibliotēka}} grupā Bloki, vai ierakstiet `LIB`. Pie uzvedne `INSERT` ierakstot `L`, tā arī atveras.
+Noklikšķiniet uz {{ui:Bibliotēka…}} panelī {{ui:Bloki}} vai uz {{ui:Bibliotēka}} grupā Bloki, vai ierakstiet `LIB`. Pie uzvednes `INSERT` `L` arī to atver.
 
-Bibliotēkai ir četri avoti, kas parādīti kā cilnes:
+Bibliotēkai ir četri avoti, kas ir cilnes:
 
 - {{ui:Bibliotēka}}: CadCraft bibliotēka. Meklējiet pēc nosaukuma, ražotāja vai modeļa un filtrējiet pēc kategorijas.
-- {{ui:Faili…}}: vienuma fails (`item.json`) no jebkuras bibliotēkas, vai rasējums, izklājlapa vai 3D modelis, no kā veidot vienumus: DWG vai DXF (katrs bloks kļūst par vienumu), CSV ar nosaukuma un izmēra kolonnām vai glTF vai OBJ modelis. Nekas netiek augšupielādēts.
-- {{ui:Standarta}}: tērauda profili (kā griezumi, fasādes vai 3D elementi) un standarta detaļas, piemēram, skrūves, uzgriežņi un gultņi, kas izveidoti šeit no publicētām tabulām. Skatiet [Tērauda profilu un standarta detaļu novietošana](topic:steel-and-standard-parts).
+- {{ui:Faili…}}: vienuma fails (`item.json`) no jebkuras bibliotēkas vai rasējums, izklājlapa vai 3D modelis, no kā veidot vienumus: DWG vai DXF (katrs bloks kļūst par vienumu), CSV ar nosaukuma un izmēru kolonnām, vai glTF vai OBJ modelis. Nekas netiek augšupielādēts.
+- {{ui:Standarta}}: tērauda profili (kā griezumi, fasādes vai 3D elementi) un standarta detaļas, piemēram, skrūves, uzgriežņi un gultņi, kas izveidoti šeit no publicētām tabulām. Skatiet [Novietot tērauda profilus un standarta detaļas](topic:steel-and-standard-parts).
 - {{ui:Citi avoti}}: citas bibliotēkas, kas atbild tāpat kā Bibliotēka. Pievienojiet to adresi vienreiz; šī pārlūkprogramma to atceras.
 
-Katrā kartītē redzams priekšskatījums, nosaukums, ražotājs un modelis, licence un versija. Atsaukts vienums ir atzīmēts ar {{ui:Atsaukts}} un iemeslu; CadCraft pirms novietošanas jautā.
+Katrā kartītē redzams priekšskatījums, nosaukums, ražotājs un modelis, licence un versija. Izņemts vienums ir atzīmēts ar {{ui:Atsaukts}} un iemeslu; CadCraft pirms tā novietošanas jautā.
 
-## Vienuma novietošana
+## Novietot vienumu
 
-1. Kartītē noklikšķiniet uz {{ui:Ievietot}}.
-2. Noklikšķiniet, kur jānovieto vienums. Vispirms ierakstiet `R`, lai to pagrieztu, vai `S`, lai to mērogotu.
-3. Pie `Enter Item number (CC-ITEM)` nospiediet {{key:Enter}}, lai izmantotu nākamo brīvo numuru, vai ierakstiet savu.
+1. Noklikšķiniet uz {{ui:Ievietot}} kartītē.
+2. Noklikšķiniet, kur vienums jāieliek. Vispirms ierakstiet `R`, lai to pagrieztu, vai `S`, lai to mērogotu.
+3. Pie `Ievadiet vienuma numuru (CC-ITEM)` nospiediet {{key:Enter}} nākamajam brīvajam numuram vai ierakstiet savu.
 
-Vienums kļūst par bloku ar nosaukumu `LIB_<name>_v<version>`, zīmētu šī rasējuma vienībās. Ja rasējumam nav vienību, vienums tiek ievietots milimetros un par to paziņo vēsture; vispirms labajā panelī iestatiet {{ui:Vienības}}.
+Vienums kļūst par bloku ar nosaukumu `LIB_<nosaukums>_v<versija>`, zīmēts šī rasējuma vienībās. Ja rasējumam nav vienību, vienums tiek ievietots milimetros, un vēsture to pasaka; vispirms iestatiet {{ui:Vienības}} labajā panelī.
 
-Tā dati tiek pārnesti kā neredzami atribūti: vienuma id un versija, licence un autorība, ražotājs, modelis, kategorija un izmēri. Skatiet [Bloka atribūti](topic:attributes).
+Tā dati tiek nesti kā neredzami atribūti: vienuma identifikators un versija, licence un autorība, ražotājs, modelis, kategorija un izmēri. Skatiet [Bloku atribūti](topic:attributes).
 
 ## Vienumi jūsu valodā
 
-Vienums var saturēt savu nosaukumu un aprakstu citās valodās. Ja tie ir valodā, uz kuru iestatīts CadCraft (Iestatījumi › Vispārīgi › Valoda), kartītē un novietotā bloka vienuma nosaukumā tiek izmantoti tie. Pats bloks saglabā nosaukumu, kas veidots no vienuma sākotnējā nosaukuma, tāpēc rasējumā ir viens bloks katram vienumam neatkarīgi no tā, kura valoda to novietoja.
+Vienumam var būt nosaukums un apraksts citās valodās. Ja tie ir valodā, uz kuru iestatīts CadCraft (Iestatījumi › Vispārīgi › Valoda), kartīte un novietotā bloka vienuma nosaukums tos izmanto. Bloks pats saglabā nosaukumu, kas veidots no vienuma paša nosaukuma, tāpēc rasējumā ir viens bloks katram vienumam neatkarīgi no tā, kura valoda to novietoja.
 
-## Atjauninājumu pārbaude
+## Pārbaudiet atjauninājumus
 
 1. Atveriet bibliotēku.
 2. Noklikšķiniet uz {{ui:Pārbaudīt atjauninājumus}}.
 
-Katrs bibliotēkas vienums rasējumā tiek uzskaitīts ar saviem vienumu numuriem un to, vai tas ir atjaunināts, vai ir jaunāka versija (un kas mainījās), vai arī tas ir atsaukts. Noklikšķiniet uz {{ui:Atjaunināt}} rindā vai uz {{ui:Atjaunināt visu}}. Katra atsauce pāriet uz jaunās versijas bloku un saglabā savu vienuma numuru, daudzumu, vietu, leņķi un slāni. {{key:Mod+Z}} atsauc atjauninājumu.
+Katrs bibliotēkas vienums rasējumā tiek uzskaitīts ar savu vienuma numuru un to, vai tas ir jaunākais, vai ir jaunāka versija (un kas tajā mainījās), vai tas ir atsaukts. Noklikšķiniet uz {{ui:Atjaunināt}} rindā vai uz {{ui:Atjaunināt visu}}. Katra atsauce pāriet uz jaunās versijas bloku un saglabā savu vienuma numuru, daudzumu, vietu, leņķi un slāni. {{key:Mod+Z}} atsauc atjauninājumu.
 
-## Autorības norādīšana
+## Norādiet to, ko izmantojāt
 
-Noklikšķiniet uz {{ui:Bibliotēkas autori}}. Katrs vienums ir uzskaitīts ar savu autorības rindu un licenci.
+Noklikšķiniet uz {{ui:Bibliotēkas autori}}. Katrs vienums tiek uzskaitīts ar savu autorības rindu un licenci.
 
-- {{ui:Kopēt autorību}} nokopē viena vienuma rindu; {{ui:Kopēt visu}} nokopē katru rindu.
-- {{ui:Lejupielādēt CSV}} saglabā sarakstu ar vienumu numuriem, ražotājiem, modeļiem, licencēm un autorības rindām. To var atvērt jebkurā izklājlapā.
+- {{ui:Kopēt autorību}} kopē viena vienuma rindu; {{ui:Kopēt visu}} kopē katru rindu.
+- {{ui:Lejupielādēt CSV}} saglabā sarakstu ar vienumu numuriem, ražotājiem, modeļiem, licencēm un autorību. Tas atveras jebkurā izklājlapā.
 
 Licences, piemēram, CC BY, prasa norādīt autoru tur, kur izmantojat darbu. Ievietojiet rindas rasējumā, specifikācijā vai projekta piezīmēs.
 
-## Simboli un resursi
+## Simboli un aktīvi
 
-Bibliotēkā ir trīs vienumu veidi: Simboli (zīmēšanas konvencijas, 2D), Tipi (no kā elements ir veidots) un Resursi (fiziski objekti). Cilnē {{ui:Bibliotēka}} saraksts {{ui:Vienuma veids}} rāda simbolus un resursus kopā, tikai simbolus vai tikai resursus. Tipi ir tas, no kā tiek veidots BimCraft projekts, tāpēc CadCraft tos neuzskaita.
+Bibliotēkai ir trīs veidu vienumi: Simboli (zīmēšanas konvencijas, 2D), Tipi (no kā elements sastāv) un Aktīvi (fiziski objekti). Cilnē {{ui:Bibliotēka}} saraksts {{ui:Vienuma veids}} rāda Simbolus un aktīvus kopā, tikai Simbolus vai tikai Aktīvus. Tipi ir tas, no kā veidots BimCraft projekts, tāpēc CadCraft tos neuzskaita.
 
-## Pierakstīšanās bibliotēkā
+## Pierakstieties bibliotēkā
 
-Noklikšķiniet uz {{ui:Pierakstīties bibliotēkā}}. Atveras neliels logs vietnē; kad esat tur pierakstījies, CadCraft var rādīt jūsu komandas vienumus un reģistrēt to, ko novietojat, lai jūs uzzinātu, ja vienums, ko izmantojāt, mainās. Pierakstīšanās darbojas šai pārlūkprogrammas cilnei. To jebkurā laikā var atsaukt sava konta drošības lapā.
+Noklikšķiniet uz {{ui:Pierakstīties bibliotēkā}}. Atveras neliels logs vietnē; kad esat tur pierakstījies, CadCraft var rādīt jūsu komandas vienumus un reģistrēt to, ko novietojat, lai jūs uzzinātu, ja vienums, ko izmantojāt, mainās. Pierakstīšanās ir spēkā šai pārlūkprogrammas cilnei. Atsaukt to var jebkurā laikā jūsu konta drošības lapā.
+
+## Turiet savus objektus sadaļā Mani objekti
+
+{{ui:Mani objekti}} ir privāts saraksts bibliotēkā, ko redzat tikai jūs. Tas nav publiskajā bibliotēkā, meklēšanā un nav rādīts jūsu komandai, un tas seko jūsu kontam katrā datorā, kur pierakstāties bibliotēkā.
+
+1. Bibliotēkas panelī noklikšķiniet uz {{ui:Faili…}} un nolasiet failu.
+2. Vienumā, ko vēlaties atkal, noklikšķiniet uz {{ui:Saglabāt manos objektos}}.
+3. Vēlāk noklikšķiniet uz {{ui:Mani objekti}} un noklikšķiniet uz {{ui:Ievietot}}. Tas tiek novietots kā jebkurš bibliotēkas vienums, un {{ui:Pārbaudīt atjauninājumus}} to aptver.
+4. {{ui:Noņemt no maniem objektiem}} izņem to no saraksta. Kopijas, kas jau ir novietotas rasējumos, paliek.
+
+Jums jābūt pierakstītam bibliotēkā. Faila nolasīšana neko neaugšupielādē; vienuma saglabāšana nosūta tikai šo vienumu uz jūsu kontu.
+
+:::note
+Mani objekti tiek pārbaudīti un jūsu kontam var vēl nebūt atvērti. Ja tur rakstīts "Mani objekti šim kontam vēl nav atvērti", joprojām varat novietot vienumus no saviem failiem ar {{ui:Faili…}}.
+:::
 
 ## Biežākās kļūdas
 
-- **„Making items from IFC types is in BimCraft.”** IFC un ģimeņu failus nolasa lietotne BimCraft. Izveidojiet vienumu tur vai bibliotēkā un tad izmantojiet tā `item.json` šeit.
-- **„The library could not be reached.”** Jūs esat bezsaistē vai bibliotēka nedarbojas. Rasējumā jau esošie vienumi netiek ietekmēti.
-- **Vienums ir pārāk liels vai pārāk mazs.** Rasējuma vienības ir nepareizas vai nav iestatītas. Atsauciet, iestatiet {{ui:Vienības}} un novietojiet vienumu vēlreiz.
+- **"Ēku tipu no IFC veidošana ir BimCraft."** IFC un ģimenes failus lasa BimCraft lietotne. Izveidojiet vienumu tur vai bibliotēkā un pēc tam izmantojiet tā `item.json` šeit.
+- **"Bibliotēkai nevar piekļūt."** Esat bezsaistē vai bibliotēka nedarbojas. Rasējumā jau esošie vienumi nav ietekmēti.
+- **Vienums ir pārāk liels vai pārāk mazs.** Rasējuma vienības ir nepareizas vai nav iestatītas. Atsauciet, iestatiet {{ui:Vienības}} un novietojiet to atkal.

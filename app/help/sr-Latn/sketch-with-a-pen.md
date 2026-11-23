@@ -1,32 +1,36 @@
 ---
-title: Skiciraj olovkom i dobij precizne oblike
-summary: Crtaj slobodnom rukom olovkom, mišem ili prstom, i svaki potez postaje čista linija, krug, luk, pravougaonik ili polilinija čim podigneš olovku, pripijen uz ono što je već nacrtano, sa dimenzijom koju možeš odmah da upišeš preko.
-keywords: skica, olovka, pero, slobodna ruka, prst, čišćenje, precizno, pripijanje, SKETCHLIVE, SKETCHFIX, dimenzija, upis preko
-from: cd87eb75
+title: Skicirajte olovkom i dobijte preciznu geometriju
+summary: Crtajte slobodnom rukom olovkom, mišem ili prstom i svaka linija postaje čista linija, krug, luk, pravougaonik ili polilinija čim podignete olovku, pritegnuta uz ono što je već nacrtano, sa veličinom spremnom za prepisivanje.
+keywords: skica, olovka, pero, slobodna ruka, prst, očisti, precizno, pritezanje, SKETCHLIVE, SKETCHFIX, veličina, prepiši preko, pritisak, debljina linije, Apple Pencil, PENPRESSURE
+from: bfb4027b
 ---
 
-Pokreni {{cmd:SKETCHLIVE}} (ili izaberi **Crtanje › Više › Skiciraj olovkom**) i nacrtaj potez pritiskom i prevlačenjem. Kada podigneš olovku, CadCraft razume šta si nameravao i upisuje to u crtež:
+Pokrenite {{cmd:SKETCHLIVE}} (ili izaberite **Crtanje › Više › Skiciranje olovkom**) i nacrtajte liniju pritiskom i prevlačenjem. Kada podignete olovku, CadCraft čita šta ste hteli i stavlja to u crtež:
 
-| Tvoj potez | Šta dobijaš |
+| Vaša linija | Šta dobijate |
 |---|---|
-| Skoro prav | Linija. Skoro vodoravna ili uspravna linija postaje tačno vodoravna ili uspravna. |
-| Zatvoren i okrugao | Krug |
+| Skoro prava | Linija. Skoro vodoravna ili uspravna linija postaje tačno vodoravna ili uspravna. |
+| Zatvorena i okrugla | Krug |
 | Deo okrugle figure | Luk |
-| Zatvoren, sa četiri prava ugla | Pravougaonik |
-| Sve ostalo | Polilinija sa pravouglim stranicama |
+| Zatvorena sa četiri prava ugla | Pravougaonik |
+| Sve ostalo | Polilinija sa uglastim stranicama |
 
-Krajevi poteza se vuku na najbliži kraj onoga što je već nacrtano, pa se nacrtani zid spaja sa zidom pored njega.
+Krajevi linije se povlače na najbliži kraj onoga što je već nacrtano, pa se skicirani zid spaja sa zidom pored njega.
 
-## Upis preko mere
+## Prepisivanje veličine
 
-Posle svakog poteza komandna linija prikazuje njegovu meru (dužinu linije, **poluprečnik** kruga ili luka, **širinu** pravougaonika) kao podrazumevanu vrednost. Pritisni {{key:Enter}} da je zadržiš, ili ukucaj broj ili dužinu, na primer `12'6"`, da je zameniš. Linija zadržava prvi kraj, krug svoj centar, a pravougaonik svoj prvi ugao.
+Posle svake linije komandna linija prikazuje njenu veličinu (dužinu linije, poluprečnik kruga ili luka, širinu pravougaonika) kao podrazumevanu vrednost. Pritisnite {{key:Enter}} da je zadržite, ili ukucajte broj ili dužinu, na primer `12'6"`, da je zamenite. Linija zadržava prvi kraj, krug svoj centar, pravougaonik svoj prvi ugao.
 
-Pritisni {{key:Enter}} na praznom upitu da završiš, ili ukucaj `U` da vratiš poslednji potez. Cela sesija je jedan korak opozivanja.
+Pritisnite {{key:Enter}} na praznom upitu da završite, ili ukucajte `U` da opozovete poslednju liniju. Cela sesija je jedan korak opozivanja.
 
-## Čišćenje više poteza odjednom
+## Čišćenje više linija odjednom
 
-{{cmd:SKETCHFIX}} skuplja potege i sve ih precizno izrađuje kada pritisneš {{key:Enter}}, što odgovara grubom rasporedu nacrtanom brzo.
+{{cmd:SKETCHFIX}} skuplja linije i čini ih sve preciznim kada pritisnete {{key:Enter}}, što odgovara grubom rasporedu nacrtanom brzo.
 
 :::note
-Sve se računa na tvom računaru prema pravilima, bez modela i bez slanja ičega nigde.
+Sve se računa na vašem računaru pravilima, bez modela i bez slanja bilo kuda.
 :::
+
+## Pritisak određuje debljinu linije
+
+Kada je olovka uključena za aplikacije (Podešavanja › Opšte › Ulazni uređaji › Olovka), linija nacrtana olovkom nosi svaku tačku koju je olovka dala i njen pritisak. Lagana linija pravi tanak objekat, a jaka debeo: prosečan pritisak linije bira 0.18, 0.25, 0.35 ili 0.50 mm, a komandna linija kaže koji. Linije nacrtane mišem ili prstom uzimaju tekuću debljinu linije kao i ranije. {{cmd:PENPRESSURE}} to isključuje (ili ponovo uključuje); izbor se čuva u ovom pregledaču.

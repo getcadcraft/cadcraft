@@ -36,6 +36,9 @@ const KIND_COLOR = {
   perp: '--layer-magenta', lock: '--layer-magenta', axis: '--ink-2', plane: '--ink-2', ground: '--ink-2', none: '--ink-2',
 };
 
+/** 0.11 PERF.7: meshes with more corners than this are first built in slices of about SLICE_MS of work each. */
+const SLICE_CORNERS = 120000, SLICE_MS = 45;
+
 export class View3D {
   constructor(gl, over, { model, cam, ui }) {
     this.gl = gl; this.over = over; this.model = model; this.cam = cam; this.ui = ui;
@@ -101,6 +104,26 @@ export class View3D {
     this.cam.setSize(this.w, this.h);
     this.invalidate();
   }
+  /**
+   * 0.11 TW.13: a display-only matrix per mesh definition. Every placement of the definition is drawn at its own matrix times M (M in the definition's own
+   * space, 16 numbers, column-major), so a joint can move the model's part in the view. Never saved, never in the undo history, never in the model's box or
+   * a pick; null clears. Survives a rebuild of the scene. Returns false for an unknown definition or a matrix that is not 16 finite numbers.
+   */
+  setDisplayMatrix(defId, m) {
+    this.displayM = this.displayM || new Map();
+    if (m !== null && m !== undefined && !(Array.isArray(m) || ArrayBuffer.isView(m)) || (m && (m.length !== 16 || !Array.from(m).every(Number.isFinite)))) return false;
+    if (m == null) this.displayM.delete(defId); else if (this.model.def(defId)) this.displayM.set(defId, Array.from(m)); else return false;
+    const D = this.displayM.get(defId);
+    for (const g of this.defGroups?.get(defId) || []) g.matrix.fromArray(D ? mmul4(g.userData.base, D) : g.userData.base);
+    this.root.updateMatrixWorld(true);
+    this.invalidate();
+    return true;
+  }
+  /** The display matrix of a definition, or null. */
+  displayMatrixOf(defId) { return this.displayM?.get(defId) || null; }
+  clearDisplayMatrices() {
+    for (const id of [...(this.displayM?.keys() || [])]) this.setDisplayMatrix(id, null);
+  }
   invalidate() {
     if (this._raf) return;
     this._raf = requestAnimationFrame(() => { this._raf = 0; this.draw(); });
@@ -120,6 +143,9 @@ export class View3D {
       g.def = def; Object.assign(g, this.model.stamp ? this.model.stamp(def) : { v: this.model.version });
       return g;
     }
+    // 0.11 PERF.7: a big mesh the view has not drawn yet (an import, a file opened) is built in slices after this frame; an edit
+    // of a mesh already drawn is built at once, so it never blinks
+    if (def.mesh && !g && this.slices !== false && (def.shown || def.mesh).nh > SLICE_CORNERS) return this.meshGeometryLater(def, dflt, key);
     if (g) { g.faces?.dispose(); g.edges?.dispose(); for (const x of g.mats || []) x.geometry.dispose(); }
     if (def.mesh) { g = this.meshGeometry(def, dflt); this.cache.set(key, g); return g; }
     const plain = [];   // [fid, normal, colour, triangles] of the faces drawn in colour
@@ -201,8 +227,20 @@ export class View3D {
    * UVs (the mesh's 'uv' layer when it has one).
    */
   meshGeometry(def, dflt) {
+    const it = this.meshGeometrySteps(def, dflt);
+    for (;;) { const r = it.next(); if (r.done) return r.value; }
+  }
+  /**
+   * 0.11 PERF.7: meshGeometry as steps — it stops (yields) every 16,384 faces, triangles or corners, so a big mesh can be built
+   * over several short tasks (meshGeometryLater) instead of one long one. Run to the end it is exactly meshGeometry.
+   */
+  *meshGeometrySteps(def, dflt) {
+    const stamp0 = this.model.stamp ? this.model.stamp(def) : { v: this.model.version };
     const mesh = def.shown || def.mesh, P = mesh.P, hV = mesh.hV;   // MD.3: with its modifiers
-    const T = mesh.triangulate(), N = mesh.cornerNormals();
+    // 0.11 PERF.7: a mesh built by an import in the worker comes with these two already worked out (import-job.js), used once
+    const pre = mesh._viewPre && mesh._viewPre.v === mesh.v && mesh._viewPre.topo === mesh.topo ? mesh._viewPre : null;
+    mesh._viewPre = null;
+    const T = pre ? pre.T : mesh.triangulate(), N = pre ? pre.N : mesh.cornerNormals();
     const front = new THREE.Color(paintHex(dflt) || this.c.front);
     const tex = this.textures, uvA = mesh.attrArray('uv');
     const maskA = this.showMask && def.mesh === mesh ? mesh.attrArray('mask') : null;   // MD.7: sculpting shows the mask darker
@@ -214,6 +252,7 @@ export class View3D {
     const faceKind = new Int32Array(mesh.nf).fill(-1);   // -1 plain, else index into mats
     const matKeys = [];
     for (let f = 0; f < mesh.nf; f++) {
+      if ((f & 16383) === 16383) yield;
       if (mesh.faceDead(f)) continue;
       const paint = mesh.facePaint(f) || dflt;
       const tkey = isMaterialPaint(paint) ? paint : isImagePaint(paint) ? 'img:' + imageId(paint) : null;
@@ -238,6 +277,7 @@ export class View3D {
     const fn = [0, 0, 0];
     const imgK = new Map();   // an image paint's eight numbers (imageUV's), read once per paint instead of once per corner
     for (let i = 0; i < T.n; i++) {
+      if ((i & 16383) === 16383) yield;
       const f = T.face[i], mk = faceKind[f];
       if (mk >= 0) {
         const b = mats[mk], paint = mesh.facePaint(f) || dflt, img = b.id.startsWith('img:'), uvp = b.id.startsWith('uv:');
@@ -286,12 +326,13 @@ export class View3D {
     const tw = mesh.hTw, hFl = mesh.hFl, hF = mesh.hF, ff = mesh.fFl;
     const shows = (h) => !(hFl[h] & FL_DEAD) && !(ff[hF[h]] & FL_HIDE);
     const hard = (h) => shows(h) && (tw[h] < 0 || ((hFl[h] & FL_SHARP) && (tw[h] > h || !shows(tw[h]))));
-    for (let h = 0; h < mesh.nh; h++) if (hard(h)) ne++;
+    for (let h = 0; h < mesh.nh; h++) { if ((h & 65535) === 65535) yield; if (hard(h)) ne++; }
     const cl = def.curve ? MESH_HOOKS.lines?.(def) : null;   // MD.6: a curve object draws its curve too
     const ep = new Float32Array(ne * 6 + (cl ? cl.length : 0));
     if (cl) ep.set(cl, ne * 6);
     k = 0;
     for (let h = 0; h < mesh.nh; h++) {
+      if ((h & 65535) === 65535) yield;
       if (!hard(h)) continue;
       const a = hV[h] * 3, b = mesh.head(h) * 3;
       ep[k++] = P[a]; ep[k++] = P[a + 1]; ep[k++] = P[a + 2]; ep[k++] = P[b]; ep[k++] = P[b + 1]; ep[k++] = P[b + 2];
@@ -299,11 +340,11 @@ export class View3D {
     const edges = new THREE.BufferGeometry();
     edges.setAttribute('position', new THREE.BufferAttribute(ep, 3));
     const mg = mats.map((b) => {
-      const x = new THREE.BufferGeometry();
-      x.setAttribute('position', new THREE.Float32BufferAttribute(b.pos, 3));
-      x.setAttribute('normal', new THREE.Float32BufferAttribute(b.nor, 3));
-      x.setAttribute('color', new THREE.Float32BufferAttribute(b.col, 3));
-      x.setAttribute('uv', new THREE.Float32BufferAttribute(b.uv, 2));
+      const x = new THREE.BufferGeometry();   // 0.11 PERF.7: the arrays are already Float32Arrays of the right length: taken, not copied
+      x.setAttribute('position', new THREE.BufferAttribute(b.pos, 3));
+      x.setAttribute('normal', new THREE.BufferAttribute(b.nor, 3));
+      x.setAttribute('color', new THREE.BufferAttribute(b.col, 3));
+      x.setAttribute('uv', new THREE.BufferAttribute(b.uv, 2));
       return { id: b.id, geometry: x };
     });
     const cornerOf = new Int32Array(nv);
@@ -311,10 +352,48 @@ export class View3D {
     const edgeHe = new Int32Array(ne);
     k = 0;
     for (let h = 0; h < mesh.nh; h++) if (hard(h)) edgeHe[k++] = h;
-    return { def, ...(this.model.stamp ? this.model.stamp(def) : { v: this.model.version }), faces, edges, mats: mg, hasFaces: nv > 0 || mg.length > 0,
+    return { def, ...stamp0, faces, edges, mats: mg, hasFaces: nv > 0 || mg.length > 0,
       mesh, topo: mesh.topo, mv: mesh.v, live: mesh.live, liveTopo: mesh.liveTopo, cornerOf, edgeHe, normalsStale: false,
       ...(maskA ? { masked: true, baseCol: Float32Array.from(faces.attributes.color.array).map((x, i) => { const v = hV[cornerOf[Math.floor(i / 3)]]; return x / (1 - 0.6 * maskA[v]); }) } : {}) };
   }
+  /**
+   * 0.11 PERF.7: the geometry of `def` built over several tasks (meshGeometrySteps, about SLICE_MS each); until it is done the
+   * definition draws nothing (an empty stand-in, not kept). When it is done it is kept like any other and the view redraws.
+   * A definition or mesh that changed in the meantime is started again from the next frame's ask.
+   */
+  meshGeometryLater(def, dflt, key) {
+    this._later ||= new Map();
+    const ms = def.shown || def.mesh;
+    let job = this._later.get(key);
+    if (!job || job.def !== def || job.mesh !== ms || job.v !== ms.v || job.topo !== ms.topo) {
+      job = { def, mesh: ms, v: ms.v, topo: ms.topo, it: this.meshGeometrySteps(def, dflt),
+        stub: { def, faces: new THREE.BufferGeometry(), edges: new THREE.BufferGeometry(), mats: [], hasFaces: false, pending: true } };
+      this._later.set(key, job);
+    }
+    if (!this._laterTimer) this._laterTimer = setTimeout(() => this.pumpLater(), 0);
+    return job.stub;
+  }
+  pumpLater() {
+    this._laterTimer = 0;
+    const t0 = performance.now();
+    let done = false;
+    for (const [key, job] of this._later) {
+      const ms = job.def.shown || job.def.mesh;
+      if (this.model.def(job.def.id) !== job.def || ms !== job.mesh || ms.v !== job.v || ms.topo !== job.topo) { this._later.delete(key); done = true; continue; }
+      let r;
+      do r = job.it.next(); while (!r.done && performance.now() - t0 < SLICE_MS);
+      if (!r.done) break;
+      this._later.delete(key);
+      if (this.cache.get(key)) { const o = this.cache.get(key); o.faces?.dispose(); o.edges?.dispose(); for (const x of o.mats || []) x.geometry.dispose(); }
+      this.cache.set(key, r.value);
+      done = true;
+      if (performance.now() - t0 >= SLICE_MS) break;
+    }
+    if (done) { this.builtFor = null; this.invalidate(); }
+    if (this._later.size) this._laterTimer = setTimeout(() => this.pumpLater(), 0);
+  }
+  /** True while some geometry is still being built in slices (tests wait for it). */
+  get building() { return !!this._later?.size; }
   /**
    * A mesh's points moved, nothing else (0.7 MD.2): copy the positions into the buffers in place; normals too for a
    * mesh up to 300 000 corners (a bigger one gets them on settle(): after a drag ends, an undo).
@@ -573,6 +652,7 @@ export class View3D {
 
   build() {
     for (const o of [...this.root.children]) { if (o.userData.cap) o.geometry.dispose(); this.root.remove(o); }
+    this.defGroups = new Map();   // 0.11 TW.13: the groups of each definition's placements, for setDisplayMatrix
     const u = this.ui();
     // materials are kept while the style and colours stay the same (a new material is a new shader program to compile)
     const mkey = this.style.mode + '|' + this.c.bg + '|' + this.c.back + '|' + this.c.ink;
@@ -630,7 +710,9 @@ export class View3D {
         if (!d || (inst.hidden && !showHidden) || (inst.tag && offTags.has(inst.tag))) continue;
         const grp = new THREE.Group();
         grp.matrixAutoUpdate = false;
-        grp.matrix.fromArray(inst.m);
+        grp.matrix.fromArray(this.displayM?.has(inst.def) ? mmul4(inst.m, this.displayM.get(inst.def)) : inst.m);
+        grp.userData.base = inst.m;
+        (this.defGroups.get(inst.def) || this.defGroups.set(inst.def, []).get(inst.def)).push(grp);
         parent.add(grp);
         addDef(d, grp, [...path, iid], depth + 1, inst.color || dflt, mmul4(wm, inst.m), ghost || !!inst.hidden);
       }
@@ -958,6 +1040,7 @@ export class View3D {
     g.lineWidth = width + 0.75;
     for (const e of s) { g.beginPath(); g.moveTo(e[0] - tx, e[1] - ty); g.lineTo(e[0] + tx, e[1] + ty); g.stroke(); }
     const text = formatLength(l.L, this.model.units), b = dimTextBox(l.M, text);
+    // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
     g.font = `600 ${dimTextSize()}px Archivo, system-ui, sans-serif`;
     g.fillStyle = this.c.bg; g.fillRect(b.x, b.y, b.w, b.h);
     g.lineWidth = 1; g.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);
@@ -1001,6 +1084,7 @@ export class View3D {
     }
     if (!l.M) return;
     const text = dimText(l, (m) => formatLength(m, this.model.units)), b = dimTextBox(l.M, text);
+    // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
     g.font = `600 ${dimTextSize()}px Archivo, system-ui, sans-serif`;
     g.fillStyle = this.c.bg; g.fillRect(b.x, b.y, b.w, b.h);
     g.lineWidth = 1; g.strokeRect(b.x + 0.5, b.y + 0.5, b.w - 1, b.h - 1);

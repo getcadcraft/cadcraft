@@ -1,118 +1,120 @@
 ---
 title: Organizar un plano con capas
-summary: Crear capas para muros, puertas y notas, poner colores, hacer una capa actual y apagar, congelar, bloquear o evitar que se impriman.
-keywords: capa, capas, la, capa actual, congelar, descongelar, bloquear, apagar, encender, imprimir, no imprimir, color, propiedades de capa, layiso, layuniso, aislar, layoff, layfrz, laymcur, layon, laythw, renombrar, laymrg, combinar, laydel, eliminar capa
-from: cd033591
+summary: Creá capas para muros, puertas y notas, ajustá colores, hacé una capa actual y apagá, congelá, bloqueá o excluí capas de la impresión.
+keywords: capa, capas, la, capa actual, congelar, descongelar, bloquear, apagar, encender, trazar, no trazar, color, colour, propiedades de capa, layiso, layuniso, aislar, layoff, layfrz, laymcur, layon, laythw, renombrar, laymrg, fusionar, laydel, eliminar capa
+from: ba9f0617
 ---
 
-## Lo que vas a hacer
+## Mba'épa rejapóta
 
-Tres capas, Muros, Puertas y Notas, cada una con su propio color, con objetos dibujados en cada una y movidos entre ellas.
+Mbohapy capa, Muros, Puertas y Notas, peteĩteĩ color, objetos peteĩteĩ-pe dibujado ha ambue capa-pe ojemboyke.
 
-## El panel de Capas
+## Panel de capas
 
-Las capas están en el panel de la izquierda, bajo {{ui:Layers}}. Cada fila muestra, de izquierda a derecha:
+Capas oĩ panel izquierda-pe, {{ui:Capas}} rehe. Peteĩteĩ fila ohechauka, izquierda derecha-pe:
 
-- un punto: lleno para la capa **actual**, donde van los objetos nuevos;
-- una muestra de color;
-- el nombre de la capa;
-- cuatro botones: encendido/apagado (ojo), congelar (copo de nieve), bloquear (candado) e imprimir (impresora).
+- peteĩ punto: lleno **capa actual**, objetos pyahu hague;
+- color cuadrito;
+- capa nombre;
+- cuatro botón: encender/apagar (ojo), congelar (copo), bloquear (candado) y trazar (impresora).
 
-Todo plano tiene una capa llamada `0`. Escribir `LA` y presionar {{key:Enter}} lleva al panel.
+Opavave plano-pe oĩ capa `0`. `LA` ehai ha omoĩ {{key:Enter}}, panel-pe ojepyrũ.
 
-## Crear capas
+## Capas ojapo
 
-1. Hacé click en {{ui:New layer}} encima de la lista. Se abre una casilla de nombre.
-2. Escribí `Muros` y presioná {{key:Enter}} (o hacé click en {{ui:Add}}).
+1. Ejecutá {{ui:Nueva capa}} lista arriba. Nombre cuadro ojepyrũ.
+2. Ehai `Walls` ha omoĩ {{key:Enter}} (térã ejecutá {{ui:Agregar}}).
 
-La barra de estado dice "Se agregó la capa Muros y se hizo actual." La nueva capa recibe el color 7 (negro en el tema claro, blanco en el oscuro).
+Estado línea: "Capa Walls agregada y hecha actual." Capa nueva color 7 (negro tema claro-pe, blanco oscuro-pe).
 
-3. Hacé click otra vez en {{ui:New layer}}, escribí `Puertas` y presioná {{key:Enter}}.
-4. Hacé click otra vez en {{ui:New layer}}, escribí `Notas` y presioná {{key:Enter}}.
+3. Ejecutá de nuevo {{ui:Nueva capa}}, ehai `Doors` ha omoĩ {{key:Enter}}.
+4. Ejecutá de nuevo {{ui:Nueva capa}}, ehai `Notes` ha omoĩ {{key:Enter}}.
 
-Ahora Notas es la actual.
+Notes ojeikuaa actual.
 
-## Dar color a cada capa
+## Peteĩteĩ capa color
 
-1. Hacé click en la muestra de color de la fila Muros. Se abre el selector de color de tu sistema.
-2. Elegí un color y confirmá.
+1. Eclic color cuadrito Walls fila-pe. Sistema color selector ojepyrũ.
+2. Eiporavo color ha confirmá.
 
-La muestra y todo lo de Muros que esté en color {{ui:By layer}} cambian.
+Cuadrito ha Walls-pe objetos {{ui:Por capa}} color ojambia.
 
 :::note
-Un color elegido que coincida con uno de los 255 colores CAD estándar se guarda como ese número. Cualquier otro color se conserva exacto en CadCraft, pero se guarda como el color estándar más cercano en un archivo DWG o DXF.
+Color ojeporu 255 estándar CAD color-kuéra peteĩ, número ojeguarda. Ambue color CadCraft-pe tal cual oñeguarda, DWG térã DXF-pe color estándar ojoguáva ojeguarda.
 :::
 
-## Dibujar en una capa
+## Capa-pe dibujá
 
-1. Hacé click en el nombre **Muros** de la lista. Su punto se llena y la barra de estado dice "Capa actual: Muros".
-2. Dibujá un rectángulo (`REC`). Va en Muros.
-3. Hacé click en **Puertas** y dibujá un arco (`A`). Va en Puertas.
+1. Eclic **Walls** nombre lista-pe. Punto lleno ojeikuaa ha estado línea "Capa actual: Walls".
+2. Dibujá rectángulo (`REC`). Walls-pe oike.
+3. Eclic **Doors**, ha dibujá arco (`A`). Doors-pe oike.
 
-También podés elegir la capa actual en {{ui:Current settings}} a la derecha (sin nada seleccionado), bajo {{ui:Layer}}.
+Ikatu avei eiporavo capa actual {{ui:Configuración actual}} derecha-pe ({{ui:Capa}} rehe), objeto ndaipóri.
 
-## Mover objetos a otra capa
+## Objetos capa ambue-pe omoĩ
 
-1. Seleccioná los objetos.
-2. En el panel derecho, elegí la nueva capa en {{ui:Layer}}.
+1. Eiporavo objetos.
+2. Derecha panel-pe, {{ui:Capa}}-pe eiporavo capa pyahu.
 
-Pasan a esa capa y toman su color si su color es {{ui:By layer}}.
+Capa pyahu-pe oike, ha color capa ndive oje'ẽ si color {{ui:Por capa}} ha'e.
 
-## Apagar, congelar, bloquear e imprimir
+## Apagar, congelar, bloquear y trazar
 
-| Botón | Qué hace |
+| Botón | Mba'e ojapo |
 |---|---|
-| Encendido/apagado (ojo) | Oculta los objetos de la capa. No se pueden ver, seleccionar ni ajustar a ellos. |
-| Congelar (copo de nieve) | En CadCraft tiene el mismo efecto que apagar. Se mantiene separado porque otros programas los tratan distinto, y el ajuste se guarda. |
-| Bloquear (candado) | Los objetos siguen visibles y podés ajustarte a ellos, pero no se pueden seleccionar ni cambiar. Sirve para un fondo sobre el que calcás. |
-| Imprimir (impresora) | Cuando está presionado, la capa se muestra en pantalla pero **se deja fuera de las impresiones** y de los PDF. Usalo para líneas de construcción y notas para vos. |
+| Encender/apagar (ojo) | Capa objetos ohechakuaa. Ndaikatúi ohechaukái, eiporavo, ni ajustar. |
+| Congelar (copo) | CadCraft-pe apagar ndive mba'eichagua. Ambue programa-pe ojapo ojekuaa oĩha, ojeguarda. |
+| Bloquear (candado) | Objetos ohechaukáva, ajustable, pero ndaikatúi eiporavo térã ojambia. Trace fondo-pe ojeporu. |
+| Trazar (impresora) | Apretado ramo, pantalla-pe ohechauka, pero **plotea ndaha'éi** trazado y PDF-pe. Construcción líneas ha notas ojeporu. |
 
-Pasá el puntero sobre un botón para ver qué hará ("Apagar", "Congelar", "Bloquear", "No imprimir esta capa").
+Botón-pe mboheja ohechauka mba'e ojapo ("Apagar", "Congelar", "Bloquear", "No trazar esta capa").
 
-No podés apagar la capa actual: la barra de estado dice "Esa es la capa actual. Primero hacé actual otra capa." Hacer click en el nombre de una capa para volverla actual también la enciende y la descongela.
+Capa actual apagar ndaikatúi: estado línea "Esa es la capa actual. Primero hacé otra capa actual." Capa nombre eclic ojehecha actual, avei encendida ha descongelada.
 
-Cada cambio de capa, en el panel o con un comando, es un paso de deshacer: {{key:Mod+Z}} lo devuelve.
+Capa cambio, panel térã comando-pe, peteĩ paso deshacer: {{key:Mod+Z}} oguejy.
 
-## Trabajar con capas eligiendo objetos
+## Objetos eiporavo capa-pe trabajar
 
-No necesitás saber el nombre de una capa: elegí un objeto que esté en ella. Escribí el comando, o abrí {{ui:Tools}} arriba del panel {{ui:Layers}}.
+Capa nombre ndaikuaáiva: peteĩ objeto eiporavo capa-pe. Comando ehai térã {{ui:Herramientas}} Capas panel arriba-pe ehai.
 
-| Comando | Qué hace |
+| Comando | Mba'e ojapo |
 |---|---|
-| {{cmd:LAYISO}} | Seleccioná objetos y presioná {{key:Enter}}: solo sus capas quedan encendidas, y todas las demás se apagan. Si la capa actual estaba apagada, una de las capas aisladas pasa a ser la actual. |
-| {{cmd:LAYUNISO}} | Vuelve a encender las capas que apagó el último {{cmd:LAYISO}}, y devuelve la capa actual que había cambiado. |
-| {{cmd:LAYOFF}} | Hacé click en objetos uno tras otro: se apaga la capa de cada uno. Escribí `U` para quitar el último, {{key:Enter}} para terminar. |
-| {{cmd:LAYFRZ}} | Igual, pero congelando la capa de cada uno. |
-| {{cmd:LAYMCUR}} | Hacé click en un objeto: su capa pasa a ser la actual (y se enciende y descongela). Si ya hay un objeto seleccionado, se usa ese. |
-| {{cmd:LAYON}} | Enciende todas las capas. |
-| {{cmd:LAYTHW}} | Descongela todas las capas. |
+| {{cmd:LAYISO}} | Objetos eiporavo, {{key:Enter}}: ha'e capa-kuéra oiko; ambue opavave apagado. Capa actual apagado ramo, aislada peteĩ capa actual oiko. |
+| {{cmd:LAYUNISO}} | Última {{cmd:LAYISO}} apagado capa-kuéra oiko, ha capa actual ojambia oguejy. |
+| {{cmd:LAYOFF}} | Eclic objeto peteĩ-peteĩ: capa apagado. `U` oguejy última, {{key:Enter}} ojepe'a. |
+| {{cmd:LAYFRZ}} | Upe ndive, capa congelado. |
+| {{cmd:LAYMCUR}} | Eclic objeto: capa actual (encendida ha descongelada). Objeto ojeporúva seleccionado, upe ojeporu. |
+| {{cmd:LAYON}} | Opavave capa encendida. |
+| {{cmd:LAYTHW}} | Opavave capa descongelada. |
 
-La capa actual nunca se apaga ni se congela de esta forma: el historial lo indica, y podés hacer actual otra capa con {{cmd:LAYMCUR}} antes. Al elegir una referencia de bloque se usa la capa propia de la referencia.
+Capa actual ndojekongelái ni apagáiva ko'ã forma-pe: historia oinforma, ha {{cmd:LAYMCUR}}-pe otra capa actual hace primero. Objeto bloque referencia eiporavo, referencia capa ojeporu.
 
-## Renombrar, combinar y eliminar capas
+## Renombrar, fusionar y eliminar capas
 
-- {{cmd:RENAME}}: escribí `LA`, el nombre viejo y el nuevo. Cada objeto de la capa lo sigue. (`B` renombra un bloque de la misma forma, con todas sus referencias.)
-- {{cmd:LAYMRG}}: hacé click en un objeto de cada capa a combinar (o escribí `N` y un nombre), presioná {{key:Enter}}, luego elegí la capa destino y respondé `Y`. Los objetos pasan al destino —en el modelo, en las hojas y dentro de bloques— y las capas combinadas desaparecen.
-- {{cmd:LAYDEL}}: elegí un objeto de la capa (o `N` y su nombre) y respondé `Y`. La capa se va **con todos los objetos que tiene**, en todas partes. La capa 0, DEFPOINTS y la capa actual no se pueden eliminar.
+- {{cmd:RENAME}}: ehai `LA`, capa vieja nombre ha nuevo. Capa objetos opavave oguejy. (`B` bloque renombra, referencia opavave.)
+- {{cmd:LAYMRG}}: eclic objeto peteĩ capa-pe fusionar (térã ehai `N` ha nombre), {{key:Enter}}, eiporavo capa destino ha `Y` ehai. Objetos destino-pe oike, fusionado capa-kuéra oguejy.
+- {{cmd:LAYDEL}}: eiporavo objeto capa-pe (térã `N` ha nombre) ha `Y`. Capa ha **opavave objetos ijehe** oguejy. Capa 0, DEFPOINTS ha capa actual ndojejuhúi.
 
-Cada uno es un paso de deshacer. Los tres están en {{ui:Tools}} arriba del panel {{ui:Layers}}.
+Peteĩteĩ peteĩ paso deshacer. Opavave {{ui:Herramientas}} capas panel arriba-pe.
 
-1. Hacé click en una línea de muro, luego escribí `LAYISO` y presioná {{key:Enter}}. Solo Muros queda encendida.
-2. Dibujá o cambiá lo que necesités en Muros.
-3. Escribí `LAYUNISO` y presioná {{key:Enter}}. Puertas y Notas vuelven.
+1. Eclic peteĩ muro línea, ehai `LAYISO` ha {{key:Enter}}. Walls ha'e apagado noviávo.
+2. Walls-pe ojapo ojeporúva.
+3. Ehai `LAYUNISO` ha {{key:Enter}}. Doors ha Notes ojevolve.
 
-## Errores comunes
+## Common mistakes
 
-- **Las líneas nuevas fueron a la capa equivocada.** Mirá qué punto está lleno antes de dibujar. Una capa nueva se vuelve actual apenas la agregás.
-- **Un objeto no se selecciona.** Su capa está bloqueada, apagada o congelada.
-- **La capa todavía se imprime en otro programa.** DXF R12 no puede guardar "no imprimir". CadCraft conserva el ajuste para sí cuando el plano tiene una hoja, pero otros programas imprimirán esa capa.
-- **Nombres de capa en mayúsculas después de guardar.** DXF R12 guarda los nombres en mayúsculas, así que `Muros` vuelve como `MUROS`, y los espacios pasan a `_`. Un DWG guardado conserva los nombres como los escribiste.
-- **Renombrar, combinar o eliminar una capa.** Usá {{cmd:RENAME}}, {{cmd:LAYMRG}} o {{cmd:LAYDEL}} (también en {{ui:Tools}}): ver más abajo.
+- **Línea mbohapy capa-pe ojeikuaa.** Dibujá mboyve punto lleno ehecha. Capa agregada oñemoĩ actual.
+- **Objeto ndoseleccionáiva.** Capa bloqueado, apagado térã congelado.
+- **Capa ambue programa-pe imprimir.** DXF R12 "no trazar" ndoguarda. CadCraft hoja oguerekoramo oguarda, pero ambue programa ojeplotea capa.
+- **Capa nombre mayúscula guardado ramo.** DXF R12 nombre mayúscula oguarda, `Walls` `WALLS` ha espacio `_`. DWG tal cual oguarda.
+- **Capa renombrar, fusionar, eliminar.** {{cmd:RENAME}}, {{cmd:LAYMRG}} térã {{cmd:LAYDEL}} ({{ui:Herramientas}}-pe avei): eheka hechauka.
 
-## Agrupar capas
+## Grupos de capas
 
-Mantené corta la lista poniendo las capas en carpetas, como Existentes, Propuestas y Servicios. Cada carpeta se pliega, y sus interruptores encienden o apagan todas sus capas, las congelan o las bloquean juntas. La capa actual nunca se apaga.
+Lista pyahu-pe capa-kuéra carpeta-pe omoĩ, ko'ã ejemplo: Existentes, Propuestas ha Servicios. Carpeta oñemboty, ha conmutadores opavave capa ojehai, apagado térã encendido, congelado térã bloqueado. Capa actual ndoapagáiva.
 
-En {{ui:Tools}} del panel de Capas, elegí {{ui:Add ready-made groups}} para un conjunto pensado para obras residenciales pequeñas, {{ui:Group by name}} para agrupar capas que comparten un prefijo (`E-Muros`, `E-Puertas`), o {{ui:New group}}. Arrastrá una capa sobre una carpeta, o usá la lista de arriba para la capa actual. Escribí en {{ui:Find a layer}} para reducir la lista. `LAYGROUP` (`LG`) hace lo mismo en la línea de comandos.
+{{ui:Herramientas}} Capas panel-pe, {{ui:Agregar grupos predefinidos}} ehai, residencial pequeño trabajo-pe; {{ui:Agrupar por nombre}} prefijo ha'e capa-kuéra (`E-Walls`, `E-Doors`), térã {{ui:Nuevo grupo}}. Capa carpeta-pe arrastrá, térã lista arriba actual capa-pe. Escribí {{ui:Buscar una capa}}-pe lista achicá. `LAYGROUP` (`LG`) línea de comandos-pe mismo.
 
-Las capas en sí no cambian, así que otros programas CAD las ven como una lista plana común. CadCraft guarda los grupos en el archivo.
+Grupo nombre renombrar: doble clic nombre-pe (térã F2), escribí nombre pyahu ha {{key:Enter}}; {{key:Esc}} viejo mantiene, {{cmd:UNDO}} oguejy. {{ui:Nuevo grupo}} {{ui:Herramientas}}-pe.
+
+Capas propias ndojambiái, ambue CAD programa-pe lista plana. CadCraft archivo-pe grupo oguarda.

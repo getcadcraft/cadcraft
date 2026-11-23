@@ -2,7 +2,7 @@
 title: 0.7 版的新增内容（早期版本）
 summary: PDF 底图与 PDF 导入、扫描图形及自动描摹、真正的样条曲线（SPLINE、SPLINEDIT 和 PEDIT）、标注样式管理器、保留格式的文字、WBLOCK 与自定义比例、其他程序中的 3D 实体、扫描配准、激光面板、USD 导出、历史记录与打印（在 CadCraft Studio 中）、引导式首个图形、可置于任一侧或较少行数的工具栏，以及更多 AI 助手功能。
 keywords: 0.7 新功能, 早期版本, 发行说明, 更新日志, 更改, 0.7, 版本, 新功能, pdf, pdfattach, pdfimport, 底图, 扫描, scanattach, scantrace, 描摹, 栅格, rastersnap, 样条曲线, splinedit, pedit, dimstyle, dimedit, dimtedit, mtext, 格式, wblock, scalelistedit, 比例列表, acis, 3D 实体, registerscans, 扫描配准, icp, e57, las, 激光, grbl, g-code, usd, usdout, 历史记录, 比较, 打印, 打印机, png, svg, 打印样式, 线型, 导览, 速查表, 命令图, 工具栏位置, 工具栏行数, toolbardock, regen, regenall, 触控板, 滑动, 代码页, 西里尔字母, 韩文, 中文, 日文, 电气, rcd, p&id, pid, acad.lsp, acaddoc.lsp, 支持文件夹, 助手, mcp, 单位, 葡萄牙语
-from: d07ca034
+from: d9a8ea79
 ---
 
 以下是 CadCraft 0.7 相对于 0.6 的变化。其中许多功能来自 Discord 上的请求。列表按领域分组，最重要的在前。

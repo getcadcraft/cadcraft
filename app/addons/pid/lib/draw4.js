@@ -162,7 +162,9 @@ export function install4(api, deps) {
   if (connectBody) {
     import('../../../live/connect-ui.js').then(({ mountConnect }) => {
       connectApi = mountConnect(connectBody, { t, load: () => api.storage.get('livemap'), save: (s) => api.storage.set('livemap', s), publish: (list) => publishCalc(list.map((p, i) => ({ code: p.code, severity: p.severity, text: p.text, about: p.about && p.about.length ? p.about : [{ kind: 'calc', id: 'live:' + (i + 1), label: 'Live data' }] }))),
-        onReadings: (store) => { if (api.doc) paintLive(api.doc, store, 'Live readings'); } });
+        onReadings: (store) => { if (api.doc) paintLive(api.doc, store, 'Live readings'); },
+        drawingTags: () => (api.doc ? readModel(api.doc).symbols.map((s) => s.tag).filter(Boolean).map(String) : []) });   // 0.11 IND.12: Fill the map from the drawing
+      api.onDeactivate(() => { try { connectApi.stop(); } catch { /* panel gone */ } });
     }).catch((e) => { connectBody.textContent = String(e && e.message || e); });
   }
 

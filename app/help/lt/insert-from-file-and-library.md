@@ -1,84 +1,103 @@
 ---
-title: Įterpimas iš failo ar bibliotekos
-summary: Įkelti bloką arba visą brėžinį iš kito DWG ar DXF failo ir įterpti elementus iš Bibliotekos, failo ar kitos bibliotekos, su autorystės nurodymais ir atnaujinimais.
-keywords: įterpti, failas, biblioteka, librarycraft, elementas, įranga, blokas iš kito brėžinio, wblock, dizaino centras, autorystė, nurodymas, licencija, atnaujinimas, srautas, item.json
-from: 316188d2
+title: Įterpti iš failo arba bibliotekos
+summary: Įkelkite bloką arba visą brėžinį iš kito DWG ar DXF ir įdėkite elementus iš bibliotekos, failo ar kitos bibliotekos, su jų autorių nuorodomis ir atnaujinimais.
+keywords: įterpti, failas, biblioteka, librarycraft, elementas, įranga, blokas iš kito brėžinio, wblock, dizaino centras, autoriai, autorystė, licencija, atnaujinimas, srautas, item.json
+from: f6e4e452
 ---
 
 ## Įterpti bloką iš kito brėžinio
 
-1. Įveskite `I` ir paspauskite {{key:Enter}}, arba spustelėkite {{ui:Įterpti}} Blokų grupėje.
-2. Prie `Įveskite bloko pavadinimą arba [Failas/Biblioteka (L)]` įveskite `F` ir paspauskite {{key:Enter}}.
-3. Pasirinkite DWG arba DXF šiame kompiuteryje. Jis nuskaitomas čia; jis neatveriamas, ir niekas nėra įkeliama.
-4. Dialoge {{ui:Įterpti iš}} pasirinkite bloką iš sąrašo (rašykite laukelyje {{ui:Filtruoti blokus}}, kad jį rastumėte), arba palikite {{ui:Visas brėžinys}}. Spustelėkite {{ui:Įterpti}}.
-5. Spustelėkite, kur jis turi būti, ir užpildykite visus atributus, kurių jis prašo.
+1. Įveskite `I` ir paspauskite {{key:Enter}}, arba spustelėkite {{ui:Įterpti}} grupėje Blokai.
+2. Komandų eilutė apačioje klausia `Įveskite bloko pavadinimą arba [Failas/Biblioteka]`. Įveskite ten `F` ir paspauskite {{key:Enter}}.
+3. Pasirinkite DWG arba DXF šiame kompiuteryje. Jis nuskaitomas čia; neatveriamas, ir niekas neįkeliama.
+4. Lange {{ui:Įterpti iš}} pasirinkite bloką sąraše (rašykite {{ui:Filtruoti blokus}}, kad rastumėte), arba palikite {{ui:Visas brėžinys}}. Spustelėkite {{ui:Įterpti}}.
+5. Spustelėkite, kur jis eis, ir užpildykite atributus, kurių prašo.
 
-Visas brėžinys įkeliamas kaip vienas blokas, pavadintas pagal failą. Bloke, kurį pasirinkote, esantys blokai įkeliami kartu. Sluoksniai, kuriuos jie naudoja, pridedami prie šio brėžinio.
+Galite pradėti ir iš {{ui:Blokai}} skydelio: įveskite `F` jo lauke {{ui:Filtruoti blokus}} ir paspauskite {{key:Enter}}, arba įveskite ką nors, ko nė vienas blokas neatitinka, ir spustelėkite {{ui:Iš failo…}}. `L` ir {{ui:Biblioteka…}} atveria biblioteką tuo pačiu būdu. Iki 0.10.1 versijos raidė, įvesta lauke {{ui:Filtruoti blokus}}, ieškojo tik šio brėžinio blokų ir atsakė „Nė vienas blokas neatitinka filtro.“
 
-Jei kito brėžinio vienetai kiti (pavyzdžiui, coliai ir milimetrai), CadCraft pritaiko nuorodos mastelį ir apie tai praneša istorijoje.
+Norėdami turėti savo blokų brėžinį po ranka, spustelėkite {{ui:Pridėti brėžinį}} po {{ui:Bibliotekos}} skyriumi {{ui:Blokų skydelyje}} ir pasirinkite DWG arba DXF. Jo blokai rodomi su paveikslėliais; spustelėkite vieną, kad jį įdėtumėte.
 
-### Kai pavadinimas jau naudojamas
+Visas brėžinys įeina kaip vienas blokas, pavadintas pagal failą. Pasirinkto bloko viduje esantys blokai įeina taip pat. Sluoksniai, kuriuos jie naudoja, pridedami prie šio brėžinio.
 
-Jei šiame brėžinyje jau yra blokas tuo pačiu pavadinimu, CadCraft klausia:
+Jei kitas brėžinys yra kitais vienetais (pvz., coliais ir milimetrais), CadCraft pritaiko nuorodą ir apie tai praneša istorijoje.
 
-- {{ui:Palikti esamus}} naudoja šio brėžinio bloką tuo pavadinimu.
-- {{ui:Pervadinti}} įkelia naują bloką kaip `Pavadinimas (2)`.
+### Kai vardas jau naudojamas
+
+Jei šis brėžinys jau turi bloką tokiu pačiu pavadinimu, CadCraft klausia:
+
+- {{ui:Palikti esamus}} naudoja šio brėžinio bloką su tuo pavadinimu.
+- {{ui:Pervardyti}} įneša naująjį kaip `Name (2)`.
 
 Visas įterpimas yra vienas žingsnis: {{key:Mod+Z}} pašalina nuorodą ir nukopijuotus apibrėžimus.
 
 ## Atverti biblioteką
 
-Spustelėkite {{ui:Biblioteka…}} {{ui:Blokai}} skydelyje, arba {{ui:Biblioteka}} Blokų grupėje, arba įveskite `LIB`. Prie `INSERT` raginimo `L` taip pat atveria ją.
+Spustelėkite {{ui:Biblioteka…}} skydelyje {{ui:Blokai}}, arba {{ui:Biblioteka}} grupėje Blokai, arba įveskite `LIB`. Prie `INSERT` raginimo `L` taip pat ją atveria.
 
-Bibliotekoje yra keturi šaltiniai, pateikiami skirtukais:
+Biblioteka turi keturis šaltinius, kaip skirtukus:
 
 - {{ui:Biblioteka}}: CadCraft biblioteka. Ieškokite pagal pavadinimą, gamintoją ar modelį ir filtruokite pagal kategoriją.
-- {{ui:Failai…}}: elementų failas (`item.json`) iš bet kurios bibliotekos arba brėžinys, skaičiuoklė ar 3D modelis, iš kurių kuriami elementai: DWG ar DXF (kiekvienas blokas tampa elementu), CSV su pavadinimo ir dydžio stulpeliais, arba glTF ar OBJ modelis. Niekas neįkeliama.
-- {{ui:Standartinis}}: plieno profiliai (kaip pjūviai, fasadai ar 3D elementai) ir standartinės detalės, pavyzdžiui, varžtai, veržlės ir guoliai, sukurti čia pagal paskelbtas lenteles. Žr. [Plieno profilių ir standartinių detalių įterpimas](topic:steel-and-standard-parts).
-- {{ui:Kiti srautai}}: kitos bibliotekos, kurios atsako taip pat kaip Biblioteka. Adresą įrašykite vieną kartą; ši naršyklė jį prisimena.
+- {{ui:Failai…}}: elementų failas (`item.json`) iš bet kurios bibliotekos arba brėžinys, skaičiuoklė ar 3D modelis, iš kurių kuriami elementai: DWG arba DXF (kiekvienas blokas tampa elementu), CSV su pavadinimo ir dydžio stulpeliais, arba glTF ar OBJ modelis. Nieko neįkeliama.
+- {{ui:Standartinis}}: plieno profiliai (kaip pjūviai, fasadai ar 3D elementai) ir standartinės detalės, tokios kaip varžtai, veržlės ir guoliai, pagaminti čia pagal paskelbtas lenteles. Žr. [Plieno profilių ir standartinių detalių įdėjimas](topic:steel-and-standard-parts).
+- {{ui:Kiti srautai}}: kitos bibliotekos, kurios atsako taip pat kaip Biblioteka. Adresą pridėkite vieną kartą; ši naršyklė jį prisimins.
 
-Kiekvienoje kortelėje rodomas peržiūros vaizdas, pavadinimas, gamintojas ir modelis, licencija bei versija. Atšauktas elementas pažymimas {{ui:Atšauktas}} su priežastimi; prieš įterpiant jį, CadCraft klausia.
+Kiekvienoje kortelėje rodoma peržiūra, pavadinimas, gamintojas ir modelis, licencija bei versija. Atšauktas elementas pažymėtas {{ui:Atšauktas}} su priežastimi; CadCraft prieš įdedant klausia.
 
-## Įterpti elementą
+## Įdėti elementą
 
-1. Kortelėje spustelėkite {{ui:Įterpti}}.
-2. Spustelėkite, kur turi būti elementas. Pirmiausia įveskite `R`, kad jį pasuktumėte, arba `S`, kad pakeistumėte mastelį.
-3. Prie `Įveskite elemento numerį (CC-ITEM)` paspauskite {{key:Enter}}, kad gautumėte kitą laisvą numerį, arba įveskite savo.
+1. Spustelėkite {{ui:Įterpti}} kortelėje.
+2. Spustelėkite, kur eina elementas. Įveskite `R`, kad jį pasuktumėte, arba `S`, kad keistumėte mastelį.
+3. Prie `Įveskite elemento numerį (CC-ITEM)` paspauskite {{key:Enter}} dėl kito laisvo numerio arba įveskite savo.
 
-Elementas tampa bloku, pavadintu `LIB_<pavadinimas>_v<versija>`, ir įterpiamas šio brėžinio vienetais. Jei brėžinys neturi vienetų, elementas įterpiamas milimetrais ir apie tai pranešama istorijoje; pirmiausia dešiniajame skydelyje nustatykite {{ui:Vienetai}}.
+Elementas tampa bloku pavadinimu `LIB_<name>_v<version>`, nubrėžtu šio brėžinio vienetais. Jei brėžinys neturi vienetų, elementas įdedamas milimetrais, o istorijoje tai nurodoma; pirmiausia nustatykite {{ui:Vienetai}} dešiniajame skydelyje.
 
-Jo duomenys keliauja kartu kaip nematomi atributai: elemento id ir versija, licencija ir autorystė, gamintojas, modelis, kategorija ir dydžiai. Žr. [Bloko atributai](topic:attributes).
+Jo duomenys keliauja kartu kaip nematomi atributai: elemento ID ir versija, licencija ir autorystė, gamintojas, modelis, kategorija ir matmenys. Žr. [Bloko atributai](topic:attributes).
 
 ## Elementai jūsų kalba
 
-Elementas gali turėti pavadinimą ir aprašymą kitomis kalbomis. Kai jie yra kalba, kuria nustatyta CadCraft (Parametrai › Bendra › Kalba), kortelėje ir įterptame bloke rodomas elemento pavadinimas naudoja juos. Pats blokas turi pavadinimą, sudarytą iš paties elemento pavadinimo, todėl brėžinyje kiekvienam elementui tenka vienas blokas, nepriklausomai nuo to, kokia kalba jis įterptas.
+Elementas gali turėti savo pavadinimą ir aprašymą kitomis kalbomis. Kai jie yra CadCraft nustatyta kalba (Parametrai › Bendra › Kalba), kortelė ir įdėto bloko elemento pavadinimas juos naudoja. Pats blokas išlaiko pavadinimą, sudarytą iš elemento savojo pavadinimo, todėl brėžinyje yra vienas blokas vienam elementui, nesvarbu, kuria kalba jį įdėjote.
 
 ## Tikrinti atnaujinimus
 
-1. Atidarykite biblioteką.
+1. Atverkite biblioteką.
 2. Spustelėkite {{ui:Tikrinti atnaujinimus}}.
 
-Kiekvienas brėžinio bibliotekos elementas išvardijamas su savo elementų numeriais ir nurodoma, ar jis atnaujintas, ar turi naujesnę versiją (ir kas pasikeitė), ar buvo atšauktas. Spustelėkite {{ui:Atnaujinti}} eilutėje arba {{ui:Atnaujinti visus}}. Kiekviena nuoroda perkeliama į naujos versijos bloką ir išlaiko savo elemento numerį, kiekį, vietą, kampą ir sluoksnį. {{key:Mod+Z}} atšaukia atnaujinimą.
+Kiekvienas bibliotekos elementas brėžinyje išvardijamas su savo elementų numeriais ir nurodoma, ar jis atnaujintas, ar turi naujesnę versiją (ir kas pasikeitė), ar buvo atšauktas. Spustelėkite {{ui:Atnaujinti}} eilutėje arba {{ui:Atnaujinti visus}}. Kiekviena nuoroda pereina į naujos versijos bloką ir išlaiko savo elemento numerį, kiekį, vietą, kampą ir sluoksnį. {{key:Mod+Z}} atšaukia atnaujinimą.
 
-## Nurodykite, ką naudojote
+## Nurodykite, ką panaudojote
 
-Spustelėkite {{ui:Bibliotekos autoriai}}. Kiekvienas elementas išvardijamas su savo autorystės eilute ir licencija.
+Spustelėkite {{ui:Bibliotekos autoriai}}. Kiekvienas elementas išvardytas su savo autorystės eilute ir licencija.
 
 - {{ui:Kopijuoti autorystės nurodymą}} nukopijuoja vieno elemento eilutę; {{ui:Kopijuoti viską}} nukopijuoja visas eilutes.
-- {{ui:Atsisiųsti CSV}} išsaugo sąrašą su elementų numeriais, gamintojais, modeliais, licencijomis ir autorystės nurodymais. Jį galima atidaryti bet kurioje skaičiuoklėje.
+- {{ui:Atsisiųsti CSV}} įrašo sąrašą su elementų numeriais, gamintojais, modeliais, licencijomis ir autorystėmis. Jis atsidaro bet kurioje skaičiuoklėje.
 
-Licencijos, tokios kaip CC BY, reikalauja nurodyti autorių, kur naudojate darbą. Įdėkite šias eilutes į brėžinį, specifikaciją ar projekto pastabas.
+Licencijos, pavyzdžiui CC BY, reikalauja nurodyti autorių, kur naudojate kūrinį. Įdėkite eilutes į brėžinį, specifikaciją arba projekto pastabas.
 
-## Simboliai ir ištekliai
+## Simboliai ir turtas
 
-Bibliotekoje yra trys elementų rūšys: Simboliai (brėžinių susitarimai, 2D), Tipai (iš ko sudarytas elementas) ir Ištekliai (fiziniai objektai). {{ui:Biblioteka}} skirtuke sąrašas {{ui:Elemento rūšis}} rodo Simbolius ir Išteklius kartu, tik Simbolius arba tik Išteklius. Tipai yra tai, iš ko sudaromas BimCraft projektas, todėl CadCraft jų nerodo.
+Bibliotekoje yra trys elementų rūšys: Simboliai (braižymo konvencijos, 2D), Tipai (iš ko elementas sudarytas) ir Turtas (fiziniai objektai). Skirtuke {{ui:Biblioteka}} sąrašas {{ui:Elemento rūšis}} rodo Simbolius ir turtą kartu, tik Simbolius arba tik turtą. Tipai yra tai, iš ko sudaromas BimCraft projektas, todėl CadCraft jų nerodo.
 
 ## Prisijungti prie bibliotekos
 
-Spustelėkite {{ui:Prisijungti prie bibliotekos}}. Atsidaro nedidelis langas svetainėje; prisijungus ten, CadCraft gali rodyti jūsų komandos elementus ir registruoti tai, ką įterpiate, kad sužinotumėte, kai pasikeičia naudojamas elementas. Prisijungimas galioja šiam naršyklės skirtukui. Panaikinti jį galite bet kada savo paskyros saugumo puslapyje.
+Spustelėkite {{ui:Prisijungti prie bibliotekos}}. Atsidaro nedidelis langas svetainėje; prisijungus ten, CadCraft gali rodyti jūsų komandos elementus ir registruoti tai, ką įdedate, kad sužinotumėte, kai pasikeičia naudotas elementas. Prisijungimas galioja šiam naršyklės skirtukui. Panaikinkite jį bet kada savo paskyros saugumo puslapyje.
+
+## Saugoti savo objektus skiltyje Mano objektai
+
+{{ui:Mano objektai}} yra privatus sąrašas Bibliotekoje, kurį mato tik jūs. Jo nėra viešoje bibliotekoje ir paieškoje, jis nerodomas jūsų komandai, ir jis seka jūsų paskyrą kiekviename kompiuteryje, kuriame prisijungiate prie bibliotekos.
+
+1. Bibliotekos skydelyje spustelėkite {{ui:Failai…}} ir perskaitykite failą.
+2. Ant elemento, kurį norite turėti vėl, spustelėkite {{ui:Saugoti mano objektuose}}.
+3. Vėliau spustelėkite {{ui:Mano objektai}} ir spustelėkite {{ui:Įterpti}}. Jis įdedamas kaip bet kuris bibliotekos elementas, ir {{ui:Tikrinti atnaujinimus}} jį apima.
+4. {{ui:Pašalinti iš mano objektų}} išima jį iš sąrašo. Jau įdėtos kopijos brėžiniuose lieka.
+
+Turite būti prisijungę prie bibliotekos. Failo skaitymas nieko neįkelia; elemento išsaugojimas siunčia tik tą elementą į jūsų paskyrą.
+
+:::note
+„Mano objektai“ yra bandomi ir gali dar nebūti atverti jūsų paskyrai. Jei rodoma „Mano objektai šiai paskyrai dar neatverti“, vis tiek galite įdėti elementus iš savo failų naudodami {{ui:Failai…}}.
+:::
 
 ## Dažnos klaidos
 
-- **„Elementų kūrimas iš IFC tipų yra BimCraft programoje.“** IFC ir šeimų failai skaitomi BimCraft programoje. Sukurkite elementą ten arba Bibliotekoje, tada čia naudokite jo `item.json`.
-- **„Nepavyko pasiekti bibliotekos.“** Esate neprisijungę arba biblioteka neveikia. Brėžinyje jau esantys elementai nepaveikiami.
-- **Elementas per didelis arba per mažas.** Brėžinio vienetai neteisingi arba nenustatyti. Atšaukite, nustatykite {{ui:Vienetai}} ir įterpkite elementą iš naujo.
+- **„Elementų kūrimas iš IFC tipų vyksta BimCraft.“** IFC ir šeimos failai skaitomi BimCraft programoje. Sukurkite elementą ten arba Bibliotekoje, tada naudokite jo `item.json` čia.
+- **„Bibliotekos nepavyko pasiekti.“** Esate neprisijungę arba biblioteka neveikia. Brėžinyje jau esantiems elementams tai neturi poveikio.
+- **Elementas per didelis arba per mažas.** Brėžinio vienetai neteisingi arba nenustatyti. Atšaukite, nustatykite {{ui:Vienetai}} ir įdėkite iš naujo.

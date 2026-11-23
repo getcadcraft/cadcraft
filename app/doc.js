@@ -20,6 +20,7 @@
  */
 
 import { cleanBp } from './blockparams.js';   // 0.10 SU.1804
+import { applyBparams } from './blockparams-file.js';   // 0.11 SU.1804: block parameters read back from DWG / DXF
 import { DIM_DEFAULTS } from './dims.js';
 import { afterEdit, resolveParametric } from './gcons.js';
 import { Model3D, split3d } from './model3d.js';
@@ -46,6 +47,7 @@ import { shownByClass } from './classes.js';   // 0.8 SU.912: an object in a hid
 // payload) and entities' `ccref` keys.
 
 import { newKey, validKey } from './file-keys.js';
+import { runNow, runSliced, ticker } from './slices.js';   // 0.11 PERF.9: load() in slices (loadAsync)
 
 export class Doc {
   /** (doc, ops) → void, run inside every change before it is recorded (add-ons, docs/ADDONS-SPEC.md §5.4); static, so a
@@ -88,8 +90,11 @@ export class Doc {
     this.orsHidden = null;          // ORS.5 (objhide.js): a Set of ids hidden for this session (HIDEOBJECTS / ISOLATEOBJECTS); never saved, no undo
     this.liveHook = null;           // Studio Live (0.5 LV.8, live.js): hears each step, routes undo/redo; moves with the drawing in swapContent
     this.addLayer({ name: '0', color: 7 });
-    this.model3d = new Model3D(this);   // the 3D model (model3d.js): its edits are ops { m3d } in this history
+    this._m3d = new Model3D(this);   // the 3D model (model3d.js): its edits are ops { m3d } in this history; read it as doc.model3d
   }
+
+  /** The 3D model. 0.11 PERF.9: a big file's 3D faces are welded on first use (model3d.js settle), not while the drawing opens. */
+  get model3d() { const m = this._m3d; if (m?.facesWaiting) m.settle(); return m; }
 
   /** Keys on objects (Settings › CadCraft › Merge-friendly files); a drawing can override the program's setting. */
   get stableKeys() { return this._sk ?? Doc.fileKeys; }
@@ -116,8 +121,8 @@ export class Doc {
       if (k === 'listeners' || k === 'onNote') continue;
       const a = this[k]; this[k] = other[k]; other[k] = a;
     }
-    if (this.model3d) this.model3d.doc = this;
-    if (other.model3d) other.model3d.doc = other;
+    if (this._m3d) this._m3d.doc = this;
+    if (other._m3d) other._m3d.doc = other;
     this.liveHook?.moved(this); other.liveHook?.moved(other);
     this.emit('load');
   }
@@ -406,6 +411,16 @@ export class Doc {
     yield* this.model.values();
     for (const l of this.layouts) yield* l.entities.values();
   }
+  /** 0.11 PERF.9: blockUses for every block in one pass (block name → count), kept while the drawing's version stays (the Blocks panel
+   *  asked blockUses once per row: one walk over every object per block shown). Read it between steps, not inside a doc.change. */
+  blockUseCounts() {
+    if (this._useCounts && this._useCounts.v === this.version) return this._useCounts.m;
+    const m = new Map(), add = (e) => { if (e.block !== undefined) m.set(e.block, (m.get(e.block) || 0) + 1); };
+    for (const e of this.everyEntity()) add(e);
+    for (const b of this.blocks.values()) for (const e of b.entities) add(e);
+    this._useCounts = { v: this.version, m };
+    return m;
+  }
   /** Inserts (and dimensions) that use a block, in any space or inside other blocks. */
   blockUses(name) {
     let n = 0;
@@ -415,7 +430,12 @@ export class Doc {
   }
 
   /** Replace everything (open / new). Not undoable; the caller asks about unsaved changes first. */
-  load({ entities = [], layers = [], blocks = [], layouts = [], meta = {}, dimStyle = null, parametric = null, report = null, views = [], linetypes = [], vports = null, textStyles = null, dimStyles = null, ucs = null, viewTwist = 0, plotStyles = null, geo = null, ole = null, pictures = null, solids = null, laser = null, addons = null } = {}) {
+  /** 0.11 PERF.9 / PERF.30 (perf-finish-11): load() runs loadSteps() at once; loadAsync() runs the same steps in slices of about `budget` ms
+   *  (slices.js), so a drawing of 100,000 objects never holds the page in one task. Until it resolves the drawing is half filled: callers
+   *  (open-ui.js) keep the page busy meanwhile. */
+  load(input = {}) { return runNow(this.loadSteps(input)); }
+  loadAsync(input = {}, { budget = 40 } = {}) { return runSliced(this.loadSteps(input), { budget }); }
+  *loadSteps({ entities = [], layers = [], blocks = [], layouts = [], meta = {}, dimStyle = null, parametric = null, report = null, views = [], linetypes = [], vports = null, textStyles = null, dimStyles = null, ucs = null, viewTwist = 0, plotStyles = null, geo = null, ole = null, pictures = null, solids = null, laser = null, addons = null } = {}) {
     if (this.liveHook) this.liveHook.replaced();   // another drawing replaces the live one here: the session ends for this window
     this.viewTwist = Number.isFinite(viewTwist) && Math.abs(viewTwist) <= 100 ? viewTwist : 0;
     // the file's UCS (DR.8, cad-files): { current: {x, y, ang} | null, named: [{ name, x, y, ang }] } — checked like any file data
@@ -441,18 +461,20 @@ export class Doc {
       ...(b.dyn && typeof b.dyn === 'object' ? { dyn: b.dyn } : b.bp && !b.xref && cleanBp(b.bp) ? { bp: cleanBp(b.bp) } : {}) });   // a dynamic block's hidden entities and states (dyn-blocks.js, cad-files 0.5)
     this.dynSrc = arguments[0]?.dynSrc && Array.isArray(arguments[0].dynSrc.objects) ? arguments[0].dynSrc : null;   // the file's dynamic-block objects (dwg-save.js)
     const seenKeys = new Set(), seenHandles = new Set();
-    const fill = (map, list, space = 'f') => {   // a file's keys are kept; an object without one (or sharing one) gets the key its place in the file gives, the same for everyone who opens it
+    const self = this, tick = ticker(256);
+    const fill = function* (map, list, space = 'f') {   // a file's keys are kept; an object without one (or sharing one) gets the key its place in the file gives, the same for everyone who opens it
       let i = 0;
       for (const e of list) {
-        const ent = { color: null, ...e, layer: e.layer || '0', id: this.nextId++ };
-        if (this.stableKeys && e.type !== undefined) { if (!validKey(ent.key) || seenKeys.has(ent.key)) ent.key = space + (i); seenKeys.add(ent.key); } else delete ent.key;
+        const ent = { color: null, ...e, layer: e.layer || '0', id: self.nextId++ };
+        if (self.stableKeys && e.type !== undefined) { if (!validKey(ent.key) || seenKeys.has(ent.key)) ent.key = space + (i); seenKeys.add(ent.key); } else delete ent.key;
         if (ent.handle !== undefined) { if (typeof ent.handle !== 'string' || seenHandles.has(ent.handle)) delete ent.handle; else seenHandles.add(ent.handle); }   // FX.240: a DXF's handle, never held by two objects
         i++;
-        this.layer(ent.layer);
+        self.layer(ent.layer);
         map.set(ent.id, ent);
+        if (tick()) yield;
       }
     };
-    fill(this.model, entities);
+    yield* fill(this.model, entities);
     // constraints from the file: its CCREF keys → this session's ids (gcons.resolveParametric checks everything)
     const refs = new Map();
     for (const e of this.model.values()) if (e.ccref !== undefined) { if (parametric) refs.set(String(e.ccref), { id: e.id, e }); delete e.ccref; }
@@ -466,7 +488,7 @@ export class Doc {
     const psIn = cleanPlotStyles(plotStyles);   // the drawing's plot style tables (plotstyle.js; untrusted)
     for (const l of layouts) {
       const map = new Map();
-      fill(map, l.entities || [], 'l' + this.layouts.length + 'f');
+      yield* fill(map, l.entities || [], 'l' + this.layouts.length + 'f');
       const ps = String(psIn.layouts[l.name] || l.plotStyle || '').trim().replace(/\.ctb$/i, '').slice(0, 64);   // plot style table (0.6 DC.14)
       this.layouts.push({ name: l.name, paper: { x0: 0, y0: 0, ...l.paper }, entities: map, ...(ps ? { plotStyle: ps } : {}) });
     }
@@ -485,8 +507,10 @@ export class Doc {
     const geoIn = cleanGeo(geo ?? meta.geo);   // the coordinate system and map layers kept with the drawing (0.6 GEO-DWG, geodwg.js; untrusted)
     if (geoIn) this.meta.geo = geoIn;
     applyClassData(this, arguments[0]?.classes ?? meta.classes, meta.designLayers); delete this.current.cls;   // 0.8 SU.912 (classes-file.js; untrusted)
+    this.bparamsRead = applyBparams(this, arguments[0]?.bparams ?? null);   // 0.11 SU.1804 (blockparams-file.js; untrusted)
     applyTablesData(this, arguments[0]?.tablesData ?? null); adoptFileTables(this); fieldsOnLoad(this);   // ORS.1 / ORS.22 (tables-file.js, tables-cad.js, fields-cad.js; untrusted)
-    this.model3d.fromFile(in3d, this.meta.units, report);
+    yield;
+    yield* this._m3d.fromFileSteps(in3d, this.meta.units, report);
     this.current.layer = '0';
     this.current.linetype = null; this.current.lineweight = null;
     this.linetypes = new Map((Array.isArray(linetypes) ? linetypes : []).filter((l) => l && typeof l.name === 'string' && l.name && Array.isArray(l.pattern) && l.pattern.length <= 64 && l.pattern.every(Number.isFinite))

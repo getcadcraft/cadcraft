@@ -20,6 +20,7 @@ import { faceTris, faceNormal } from './m3d/model.js';
 import { apply } from './m3d/vec.js';
 import { mPerUnit } from './model3d.js';
 import { t } from './i18n.js';
+import { dot3 as dot } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 const S2 = Math.SQRT1_2, S3 = 1 / Math.sqrt(3), S6 = 1 / Math.sqrt(6);
 /** View frames: u (to the right on paper), v (up on paper), w (toward the viewer); u × v = w. */
@@ -32,7 +33,6 @@ export const VIEWS = {
   left: { u: [0, -1, 0], v: [0, 0, 1], w: [-1, 0, 0] },
   iso: { u: [S2, S2, 0], v: [-S6, S6, 2 * S6], w: [S3, -S3, S3] },
 };
-const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const edgeKey = (a, b) => (a < b ? a + '|' + b : b + '|' + a);
 
 /** Every edge and triangle of the model in the view's frame (u, v, depth toward the viewer). */

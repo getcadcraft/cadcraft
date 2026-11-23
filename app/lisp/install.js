@@ -16,6 +16,7 @@
 import { sessionFor } from './session.js';
 import { delblocksCommand } from '../delblocks.js';
 import { applyAliases } from '../aliases.js';
+import { applyOptionKeys } from '../optionkeys.js';   // OPT.1
 import { t } from '../i18n.js';
 
 export function installLisp({ def, lookup, commands, aliases }) {
@@ -82,6 +83,11 @@ export function installLisp({ def, lookup, commands, aliases }) {
     const r = applyAliases(aliasCtx(), text || '');
     c.print(t('aliases.reinit', { n: r.applied }));
     for (const e of r.errors) c.print(t('aliases.errline', { line: e.line, msg: e.msg }));
+    {   // OPT.1: the option letters file too
+      const k = applyOptionKeys(c.host.optionKeysText ? c.host.optionKeysText() : '', { lookup });
+      c.print(t('optkeys.reinit', { n: k.applied }));
+      for (const e of k.errors) c.print(t('aliases.errline', { line: e.line, msg: e.msg }));
+    }
   }, { noRepeat: true, keepSelection: true, help: () => t('aliases.reinit.help') });
 
   def('DELBLOCKS', [], async (c) => delblocksCommand(c), { help: () => t('delblocks.help') });

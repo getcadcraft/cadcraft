@@ -15,7 +15,7 @@
 import { t } from './i18n.js';
 import { namedBlocks } from './commands.js';
 import { ThumbCache, entitiesThumb } from './blockthumb.js';
-import { libraryOf, filterNames, recentFirst, pushRecent, placedBlocks, clashPolicy, drawingFiles, cleanStore, baseName, joinPath, BLOCKLIB_STORE } from './blocklib.js';
+import { libraryOf, filterNames, filterAction, recentFirst, pushRecent, placedBlocks, clashPolicy, drawingFiles, cleanStore, baseName, joinPath, BLOCKLIB_STORE } from './blocklib.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const DRAG_TYPE = 'application/x-cadcraft-blocksx';
@@ -37,6 +37,9 @@ const CSS = `
 .cc-blocks.cc-blocksx-grid .cc-blocksx-thumb { width: 100%; height: auto; aspect-ratio: 1; }
 .cc-blocks.cc-blocksx-grid .cc-linkbtn, .cc-blocks.cc-blocksx-grid .cc-muted { display: none; }
 .cc-blocks.cc-blocksx-grid li.cc-blocksx-msg { grid-column: 1 / -1; }
+.cc-blocks li[data-blocksx-nomatch] { display: block; }   /* 0.10.1 (#1974): words on their own line, the two buttons under them */
+.cc-blocks li[data-blocksx-nomatch] > span { display: block; margin-bottom: .25rem; }
+.cc-blocks li[data-blocksx-nomatch] .cc-linkbtn { margin-right: .75rem; }
 .cc-blocksx-recent { font-size: .75rem; color: var(--ink-2); margin-left: .35rem; vertical-align: middle; }
 .cc-blocks.cc-blocksx-grid .cc-blocksx-recent { display: none; }
 .cc-blocksx-libs { margin-top: .75rem; border-top: var(--pen-1) solid var(--grid); padding-top: .5rem; }
@@ -87,7 +90,29 @@ export function installBlocksPanel({ root, doc, engine, host, view, print, el, i
   const viewBox = el('span', { className: 'cc-blocksx-view', role: 'group', 'aria-label': t('blockspanel.view') }, viewBtn('list', 'bi-list-ul', t('blockspanel.view.list')), viewBtn('grid', 'bi-grid', t('blockspanel.view.grid')));
   listEl.before(el('div', { className: 'cc-blocksx-tools' }, filter, viewBox));
   filter.addEventListener('input', () => { lastSig = ''; render(); renderLibs(); });
-  filter.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Escape') { filter.value = ''; lastSig = ''; render(); renderLibs(); focusCommandLine(); } });
+  filter.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Escape') { filter.value = ''; lastSig = ''; render(); renderLibs(); focusCommandLine(); }
+    if (e.key === 'Enter') { e.preventDefault(); enterFilter(); }
+  });
+  /**
+   * 0.10.1 (#1974): Enter in the filter box. Keys typed here never reached the command line, so F or L typed while INSERT asked
+   * "Enter block name or [File/Library]" only filtered the list ("No block matches the filter."). Enter now hands the word to
+   * INSERT: its File or Library option, the block of that name, or the one block the filter leaves (blocklib.js filterAction).
+   */
+  async function enterFilter() {
+    const act = filterAction(namedBlocks(doc), filter.value);
+    if (!act) return;
+    filter.value = ''; lastSig = ''; render(); renderLibs();
+    await insertBlock(act.kind === 'file' ? 'F' : act.kind === 'library' ? 'L' : act.name);   // INSERT with the word given; focus goes to the command line
+  }
+  /** The row under the list when the filter leaves nothing: what Enter would do, and the two ways to bring a block in. */
+  function noMatchRow() {
+    const act = filterAction(namedBlocks(doc), filter.value);
+    const say = act?.kind === 'file' ? t('blockspanel.nomatch.file') : act?.kind === 'library' ? t('blockspanel.nomatch.library') : t('blockspanel.nomatch');
+    const btn = (label, word, mark) => el('button', { type: 'button', className: 'cc-linkbtn', [mark]: '', onclick: () => { filter.value = ''; lastSig = ''; render(); renderLibs(); insertBlock(word); } }, label);
+    return el('li', { className: 'cc-muted cc-blocksx-msg', 'data-blocksx-nomatch': '' }, el('span', {}, say), ' ', btn(t('blockspanel.fromfile'), 'F', 'data-blocksx-fromfile'), ' ', btn(t('blockspanel.fromlibrary'), 'L', 'data-blocksx-fromlibrary'));
+  }
 
   // ---- placing ----
   let dragging = null;   // () => Promise: starts INSERT for the tile being dragged
@@ -157,15 +182,16 @@ export function installBlocksPanel({ root, doc, engine, host, view, print, el, i
     if (emptyEl) emptyEl.hidden = all.length > 0;
     const hits = recentFirst(filterNames(all, filter.value), state.recent);
     const recentSet = new Set(state.recent.filter((n) => doc.blocks.has(n)).slice(0, 6));
-    const shown = hits.slice(0, SHOWN).map((name) => ({ name, th: cache.get(doc.blocks, name, SIZE), uses: doc.blockUses(name), recent: recentSet.has(name) }));
+    const useCounts = doc.blockUseCounts ? doc.blockUseCounts() : null;   // 0.11 PERF.9: one pass for every row
+    const shown = hits.slice(0, SHOWN).map((name) => ({ name, th: cache.get(doc.blocks, name, SIZE), uses: useCounts ? useCounts.get(name) || 0 : doc.blockUses(name), recent: recentSet.has(name) }));
     // nothing a row shows changed: keep the rows (a redraw on every edit would rebuild hundreds of pictures)
-    const sig = state.view + '\u0001' + all.length + '\u0001' + hits.length + '\u0001' + shown.map((r) => r.name + '\u0002' + r.uses + '\u0002' + (r.recent ? 1 : 0)).join('\u0001');
+    const sig = state.view + '\u0001' + (hits.length ? '' : filter.value.trim().toLowerCase()) + '\u0001' + all.length + '\u0001' + hits.length + '\u0001' + shown.map((r) => r.name + '\u0002' + r.uses + '\u0002' + (r.recent ? 1 : 0)).join('\u0001');
     if (sig === lastSig && shown.every((r, i) => r.th === lastThumbs[i])) return;
     lastSig = sig; lastThumbs = shown.map((r) => r.th);
     listEl.classList.toggle('cc-blocksx-grid', state.view === 'grid');
     listEl.classList.toggle('cc-blocksx-list', state.view !== 'grid');
     const rows = shown.map((r) => tile({ ...r, place: (at) => placeOwn(r.name, at) }));
-    if (all.length && !hits.length) rows.push(el('li', { className: 'cc-muted cc-blocksx-msg' }, t('blockspanel.nomatch')));
+    if (filter.value.trim() && !hits.length) rows.push(noMatchRow());   // 0.10.1 (#1974): also in a drawing with no blocks yet, and it offers From a file / Library
     if (hits.length > SHOWN) rows.push(el('li', { className: 'cc-muted cc-blocksx-msg' }, t('app.blocks.more', { count: Number(hits.length - SHOWN).toLocaleString('en-US') })));
     listEl.replaceChildren(...rows);
   }
